@@ -1,0 +1,97 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{page.title}} - {{site.title}}</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="{{ site.title }}" property="og:site_name"/>
+    
+    {%- if page.title -%}
+    <meta content="{{ page.title }}" property="og:title"/>
+    <meta content="article" property="og:type"/>
+    <meta content="{{ site.url }}{{ page.url }}" property="og:url"/>
+    {%- endif -%}
+
+    <meta content="{{page.content | strip_html | strip | escape | truncatewords: 50}}" property="og:description"/> 
+
+    <link rel="canonical" href="{{site.url}}{{page.url}}"/>
+    <link rel="icon" href="{{site.favicon}}" type="image/png" sizes="16x16"/>
+    <link href="/assets/css/style.css" rel="stylesheet" media="all" class="default"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"/>
+    <link href="/assets/css/book.css" rel="stylesheet" media="all"/>
+    
+    {% seo %}
+</head>
+
+<body>
+    <div class="container">                    
+        <div class="box">
+            {%- include header.html -%}
+            
+            <main class="chapter-content">
+                <nav class="chapter-nav">
+                    {% if page.previous %}
+                    <a href="{{ page.previous.url }}" class="prev-chapter">&larr; {{ page.previous.title | truncatewords: 5 }}</a>
+                    {% endif %}
+                    <a href="/" class="toc-link">Table of Contents</a>
+                    {% if page.next %}
+                    <a href="{{ page.next.url }}" class="next-chapter">{{ page.next.title | truncatewords: 5 }} &rarr;</a>
+                    {% endif %}
+                </nav>
+
+                <article>
+                    <h1>{{page.title}}</h1>
+                    
+                    {% if page.chapter_number %}
+                    <p class="chapter-number">Chapter {{ page.chapter_number }}</p>
+                    {% endif %}
+
+                    <div class="content chapter-body">
+                        {{ content }}
+                    </div>
+                </article>
+
+                <!-- Related Facts Sidebar -->
+                {% if page.related_facts %}
+                <aside class="related-facts-sidebar">
+                    <h4>Related Facts</h4>
+                    <ul>
+                    {% for fact_name in page.related_facts %}
+                        {% assign fact = site.facts | where: "name", fact_name | first %}
+                        {% if fact %}
+                        <li>
+                            <a href="{{ fact.url }}">{{ fact.title }}</a>
+                            <span class="confidence-badge {{ fact.confidence | downcase | replace: ' ', '-' }}">{{ fact.confidence }}</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </aside>
+                {% endif %}
+
+                <nav class="chapter-nav bottom">
+                    {% if page.previous %}
+                    <a href="{{ page.previous.url }}" class="prev-chapter">&larr; Previous</a>
+                    {% endif %}
+                    <a href="/" class="toc-link">Table of Contents</a>
+                    {% if page.next %}
+                    <a href="{{ page.next.url }}" class="next-chapter">Next &rarr;</a>
+                    {% endif %}
+                </nav>
+            </main>
+
+            <hr/>
+            {%- include footer.html -%}
+        </div>
+        <button class="scroll-to-top" id="scroll-to-top"><i class="fa fa-chevron-up"></i></button>
+    </div>
+    
+    <script>
+        document.getElementById("scroll-to-top").addEventListener("click", function() {
+            window.scrollTo({top: 0, left: 0, behavior: 'smooth'});
+        });
+    </script>
+    {%- include contextmenu.html -%}
+</body>
+</html>

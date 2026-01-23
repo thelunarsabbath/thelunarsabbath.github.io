@@ -1,0 +1,575 @@
+# Fact Dependency Tree - Generated from Book Chapters
+# Structure: Each fact has arguments that connect it to other facts
+# Axioms have no arguments (bottom of tree)
+# Status: accepted | rejected
+
+facts:
+  # ============================================
+  # AXIOMS - Foundational assumptions (no arguments)
+  # From Chapter 03: Principles of Evaluation
+  # ============================================
+  
+  - name: ScripturalAuthority
+    statement: "Scripture is true, sufficient, and cannot be broken"
+    status: accepted
+    book_ref: "Chapter 03: Principles of Evaluation"
+    arguments: []
+  
+  - name: HermeneuticalPrinciples
+    statement: "Plain/literal reading of Scripture is preferred; narrative demonstration counts as evidence"
+    status: accepted
+    book_ref: "Chapter 03: Principles of Evaluation"
+    arguments: []
+  
+  - name: CalendarAccessibility
+    statement: "God's commands are not too difficult (Deut 30:11) - calendar must be observable by all people without modern technology"
+    status: accepted
+    book_ref: "Chapter 03: Principles of Evaluation"
+    arguments: []
+  
+  - name: CelestialAuthority
+    statement: "Sun, moon, and stars are for signs, appointed times, days, and years (Gen 1:14)"
+    status: accepted
+    book_ref: "Chapter 03: Principles of Evaluation"
+    arguments: []
+  
+  - name: ObjectiveHolyTimes
+    statement: "Appointed times are fixed and holy by divine decree; human failure to discern them doesn't change their sanctity"
+    status: accepted
+    book_ref: "Chapter 03: Principles of Evaluation"
+    arguments: []
+
+  # ============================================
+  # SCRIPTURE AXIOMS - Jesus Birth/Herod Timeline
+  # From Luke and Matthew - taken as authoritative
+  # ============================================
+  
+  - name: Tiberius15thYearScripture
+    statement: "John the Baptist began his ministry in the 15th year of Tiberius Caesar (Luke 3:1)"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments: []
+    # Scripture axiom - Luke 3:1
+  
+  - name: JesusAge30AtMinistry
+    statement: "Jesus was about 30 years old when he began his ministry (Luke 3:23)"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments: []
+    # Scripture axiom - Luke 3:23
+  
+  - name: JesusBornDuringHerodsReign
+    statement: "Jesus was born during the reign of Herod the Great (Matthew 2:1)"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments: []
+    # Scripture axiom - Matthew 2:1
+  
+  - name: JesusBorn6MonthsAfterJohn
+    statement: "Jesus was born approximately 6 months after John the Baptist (Luke 1:26-36)"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments: []
+    # Scripture axiom - Luke 1:26-36
+
+  # ============================================
+  # LEVEL 1: INDEPENDENT HISTORICAL FACTS
+  # Verified from external sources
+  # ============================================
+  
+  - name: AstronomicalStability
+    statement: "Modern astronomical software can accurately retrocalculate celestial events back 5,000+ years"
+    status: accepted
+    book_ref: "Extra Chapter 04: Stability of Astronomy"
+    arguments: []
+    # This is essentially an axiom - verified by external science
+  
+  - name: Tiberius15thYear
+    statement: "Tiberius' 15th year = Fall 28 AD to Fall 29 AD"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments: []
+    # External historical consensus from Tacitus, Suetonius, Dio Cassius
+  
+  - name: PompeysCapture
+    statement: "Pompey captured Jerusalem in 63 BC on the Day of Atonement"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments: []
+    # All ancient authors agree unanimously
+  
+  - name: SolomonsTempleConstruction
+    statement: "Solomon's Temple construction began in 966 BC"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments: []
+    # Established from 1 Kings 6:1 + secular synchronisms
+
+  # ============================================
+  # LEVEL 2: DERIVED HISTORICAL FACTS
+  # Calculated from Level 1 facts
+  # ============================================
+  
+  - name: ExodusDate
+    statement: "The Exodus occurred in 1446 BC"
+    status: accepted
+    book_ref: "Chapter 10: When is the Sabbath"
+    arguments:
+      - type: supports
+        facts: [SolomonsTempleConstruction, ScripturalAuthority]
+        reasoning: "1 Kings 6:1 states temple began 480 years after Exodus. 966 BC + 480 = 1446 BC"
+        strength: strong
+  
+  - name: JordanCrossing
+    statement: "Israel crossed the Jordan into the Promised Land in 1406 BC"
+    status: accepted
+    book_ref: "Chapter 10: When is the Sabbath"
+    arguments:
+      - type: supports
+        facts: [ExodusDate, ScripturalAuthority]
+        reasoning: "40 years of wilderness wandering. 1446 BC - 40 = 1406 BC"
+        strength: strong
+  
+  # ----- HEROD CHRONOLOGY -----
+  # From Chapter 13: Herod the Great
+  
+  # Scripture-derived boundary
+  - name: HerodDiedAfter2BC
+    statement: "Herod the Great died after ~2 BC (Scripture-derived boundary)"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments:
+      - type: supports
+        facts: [Tiberius15thYearScripture, JesusAge30AtMinistry, JesusBorn6MonthsAfterJohn, JesusBornDuringHerodsReign]
+        reasoning: |
+          From Scripture: Tiberius 15th year (28-29 AD) - Jesus ~30 years old - 6 months = Jesus born ~2 BC.
+          Jesus was born during Herod's reign (Matthew 2), therefore Herod died AFTER ~2 BC.
+          This sets a boundary: 1 BC is compatible, 4 BC contradicts Scripture.
+        strength: strong
+  
+  # ----- 7 INDEPENDENT JOSEPHUS PROOFS FOR 1 BC -----
+  # These are independent of Scripture - used to reject 4 BC
+  
+  - name: HerodsDeath1BC
+    statement: "Herod the Great died in 1 BC"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      # 7 independent lines of evidence converge:
+      - type: supports
+        facts: [Jan1BCEclipseCompatible]
+        reasoning: "Proof 1: 1 BC eclipse is compatible with Josephus's narrative (114 days to Passover)"
+        strength: strong
+      - type: supports
+        facts: [March4BCEclipseCompatible]
+        reasoning: "Proof 1b: 4 BC eclipse is incompatible with narrative (only 29 days) - REJECTED"
+        strength: strong
+      - type: supports
+        facts: [HerodsCaptureOfJerusalem]
+        reasoning: "Proof 2: 34 de facto years from 36 BC capture → 1 BC death"
+        strength: strong
+      - type: supports
+        facts: [SabbaticalYearConfirmation]
+        reasoning: "Proof 3: Capture occurred in sabbatical year, confirmed by 1406 BC Jordan cycle"
+        strength: strong
+      - type: supports
+        facts: [HerodsAgeAtDeath]
+        reasoning: "Proof 4: Age ~70 at death (born ~70/69 BC from 15yo in 55/54 BC) → death 1 BC"
+        strength: strong
+      - type: supports
+        facts: [HighPriests107Years]
+        reasoning: "Proof 5: 107 high priests from Herod's 'days' to 70 AD → 38 BC regnal start"
+        strength: moderate
+      - type: supports
+        facts: [PhilipsDeath22ndYear]
+        reasoning: "Proof 6: Early Latin MSS - Philip died Tiberius 22nd year (AD 35/36) after 37 years → Herod died 1 BC"
+        strength: strong
+  
+  # ----- ECLIPSE FACTS: Clean Boolean Structure -----
+  # Each eclipse is evaluated for compatibility with Josephus's narrative
+  
+  - name: JosephusNarrativeTimeline
+    statement: "Josephus describes 35-85 days of events between eclipse and Passover"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments: []
+    # Axiom - derived from reading Josephus's description of Herod's illness, death, mourning
+  
+  - name: Jan1BCEclipseCompatible
+    statement: "The January 1 BC eclipse is compatible with Josephus's narrative"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: [JosephusNarrativeTimeline, AstronomicalStability]
+        reasoning: "114 days available from eclipse to Passover. Narrative requires 35-85 days minimum. Compatible with ample margin."
+        strength: strong
+  
+  - name: March4BCEclipseCompatible
+    statement: "The March 4 BC eclipse is compatible with Josephus's narrative"
+    status: rejected
+    book_ref: "Chapter 13: Herod the Great"
+    rejection_reason: "Only 29 days from eclipse to Passover - incompatible with Josephus's 35-85 day narrative"
+    alternative: Jan1BCEclipseCompatible
+    arguments:
+      - type: contradicts
+        facts: [JosephusNarrativeTimeline]
+        reasoning: "Only 29 days available to Passover. Narrative requires 35-85 days. Incompatible - requires extreme special pleading."
+        strength: strong
+  
+  - name: January1BCEclipseDetails
+    statement: "January 10, 1 BC: Total lunar eclipse, blood-red moon for 1h39m, magnitude 1.338"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: [AstronomicalStability]
+        reasoning: "NASA Five Millennium Catalog confirms. Dramatic total eclipse visible all night."
+        strength: strong
+  
+  - name: March4BCEclipseDetails
+    statement: "March 13, 4 BC: Partial lunar eclipse at 3 AM, 36% magnitude, faint"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: [AstronomicalStability]
+        reasoning: "NASA catalog confirms. Faint partial at 3 AM when few would notice."
+        strength: strong
+  
+  - name: HerodsCaptureOfJerusalem
+    statement: "Herod captured Jerusalem in 36 BC on the Day of Atonement"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: [PompeysCapture]
+        reasoning: "Josephus: 'Herod took Jerusalem on the very same day...after twenty-seven years' time' from Pompey's 63 BC capture. Most emphatic marker - 'to the day'"
+        strength: strong
+  
+  - name: SabbaticalYearConfirmation
+    statement: "Herod's capture of Jerusalem occurred in a sabbatical year (35 BC spring)"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: [JordanCrossing, HerodsCaptureOfJerusalem]
+        reasoning: "Josephus: 'This calamity befell Jerusalem in a sabbatical year'. From 1406 BC Jordan crossing, spring 35 BC is 7th year of cycle"
+        strength: strong
+  
+  - name: HerodsAgeAtDeath
+    statement: "Herod was about 70 years old when he died"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: [HerodsAgeAtAppointment]
+        reasoning: "Josephus: Herod was 15 when appointed governor of Galilee in 55/54 BC → born ~70/69 BC. Death at 70 → 1 BC. 4 BC would make him only 67"
+        strength: strong
+  
+  - name: HerodsAgeAtAppointment
+    statement: "Herod was 15 years old when appointed governor of Galilee in 55/54 BC"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: [PompeysCapture]
+        reasoning: "Josephus Antiquities 14.8.5, 14.9.2: Appointed in 9th year of Hyrcanus II (Hyrcanus became ethnarch after Pompey's 63 BC conquest)"
+        strength: strong
+  
+  - name: HighPriests107Years
+    statement: "107 years of high priests from Herod's 'days' to 70 AD temple destruction"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: []
+        reasoning: "Josephus Antiquities 20.10.2: 28 high priests, 107 years. 70 AD - 107 = 38/37 BC → supports 38 BC regnal year start"
+        strength: moderate
+  
+  - name: PhilipsDeath22ndYear
+    statement: "Philip died in 22nd year of Tiberius (AD 35/36) after 37 years reign"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: [Tiberius15thYear]
+        reasoning: "Early Latin MSS (4th-8th century) unanimously read '22nd year' vs later Greek '20th year'. 37 years back from AD 35/36 = Herod died 1 BC"
+        strength: strong
+  
+  - name: PhilipsDeath20thYear
+    statement: "Philip died in 20th year of Tiberius (AD 33/34) - Greek manuscript reading"
+    status: rejected
+    book_ref: "Chapter 13: Herod the Great"
+    rejection_reason: "Later Greek MSS vs earlier Latin. Would require unprecedented zero-year ante-dating. Contradicts all other Herod evidence"
+    alternative: PhilipsDeath22ndYear
+    arguments:
+      - type: contradicts
+        facts: [Jan1BCEclipseCompatible, HerodsAgeAtDeath, HerodsCaptureOfJerusalem, HerodDiedAfter2BC]
+        reasoning: "Would place Herod's death in 4 BC, contradicting Scripture-derived boundary, eclipse compatibility, age calculation, and 27-year capture"
+        strength: strong
+  
+  - name: HerodsAppointmentDate
+    statement: "Herod was appointed king by Rome after Nisan 1 in 39 BC"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: [HerodsCaptureOfJerusalem]
+        reasoning: "Journey from Alexandria via Rhodes with shipwreck, winter delays → arrival Rome spring 39 BC. 3 years to capture = 36 BC"
+        strength: strong
+  
+  - name: HerodsRegnalYearsStart
+    statement: "Herod's first regnal year began spring 38 BC; first de facto year spring 35 BC"
+    status: accepted
+    book_ref: "Chapter 13: Herod the Great"
+    arguments:
+      - type: supports
+        facts: [HerodsAppointmentDate, HerodsCaptureOfJerusalem]
+        reasoning: "39 BC appointment → 38 BC first regnal year (spring-to-spring). 36 BC capture → 35 BC first de facto year. 34 de facto years → 1 BC death"
+        strength: strong
+  
+  - name: Crucifixion32AD
+    statement: "The crucifixion occurred in 32 AD"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments:
+      - type: supports
+        facts: [Tiberius15thYear]
+        reasoning: "John's ministry started Fall 28-29 AD (Tiberius 15th year). 3 Passovers in John = 30, 31, 32 AD"
+        strength: strong
+      - type: supports
+        facts: [HerodsDeath1BC, TempleConstructionTimeline]
+        reasoning: "Temple 46 years in building at first Passover → first Passover in 30 AD → crucifixion at third Passover = 32 AD"
+        strength: strong
+      - type: supports
+        facts: [490YearsFromEzra]
+        reasoning: "490 years from Ezra's decree (458 BC) = 32 AD. Daniel's prophecy alignment"
+        strength: strong
+      - type: supports
+        facts: [YearOfRelease29AD]
+        reasoning: "29 AD was sabbatical Year of Release. Jesus declared 'year of Lord's favor' → crucifixion 3 years later = 32 AD"
+        strength: strong
+  
+  - name: TempleConstructionTimeline
+    statement: "Temple was 46 years in building at first Passover of Jesus' ministry (30 AD)"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments:
+      - type: supports
+        facts: [HerodsRegnalYearsStart]
+        reasoning: "John 2:20 - 'This temple has been under construction for 46 years'. Herod began temple ~17 BC. 46 years = 29/30 AD"
+        strength: strong
+  
+  - name: 490YearsFromEzra
+    statement: "490 years from Ezra's decree to crucifixion aligns with Daniel's 70 weeks prophecy"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments:
+      - type: supports
+        facts: [ArtaxerxesAccession]
+        reasoning: "Ezra 7:7-9 - decree in year 7 of Artaxerxes (458 BC). 458 BC + 490 = 32 AD"
+        strength: strong
+  
+  - name: ArtaxerxesAccession
+    statement: "Artaxerxes I acceded in 465 BC"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments: []
+    # External historical fact - Persian chronology
+  
+  - name: YearOfRelease29AD
+    statement: "29 AD was a sabbatical Year of Release"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments:
+      - type: supports
+        facts: [JordanCrossing]
+        reasoning: "Sabbatical cycle from 1406 BC Jordan crossing. Confirmed by Josephus documenting sabbatical in 35 BC. Cycle lands on 29 AD"
+        strength: strong
+  
+  - name: ThreePassoversInJohn
+    statement: "John's Gospel records three Passovers during Jesus' ministry: 30, 31, and 32 AD"
+    status: accepted
+    book_ref: "Chapter 12: 32 AD Resurrection"
+    arguments:
+      - type: supports
+        facts: [Tiberius15thYear, TempleConstructionTimeline]
+        reasoning: "John 2:13 (30 AD - 46 years temple), John 6:4 (31 AD), John 11:55 (32 AD - crucifixion)"
+        strength: strong
+  
+  # ----- REJECTED 4 BC CHRONOLOGY -----
+  
+  - name: HerodsDeath4BC
+    statement: "Herod died in spring 4 BC"
+    status: rejected
+    book_ref: "Chapter 13: Herod the Great"
+    rejection_reason: "Contradicts Scripture-derived boundary AND fails 6 of 7 Josephus proofs"
+    alternative: HerodsDeath1BC
+    arguments:
+      - type: contradicts
+        facts: [HerodDiedAfter2BC]
+        reasoning: "Scripture places Jesus birth ~2 BC during Herod's reign. 4 BC death contradicts this boundary."
+        strength: strong
+      - type: contradicts
+        facts: [Jan1BCEclipseCompatible, March4BCEclipseCompatible, HerodsAgeAtDeath, HerodsCaptureOfJerusalem, PhilipsDeath22ndYear]
+        reasoning: |
+          4 BC requires special pleading on 6 independent Josephus proofs:
+          1. Eclipse timeline: 29 days vs required 35-85 days - INCOMPATIBLE
+          2. Herod's age: Would be 67, not 70 - requires claiming Josephus error
+          3. 27 years from Pompey: Must reinterpret "to the day" as non-literal
+          4. Philip's reign: Must use later Greek MSS over earlier Latin
+          5. Philip's ante-dating: Requires unprecedented zero-year ante-dating
+          6. Sabbatical cycle: Would break alignment from Jordan crossing
+        strength: strong
+
+  # ============================================
+  # LEVEL 3: SCRIPTURAL INTERPRETATIONS
+  # Pure scripture-based conclusions
+  # ============================================
+  
+  - name: MonthStartsWithFullMoon
+    statement: "The biblical month starts with the full moon, not the dark or sliver moon"
+    status: accepted
+    book_ref: "Chapter 07: When Does the Month Start"
+    arguments:
+      - type: supports
+        facts: [ScripturalAuthority, CelestialAuthority, CalendarAccessibility]
+        reasoning: "Genesis 1:16 requires moon to 'govern at night with stars' - only full moon visible all night. Psalm 81:3 equates chodesh with keseh (fullness). Hebrew root means 'renewal to perfection'"
+        strength: strong
+  
+  - name: Consecutive15thsAsSabbaths
+    statement: "The 15th of both the 1st and 2nd month were Sabbaths during the Exodus"
+    status: accepted
+    book_ref: "Chapter 10: When is the Sabbath"
+    arguments:
+      - type: supports
+        facts: [ScripturalAuthority, HermeneuticalPrinciples]
+        reasoning: "Exodus 16:1 - arrived 15th of 2nd month. Exodus 16:22-30 - manna pattern shows 22nd is Sabbath, therefore 15th also. This is mathematically impossible with continuous 7-day cycle"
+        strength: strong
+  
+  - name: FirstFruitsAlwaysOn16th
+    statement: "First Fruits is always on the 16th of the first month"
+    status: accepted
+    book_ref: "Chapter 10: When is the Sabbath"
+    arguments:
+      - type: supports
+        facts: [ScripturalAuthority]
+        reasoning: "LXX, Josephus (Ant. 3.10.5), Philo, and Joshua 5:10-12 all confirm 16th. Not interpretation - explicit ancient sources"
+        strength: strong
+  
+  - name: FirstFruitsIsFirstDayOfWeek
+    statement: "First Fruits (16th) is the first day of the week - 'morrow after the Sabbath'"
+    status: accepted
+    book_ref: "Chapter 10: When is the Sabbath"
+    arguments:
+      - type: supports
+        facts: [ScripturalAuthority, FirstFruitsAlwaysOn16th]
+        reasoning: "Leviticus 23:11 - wave sheaf 'on the morrow after the Sabbath'. If 16th = first day, then 15th = Sabbath"
+        strength: strong
+  
+  - name: FirstFruitsParadox
+    statement: "Counting 7 weeks from 16th cannot land on 'day after 7th Sabbath' with continuous cycle"
+    status: accepted
+    book_ref: "Chapter 10: When is the Sabbath"
+    arguments:
+      - type: supports
+        facts: [FirstFruitsAlwaysOn16th, ScripturalAuthority]
+        reasoning: "Leviticus 23:15-16 requires counting from First Fruits to 'day after 7th Sabbath'. With 16th fixed, this fails in 6 of 7 years under continuous cycle. Independent evidence - does not assume lunar Sabbath"
+        strength: strong
+
+  # ============================================
+  # LEVEL 4: CALENDAR TESTS (Validation)
+  # These test calendar theories against scriptural facts
+  # ============================================
+  
+  - name: ExodusCalendarTest
+    statement: "Testing calendars against the scriptural fact that 15th of 2nd month was a Sabbath in 1446 BC"
+    status: accepted
+    book_ref: "Chapter 10: When is the Sabbath"
+    arguments:
+      - type: supports
+        facts: [Consecutive15thsAsSabbaths, ExodusDate, AstronomicalStability]
+        reasoning: |
+          Given Scripture says 15th was Sabbath, test different calendars:
+          - Visible crescent: 15th = Friday → FAILS
+          - Dark conjunction: 15th = Saturday → PASSES  
+          - Full moon + Lunar Sabbath: 15th = Sabbath by definition → PASSES
+          This eliminates visible crescent calendar
+        strength: strong
+  
+  - name: JordanCrossingTest
+    statement: "Testing calendars against Joshua 5 sequence where 16th (First Fruits) was first day of week"
+    status: accepted
+    book_ref: "Chapter 10: When is the Sabbath"
+    arguments:
+      - type: supports
+        facts: [JordanCrossing, FirstFruitsAlwaysOn16th, AstronomicalStability]
+        reasoning: |
+          Given Joshua 5:10-12 shows 16th = First Fruits = manna ceased:
+          - Dark conjunction: 15th = Sunday → FAILS
+          - Visible crescent: 15th = Monday → FAILS
+          - Full moon: 15th = Sunday → FAILS
+          No continuous-cycle calendar has Saturday on 15th. Only lunar Sabbath works.
+        strength: strong
+  
+  - name: Crucifixion32ADTest
+    statement: "Testing calendars against the fact that crucifixion was on 'preparation day' in 32 AD"
+    status: accepted
+    book_ref: "Chapter 10: When is the Sabbath"
+    arguments:
+      - type: supports
+        facts: [Crucifixion32AD, AstronomicalStability]
+        reasoning: |
+          All four Gospels agree crucifixion was on preparation day (day before Sabbath).
+          Under traditional calendars, 32 AD Passover falls on Monday/Tuesday - NOT preparation day.
+          Under lunar Sabbath, Passover (14th) is ALWAYS 6th day (preparation).
+          This is why scholars avoid 32 AD despite overwhelming evidence.
+        strength: strong
+
+  # ============================================
+  # LEVEL 5: CALENDAR CONCLUSIONS
+  # ============================================
+  
+  - name: SliverMoonRejected
+    statement: "The visible sliver moon calendar is rejected"
+    status: rejected
+    book_ref: "Chapter 10: When is the Sabbath"
+    rejection_reason: "15th of 2nd month in 1446 BC = Friday under sliver moon, contradicting Exodus 16"
+    alternative: MonthStartsWithFullMoon
+    arguments:
+      - type: contradicts
+        facts: [Consecutive15thsAsSabbaths, ExodusDate, AstronomicalStability]
+        reasoning: "The visible crescent was easily seen (1.5 days, 2.4% illuminated). Under this calendar, 15th = Friday. Scripture requires 15th = Sabbath."
+        strength: strong
+  
+  - name: SaturdaySabbathRejected
+    statement: "Continuous Saturday Sabbath is rejected"
+    status: rejected
+    book_ref: "Chapter 10: When is the Sabbath"
+    rejection_reason: "Fails Exodus 1446 BC test, Jordan 1406 BC test, and 32 AD crucifixion test"
+    alternative: LunarSabbathSystem
+    arguments:
+      - type: contradicts
+        facts: [Consecutive15thsAsSabbaths, FirstFruitsParadox, Crucifixion32AD]
+        reasoning: "Consecutive 15ths cannot both be Saturday. First Fruits paradox unresolvable. 32 AD Passover on Monday, not Friday."
+        strength: strong
+  
+  - name: LunarSabbathSystem
+    statement: "Sabbaths fall on the 8th, 15th, 22nd, 29th of each month"
+    status: accepted
+    book_ref: "Chapter 10: When is the Sabbath"
+    arguments:
+      - type: supports
+        facts: [Consecutive15thsAsSabbaths, FirstFruitsParadox, ExodusCalendarTest, JordanCrossingTest, Crucifixion32ADTest]
+        reasoning: |
+          1. Resolves consecutive 15ths being Sabbaths (impossible with continuous cycle)
+          2. Resolves First Fruits paradox (16th always first day of week)
+          3. Passes all historical calendar tests
+          4. Solves dateline problem without modern technology
+          5. Compatible with 32 AD crucifixion on preparation day
+        strength: strong
+      - type: supports  
+        facts: [MonthStartsWithFullMoon, CalendarAccessibility]
+        reasoning: "Weeks reset with each new month. Observable without calculation or central authority."
+        strength: strong

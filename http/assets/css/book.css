@@ -1,0 +1,504 @@
+/* TIME Tested Tradition - Book-specific styles */
+
+/* Scripture Quotes */
+blockquote {
+    border-left: 4px solid #8b7355;
+    background: linear-gradient(to right, #f9f6f2, transparent);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 2rem;
+    font-style: italic;
+    color: #444;
+    position: relative;
+}
+
+blockquote p {
+    margin-bottom: 0.5rem;
+}
+
+blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* Citation styling - when blockquote has multiple paragraphs, 
+   the last one (starting with —) is the citation */
+blockquote p:not(:first-child):last-child {
+    text-align: right;
+    font-style: normal;
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e0d8d0;
+}
+
+/* Single paragraph quotes - no special styling */
+blockquote p:first-child:last-child {
+    text-align: left;
+    font-size: 1em;
+    border-top: none;
+    padding-top: 0;
+}
+
+/* Bold text in quotes should remain inline */
+blockquote strong {
+    font-style: normal;
+}
+
+/* Confidence Badges */
+.confidence-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.confidence-badge.very-high {
+    background: #d4edda;
+    color: #155724;
+}
+
+.confidence-badge.high {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.confidence-badge.medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.confidence-badge.low {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.confidence-badge.small {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.7rem;
+}
+
+/* Level Badge */
+.level-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.85rem;
+    background: #e2e3e5;
+    color: #383d41;
+    margin-left: 0.5rem;
+}
+
+/* Chapter Navigation */
+.chapter-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 2rem;
+}
+
+.chapter-nav.bottom {
+    border-bottom: none;
+    border-top: 1px solid #eee;
+    margin-top: 2rem;
+    margin-bottom: 0;
+}
+
+.chapter-nav a {
+    text-decoration: none;
+    color: #555;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.chapter-nav a:hover {
+    background: #f5f5f5;
+}
+
+.chapter-number {
+    color: #888;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+/* Chapter Body */
+.chapter-body {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.chapter-body h2 {
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.chapter-body h3 {
+    margin-top: 2rem;
+}
+
+/* Fact Article */
+.fact-article {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.fact-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+}
+
+.fact-header h1 {
+    margin-bottom: 0.5rem;
+}
+
+.fact-statement {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.fact-statement .statement {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.fact-evidence ul,
+.fact-rejected ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+}
+
+.fact-evidence li,
+.fact-rejected li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.fact-evidence li p {
+    margin: 0;
+}
+
+/* Supporting Facts section */
+.fact-support {
+    margin-bottom: 2rem;
+}
+
+.fact-support h2 {
+    color: #28a745;
+}
+
+/* Fact Links */
+.fact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.fact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.fact-link:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.fact-link.missing {
+    opacity: 0.5;
+    background: #fff3cd;
+}
+
+/* Location List */
+.location-list {
+    list-style: none;
+    padding: 0;
+}
+
+.location-list li {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+}
+
+.location-list li a {
+    text-decoration: none;
+    color: #0066cc;
+}
+
+.location-list li a:hover {
+    text-decoration: underline;
+}
+
+.location-list .excerpt {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0.5rem 0 0;
+    font-style: italic;
+}
+
+/* Fact Navigation */
+.fact-nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+}
+
+.fact-nav a {
+    text-decoration: none;
+    color: #555;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.fact-nav a:hover {
+    background: #f5f5f5;
+}
+
+/* Section Headers */
+.fact-article section {
+    margin-bottom: 2rem;
+}
+
+.fact-article h2 {
+    font-size: 1.25rem;
+    color: #333;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+/* Related Facts Sidebar */
+.related-facts-sidebar {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+}
+
+.related-facts-sidebar h4 {
+    margin-top: 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.related-facts-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.related-facts-sidebar li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.related-facts-sidebar li:last-child {
+    border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chapter-nav {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .fact-links {
+        flex-direction: column;
+    }
+    
+    .fact-link {
+        justify-content: space-between;
+    }
+}
+
+/* Hebrew text styling */
+.hebrew {
+    font-family: "SBL Hebrew", "Ezra SIL", serif;
+    font-size: 1.3em;
+    direction: rtl;
+}
+
+/* Table of Contents on homepage */
+.toc-list {
+    list-style: none;
+    padding: 0;
+}
+
+.toc-list li {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.toc-list li:hover {
+    background: #f8f9fa;
+}
+
+.toc-list a {
+    text-decoration: none;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+}
+
+.toc-list .chapter-num {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Fact Index Grid */
+.facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.fact-card {
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    transition: box-shadow 0.2s;
+}
+
+.fact-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.fact-card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+}
+
+.fact-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Rejected Facts Styling */
+.fact-rejection-info {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.fact-rejection-info h2 {
+    color: #856404;
+    border-bottom-color: #ffc107;
+}
+
+.accepted-alternative {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #d4edda;
+    border-radius: 4px;
+}
+
+.accepted-alternative a {
+    color: #155724;
+    font-weight: 600;
+}
+
+/* Rejected badge in header */
+.fact-header .rejected-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #dc3545;
+    color: white;
+    border-radius: 1rem;
+    font-size: 0.85rem;
+    margin-left: 0.5rem;
+}
+
+/* Explore Options on homepage */
+.explore-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.explore-options ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: contents;
+}
+
+.explore-options li {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.explore-options li:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.explore-options li a {
+    color: #2c5282;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.explore-options li a:hover {
+    text-decoration: underline;
+}
+
+/* Main navigation styling */
+.main-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 1rem;
+}
+
+.main-nav .nav-link {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: #333;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.main-nav .nav-link:hover {
+    background: #f5f5f5;
+    color: #2c5282;
+}

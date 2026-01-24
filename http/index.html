@@ -5895,18 +5895,42 @@ function buildLunarMonths(nissanMoon, allMoonEvents, springEquinox, nextYearStar
     if ((state.moonPhase === 'dark' || state.moonPhase === 'full' || state.moonPhase === 'crescent') && state.dayStartTime === 'evening') {
       // Get sunset time on the moon event's local date
       const sunsetOnMoonDate = getSunsetTimestamp(moonEventLocalDate);
+      const sunriseOnMoonDate = getSunriseTimestamp(moonEventLocalDate);
+      
+      // Convert times to local for comparison
+      const moonEventLocalTime = moonEvent.getTime() + (observerLon / 15) * 60 * 60 * 1000;
+      const sunsetLocalTime = sunsetOnMoonDate + (observerLon / 15) * 60 * 60 * 1000;
+      const sunriseLocalTime = sunriseOnMoonDate + (observerLon / 15) * 60 * 60 * 1000;
+      
+      // Key insight: if the moon event is between midnight and sunrise (early morning),
+      // it's actually part of the PREVIOUS evening's "day" in Hebrew calendar terms.
+      // So for events before sunrise, they are AFTER the previous day's sunset.
+      const isBeforeSunrise = moonEventLocalTime < sunriseLocalTime;
+      const isAfterSunset = moonEventLocalTime > sunsetLocalTime;
+      
+      // Moon event is "after sunset" if:
+      // 1. It's after sunset on the same calendar date, OR
+      // 2. It's before sunrise (meaning it's between last night's sunset and this morning)
+      if (isAfterSunset || isBeforeSunrise) {
+        // Moon event is AFTER the relevant sunset - add 2 days (prior month gets 30 days)
+        monthStartDate.setUTCDate(monthStartDate.getUTCDate() + 2);
+      } else {
+        // Moon event is between sunrise and sunset - add 1 day (prior month gets 29 days)
+        monthStartDate.setUTCDate(monthStartDate.getUTCDate() + 1);
+      }
+    } else if ((state.moonPhase === 'dark' || state.moonPhase === 'full' || state.moonPhase === 'crescent') && state.dayStartTime === 'morning') {
+      // For morning day start, check if moon event is before or after sunrise
+      const sunriseOnMoonDate = getSunriseTimestamp(moonEventLocalDate);
       
       // Convert moon event to local time at observer's longitude for comparison
       const moonEventLocalTime = moonEvent.getTime() + (observerLon / 15) * 60 * 60 * 1000;
-      const sunsetLocalTime = sunsetOnMoonDate + (observerLon / 15) * 60 * 60 * 1000;
+      const sunriseLocalTime = sunriseOnMoonDate + (observerLon / 15) * 60 * 60 * 1000;
       
-      if (moonEventLocalTime > sunsetLocalTime) {
-        // Moon event is AFTER sunset - add 2 days (prior month gets 30 days)
-        monthStartDate.setUTCDate(monthStartDate.getUTCDate() + 2);
-      } else {
-        // Moon event is AT or BEFORE sunset - add 1 day (prior month gets 29 days)
+      if (moonEventLocalTime >= sunriseLocalTime) {
+        // Moon event is AT or AFTER sunrise - Day 1 starts at next sunrise (add 1 day)
         monthStartDate.setUTCDate(monthStartDate.getUTCDate() + 1);
       }
+      // If moon event is BEFORE sunrise, Day 1 starts at same day's sunrise (add 0 days)
     } else {
       // For other modes, just add 1 day
       monthStartDate.setUTCDate(monthStartDate.getUTCDate() + 1);
@@ -5918,14 +5942,31 @@ function buildLunarMonths(nissanMoon, allMoonEvents, springEquinox, nextYearStar
     
     if ((state.moonPhase === 'dark' || state.moonPhase === 'full' || state.moonPhase === 'crescent') && state.dayStartTime === 'evening') {
       const sunsetOnNextMoonDate = getSunsetTimestamp(nextMoonEventLocalDate);
+      const sunriseOnNextMoonDate = getSunriseTimestamp(nextMoonEventLocalDate);
       const nextMoonEventLocalTime = nextMoonEvent.getTime() + (observerLon / 15) * 60 * 60 * 1000;
       const nextSunsetLocalTime = sunsetOnNextMoonDate + (observerLon / 15) * 60 * 60 * 1000;
+      const nextSunriseLocalTime = sunriseOnNextMoonDate + (observerLon / 15) * 60 * 60 * 1000;
       
-      if (nextMoonEventLocalTime > nextSunsetLocalTime) {
+      // Same logic: if before sunrise, it's part of previous evening's day
+      const isBeforeSunrise = nextMoonEventLocalTime < nextSunriseLocalTime;
+      const isAfterSunset = nextMoonEventLocalTime > nextSunsetLocalTime;
+      
+      if (isAfterSunset || isBeforeSunrise) {
         nextMonthStart.setUTCDate(nextMonthStart.getUTCDate() + 2);
       } else {
         nextMonthStart.setUTCDate(nextMonthStart.getUTCDate() + 1);
       }
+    } else if ((state.moonPhase === 'dark' || state.moonPhase === 'full' || state.moonPhase === 'crescent') && state.dayStartTime === 'morning') {
+      // For morning day start, check if moon event is before or after sunrise
+      const sunriseOnNextMoonDate = getSunriseTimestamp(nextMoonEventLocalDate);
+      const nextMoonEventLocalTime = nextMoonEvent.getTime() + (observerLon / 15) * 60 * 60 * 1000;
+      const nextSunriseLocalTime = sunriseOnNextMoonDate + (observerLon / 15) * 60 * 60 * 1000;
+      
+      if (nextMoonEventLocalTime >= nextSunriseLocalTime) {
+        // Moon event is AT or AFTER sunrise - add 1 day
+        nextMonthStart.setUTCDate(nextMonthStart.getUTCDate() + 1);
+      }
+      // If moon event is BEFORE sunrise, starts at same day's sunrise (add 0 days)
     } else {
       nextMonthStart.setUTCDate(nextMonthStart.getUTCDate() + 1);
     }
@@ -6977,8 +7018,28 @@ function showDayDetail(dayObj, month) {
         
         if ((state.moonPhase === 'dark' || state.moonPhase === 'full') && state.dayStartTime === 'evening') {
           sameDaySunset = getSunsetTimestamp(moonEventDate);
+          const sameDaySunrise = getSunriseTimestamp(moonEventDate);
           marginToSunsetMs = sameDaySunset - moonEventTime.getTime();
-          conjunctionAfterSunset = marginToSunsetMs < 0;
+          
+          // Key insight: if the moon event is between midnight and sunrise (early morning),
+          // it's actually part of the PREVIOUS evening's "day" in Hebrew calendar terms.
+          const moonLocalTime = moonEventTime.getTime() + (state.lon / 15) * 60 * 60 * 1000;
+          const sunriseLocalTime = sameDaySunrise + (state.lon / 15) * 60 * 60 * 1000;
+          const sunsetLocalTime = sameDaySunset + (state.lon / 15) * 60 * 60 * 1000;
+          
+          const isBeforeSunrise = moonLocalTime < sunriseLocalTime;
+          const isAfterSunset = moonLocalTime > sunsetLocalTime;
+          
+          // For early morning events (before sunrise), calculate margin from previous sunset
+          if (isBeforeSunrise) {
+            const prevDate = new Date(moonEventDate.getTime());
+            prevDate.setUTCDate(prevDate.getUTCDate() - 1);
+            const prevSunset = getSunsetTimestamp(prevDate);
+            marginToSunsetMs = prevSunset - moonEventTime.getTime(); // Will be negative (after sunset)
+            conjunctionAfterSunset = true;
+          } else {
+            conjunctionAfterSunset = isAfterSunset;
+          }
         }
         
         // Get the day start time (sunset that starts Day 1)

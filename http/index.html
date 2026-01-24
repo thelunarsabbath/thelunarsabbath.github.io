@@ -1679,7 +1679,7 @@ title: "Lunar Sabbath Calendar"
   }
   
   .calendar-header {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr minmax(55px, calc(100vw / 7));
     gap: 0;
     padding: 0;
   }
@@ -1687,12 +1687,16 @@ title: "Lunar Sabbath Calendar"
   .header-left {
     gap: 6px;
     padding: 8px 10px;
+    flex-shrink: 1;
+    overflow: hidden;
   }
   
   .new-moon-box {
     min-height: 60px;
     padding: 3px;
     width: calc(100vw / 7);
+    min-width: 55px;
+    flex-shrink: 0;
   }
   
   .new-moon-box .gregorian {

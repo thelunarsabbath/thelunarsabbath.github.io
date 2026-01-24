@@ -6475,11 +6475,33 @@ function renderMonth(month) {
     shiftedWeekdays.push(weekdayNames[(day2Weekday + i) % 7]);
   }
   
-  // Determine if column 7 header should be highlighted
-  // Only highlight for lunar sabbath mode since the grid is organized by lunar weeks
-  // For non-lunar sabbaths (Saturday, Sunday, etc.), Sabbaths are scattered across columns
-  // based on Gregorian weekday, so no single column header makes sense to highlight
-  const highlightColumn7 = state.sabbathMode === 'lunar';
+  // Determine which column header should be highlighted as Sabbath
+  // For lunar sabbath: always column 7 (days 8, 15, 22, 29)
+  // For weekday sabbaths: find which column corresponds to that weekday
+  let sabbathColumnIndex = -1;
+  if (state.sabbathMode === 'lunar') {
+    sabbathColumnIndex = 6; // Column 7 (0-indexed)
+  } else if (['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'].includes(state.sabbathMode)) {
+    // Find which column has the sabbath weekday
+    const sabbathWeekdayMap = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
+    const sabbathWeekday = sabbathWeekdayMap[state.sabbathMode];
+    // Day 2's weekday is in column 0, so find which column has the sabbath weekday
+    for (let col = 0; col < 7; col++) {
+      if ((day2Weekday + col) % 7 === sabbathWeekday) {
+        sabbathColumnIndex = col;
+        break;
+      }
+    }
+  }
+  
+  // Generate day labels (Day 1 through Day 7)
+  // For fixed weekday sabbaths, the sabbath column is always "Day 7"
+  // For lunar sabbath, column 6 is always "Day 7"
+  const getDayLabel = (colIndex) => {
+    if (sabbathColumnIndex === -1) return colIndex + 1; // No sabbath mode
+    // Calculate day number so sabbath column is always Day 7
+    return ((colIndex - sabbathColumnIndex - 1 + 7) % 7) + 1;
+  };
   
   // Get Day 1 info for header
   const day1 = month.days.find(d => d.lunarDay === 1);
@@ -6529,13 +6551,13 @@ function renderMonth(month) {
       </div>
       
       <div class="week-header">
-        <div class="day-label"><div class="day-name">Day 1</div><div class="weekday">${shiftedWeekdays[0]}</div></div>
-        <div class="day-label"><div class="day-name">Day 2</div><div class="weekday">${shiftedWeekdays[1]}</div></div>
-        <div class="day-label"><div class="day-name">Day 3</div><div class="weekday">${shiftedWeekdays[2]}</div></div>
-        <div class="day-label"><div class="day-name">Day 4</div><div class="weekday">${shiftedWeekdays[3]}</div></div>
-        <div class="day-label"><div class="day-name">Day 5</div><div class="weekday">${shiftedWeekdays[4]}</div></div>
-        <div class="day-label"><div class="day-name">Day 6</div><div class="weekday">${shiftedWeekdays[5]}</div></div>
-        <div class="day-label${highlightColumn7 ? ' sabbath-header' : ''}"><div class="day-name">Day 7</div><div class="weekday">${shiftedWeekdays[6]}</div></div>
+        <div class="day-label${sabbathColumnIndex === 0 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(0)}</div><div class="weekday">${shiftedWeekdays[0]}</div></div>
+        <div class="day-label${sabbathColumnIndex === 1 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(1)}</div><div class="weekday">${shiftedWeekdays[1]}</div></div>
+        <div class="day-label${sabbathColumnIndex === 2 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(2)}</div><div class="weekday">${shiftedWeekdays[2]}</div></div>
+        <div class="day-label${sabbathColumnIndex === 3 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(3)}</div><div class="weekday">${shiftedWeekdays[3]}</div></div>
+        <div class="day-label${sabbathColumnIndex === 4 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(4)}</div><div class="weekday">${shiftedWeekdays[4]}</div></div>
+        <div class="day-label${sabbathColumnIndex === 5 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(5)}</div><div class="weekday">${shiftedWeekdays[5]}</div></div>
+        <div class="day-label${sabbathColumnIndex === 6 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(6)}</div><div class="weekday">${shiftedWeekdays[6]}</div></div>
       </div>
       
       <div class="calendar-grid">

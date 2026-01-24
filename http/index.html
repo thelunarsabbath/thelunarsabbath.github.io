@@ -30,6 +30,162 @@ title: "Lunar Sabbath Calendar"
   box-sizing: border-box;
 }
 
+/* Top Navigation Bar */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(180deg, #0d2840 0%, #1a3a5c 100%);
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.top-nav-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.top-nav-title {
+  font-size: 1.3em;
+  color: #7ec8e3;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  font-family: 'Georgia', serif;
+}
+
+.top-nav-tagline {
+  font-size: 0.75em;
+  color: #d4a017;
+  font-style: italic;
+  font-family: 'Georgia', serif;
+}
+
+.top-nav-tagline .book-link {
+  text-decoration: none;
+  margin-left: 6px;
+  opacity: 0.8;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  color: #7ec8e3;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 8px;
+  line-height: 1;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.hamburger-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Hamburger Menu Dropdown */
+.nav-menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+.nav-menu-overlay.open {
+  display: block;
+}
+
+.nav-menu {
+  position: fixed;
+  top: 0;
+  right: -280px;
+  width: 280px;
+  height: 100%;
+  background: linear-gradient(180deg, #1a3a5c 0%, #0d2840 100%);
+  z-index: 1001;
+  transition: right 0.3s ease;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-menu.open {
+  right: 0;
+}
+
+.nav-menu-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-menu-header h3 {
+  margin: 0;
+  color: #7ec8e3;
+  font-family: 'Georgia', serif;
+}
+
+.nav-menu-close {
+  background: none;
+  border: none;
+  color: #7ec8e3;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.nav-menu-items {
+  flex: 1;
+  padding: 10px 0;
+  overflow-y: auto;
+}
+
+.nav-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  color: white;
+  text-decoration: none;
+  font-size: 1.1em;
+  font-family: 'Georgia', serif;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nav-menu-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.nav-menu-item .icon {
+  font-size: 1.3em;
+  width: 30px;
+  text-align: center;
+}
+
+.nav-menu-item.active {
+  background: rgba(212, 160, 23, 0.2);
+  border-left: 3px solid #d4a017;
+}
+
+.nav-menu-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 10px 20px;
+}
+
 .calendar-app {
   max-width: 900px;
   margin: 0 auto;
@@ -537,11 +693,8 @@ title: "Lunar Sabbath Calendar"
 
 /* Export/Feasts page specific styles */
 #export-page {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  min-height: 100vh;
+  position: relative;
+  min-height: calc(100vh - 60px);
   z-index: 100;
 }
 
@@ -556,22 +709,10 @@ title: "Lunar Sabbath Calendar"
   gap: 10px;
 }
 
-.export-branding {
+#export-page .export-header h2 {
   flex: 1;
   text-align: center;
-  min-width: 200px;
-}
-
-.export-site-title {
-  font-size: 1.4em;
-  color: #7ec8e3;
-  font-weight: bold;
-}
-
-.export-page-title {
-  font-size: 1em;
-  color: #d4a017;
-  margin-top: 2px;
+  font-size: 1.2em;
 }
 
 #export-page .export-download-btn {
@@ -1842,6 +1983,24 @@ title: "Lunar Sabbath Calendar"
   .day-detail-gregorian {
     font-size: 0.9em;
   }
+  
+  /* Top nav mobile */
+  .top-nav {
+    padding: 8px 12px;
+  }
+  
+  .top-nav-title {
+    font-size: 1.1em;
+  }
+  
+  .top-nav-tagline {
+    font-size: 0.65em;
+  }
+  
+  .hamburger-btn {
+    font-size: 24px;
+    padding: 6px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1927,6 +2086,45 @@ title: "Lunar Sabbath Calendar"
   </style>
 </head>
 <body>
+
+<!-- Top Navigation Bar -->
+<nav class="top-nav">
+  <div class="top-nav-brand">
+    <div class="top-nav-title">Lunar Sabbath Calendar</div>
+    <div class="top-nav-tagline">a time tested tradition <a href="/book/" class="book-link">📖</a></div>
+  </div>
+  <button class="hamburger-btn" onclick="toggleNavMenu()" aria-label="Menu">☰</button>
+</nav>
+
+<!-- Navigation Menu Overlay -->
+<div id="nav-menu-overlay" class="nav-menu-overlay" onclick="toggleNavMenu()"></div>
+
+<!-- Navigation Menu -->
+<div id="nav-menu" class="nav-menu">
+  <div class="nav-menu-header">
+    <h3>Menu</h3>
+    <button class="nav-menu-close" onclick="toggleNavMenu()">✕</button>
+  </div>
+  <div class="nav-menu-items">
+    <button class="nav-menu-item" onclick="navigateTo('calendar')">
+      <span class="icon">📅</span>
+      <span>Calendar</span>
+    </button>
+    <button class="nav-menu-item" onclick="navigateTo('feasts')">
+      <span class="icon">🎺</span>
+      <span>Feasts</span>
+    </button>
+    <button class="nav-menu-item" onclick="navigateTo('settings')">
+      <span class="icon">⚙️</span>
+      <span>Settings</span>
+    </button>
+    <div class="nav-menu-divider"></div>
+    <a class="nav-menu-item" href="/book/">
+      <span class="icon">📖</span>
+      <span>Read the Book</span>
+    </a>
+  </div>
+</div>
 
 <div class="calendar-app">
   <!-- Settings Dialog (hidden by default) -->
@@ -2045,7 +2243,7 @@ title: "Lunar Sabbath Calendar"
   <!-- Settings Page - replaces calendar when active -->
   <div id="settings-page" class="settings-page" style="display: none;">
     <div class="settings-page-header">
-      <button class="back-btn" onclick="toggleSettings()">← Back</button>
+      <button class="back-btn" onclick="navigateTo('calendar')">← Calendar</button>
       <h2>Settings</h2>
       <button class="defaults-btn" onclick="resetToDefaults()">Defaults</button>
     </div>
@@ -2216,11 +2414,8 @@ title: "Lunar Sabbath Calendar"
 <!-- Export/Feasts Page -->
 <div id="export-page" class="settings-page" style="display: none;">
   <div class="settings-page-header export-header">
-    <button class="back-btn" onclick="toggleExportModal()">← Calendar</button>
-    <div class="export-branding">
-      <div class="export-site-title">Lunar Sabbath Calendar</div>
-      <div class="export-page-title">Appointed Times for <span id="export-year">2026</span></div>
-    </div>
+    <button class="back-btn" onclick="navigateTo('calendar')">← Calendar</button>
+    <h2>Appointed Times for <span id="export-year">2026</span></h2>
     <button class="btn export-download-btn" onclick="openInCalendar()">📅 Export</button>
   </div>
   <div class="export-settings-context">
@@ -2475,6 +2670,57 @@ function updateUI() {
   const customCoords = document.getElementById('custom-coords');
   if (customCoords) {
     customCoords.style.display = state.city === '' ? 'block' : 'none';
+  }
+}
+
+// Navigation Menu Functions
+function toggleNavMenu() {
+  const overlay = document.getElementById('nav-menu-overlay');
+  const menu = document.getElementById('nav-menu');
+  
+  if (menu.classList.contains('open')) {
+    menu.classList.remove('open');
+    overlay.classList.remove('open');
+  } else {
+    menu.classList.add('open');
+    overlay.classList.add('open');
+  }
+}
+
+function navigateTo(page) {
+  toggleNavMenu(); // Close the menu
+  
+  const calendarOutput = document.getElementById('calendar-output');
+  const dayDetailPanel = document.getElementById('day-detail-panel');
+  const settingsPage = document.getElementById('settings-page');
+  const exportPage = document.getElementById('export-page');
+  
+  // Hide all pages
+  calendarOutput.style.display = 'none';
+  dayDetailPanel.style.display = 'none';
+  settingsPage.style.display = 'none';
+  exportPage.style.display = 'none';
+  
+  switch(page) {
+    case 'calendar':
+      calendarOutput.style.display = 'block';
+      if (state.highlightedLunarDay !== null) {
+        dayDetailPanel.classList.remove('hidden');
+        dayDetailPanel.style.display = '';
+        refreshDayDetailIfVisible();
+      }
+      updateURL();
+      break;
+    case 'feasts':
+      exportPage.style.display = 'block';
+      window.scrollTo(0, 0);
+      updateExportTable();
+      updateURLWithView('feasts');
+      break;
+    case 'settings':
+      settingsPage.style.display = 'block';
+      window.scrollTo(0, 0);
+      break;
   }
 }
 
@@ -4256,21 +4502,19 @@ function renderMonth(month) {
     <div class="month-calendar">
       <div class="calendar-header">
         <div class="header-left">
-          <div class="full-moon-info" onclick="toggleSettings()" title="Change moon phase or location">
+          <div class="full-moon-info" onclick="navigateTo('settings')" title="Change moon phase or location">
             <div class="moon-icon-wrapper">
               <div class="moon-icon">${getMoonIcon()}</div>
               <div class="moon-gear-badge">⚙</div>
             </div>
           </div>
-          <div class="calendar-title">
-            <div class="site-title">Lunar Sabbath Calendar</div>
-            <div class="site-tagline">a time tested tradition <a href="/book/" class="book-link">📖</a></div>
-            <div class="month-year-row" onclick="toggleMonthPicker()">
+          <div class="calendar-title" onclick="toggleMonthPicker()">
+            <div class="month-year-row">
               <div class="month-name">${month.name} <span class="dropdown-arrow">▼</span></div>
               <div class="year">${displayYear}</div>
             </div>
           </div>
-          <button class="export-header-btn" onclick="event.stopPropagation(); toggleExportModal();" title="View Feasts & Export to Calendar">
+          <button class="export-header-btn" onclick="event.stopPropagation(); navigateTo('feasts');" title="View Feasts & Export to Calendar">
             <span class="icon">📅</span>
             <span class="label">Feasts</span>
           </button>

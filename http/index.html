@@ -989,6 +989,12 @@ body.feasts-open {
   right: 5px;
 }
 
+.day-cell .moon-phase.blood-moon {
+  /* Blood red glow effect for lunar eclipse */
+  filter: sepia(1) saturate(5) hue-rotate(320deg) brightness(0.9);
+  text-shadow: 0 0 10px rgba(180, 0, 0, 1), 0 0 20px rgba(255, 50, 50, 0.8), 0 0 30px rgba(200, 0, 0, 0.6);
+}
+
 /* Sabbath Days */
 .day-cell.sabbath {
   background: linear-gradient(135deg, #3a6a9c 0%, #2a5a8c 100%);
@@ -2390,24 +2396,24 @@ body.feasts-open {
     </div>
     
     <div id="crescent-threshold-section" class="settings-section" style="display: none;">
-      <h3>Crescent Visibility Threshold</h3>
-      <p class="settings-description">Minimum moon altitude above horizon at sunset for crescent to be considered visible.</p>
+      <h3>Crescent Visibility Timing</h3>
+      <p class="settings-description">Hours after conjunction when crescent moon is considered visible.</p>
       <div class="settings-options">
-        <button class="settings-option-btn" data-threshold="5" onclick="selectCrescentThreshold(5)">
-          <span class="option-label">5° Optimistic</span>
-          <span class="option-hint">Earliest possible, ideal conditions</span>
-        </button>
-        <button class="settings-option-btn" data-threshold="8" onclick="selectCrescentThreshold(8)">
-          <span class="option-label">8° Standard</span>
-          <span class="option-hint">Typical naked-eye visibility</span>
-        </button>
-        <button class="settings-option-btn" data-threshold="10" onclick="selectCrescentThreshold(10)">
-          <span class="option-label">10° Conservative</span>
-          <span class="option-hint">Ensures easy visibility</span>
-        </button>
         <button class="settings-option-btn" data-threshold="12" onclick="selectCrescentThreshold(12)">
-          <span class="option-label">12° Very Conservative</span>
-          <span class="option-hint">Clearly visible to anyone</span>
+          <span class="option-label">12h Optimistic</span>
+          <span class="option-hint">Perfect conditions + optical aids</span>
+        </button>
+        <button class="settings-option-btn" data-threshold="15.5" onclick="selectCrescentThreshold(15.5)">
+          <span class="option-label">15.5h Minimum</span>
+          <span class="option-hint">Naked-eye record, ideal conditions</span>
+        </button>
+        <button class="settings-option-btn" data-threshold="18" onclick="selectCrescentThreshold(18)">
+          <span class="option-label">18h Typical</span>
+          <span class="option-hint">Standard naked-eye visibility</span>
+        </button>
+        <button class="settings-option-btn" data-threshold="24" onclick="selectCrescentThreshold(24)">
+          <span class="option-label">24h Conservative</span>
+          <span class="option-hint">Easily visible to anyone</span>
         </button>
       </div>
     </div>
@@ -3212,6 +3218,31 @@ AstroEngines.nasaEclipse = {
     return nearest;
   },
   
+  // Check if a given date has a lunar eclipse (blood moon)
+  // Returns true if there's a lunar eclipse within 0.5 days of the given date
+  hasLunarEclipse(date) {
+    if (!this._eclipses) return false;
+    
+    const jd = this._dateToJD(date);
+    
+    // Binary search to find nearby eclipses
+    let lo = 0, hi = this._eclipses.length - 1;
+    while (lo < hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      if (this._eclipses[mid].jd < jd) lo = mid + 1;
+      else hi = mid;
+    }
+    
+    // Check nearby eclipses (within a day on either side)
+    for (let i = Math.max(0, lo - 2); i < Math.min(this._eclipses.length, lo + 3); i++) {
+      const e = this._eclipses[i];
+      if (e.t === 'f' && Math.abs(e.jd - jd) < 0.5) {
+        return true;
+      }
+    }
+    return false;
+  },
+  
   // Helper to create Date with proper year handling (including negative years)
   _createDate(year, month, day, hour, minute, second) {
     // JavaScript Date.UTC interprets years 0-99 as 1900-1999
@@ -3622,7 +3653,7 @@ const defaultState = {
   dayStartTime: 'morning',  // 'evening' or 'morning'
   dayStartAngle: 12,        // 0, 6, 12, or 18 degrees below horizon
   yearStartRule: 'equinox', // 'equinox' or '13daysBefore'
-  crescentThreshold: 8,     // Minimum moon altitude (degrees) at sunset for crescent visibility
+  crescentThreshold: 18,    // Hours after conjunction for crescent visibility (12, 15.5, 18, or 24)
   sabbathMode: 'lunar',     // 'lunar', 'saturday', 'sunday', 'friday', 'none'
   selectedProfile: 'biblicalFull', // Currently selected profile ID
   astronomyEngine: 'astronomyEngine', // 'astronomyEngine' or 'swissEphemeris'
@@ -3631,6 +3662,19 @@ const defaultState = {
   highlightedLunarDay: null,
   selectedTimestamp: null  // UTC timestamp of selected moment
 };
+
+// Migrate old crescentThreshold values (degrees) to new format (hours)
+// Old format: 5, 8, 10, 12 degrees
+// New format: 12, 15.5, 18, 24 hours
+function migrateCrescentThreshold(value) {
+  if (value === undefined) return 18; // Default
+  // Valid new values
+  if (value === 12 || value === 15.5 || value === 18 || value === 24) return value;
+  // Old values that need migration - default to 18h
+  if (value === 5 || value === 8 || value === 10) return 18;
+  // Unknown value, use default
+  return 18;
+}
 
 // Load saved state from localStorage or use defaults
 function loadState() {
@@ -3648,7 +3692,7 @@ function loadState() {
         dayStartTime: parsed.dayStartTime || defaultState.dayStartTime,
         dayStartAngle: parsed.dayStartAngle !== undefined ? parsed.dayStartAngle : defaultState.dayStartAngle,
         yearStartRule: parsed.yearStartRule || defaultState.yearStartRule,
-        crescentThreshold: parsed.crescentThreshold !== undefined ? parsed.crescentThreshold : defaultState.crescentThreshold,
+        crescentThreshold: migrateCrescentThreshold(parsed.crescentThreshold),
         sabbathMode: parsed.sabbathMode || defaultState.sabbathMode,
         selectedProfile: parsed.selectedProfile || defaultState.selectedProfile
         // astronomyEngine is always 'astronomyEngine' for now (Swiss Ephemeris requires self-hosting)
@@ -4102,7 +4146,7 @@ const PRESET_PROFILES = {
     dayStartTime: 'morning',
     dayStartAngle: 12,
     yearStartRule: 'equinox',
-    crescentThreshold: 8,
+    crescentThreshold: 18,
     sabbathMode: 'lunar',
     lat: 31.7683,
     lon: 35.2137,
@@ -4116,7 +4160,7 @@ const PRESET_PROFILES = {
     dayStartTime: 'morning',
     dayStartAngle: 12,
     yearStartRule: 'equinox',
-    crescentThreshold: 8,
+    crescentThreshold: 18,
     sabbathMode: 'lunar',
     useCurrentLocation: true
   },
@@ -4128,7 +4172,7 @@ const PRESET_PROFILES = {
     dayStartTime: 'evening',
     dayStartAngle: 0,
     yearStartRule: 'equinox',
-    crescentThreshold: 8,
+    crescentThreshold: 18,
     sabbathMode: 'lunar',
     lat: 31.7683,
     lon: 35.2137,
@@ -4142,7 +4186,7 @@ const PRESET_PROFILES = {
     dayStartTime: 'evening',
     dayStartAngle: 0,
     yearStartRule: 'equinox',
-    crescentThreshold: 8,
+    crescentThreshold: 18,
     sabbathMode: 'lunar',
     lat: 31.7683,
     lon: 35.2137,
@@ -5748,44 +5792,22 @@ function findMoonEvents(year, phaseType) {
     targetPhase = 0; // We'll find conjunction then calculate first visibility
   }
   
-  // Create observer for crescent visibility calculations
-  const observer = engine.createObserver(state.lat, state.lon, 0);
-  
   while (searchDate < endDate) {
     const result = engine.searchMoonPhase(targetPhase, searchDate, 40);
     if (result) {
       let eventDate = result.date;
       
-      // For crescent, find the first evening where moon altitude at sunset exceeds threshold
+      // For crescent, add offset to conjunction to create a "forged conjunction" time
+      // This represents when the crescent becomes visible, treated as if it were the conjunction
+      // The rest of the algorithm (before/after sunset check) works the same as dark moon
+      // - 12h: Optimistic (perfect conditions + optical aids)
+      // - 15.5h: Minimum viable (naked-eye record)
+      // - 18h: Typical (standard naked-eye visibility)
+      // - 24h: Conservative (easily visible to anyone)
       if (phaseType === 'crescent') {
         const conjunction = result.date;
-        let visibilityDate = null;
-        
-        // Check each evening for up to 5 days after conjunction
-        for (let dayOffset = 0; dayOffset < 5; dayOffset++) {
-          // Add days to conjunction date properly (handles month/year rollover)
-          const conjunctionDay = new Date(conjunction.getTime() + dayOffset * 24 * 60 * 60 * 1000);
-          // Reset to midnight UTC for sunset search
-          conjunctionDay.setUTCHours(0, 0, 0, 0);
-          
-          // Find sunset on this day (searching from midnight will find this evening's sunset)
-          const sunset = engine.searchRiseSet('sun', observer, -1, conjunctionDay, 1);
-          
-          if (sunset) {
-            // Calculate moon position at sunset
-            const moonEquator = engine.getEquator('moon', sunset.date, observer);
-            const moonHorizon = engine.getHorizon(sunset.date, observer, moonEquator.ra, moonEquator.dec);
-            
-            // Check if moon altitude exceeds threshold
-            if (moonHorizon.altitude >= state.crescentThreshold) {
-              visibilityDate = sunset.date;
-              break;
-            }
-          }
-        }
-        
-        // Use visibility date if found, otherwise fallback to conjunction + 1.5 days
-        eventDate = visibilityDate || new Date(conjunction.getTime() + 1.5 * 24 * 60 * 60 * 1000);
+        const crescentOffsetHours = state.crescentThreshold;
+        eventDate = new Date(conjunction.getTime() + crescentOffsetHours * 60 * 60 * 1000);
       }
       
       events.push(eventDate);
@@ -5853,10 +5875,6 @@ function buildLunarMonths(nissanMoon, allMoonEvents, springEquinox, nextYearStar
   // Get observer's longitude for local time calculation
   const observerLon = parseFloat(document.getElementById('lon-input')?.value) || 35.2137;
   
-  // Check if we're in crescent + evening + 0° mode (special case)
-  const isCrescentSunset = state.moonPhase === 'crescent' && 
-                           state.dayStartTime === 'evening' && 
-                           state.dayStartAngle === 0;
   
   for (let m = 0; m < 13 && (startIdx + m) < allMoonEvents.length - 1; m++) {
     const moonEvent = allMoonEvents[startIdx + m];
@@ -5870,61 +5888,46 @@ function buildLunarMonths(nissanMoon, allMoonEvents, springEquinox, nextYearStar
     const moonEventLocalDate = getLocalDateFromUTC(moonEvent, observerLon);
     
     // Determine when Day 1 starts based on day start settings
-    let monthStartDate;
+    // General rule: Day 1 starts at the NEXT day start after the moon event
+    let monthStartDate = new Date(moonEventLocalDate.getTime());
     
-    if (isCrescentSunset) {
-      // Exception: Crescent + Evening + 0° (Sunset)
-      // The day containing the crescent sighting IS Day 1
-      // Day 1 starts at sunset of that day
-      monthStartDate = new Date(moonEventLocalDate.getTime());
-    } else {
-      // General rule: Day 1 starts at the NEXT day start after the moon event
-      monthStartDate = new Date(moonEventLocalDate.getTime());
+    // For dark/full/crescent moon with evening day start, check if moon event is before or after sunset
+    if ((state.moonPhase === 'dark' || state.moonPhase === 'full' || state.moonPhase === 'crescent') && state.dayStartTime === 'evening') {
+      // Get sunset time on the moon event's local date
+      const sunsetOnMoonDate = getSunsetTimestamp(moonEventLocalDate);
       
-      // For dark/full moon with evening day start, check if moon event is before or after sunset
-      if ((state.moonPhase === 'dark' || state.moonPhase === 'full') && state.dayStartTime === 'evening') {
-        // Get sunset time on the moon event's local date
-        const sunsetOnMoonDate = getSunsetTimestamp(moonEventLocalDate);
-        
-        // Convert moon event to local time at observer's longitude for comparison
-        const moonEventLocalTime = moonEvent.getTime() + (observerLon / 15) * 60 * 60 * 1000;
-        const sunsetLocalTime = sunsetOnMoonDate + (observerLon / 15) * 60 * 60 * 1000;
-        
-        if (moonEventLocalTime >= sunsetLocalTime) {
-          // Moon event is AFTER sunset - add 2 days (prior month gets 30 days)
-          monthStartDate.setUTCDate(monthStartDate.getUTCDate() + 2);
-        } else {
-          // Moon event is BEFORE sunset - add 1 day (prior month gets 29 days)
-          monthStartDate.setUTCDate(monthStartDate.getUTCDate() + 1);
-        }
+      // Convert moon event to local time at observer's longitude for comparison
+      const moonEventLocalTime = moonEvent.getTime() + (observerLon / 15) * 60 * 60 * 1000;
+      const sunsetLocalTime = sunsetOnMoonDate + (observerLon / 15) * 60 * 60 * 1000;
+      
+      if (moonEventLocalTime > sunsetLocalTime) {
+        // Moon event is AFTER sunset - add 2 days (prior month gets 30 days)
+        monthStartDate.setUTCDate(monthStartDate.getUTCDate() + 2);
       } else {
-        // For other modes, just add 1 day
+        // Moon event is AT or BEFORE sunset - add 1 day (prior month gets 29 days)
         monthStartDate.setUTCDate(monthStartDate.getUTCDate() + 1);
       }
+    } else {
+      // For other modes, just add 1 day
+      monthStartDate.setUTCDate(monthStartDate.getUTCDate() + 1);
     }
     
     // Same logic for next month start
     const nextMoonEventLocalDate = getLocalDateFromUTC(nextMoonEvent, observerLon);
-    let nextMonthStart;
+    let nextMonthStart = new Date(nextMoonEventLocalDate.getTime());
     
-    if (isCrescentSunset) {
-      nextMonthStart = new Date(nextMoonEventLocalDate.getTime());
-    } else {
-      nextMonthStart = new Date(nextMoonEventLocalDate.getTime());
+    if ((state.moonPhase === 'dark' || state.moonPhase === 'full' || state.moonPhase === 'crescent') && state.dayStartTime === 'evening') {
+      const sunsetOnNextMoonDate = getSunsetTimestamp(nextMoonEventLocalDate);
+      const nextMoonEventLocalTime = nextMoonEvent.getTime() + (observerLon / 15) * 60 * 60 * 1000;
+      const nextSunsetLocalTime = sunsetOnNextMoonDate + (observerLon / 15) * 60 * 60 * 1000;
       
-      if ((state.moonPhase === 'dark' || state.moonPhase === 'full') && state.dayStartTime === 'evening') {
-        const sunsetOnNextMoonDate = getSunsetTimestamp(nextMoonEventLocalDate);
-        const nextMoonEventLocalTime = nextMoonEvent.getTime() + (observerLon / 15) * 60 * 60 * 1000;
-        const nextSunsetLocalTime = sunsetOnNextMoonDate + (observerLon / 15) * 60 * 60 * 1000;
-        
-        if (nextMoonEventLocalTime >= nextSunsetLocalTime) {
-          nextMonthStart.setUTCDate(nextMonthStart.getUTCDate() + 2);
-        } else {
-          nextMonthStart.setUTCDate(nextMonthStart.getUTCDate() + 1);
-        }
+      if (nextMoonEventLocalTime > nextSunsetLocalTime) {
+        nextMonthStart.setUTCDate(nextMonthStart.getUTCDate() + 2);
       } else {
         nextMonthStart.setUTCDate(nextMonthStart.getUTCDate() + 1);
       }
+    } else {
+      nextMonthStart.setUTCDate(nextMonthStart.getUTCDate() + 1);
     }
     
     const daysInMonth = Math.round((nextMonthStart - monthStartDate) / (24 * 60 * 60 * 1000));
@@ -6028,6 +6031,12 @@ function buildLunarMonths(nissanMoon, allMoonEvents, springEquinox, nextYearStar
         equinox = { type: 'spring', date: state.nextSpringEquinox };
       }
       
+      // Check if there's a lunar eclipse (blood moon) on this day
+      const isBloodMoon = AstroEngines.nasaEclipse.hasLunarEclipse(dayDate);
+      if (isBloodMoon) {
+        console.log(`Blood moon detected on ${dayDate.toISOString()}`);
+      }
+      
       days.push({
         lunarDay: d,
         gregorianDate: dayDate,
@@ -6038,7 +6047,8 @@ function buildLunarMonths(nissanMoon, allMoonEvents, springEquinox, nextYearStar
         feastDayNum,
         feasts,  // Array of all feasts for this day
         moonPhase,
-        equinox  // Spring equinox if it falls on this day
+        equinox,  // Spring equinox if it falls on this day
+        isBloodMoon  // True if there's a lunar eclipse on this day
       });
     }
     
@@ -6621,10 +6631,13 @@ function renderMonth(month) {
       }
       
       const isHighlighted = day.lunarDay === state.highlightedLunarDay;
+      const bloodMoonClass = day.isBloodMoon ? ' blood-moon' : '';
+      // Use red full moon emoji for blood moon, or add title
+      const bloodMoonTitle = day.isBloodMoon ? ' | 🔴 Blood Moon (Lunar Eclipse)' : '';
       html += `
-        <div class="${classes.join(' ')}" data-date="${dateStr}" title="${titleText}">
+        <div class="${classes.join(' ')}" data-date="${dateStr}" title="${titleText}${bloodMoonTitle}">
           <div class="gregorian">${formatShortDate(day.gregorianDate)}${uncertaintySuffix}</div>
-          <div class="moon-phase">${day.moonPhase}</div>
+          <div class="moon-phase${bloodMoonClass}">${day.moonPhase}</div>
           <div class="lunar-day">${day.lunarDay}</div>
           ${feastLabel}
         </div>

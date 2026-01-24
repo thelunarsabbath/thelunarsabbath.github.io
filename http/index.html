@@ -641,21 +641,15 @@ title: "Lunar Sabbath Calendar"
 
 /* Export/Feasts page specific styles */
 #export-page {
-  position: relative;
-  min-height: calc(100vh - 60px);
+  position: fixed;
+  top: 55px; /* Below the top nav */
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 100;
-  margin-top: -8px;
-  margin-left: -8px;
-  margin-right: -8px;
+  overflow-y: auto;
   border-radius: 0;
-}
-
-@media (max-width: 768px) {
-  #export-page {
-    margin-top: 0;
-    margin-left: 0;
-    margin-right: 0;
-  }
+  margin: 0;
 }
 
 #export-page .settings-page-header {
@@ -2643,7 +2637,7 @@ function navigateTo(page) {
       break;
     case 'feasts':
       exportPage.style.display = 'block';
-      window.scrollTo(0, 0);
+      exportPage.scrollTop = 0;
       updateExportTable();
       updateURLWithView('feasts');
       break;

@@ -1767,6 +1767,42 @@ body.feasts-open {
   font-size: 0.9em;
 }
 
+.day-detail-astro-times {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 200, 100, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 200, 100, 0.2);
+}
+
+.astro-times-title {
+  font-weight: 600;
+  color: #f0c040;
+  margin-bottom: 8px;
+  font-size: 0.95em;
+}
+
+.astro-times-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+}
+
+.astro-time {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.astro-label {
+  color: #888;
+}
+
+.astro-value {
+  color: #ddd;
+  font-family: monospace;
+}
+
 .feast-basis {
   margin-top: 8px;
   padding: 8px 10px;
@@ -6236,6 +6272,68 @@ function getSunsetTimestamp(date) {
   return midnightUTC.getTime() + 18 * 60 * 60 * 1000;
 }
 
+// Get all astronomical times for a given date (first light, sunrise, sunset, nautical twilight)
+function getAstronomicalTimes(date) {
+  try {
+    const engine = getAstroEngine();
+    const observer = engine.createObserver(state.lat, state.lon, 0);
+    
+    // Use UTC for dates
+    const midnightUTC = new Date(Date.UTC(2000, date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));
+    midnightUTC.setUTCFullYear(date.getUTCFullYear());
+    
+    // Sunrise (sun rises above horizon)
+    const sunriseResult = engine.searchRiseSet('sun', observer, +1, midnightUTC, 1);
+    const sunriseTs = sunriseResult ? sunriseResult.date.getTime() : null;
+    
+    // Sunset (sun sets below horizon)
+    const sunsetResult = engine.searchRiseSet('sun', observer, -1, midnightUTC, 1);
+    const sunsetTs = sunsetResult ? sunsetResult.date.getTime() : null;
+    
+    // First light (civil dawn) - sun is 6° below horizon in the morning
+    // Search for sun reaching -6° altitude before sunrise
+    let firstLightTs = null;
+    if (sunriseTs) {
+      const beforeSunrise = new Date(sunriseTs - 2 * 60 * 60 * 1000); // 2 hours before sunrise
+      const civilDawn = engine.searchAltitude('sun', observer, +1, beforeSunrise, 1, -6);
+      if (civilDawn) {
+        firstLightTs = civilDawn.date.getTime();
+      }
+    }
+    
+    // Nautical twilight (end) - sun is 12° below horizon after sunset
+    // Search for sun reaching -12° altitude after sunset
+    let nauticalTwilightTs = null;
+    if (sunsetTs) {
+      const nauticalDusk = engine.searchAltitude('sun', observer, -1, new Date(sunsetTs), 1, -12);
+      if (nauticalDusk) {
+        nauticalTwilightTs = nauticalDusk.date.getTime();
+      }
+    }
+    
+    // Format times in observer's local time
+    const formatTime = (ts) => {
+      if (!ts) return '--:--';
+      const localTime = utcToLocalTime(ts, state.lon);
+      const hours = localTime.getUTCHours();
+      const mins = String(localTime.getUTCMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const hour12 = hours % 12 || 12;
+      return `${hour12}:${mins} ${ampm}`;
+    };
+    
+    return {
+      firstLight: formatTime(firstLightTs),
+      sunrise: formatTime(sunriseTs),
+      sunset: formatTime(sunsetTs),
+      nauticalTwilight: formatTime(nauticalTwilightTs)
+    };
+  } catch (err) {
+    console.warn('Error calculating astronomical times:', err);
+    return null;
+  }
+}
+
 // Calculate moon altitude at sunset for a given date
 // Returns an object with sunset time, moon altitude, and elongation
 function getMoonAltitudeAtSunset(date) {
@@ -7564,6 +7662,22 @@ function showDayDetail(dayObj, month) {
   
   if (dayObj.moonPhase && dayObj.lunarDay !== 1) {
     infoHtml += `<div>Moon phase: ${dayObj.moonPhase}</div>`;
+  }
+  
+  // Add astronomical times for this day
+  const astroTimes = getAstronomicalTimes(dayObj.gregorianDate);
+  if (astroTimes) {
+    infoHtml += `
+      <div class="day-detail-astro-times">
+        <div class="astro-times-title">☀️ Astronomical Times</div>
+        <div class="astro-times-grid">
+          <div class="astro-time"><span class="astro-label">First Light:</span> <span class="astro-value">${astroTimes.firstLight}</span></div>
+          <div class="astro-time"><span class="astro-label">Sunrise:</span> <span class="astro-value">${astroTimes.sunrise}</span></div>
+          <div class="astro-time"><span class="astro-label">Sunset:</span> <span class="astro-value">${astroTimes.sunset}</span></div>
+          <div class="astro-time"><span class="astro-label">Nautical Twilight:</span> <span class="astro-value">${astroTimes.nauticalTwilight}</span></div>
+        </div>
+      </div>
+    `;
   }
   
   infoContainer.innerHTML = infoHtml;

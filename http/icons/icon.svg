@@ -4,22 +4,24 @@
       <stop offset="0%" style="stop-color:#1a3a5c"/>
       <stop offset="100%" style="stop-color:#0d2840"/>
     </linearGradient>
+    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#fffef0"/>
+      <stop offset="70%" style="stop-color:#f5f5dc"/>
+      <stop offset="100%" style="stop-color:#e8e4c8"/>
+    </radialGradient>
   </defs>
   <!-- Background -->
   <rect width="512" height="512" fill="url(#bg)" rx="80"/>
+  <!-- Outer glow -->
+  <circle cx="256" cy="256" r="200" fill="#f5f5dc" opacity="0.1"/>
+  <circle cx="256" cy="256" r="180" fill="#f5f5dc" opacity="0.1"/>
   <!-- Full Moon -->
-  <circle cx="256" cy="220" r="140" fill="#f5f5dc" opacity="0.95"/>
-  <!-- Moon details/craters -->
-  <circle cx="200" cy="180" r="25" fill="#e8e8c8" opacity="0.5"/>
-  <circle cx="290" cy="250" r="35" fill="#e8e8c8" opacity="0.4"/>
-  <circle cx="230" cy="280" r="20" fill="#e8e8c8" opacity="0.3"/>
-  <!-- Calendar icon below moon -->
-  <rect x="156" y="380" width="200" height="100" rx="10" fill="#d4a017" opacity="0.9"/>
-  <rect x="156" y="380" width="200" height="30" rx="10" fill="#b8860b"/>
-  <rect x="166" y="380" width="180" height="20" fill="#b8860b"/>
-  <!-- Calendar grid lines -->
-  <line x1="206" y1="420" x2="206" y2="470" stroke="#1a3a5c" stroke-width="2" opacity="0.3"/>
-  <line x1="256" y1="420" x2="256" y2="470" stroke="#1a3a5c" stroke-width="2" opacity="0.3"/>
-  <line x1="306" y1="420" x2="306" y2="470" stroke="#1a3a5c" stroke-width="2" opacity="0.3"/>
-  <line x1="166" y1="445" x2="346" y2="445" stroke="#1a3a5c" stroke-width="2" opacity="0.3"/>
+  <circle cx="256" cy="256" r="160" fill="url(#moonGlow)"/>
+  <!-- Moon surface details/craters -->
+  <circle cx="190" cy="200" r="30" fill="#d8d4b8" opacity="0.4"/>
+  <circle cx="310" cy="280" r="40" fill="#d8d4b8" opacity="0.35"/>
+  <circle cx="220" cy="320" r="25" fill="#d8d4b8" opacity="0.3"/>
+  <circle cx="280" cy="180" r="18" fill="#d8d4b8" opacity="0.25"/>
+  <circle cx="340" cy="220" r="15" fill="#d8d4b8" opacity="0.3"/>
+  <circle cx="180" cy="280" r="20" fill="#d8d4b8" opacity="0.25"/>
 </svg>

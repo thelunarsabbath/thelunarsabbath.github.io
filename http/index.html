@@ -2258,6 +2258,12 @@ body.sabbath-tester-open {
   line-height: 1.2;
 }
 
+.profile-compare-location {
+  font-size: 0.8em;
+  color: #888;
+  margin-top: 2px;
+}
+
 /* Old astro-times styles removed - now styled in .day-detail-header */
 
 .feast-basis {
@@ -10577,10 +10583,19 @@ function showDayDetail(dayObj, month) {
         const feastIcons = getFeastIconsForLunarDay(lunarDayInfo.month, lunarDayInfo.day);
         const feastHtml = feastIcons.length > 0 ? `<div class="profile-compare-feasts">${feastIcons.join('')}</div>` : '';
         
+        // Get location info for the profile
+        let locationHint = '';
+        if (profile.useCurrentLocation) {
+          locationHint = '<span class="profile-compare-location">📍 Uses your location</span>';
+        } else if (profile.city === '31.7683,35.2137' || (profile.lat === 31.7683 && profile.lon === 35.2137)) {
+          locationHint = '<span class="profile-compare-location">🏛️ Jerusalem</span>';
+        }
+        
         compareHtml += `
           <div class="profile-compare-item${isCurrent ? ' current' : ''}" data-profile-id="${profileId}" onclick="switchToProfileAndNavigate('${profileId}', ${checkTimestamp})">
             <span class="profile-compare-name">${profile.icon} ${profile.name}</span>
             <span class="profile-compare-day">Day ${lunarDayInfo.day} of Month ${lunarDayInfo.month}</span>
+            ${locationHint}
             ${feastHtml}
           </div>
         `;

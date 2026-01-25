@@ -891,7 +891,8 @@ body.feasts-open {
   grid-template-columns: repeat(7, 1fr);
   background: #1a3a5c;
   border-top: 2px solid #2a5a8c;
-  border-bottom: 2px solid #2a5a8c;
+  border-left: 1px solid #2a5a8c;
+  border-right: 1px solid #2a5a8c;
 }
 
 .week-header .day-label {
@@ -919,6 +920,14 @@ body.feasts-open {
 .week-header .day-label .weekday {
   font-size: 0.9em;
   opacity: 0.8;
+}
+
+/* Day Cycle Bar - shows daylight/night alignment with calendar days */
+/* Gradient is generated dynamically based on actual sunrise/sunset times */
+.day-cycle-bar {
+  height: 6px;
+  border-left: 1px solid #2a5a8c;
+  border-right: 1px solid #2a5a8c;
 }
 
 /* Calendar Grid */
@@ -998,14 +1007,16 @@ body.feasts-open {
   padding: 2px 4px;
 }
 
-/* Sabbath Days */
+/* Sabbath Days - gold-tinted background for more contrast */
 .day-cell.sabbath {
-  background: linear-gradient(135deg, #3a6a9c 0%, #2a5a8c 100%);
+  background: linear-gradient(135deg, #4a5a6a 0%, #3a4a5a 100%);
+  border: 1px solid #d4a01755;
 }
 
 .day-cell.sabbath .lunar-day {
-  color: #d4a017;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(212, 160, 23, 0.6), 1px 1px 2px rgba(0,0,0,0.5);
+  font-weight: bold;
 }
 
 /* New Moon Day */
@@ -1036,6 +1047,22 @@ body.feasts-open {
 @keyframes pulse {
   0%, 100% { box-shadow: inset 0 0 0 3px #ff6b6b, 0 0 10px #ff6b6b; }
   50% { box-shadow: inset 0 0 0 3px #ff6b6b, 0 0 20px #ff6b6b; }
+}
+
+/* Today's date - moderate warm highlight */
+.day-cell.today {
+  background: linear-gradient(135deg, #4a5535 0%, #3a4528 100%);
+  border: 1px solid #7a9050;
+}
+
+.day-cell.today .gregorian {
+  color: #b8d080;
+}
+
+/* When today is also a sabbath - combine both highlights */
+.day-cell.today.sabbath {
+  background: linear-gradient(135deg, #4a5535 0%, #3a4020 100%);
+  border: 1px solid #7a9050;
 }
 
 .day-cell .feast-icons {
@@ -1643,14 +1670,62 @@ body.feasts-open {
 .day-detail-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .day-detail-date {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.day-detail-header .day-detail-astro-times {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85em;
+  background: rgba(255, 200, 100, 0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 200, 100, 0.2);
+}
+
+.day-detail-header .astro-times-title {
+  font-weight: 600;
+  color: #f0c040;
+  margin-bottom: 6px;
+  font-size: 0.95em;
+}
+
+.day-detail-header .astro-times-row {
+  display: flex;
+  gap: 16px;
+}
+
+.day-detail-header .astro-times-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.day-detail-header .astro-time {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.day-detail-header .astro-label {
+  color: #888;
+  text-align: left;
+}
+
+.day-detail-header .astro-value {
+  color: #ddd;
+  font-family: monospace;
+  text-align: right;
 }
 
 .day-detail-lunar {
@@ -1718,6 +1793,14 @@ body.feasts-open {
   line-height: 1;
 }
 
+.day-detail-feast-icon.blood-moon-icon {
+  filter: sepia(1) saturate(5) hue-rotate(320deg) brightness(0.9);
+  text-shadow: 0 0 10px rgba(180, 0, 0, 1), 0 0 20px rgba(255, 50, 50, 0.8), 0 0 30px rgba(200, 0, 0, 0.6);
+  background: rgba(139, 0, 0, 0.3);
+  border-radius: 50%;
+  padding: 4px 6px;
+}
+
 .day-detail-feast-info {
   flex: 1;
 }
@@ -1767,41 +1850,7 @@ body.feasts-open {
   font-size: 0.9em;
 }
 
-.day-detail-astro-times {
-  margin-top: 12px;
-  padding: 10px 12px;
-  background: rgba(255, 200, 100, 0.1);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 200, 100, 0.2);
-}
-
-.astro-times-title {
-  font-weight: 600;
-  color: #f0c040;
-  margin-bottom: 8px;
-  font-size: 0.95em;
-}
-
-.astro-times-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 16px;
-}
-
-.astro-time {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.astro-label {
-  color: #888;
-}
-
-.astro-value {
-  color: #ddd;
-  font-family: monospace;
-}
+/* Old astro-times styles removed - now styled in .day-detail-header */
 
 .feast-basis {
   margin-top: 8px;
@@ -2129,6 +2178,21 @@ body.feasts-open {
   
   .day-detail-gregorian {
     font-size: 0.9em;
+  }
+  
+  .day-detail-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .day-detail-header .day-detail-astro-times {
+    width: 100%;
+    font-size: 0.8em;
+    padding: 8px 10px;
+  }
+  
+  .day-detail-header .astro-times-row {
+    justify-content: space-between;
   }
   
   /* Top nav mobile */
@@ -2603,6 +2667,7 @@ body.feasts-open {
           <button class="day-detail-jump-btn" onclick="toggleDateJump()" title="Jump to another date">⇥</button>
         </span>
       </div>
+      <div class="day-detail-astro-times"></div>
     </div>
     <div class="day-detail-content">
       <div class="day-detail-feasts"></div>
@@ -3261,12 +3326,10 @@ AstroEngines.nasaEclipse = {
   // Returns true if there's a lunar eclipse within 0.5 days of the given date
   hasLunarEclipse(date) {
     if (!this._eclipses) {
-      console.log('hasLunarEclipse: no eclipses loaded');
       return false;
     }
     
     const jd = this._dateToJD(date);
-    console.log(`hasLunarEclipse: checking date=${date.toISOString()}, jd=${jd}`);
     
     // Binary search to find nearby eclipses
     let lo = 0, hi = this._eclipses.length - 1;
@@ -3280,13 +3343,10 @@ AstroEngines.nasaEclipse = {
     for (let i = Math.max(0, lo - 2); i < Math.min(this._eclipses.length, lo + 3); i++) {
       const e = this._eclipses[i];
       const diff = Math.abs(e.jd - jd);
-      console.log(`  Eclipse ${i}: jd=${e.jd}, type=${e.t}, diff=${diff.toFixed(3)} days`);
       if (e.t === 'f' && diff < 1.0) {
-        console.log(`  MATCH! Lunar eclipse found`);
         return true;
       }
     }
-    console.log('  No lunar eclipse found');
     return false;
   },
   
@@ -5691,13 +5751,21 @@ function getMoonIcon() {
 }
 
 // Get the moon phase icon for a specific date, but ONLY if a quarter phase
-// (new moon 0°, first quarter 90°, full moon 180°, last quarter 270°) occurs during this day
+// (new moon 0°, first quarter 90°, full moon 180°, last quarter 270°) occurs during this lunar day
+// Uses the calendar's day start/end definition (sunset, sunrise, etc.) rather than UTC midnight
 function getMoonPhaseIconForDate(date) {
   try {
-    // Get elongation at start and end of this calendar day
-    const startOfDay = new Date(date.getTime());
-    startOfDay.setUTCHours(0, 0, 0, 0);
-    const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+    // Get the lunar day start time for this date based on current calendar config
+    const dayStartTs = getDayStartTime(date);
+    
+    // The lunar day runs from this day start to the next day's start
+    // Calculate next day's start by getting the day start for tomorrow's Gregorian date
+    const tomorrowGregorian = new Date(date.getTime());
+    tomorrowGregorian.setUTCDate(tomorrowGregorian.getUTCDate() + 1);
+    const dayEndTs = getDayStartTime(tomorrowGregorian);
+    
+    const startOfDay = new Date(dayStartTs);
+    const endOfDay = new Date(dayEndTs);
     
     const elongStart = getElongationForDate(startOfDay);
     const elongEnd = getElongationForDate(endOfDay);
@@ -6109,7 +6177,6 @@ function buildLunarMonths(nissanMoon, allMoonEvents, springEquinox, nextYearStar
     }
     
     const daysInMonth = Math.round((nextMonthStart - monthStartDate) / (24 * 60 * 60 * 1000));
-    console.log(`Month ${m + 1}: moonEvent=${moonEvent.toISOString()}, monthStartDate=${monthStartDate.toISOString()}, nextMonthStart=${nextMonthStart.toISOString()}, daysInMonth=${daysInMonth}`);
     
     // Calculate date uncertainty for this month
     // If margin to sunset is within ΔT uncertainty, dates could be off by 1 day
@@ -6203,7 +6270,6 @@ function buildLunarMonths(nissanMoon, allMoonEvents, springEquinox, nextYearStar
       if (moonPhase === '🌕') {
         const checkDate = (d === 1 && moonEvent) ? moonEvent : dayDate;
         isBloodMoon = AstroEngines.nasaEclipse.hasLunarEclipse(checkDate);
-        console.log(`Day ${d}: moonPhase=${moonPhase}, checkDate=${checkDate.toISOString()}, isBloodMoon=${isBloodMoon}`);
       }
       
       days.push({
@@ -6261,10 +6327,10 @@ function getSunriseTimestamp(date) {
 function getSunsetTimestamp(date) {
   const engine = getAstroEngine();
   const observer = engine.createObserver(state.lat, state.lon, 0);
-  // Use UTC for ancient dates
-  const midnightUTC = new Date(Date.UTC(2000, date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));
-  midnightUTC.setUTCFullYear(date.getUTCFullYear());
-  const sunset = engine.searchRiseSet('sun', observer, -1, midnightUTC, 1);
+  // Use noon UTC as search start to find THIS day's sunset (not previous day's)
+  const noonUTC = new Date(Date.UTC(2000, date.getUTCMonth(), date.getUTCDate(), 12, 0, 0));
+  noonUTC.setUTCFullYear(date.getUTCFullYear());
+  const sunset = engine.searchRiseSet('sun', observer, -1, noonUTC, 1);
   if (sunset) {
     return sunset.date.getTime();
   }
@@ -6698,11 +6764,13 @@ function formatMoonDateTime(date) {
 }
 
 function renderMonth(month) {
-  console.log(`renderMonth called: month ${month.monthNumber}, days with blood moon:`, 
-    month.days.filter(d => d.isBloodMoon).map(d => `Day ${d.lunarDay}`));
   const scripture = SCRIPTURES[month.monthNumber % SCRIPTURES.length];
   
   const container = document.getElementById('calendar-output');
+  
+  // Get today's date string for comparison (YYYY-MM-DD format)
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   
   // Day 1 is New Moon shown in header
   // Days 2-8 form the first week, 9-15 second week, etc.
@@ -6754,11 +6822,19 @@ function renderMonth(month) {
   const day1Year = day1 ? formatYear(day1.gregorianDate.getUTCFullYear()) : '';
   const day1Weekday = day1 ? weekdayNames[getCorrectWeekday(day1.gregorianDate)] : '';
   
-  // Check for feasts on day 1
+  // Check for feasts and equinox on day 1
   let day1FeastIcons = '';
-  if (day1 && day1.feasts && day1.feasts.length > 0) {
-    const icons = [...new Set(day1.feasts.map(f => f.feast.icon))];
-    day1FeastIcons = `<div class="feast-icons">${icons.join('')}</div>`;
+  if (day1) {
+    const icons = [];
+    if (day1.feasts && day1.feasts.length > 0) {
+      icons.push(...new Set(day1.feasts.map(f => f.feast.icon)));
+    }
+    if (day1.equinox) {
+      icons.push('☀️⚖️');
+    }
+    if (icons.length > 0) {
+      day1FeastIcons = `<div class="feast-icons">${icons.join('')}</div>`;
+    }
   }
   
   // Check for ΔT uncertainty warning on Day 1 (use the already-calculated flag)
@@ -6766,9 +6842,74 @@ function renderMonth(month) {
   
   // Blood moon styling for Day 1
   const day1BloodMoonClass = (day1 && day1.isBloodMoon) ? ' blood-moon' : '';
-  if (day1 && day1.isBloodMoon) {
-    console.log(`Rendering blood moon on Day 1 in header, date=${day1.gregorianDate.toISOString()}`);
+  
+  // Check if Day 1 is today
+  const day1IsToday = day1 && day1.gregorianDate.toISOString().split('T')[0] === todayStr;
+  
+  // Calculate daylight percentage for day cycle bar based on Day 1's sunrise/sunset
+  let daylightHours = 12; // default if we can't calculate
+  let dayCycleGradient = '';
+  if (day1 && day1.gregorianDate) {
+    try {
+      const sunriseTs = getSunriseTimestamp(day1.gregorianDate);
+      const sunsetTs = getSunsetTimestamp(day1.gregorianDate);
+      if (sunriseTs != null && sunsetTs != null && !isNaN(sunriseTs) && !isNaN(sunsetTs)) {
+        const hours = (sunsetTs - sunriseTs) / (1000 * 60 * 60);
+        if (hours > 0 && hours < 24) {
+          daylightHours = hours;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not calculate daylight hours:', e);
+    }
   }
+  
+  // Clamp daylight hours to reasonable range (6-18 hours covers all latitudes/seasons)
+  daylightHours = Math.max(6, Math.min(18, daylightHours));
+  
+  // Convert hours to percentages of 24-hour day
+  const twilightHours = 1.5;
+  const nightHours = 24 - daylightHours;
+  
+  const twi = (twilightHours / 24) * 100;  // ~6.25%
+  const day = (daylightHours / 24) * 100;
+  const night = (nightHours / 24) * 100;
+  
+  // Generate gradient based on day start time
+  // Twilight transitions (~1.5hr) occur AT sunrise and sunset, not during day/night
+  // Add small offset (1%) to make gradient start visible at edge
+  const offset = 1;
+  const twilight = twi * 2; // Full transition width (dawn or dusk)
+  
+  if (state.dayStartTime === 'evening') {
+    // Evening start: 0% = sunset
+    // Day just ended, dusk transition starts immediately
+    const duskEnd = twilight - offset;
+    const dawnStart = night - twilight + offset;
+    const dawnEnd = night + twilight - offset;
+    
+    dayCycleGradient = `repeating-linear-gradient(90deg, 
+      #7ab3d4 0%, 
+      #0d1a2d ${duskEnd}%, 
+      #0d1a2d ${dawnStart}%, 
+      #7ab3d4 ${dawnEnd}%, 
+      #7ab3d4 100%)`;
+  } else {
+    // Morning start: 0% = first light (dawn)
+    // Night just ended, dawn transition starts immediately
+    const dawnEnd = twilight - offset;
+    const duskStart = day - twilight + offset;
+    const duskEnd = day + twilight - offset;
+    
+    dayCycleGradient = `repeating-linear-gradient(90deg, 
+      #0d1a2d 0%, 
+      #7ab3d4 ${dawnEnd}%, 
+      #7ab3d4 ${duskStart}%, 
+      #0d1a2d ${duskEnd}%, 
+      #0d1a2d 100%)`;
+  }
+  
+  const daylightPercent = Math.round(day);
   
   // Get the year the lunar year started (from first month's day 1)
   const firstMonth = state.lunarMonths[0];
@@ -6792,7 +6933,7 @@ function renderMonth(month) {
             <div class="year">${displayYear} · ${getCurrentLocationName()}</div>
           </div>
         </div>
-        <div class="new-moon-box day-cell new-moon${state.highlightedLunarDay === 1 ? ' highlighted' : ''}${day1 && day1.feasts && day1.feasts.length > 0 ? ' feast' : ''}${day1 && isSabbath(day1) ? ' sabbath' : ''}${day1UncertaintyIndicator ? ' date-uncertain' : ''}" data-date="${day1 ? day1.gregorianDate.toISOString().split('T')[0] : ''}" data-lunar-day="1" title="${day1 && day1.isBloodMoon ? '🔴 Blood Moon (Lunar Eclipse)' : ''}">
+        <div class="new-moon-box day-cell new-moon${state.highlightedLunarDay === 1 ? ' highlighted' : ''}${day1 && day1.feasts && day1.feasts.length > 0 ? ' feast' : ''}${day1 && isSabbath(day1) ? ' sabbath' : ''}${day1UncertaintyIndicator ? ' date-uncertain' : ''}${day1IsToday ? ' today' : ''}" data-date="${day1 ? day1.gregorianDate.toISOString().split('T')[0] : ''}" data-lunar-day="1" title="${day1 && day1.isBloodMoon ? '🔴 Blood Moon (Lunar Eclipse)' : ''}">
           <div class="gregorian">${day1Date}<span class="day-year">${day1Year}</span></div>
           <div class="moon-phase${day1BloodMoonClass}">${day1 ? day1.moonPhase : ''}</div>
           <div class="lunar-day">1</div>
@@ -6809,6 +6950,8 @@ function renderMonth(month) {
         <div class="day-label${sabbathColumnIndex === 5 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(5)}</div><div class="weekday">${shiftedWeekdays[5]}</div></div>
         <div class="day-label${sabbathColumnIndex === 6 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(6)}</div><div class="weekday">${shiftedWeekdays[6]}</div></div>
       </div>
+      
+      <div class="day-cycle-bar" style="background: ${dayCycleGradient}; background-size: calc(100% / 7) 100%;" title="Day/night cycle (~${daylightPercent}% daylight): Each column shows ${state.dayStartTime === 'evening' ? 'sunset → night → day → sunset' : 'dawn → day → night → dawn'}"></div>
       
       <div class="calendar-grid">
   `;
@@ -6840,6 +6983,10 @@ function renderMonth(month) {
       if (day.feasts && day.feasts.length > 0) classes.push('feast');
       if (day.lunarDay === state.highlightedLunarDay) classes.push('highlighted');
       if (day.isUncertain) classes.push('date-uncertain');
+      
+      // Check if this day is today
+      const dayDateStr = day.gregorianDate.toISOString().split('T')[0];
+      if (dayDateStr === todayStr) classes.push('today');
       
       let feastLabel = '';
       const icons = [];
@@ -6873,9 +7020,6 @@ function renderMonth(month) {
       const bloodMoonClass = day.isBloodMoon ? ' blood-moon' : '';
       // Use red full moon emoji for blood moon, or add title
       const bloodMoonTitle = day.isBloodMoon ? ' | 🔴 Blood Moon (Lunar Eclipse)' : '';
-      if (day.isBloodMoon) {
-        console.log(`Rendering blood moon on Day ${day.lunarDay}, date=${day.gregorianDate.toISOString()}, class="${bloodMoonClass}"`);
-      }
       html += `
         <div class="${classes.join(' ')}" data-date="${dateStr}" title="${titleText}${bloodMoonTitle}">
           <div class="gregorian">${formatShortDate(day.gregorianDate)}${uncertaintySuffix}</div>
@@ -6901,6 +7045,8 @@ function renderMonth(month) {
     // Day 30 with '-' means it might not exist (only show uncertainty for '-' direction)
     const day30Uncertain = day30.isUncertain && month.dateUncertainty === '-';
     if (day30Uncertain) classes.push('date-uncertain');
+    // Check if Day 30 is today
+    if (day30.gregorianDate.toISOString().split('T')[0] === todayStr) classes.push('today');
     
     let feastLabel = '';
     const icons = [];
@@ -6930,9 +7076,6 @@ function renderMonth(month) {
     // Blood moon styling for Day 30
     const bloodMoonClass30 = day30.isBloodMoon ? ' blood-moon' : '';
     const bloodMoonTitle30 = day30.isBloodMoon ? ' | 🔴 Blood Moon (Lunar Eclipse)' : '';
-    if (day30.isBloodMoon) {
-      console.log(`Rendering blood moon on Day 30, date=${day30.gregorianDate.toISOString()}`);
-    }
     
     html += `
       <div class="${classes.join(' ')}" data-date="${dateStr}" title="${titleText}${bloodMoonTitle30}">
@@ -7449,7 +7592,7 @@ function showDayDetail(dayObj, month) {
     const item = document.createElement('div');
     item.className = 'day-detail-feast-item';
     item.innerHTML = `
-      <div class="day-detail-feast-icon">🌑🔴</div>
+      <div class="day-detail-feast-icon blood-moon-icon">🌕</div>
       <div class="day-detail-feast-info">
         <div class="day-detail-feast-name" style="color: #ff6b6b;">Blood Moon (Total Lunar Eclipse)</div>
         <div class="day-detail-feast-desc">A total lunar eclipse occurs when the Earth passes between the Sun and Moon, 
@@ -7647,6 +7790,27 @@ function showDayDetail(dayObj, month) {
     }
   }
   
+  // Populate astronomical times in header (to the right of date info)
+  const astroTimesContainer = panel.querySelector('.day-detail-astro-times');
+  const astroTimes = getAstronomicalTimes(dayObj.gregorianDate);
+  if (astroTimes) {
+    astroTimesContainer.innerHTML = `
+      <div class="astro-times-title">☀️ Astronomical Times</div>
+      <div class="astro-times-row">
+        <div class="astro-times-group">
+          <div class="astro-time"><span class="astro-label">Daybreak:</span> <span class="astro-value">${astroTimes.firstLight}</span></div>
+          <div class="astro-time"><span class="astro-label">Sunrise:</span> <span class="astro-value">${astroTimes.sunrise}</span></div>
+        </div>
+        <div class="astro-times-group">
+          <div class="astro-time"><span class="astro-label">Sunset:</span> <span class="astro-value">${astroTimes.sunset}</span></div>
+          <div class="astro-time"><span class="astro-label">Twilight:</span> <span class="astro-value">${astroTimes.nauticalTwilight}</span></div>
+        </div>
+      </div>
+    `;
+  } else {
+    astroTimesContainer.innerHTML = '';
+  }
+  
   // Populate additional info
   const infoContainer = panel.querySelector('.day-detail-info');
   let infoHtml = '';
@@ -7662,22 +7826,6 @@ function showDayDetail(dayObj, month) {
   
   if (dayObj.moonPhase && dayObj.lunarDay !== 1) {
     infoHtml += `<div>Moon phase: ${dayObj.moonPhase}</div>`;
-  }
-  
-  // Add astronomical times for this day
-  const astroTimes = getAstronomicalTimes(dayObj.gregorianDate);
-  if (astroTimes) {
-    infoHtml += `
-      <div class="day-detail-astro-times">
-        <div class="astro-times-title">☀️ Astronomical Times</div>
-        <div class="astro-times-grid">
-          <div class="astro-time"><span class="astro-label">First Light:</span> <span class="astro-value">${astroTimes.firstLight}</span></div>
-          <div class="astro-time"><span class="astro-label">Sunrise:</span> <span class="astro-value">${astroTimes.sunrise}</span></div>
-          <div class="astro-time"><span class="astro-label">Sunset:</span> <span class="astro-value">${astroTimes.sunset}</span></div>
-          <div class="astro-time"><span class="astro-label">Nautical Twilight:</span> <span class="astro-value">${astroTimes.nauticalTwilight}</span></div>
-        </div>
-      </div>
-    `;
   }
   
   infoContainer.innerHTML = infoHtml;

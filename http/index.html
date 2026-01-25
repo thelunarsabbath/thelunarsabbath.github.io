@@ -920,6 +920,18 @@ body.feasts-open {
   font-size: 0.85em;
 }
 
+/* Year Uncertainty Banner */
+.year-uncertainty-banner {
+  background: linear-gradient(90deg, #ff6b00 0%, #ff8c00 100%);
+  color: white;
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: help;
+  border-bottom: 1px solid #cc5500;
+}
+
 /* Week Header */
 .week-header {
   display: grid;
@@ -1661,6 +1673,96 @@ body.feasts-open {
   margin: 0 0 15px 0;
   color: rgba(255,255,255,0.7);
   font-size: 0.9em;
+}
+
+.settings-info-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(126, 200, 227, 0.1);
+  border-left: 3px solid #7ec8e3;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.settings-info-box p {
+  margin: 0 0 10px 0;
+  color: rgba(255,255,255,0.9);
+}
+
+.settings-info-box p:last-child {
+  margin-bottom: 0;
+}
+
+.settings-info-box blockquote {
+  margin: 10px 0;
+  padding: 10px 15px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+  font-style: italic;
+  color: rgba(255,255,255,0.8);
+}
+
+.settings-info-box em {
+  color: #7ec8e3;
+}
+
+.settings-accordion {
+  margin-top: 15px;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  padding-top: 10px;
+}
+
+.settings-accordion summary {
+  cursor: pointer;
+  color: #7ec8e3;
+  font-weight: 500;
+  padding: 8px 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-accordion summary::before {
+  content: '▶';
+  font-size: 0.7em;
+  transition: transform 0.2s;
+}
+
+.settings-accordion[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.settings-accordion summary:hover {
+  color: #a8dcf0;
+}
+
+.settings-accordion .accordion-content {
+  padding: 15px 0 5px 0;
+  animation: accordionOpen 0.2s ease-out;
+}
+
+@keyframes accordionOpen {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-accordion .accordion-content p {
+  margin: 0 0 10px 0;
+}
+
+.settings-accordion .accordion-content blockquote {
+  margin: 10px 0;
+  padding: 10px 15px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+  font-style: italic;
+  color: rgba(255,255,255,0.8);
 }
 
 .settings-options {
@@ -2595,6 +2697,228 @@ body.feasts-open {
     break-inside: avoid;
   }
 }
+
+/* Sabbath Tester Page Styles */
+#sabbath-tester-page {
+  position: fixed;
+  top: 55px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #1a3a5c 0%, #0d1f33 100%);
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sabbath-tester-header {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(180deg, #1a3a5c 0%, #0d1f33 50%);
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  border-bottom: 1px solid rgba(126, 200, 227, 0.2);
+}
+
+.sabbath-tester-header h2 {
+  margin: 0;
+  font-size: 1.3em;
+  color: #7ec8e3;
+}
+
+.sabbath-tester-content {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.sabbath-test-card {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(126, 200, 227, 0.2);
+}
+
+.sabbath-test-title {
+  font-size: 1.2em;
+  color: #7ec8e3;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sabbath-test-date {
+  font-size: 0.9em;
+  color: #aaa;
+  margin-bottom: 12px;
+}
+
+.sabbath-test-scripture {
+  display: inline-block;
+  background: rgba(126, 200, 227, 0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: #7ec8e3;
+  margin-bottom: 12px;
+}
+
+.sabbath-test-description {
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  font-size: 0.95em;
+}
+
+.sabbath-test-expected {
+  background: rgba(126, 200, 227, 0.1);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  color: #7ec8e3;
+  font-weight: 500;
+}
+
+.sabbath-test-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.sabbath-test-results-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #7ec8e3;
+  border-bottom: 1px solid rgba(126, 200, 227, 0.3);
+}
+
+.sabbath-test-results-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ddd;
+}
+
+.sabbath-test-results-table tr:last-child td {
+  border-bottom: none;
+}
+
+.sabbath-test-results-table .result-pass {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.sabbath-test-results-table .result-fail {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.sabbath-test-results-table .result-uncertain {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.sabbath-test-date-link {
+  color: #7ec8e3;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sabbath-test-date-link:hover {
+  text-decoration: underline;
+}
+
+.year-uncertainty-icon {
+  color: #ff9800;
+  font-size: 0.85em;
+  cursor: help;
+  white-space: nowrap;
+}
+
+/* Summary Scoreboard */
+.sabbath-scoreboard {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(126, 200, 227, 0.3);
+}
+
+.sabbath-scoreboard-title {
+  font-size: 1.1em;
+  color: #7ec8e3;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sabbath-scoreboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sabbath-scoreboard-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: rgba(126, 200, 227, 0.15);
+  color: #7ec8e3;
+  font-weight: 600;
+}
+
+.sabbath-scoreboard-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ddd;
+}
+
+.sabbath-scoreboard-table tr:last-child td {
+  border-bottom: none;
+}
+
+.sabbath-scoreboard-table .score-perfect {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.sabbath-scoreboard-table .score-good {
+  color: #a3e635;
+  font-weight: 600;
+}
+
+.sabbath-scoreboard-table .score-medium {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.sabbath-scoreboard-table .score-poor {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.sabbath-test-loading {
+  text-align: center;
+  padding: 40px;
+  color: #7ec8e3;
+}
+
+@media (max-width: 600px) {
+  .sabbath-test-results-table th,
+  .sabbath-test-results-table td {
+    padding: 8px 6px;
+    font-size: 0.85em;
+  }
+  
+  .sabbath-scoreboard-table th,
+  .sabbath-scoreboard-table td {
+    padding: 8px 6px;
+    font-size: 0.85em;
+  }
+}
   </style>
 </head>
 <body>
@@ -2629,6 +2953,10 @@ body.feasts-open {
     <button class="nav-menu-item" onclick="navigateTo('settings')">
       <span class="icon">⚙️</span>
       <span>Settings</span>
+    </button>
+    <button class="nav-menu-item" onclick="navigateTo('sabbath-tester')">
+      <span class="icon">🔬</span>
+      <span>Sabbath Tester</span>
     </button>
     <div class="nav-menu-divider"></div>
     <a class="nav-menu-item" href="/book/">
@@ -2872,8 +3200,68 @@ body.feasts-open {
         <button class="settings-option-btn" data-yearstart="13daysBefore" onclick="selectYearStartRule('13daysBefore')">
           <span class="option-icon">🐑</span>
           <span class="option-label">Passover after Equinox</span>
-          <span class="option-hint" id="yearstart-passover-hint">Day 14 of Month 1 after equinox</span>
+          <span class="option-hint" id="yearstart-passover-hint">Day 15 (Unleavened) on or after equinox</span>
         </button>
+      </div>
+      <div class="settings-info-box" id="equinox-rule-explanation" style="display: none;">
+        <p><strong>⚖️ Renewed Moon after Equinox</strong></p>
+        <p>The first renewed moon <em>on or after</em> the spring equinox begins the year. This ensures:</p>
+        <ul style="margin: 10px 0; padding-left: 20px; color: rgba(255,255,255,0.9);">
+          <li><strong>Observation before the month</strong> — the sign precedes the decision</li>
+          <li><strong>No calculation errors</strong> — watch the sun, not a formula</li>
+          <li><strong>Practical globally</strong> — anyone can observe without technology</li>
+          <li><strong>Barley ripe by First Fruits</strong> — harvest ready by Day 16</li>
+        </ul>
+        <p style="font-size: 0.9em; color: rgba(255,255,255,0.7);">Starting 2 weeks earlier risks unripe barley. Any later and the harvest would be over.</p>
+        
+        <details class="settings-accordion">
+          <summary>View Biblical Justification</summary>
+          <div class="accordion-content">
+            <p><strong>Twelve Hours in the Day</strong></p>
+            <blockquote>"Are there not twelve hours in the day?"<br>— John 11:9</blockquote>
+            <p>Yeshua likely spoke these words around Renewed Moon day, shortly before Passover (see John 11:55, 12:1). The equinox—when day and night are equal (~12 hours each)—may be the precondition He was referencing for starting the year.</p>
+            
+            <p><strong>What is Aviv?</strong></p>
+            <p>The first month is called <strong>Aviv</strong> (אָבִיב), describing barley at a specific stage of ripeness—heads formed, soft dough stage, ready for harvest within 2-3 weeks:</p>
+            <blockquote>"And the flax and the barley was smitten: for the barley was in the ear [aviv], and the flax was bolled."<br>— Exodus 9:31</blockquote>
+            
+            <p><strong>First Fruits Requirement</strong></p>
+            <p><strong>First Fruits (Day 16)</strong> requires ripe barley for the wave-sheaf offering:</p>
+            <blockquote>"From such time as thou begin to put the sickle to the standing grain shalt thou begin to number seven weeks."<br>— Deuteronomy 16:9</blockquote>
+            
+            <p><strong>The Tekufah (Turning Point)</strong></p>
+            <p>The Feast of Ingathering (Tabernacles) is connected to the <em>tekufah</em> (turning point):</p>
+            <blockquote>"You shall observe the Feast of Weeks… and the Feast of Ingathering at the turning (tekufah) of the year."<br>— Exodus 34:22</blockquote>
+            <p>If the fall feast is at one turning point (autumn equinox), Passover should be at the other (spring equinox).</p>
+            
+            <p style="margin-top: 15px;"><a href="/chapters/08-when-does-the-year-start/" style="color: #7ec8e3;">📖 See "Time Tested Tradition" chapter: When Does the Year Start?</a></p>
+          </div>
+        </details>
+      </div>
+      <div class="settings-info-box" id="lamb-rule-explanation" style="display: none;">
+        <p><strong>🐑 Passover after Equinox</strong></p>
+        <p>The first new moon is chosen such that <strong>Day 15</strong> (when Unleavened Bread begins) occurs <em>on or after</em> the spring equinox. This ensures:</p>
+        <ul style="margin: 10px 0; padding-left: 20px; color: rgba(255,255,255,0.9);">
+          <li>Passover is always a true "spring festival" (<em>ḥag ha-aviv</em>)</li>
+          <li>Matches the traditional Jewish calendar intercalation rule</li>
+          <li>Allows the month to start up to 14 days before the equinox</li>
+        </ul>
+        
+        <details class="settings-accordion">
+          <summary>View Traditional Source</summary>
+          <div class="accordion-content">
+            <p><strong>Maimonides' Codification</strong></p>
+            <p>Maimonides codified the ancient rabbinic intercalation rule in <em>Hilchot Kiddush HaChodesh 4:2</em>:</p>
+            <blockquote>"When the court calculates and determines that the vernal equinox will fall on the sixteenth of Nisan or later, the year is made full [a leap month is added]."</blockquote>
+            <p>This means if the equinox would fall on Day 16 or later, a leap month (Adar II) is added, pushing Nisan forward so that the equinox falls on Day 15 or earlier.</p>
+            
+            <p><strong>Torah Command</strong></p>
+            <blockquote>"Observe the month of Aviv, and keep the Passover unto the LORD thy God: for in the month of Aviv the LORD thy God brought thee forth out of Egypt by night."<br>— Deuteronomy 16:1</blockquote>
+            <p>The month must be Aviv (spring) when Passover occurs, ensuring the festival aligns with the season of redemption and renewal.</p>
+            
+            <p style="margin-top: 15px;"><a href="/chapters/08-when-does-the-year-start/" style="color: #7ec8e3;">📖 See "Time Tested Tradition" chapter: When Does the Year Start?</a></p>
+          </div>
+        </details>
       </div>
     </div>
     
@@ -2912,25 +3300,6 @@ body.feasts-open {
     </div>
     
     <div class="settings-section">
-      <h3>Astronomy Engine</h3>
-      <p class="settings-description">The library used for calculating lunar phases and equinoxes. Different engines use different ΔT models, which affects accuracy for ancient dates.</p>
-      <div id="astro-engine-info" class="settings-engine-info">
-        <div class="engine-info-row">
-          <span class="engine-info-label">Library:</span>
-          <span id="astro-engine-name" class="engine-info-value">astronomy-engine v2.1.19</span>
-        </div>
-        <div class="engine-info-row">
-          <span class="engine-info-label">ΔT Model:</span>
-          <span id="astro-engine-delta" class="engine-info-value">Espenak-Meeus polynomial</span>
-        </div>
-        <div class="engine-info-row">
-          <span class="engine-info-label">Note:</span>
-          <span class="engine-info-value" style="color: rgba(255,255,255,0.6); font-family: inherit;">For ancient dates (before 500 BC), ΔT uncertainty is ±hours. Different sources may vary.</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="settings-section">
       <h3>Your Location</h3>
       <p class="settings-description">Your location determines the timing of sunrise, sunset, and twilight.</p>
       <div id="settings-page-map"></div>
@@ -2958,6 +3327,57 @@ body.feasts-open {
       <div id="settings-custom-coords" class="settings-custom-coords" style="display: none;">
         <input type="number" id="settings-lat-input" step="0.0001" placeholder="Latitude">
         <input type="number" id="settings-lon-input" step="0.0001" placeholder="Longitude">
+      </div>
+    </div>
+    
+    <div class="settings-section">
+      <h3>Astronomy Engine & ΔT Uncertainty</h3>
+      <p class="settings-description">Technical details about astronomical calculations and historical date accuracy.</p>
+      
+      <div id="astro-engine-info" class="settings-engine-info">
+        <div class="engine-info-row">
+          <span class="engine-info-label">Library:</span>
+          <span id="astro-engine-name" class="engine-info-value">astronomy-engine v2.1.19</span>
+        </div>
+        <div class="engine-info-row">
+          <span class="engine-info-label">ΔT Model:</span>
+          <span id="astro-engine-delta" class="engine-info-value">NASA Eclipse with historical calibration</span>
+        </div>
+      </div>
+      
+      <div class="settings-info-box" style="display: block; margin-top: 15px;">
+        <p><strong>What is ΔT (Delta T)?</strong></p>
+        <p>ΔT is the difference between <em>Terrestrial Time</em> (uniform, based on atomic clocks) and <em>Universal Time</em> (based on Earth's rotation). Earth's rotation is gradually slowing due to tidal friction, causing ΔT to grow over centuries.</p>
+        
+        <p><strong>Why does this matter for ancient calendars?</strong></p>
+        <p>When calculating ancient lunar phases, the uncertainty in ΔT means we cannot know the <em>exact</em> moment a conjunction or full moon occurred. If the moon event was close to sunset, this uncertainty could shift whether Day 1 started on that evening or the next.</p>
+        
+        <p><strong>ΔT Uncertainty Thresholds Used:</strong></p>
+        <table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9em;">
+          <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.3);">
+              <th style="text-align: left; padding: 5px;">Era</th>
+              <th style="text-align: right; padding: 5px;">Uncertainty</th>
+              <th style="text-align: left; padding: 5px 5px 5px 15px;">Notes</th>
+            </tr>
+          </thead>
+          <tbody style="color: rgba(255,255,255,0.8);">
+            <tr><td style="padding: 4px 5px;">1600–2100 AD</td><td style="text-align: right; padding: 4px 5px;">~0 hours</td><td style="padding: 4px 5px 4px 15px;">Modern records, negligible error</td></tr>
+            <tr><td style="padding: 4px 5px;">1000–1600 AD</td><td style="text-align: right; padding: 4px 5px;">±0.25 hours</td><td style="padding: 4px 5px 4px 15px;">Medieval eclipse records</td></tr>
+            <tr><td style="padding: 4px 5px;">500–1000 AD</td><td style="text-align: right; padding: 4px 5px;">±0.5 hours</td><td style="padding: 4px 5px 4px 15px;">Late antiquity</td></tr>
+            <tr><td style="padding: 4px 5px;">1–500 AD</td><td style="text-align: right; padding: 4px 5px;">±1 hour</td><td style="padding: 4px 5px 4px 15px;">Roman era</td></tr>
+            <tr><td style="padding: 4px 5px;">500–1 BC</td><td style="text-align: right; padding: 4px 5px;">±1.5 hours</td><td style="padding: 4px 5px 4px 15px;">Classical antiquity</td></tr>
+            <tr><td style="padding: 4px 5px;">1000–500 BC</td><td style="text-align: right; padding: 4px 5px;">±2 hours</td><td style="padding: 4px 5px 4px 15px;">Iron Age, Babylonian records</td></tr>
+            <tr><td style="padding: 4px 5px;">1500–1000 BC</td><td style="text-align: right; padding: 4px 5px;">±3 hours</td><td style="padding: 4px 5px 4px 15px;">Late Bronze Age (Exodus era)</td></tr>
+            <tr><td style="padding: 4px 5px;">2000–1500 BC</td><td style="text-align: right; padding: 4px 5px;">±4 hours</td><td style="padding: 4px 5px 4px 15px;">Middle Bronze Age</td></tr>
+            <tr><td style="padding: 4px 5px;">Before 2000 BC</td><td style="text-align: right; padding: 4px 5px;">±5+ hours</td><td style="padding: 4px 5px 4px 15px;">Early Bronze Age and earlier</td></tr>
+          </tbody>
+        </table>
+        
+        <p style="font-size: 0.85em; color: rgba(255,255,255,0.6); margin-top: 10px;">
+          <strong>Source:</strong> Based on NASA eclipse calibration data and Espenak-Meeus polynomial models. 
+          See <a href="https://eclipse.gsfc.nasa.gov/SEcat5/deltat.html" target="_blank" style="color: #7ec8e3;">NASA ΔT page</a>.
+        </p>
       </div>
     </div>
   </div>
@@ -3016,6 +3436,34 @@ body.feasts-open {
   </div>
 </div>
 
+<!-- Sabbath Tester Page -->
+<div id="sabbath-tester-page" style="display: none;">
+  <div class="sabbath-tester-header">
+    <h2>🔬 Sabbath Theory Tester</h2>
+    <button class="close-btn" onclick="navigateTo('calendar')" aria-label="Close">✕</button>
+  </div>
+  <div class="sabbath-tester-content">
+    <div class="sabbath-tester-intro" style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 10px; margin-bottom: 20px; color: #ccc; line-height: 1.6;">
+      <p style="margin: 0 0 10px 0;">This tool tests various <strong style="color: #7ec8e3;">lunar calendar theories</strong> against historical biblical events where specific weekdays are mentioned in Scripture.</p>
+      <p style="margin: 0 0 14px 0;">All tests assume a <strong style="color: #7ec8e3;">fixed Saturday Sabbath</strong> and <strong style="color: #7ec8e3;">Jerusalem location</strong>. The goal is to determine which combination of moon phase (Full, Dark, or Crescent) and day-start time (Daybreak or Sunset) produces dates that align with the biblical record.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; padding-top: 10px; border-top: 1px solid rgba(126, 200, 227, 0.2);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 1.2em;">⚖️</span>
+          <span><strong style="color: #7ec8e3;">Scale</strong> — New Moon on or after Spring Equinox</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 1.2em;">🐑</span>
+          <span><strong style="color: #7ec8e3;">Lamb</strong> — Day 15 (Unleavened) on or after Spring Equinox</span>
+        </div>
+      </div>
+    </div>
+    <div id="sabbath-tester-loading" class="sabbath-test-loading">
+      Loading tests...
+    </div>
+    <div id="sabbath-tester-results"></div>
+  </div>
+</div>
+
 <!-- Export/Feasts Page -->
 <div id="export-page" class="export-page" style="display: none;">
   <div class="settings-page-header export-header">
@@ -3042,6 +3490,7 @@ body.feasts-open {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<script src="/lunar-calendar-engine.js"></script>
 <script>
 // ============================================================================
 // ASTRONOMY ENGINE ABSTRACTION LAYER
@@ -4273,9 +4722,21 @@ function loadFromURL() {
     updateMonthButtons();
   }
   
-  // Check for view=feasts parameter to open the feasts page
-  if (params.has('view') && params.get('view') === 'feasts') {
-    toggleExportModal(true); // Skip URL update since we're loading from URL
+  // Check for view parameter to open specific pages
+  if (params.has('view')) {
+    const view = params.get('view');
+    if (view === 'feasts') {
+      toggleExportModal(true); // Skip URL update since we're loading from URL
+    } else if (view === 'sabbath-tester') {
+      // Navigate to sabbath tester without updating URL (already set)
+      const sabbathTesterPage = document.getElementById('sabbath-tester-page');
+      const calendarOutput = document.getElementById('calendar-output');
+      const dayDetailPanel = document.getElementById('day-detail-panel');
+      calendarOutput.style.display = 'none';
+      dayDetailPanel.style.display = 'none';
+      sabbathTesterPage.style.display = 'block';
+      renderSabbathTester();
+    }
   }
 }
 
@@ -4340,6 +4801,7 @@ function navigateTo(page) {
   const settingsPage = document.getElementById('settings-page');
   const settingsOverlay = document.getElementById('settings-page-overlay');
   const exportPage = document.getElementById('export-page');
+  const sabbathTesterPage = document.getElementById('sabbath-tester-page');
   
   // Hide all pages and reset body state
   document.documentElement.classList.remove('feasts-open');
@@ -4350,8 +4812,9 @@ function navigateTo(page) {
   settingsPage.classList.remove('visible');
   settingsOverlay.classList.remove('visible');
   
-  // Hide export page
+  // Hide export page and sabbath tester
   exportPage.style.display = 'none';
+  sabbathTesterPage.style.display = 'none';
   
   switch(page) {
     case 'calendar':
@@ -4385,6 +4848,14 @@ function navigateTo(page) {
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
       updateSettingsPageState();
       settingsPage.scrollTop = 0;
+      break;
+    case 'sabbath-tester':
+      calendarOutput.style.display = 'none';
+      dayDetailPanel.style.display = 'none';
+      sabbathTesterPage.style.display = 'block';
+      sabbathTesterPage.scrollTop = 0;
+      renderSabbathTester();
+      updateURLWithView('sabbath-tester');
       break;
   }
 }
@@ -4479,7 +4950,8 @@ function updateURLWithView(view) {
   params.set('view', view);
   
   const newURL = window.location.pathname + '?' + params.toString();
-  window.history.replaceState({}, '', newURL);
+  // Use pushState for navigation views so back button works
+  window.history.pushState({ view: view }, '', newURL);
 }
 
 function updateExportTable() {
@@ -5271,6 +5743,921 @@ function resetToDefaults() {
   applyProfile('biblicalFull');
 }
 
+// ============================================================================
+// SABBATH TESTER - Test biblical events against calendar theories
+// ============================================================================
+
+// Biblical test cases - extensible array
+// These tests validate fixed-weekday sabbath theories (Saturday) against biblical events
+const BIBLICAL_TESTS = [
+  {
+    id: 'manna-sabbath',
+    name: 'First Sabbath of Manna',
+    description: 'Israel arrived in the Wilderness of Sin on the 15th of the Second Month, 1446 BC (Exodus 16:1). Manna first fell on the 16th (the morning after arrival). They gathered manna for 6 days (16th-21st), and the 22nd was explicitly called the Sabbath when no manna fell (Exodus 16:22-26). Therefore, the 22nd of the 2nd month must be a Saturday.',
+    scripture: 'Exodus 16:1-26',
+    year: -1445,  // Astronomical year (1446 BC = -1445)
+    month: 2,     // Second month (Iyar)
+    day: 22,
+    expectedWeekday: 6,  // Saturday (0=Sun, 6=Sat)
+    expectedLabel: 'Saturday',
+    location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' }
+  },
+  {
+    id: 'first-fruits-1406',
+    name: 'First Fruits After Jordan Crossing',
+    description: 'The 16th of the First Month, 1406 BC was First Fruits when Israel ate the produce of Canaan for the first time (Joshua 5:10-12). According to Leviticus 23:11, First Fruits is offered "on the day after the Sabbath," which means the 16th should be the first day of the week (Sunday).',
+    scripture: 'Joshua 5:10-12, Leviticus 23:11',
+    year: -1405,  // Astronomical year (1406 BC = -1405)
+    month: 1,     // First month (Nisan)
+    day: 16,
+    expectedWeekday: 0,  // Sunday (first day of week)
+    expectedLabel: 'Sunday',
+    location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' }
+  },
+  {
+    id: 'resurrection-32ad',
+    name: 'Resurrection of Jesus (32 AD)',
+    description: 'Jesus rose from the dead on the first day of the week (Matthew 28:1, Mark 16:2, Luke 24:1, John 20:1), which was also First Fruits (Leviticus 23:11). He was crucified on Passover (14th), rested in the tomb on the 15th, and rose on the 16th. For Saturday to be the weekly Sabbath, this calendar must place the 16th of Nisan 32 AD on Sunday (the day after Saturday).',
+    scripture: 'Matthew 28:1, 1 Corinthians 15:20',
+    year: 32,  // 32 AD
+    month: 1,  // First month (Nisan)
+    day: 16,   // First Fruits / Resurrection (must be first day of week)
+    expectedWeekday: 0,  // Sunday (first day of week)
+    expectedLabel: 'Sunday',
+    location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' }
+  },
+  {
+    id: 'resurrection-30ad',
+    name: 'Resurrection of Jesus (30 AD)',
+    description: 'Alternative crucifixion year theory. For Saturday to be the weekly Sabbath, this calendar must place the 16th of Nisan 30 AD on Sunday.',
+    scripture: 'Matthew 28:1, 1 Corinthians 15:20',
+    year: 30,  // 30 AD
+    month: 1,  // First month (Nisan)
+    day: 16,   // First Fruits / Resurrection (must be first day of week)
+    expectedWeekday: 0,  // Sunday (first day of week)
+    expectedLabel: 'Sunday',
+    location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' },
+    excludeFromScore: true  // Alternative theory - don't include in main score
+  },
+  {
+    id: 'resurrection-33ad',
+    name: 'Resurrection of Jesus (33 AD)',
+    description: 'Alternative crucifixion year theory. For Saturday to be the weekly Sabbath, this calendar must place the 16th of Nisan 33 AD on Sunday.',
+    scripture: 'Matthew 28:1, 1 Corinthians 15:20',
+    year: 33,  // 33 AD
+    month: 1,  // First month (Nisan)
+    day: 16,   // First Fruits / Resurrection (must be first day of week)
+    expectedWeekday: 0,  // Sunday (first day of week)
+    expectedLabel: 'Sunday',
+    location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' },
+    excludeFromScore: true  // Alternative theory - don't include in main score
+  },
+  {
+    id: 'temple1-talmud',
+    name: 'First Temple Destruction (Talmud)',
+    description: 'The Talmud (Ta\'anit 29a) claims both Temples fell on the 9th of Av "at the conclusion of Shabbat" (post-Sabbath, i.e., Sunday). The Talmud reconciles biblical accounts (7th in 2 Kings, 10th in Jeremiah) by describing a multi-day process where the fire was set toward the end of the 9th. This tests whether the 9th of Av falls on Sunday according to Talmudic tradition.',
+    scripture: 'Talmud Ta\'anit 29a, Arakhin 11b',
+    year: -585,  // Astronomical year (586 BC = -585)
+    month: 5,    // Fifth month (Av)
+    day: 9,      // 9th of Av per Talmud
+    expectedWeekday: 0,  // Sunday (first day of week, "post-Shabbat")
+    expectedLabel: 'Sunday',
+    location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' },
+    excludeFromScore: true  // Extra-biblical tradition test
+  },
+  {
+    id: 'temple2-talmud',
+    name: 'Second Temple Destruction (Talmud)',
+    description: 'The Talmud claims the Second Temple also fell on the 9th of Av "at the conclusion of Shabbat" (Sunday), mirroring the First Temple. Josephus records the destruction on the 10th and notes the Romans built siege ramps on the 8th while Jews rested (implying the 8th was a Sabbath). This tests the Talmudic claim that 9th of Av was Sunday.',
+    scripture: 'Talmud Ta\'anit 29a, Josephus Jewish War 6.4',
+    year: 70,    // 70 AD
+    month: 5,    // Fifth month (Av)
+    day: 9,      // 9th of Av per Talmud
+    expectedWeekday: 0,  // Sunday (first day of week, "post-Shabbat")
+    expectedLabel: 'Sunday',
+    location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' },
+    excludeFromScore: true  // Extra-biblical tradition test
+  }
+];
+
+// Generate test profiles dynamically (Saturday sabbath with Jerusalem location)
+function getSabbathTestProfiles() {
+  const profiles = [];
+  
+  // Moon phases to test
+  const moonPhases = [
+    { id: 'full', name: 'Full Moon', icon: '🌕' },
+    { id: 'dark', name: 'Dark Moon', icon: '🌑' },
+    { id: 'crescent', name: 'Crescent Moon', icon: '🌒' }
+  ];
+  
+  // Day start times to test
+  const dayStarts = [
+    { id: 'morning', name: 'Daybreak', angle: 12 },
+    { id: 'evening', name: 'Sunset', angle: 0 }
+  ];
+  
+  // Year start rules to test
+  const yearRules = [
+    { id: 'equinox', name: 'Sun Scale', icon: '⚖️' },  // New Moon on or after Equinox
+    { id: '13daysBefore', name: 'Lamb', icon: '🐑' }   // Day 15 (Unleavened) on or after Equinox
+  ];
+  
+  for (const moon of moonPhases) {
+    for (const dayStart of dayStarts) {
+      for (const yearRule of yearRules) {
+        profiles.push({
+          id: `test-${moon.id}-${dayStart.id}-${yearRule.id}`,
+          name: `${moon.icon} ${moon.name} ${dayStart.name} ${yearRule.icon}`,
+          moonPhase: moon.id,
+          dayStartTime: dayStart.id,
+          dayStartAngle: dayStart.angle,
+          yearStartRule: yearRule.id,
+          crescentThreshold: 18,
+          sabbathMode: 'saturday',
+          lat: 31.7683,  // Jerusalem
+          lon: 35.2137
+        });
+      }
+    }
+  }
+  
+  return profiles;
+}
+
+// Run a single biblical test against a profile
+function runBiblicalTest(test, profile) {
+  try {
+    // Save current state
+    const savedState = {
+      moonPhase: state.moonPhase,
+      dayStartTime: state.dayStartTime,
+      dayStartAngle: state.dayStartAngle,
+      yearStartRule: state.yearStartRule,
+      crescentThreshold: state.crescentThreshold,
+      sabbathMode: state.sabbathMode,
+      lat: state.lat,
+      lon: state.lon,
+      year: state.year
+    };
+    
+    // Apply profile settings temporarily
+    state.moonPhase = profile.moonPhase;
+    state.dayStartTime = profile.dayStartTime;
+    state.dayStartAngle = profile.dayStartAngle;
+    state.yearStartRule = profile.yearStartRule;
+    state.crescentThreshold = profile.crescentThreshold;
+    state.sabbathMode = profile.sabbathMode;
+    state.lat = test.location.lat;
+    state.lon = test.location.lon;
+    state.year = test.year;
+    
+    const engine = getAstroEngine();
+    
+    // Find moon events for the test year
+    const moonEvents = findMoonEvents(test.year, profile.moonPhase);
+    if (!moonEvents || moonEvents.length === 0) {
+      Object.assign(state, savedState);
+      return { result: 'error', error: 'No moon events found' };
+    }
+    
+    // Get the year start point based on yearStartRule
+    // For 'equinox': first moon on or after spring equinox
+    // For '13daysBefore': first moon such that Day 15 (Unleavened) is on or after equinox
+    const springEquinox = engine.getSeasons(test.year).mar_equinox.date;
+    let yearStartPoint;
+    
+    if (profile.yearStartRule === '13daysBefore') {
+      // Day 15 (Unleavened Bread) must be on or after equinox (per Maimonides)
+      // So the moon event must be at least 14 days before equinox
+      yearStartPoint = new Date(springEquinox.getTime() - 14 * 24 * 60 * 60 * 1000);
+    } else {
+      // Default: moon on or after equinox
+      yearStartPoint = springEquinox;
+    }
+    
+    // Find the Nisan moon (first moon on or after year start point)
+    // moonEvents is an array of Date objects directly
+    let nissanMoonIdx = moonEvents.findIndex(e => e >= yearStartPoint);
+    if (nissanMoonIdx === -1) {
+      Object.assign(state, savedState);
+      return { result: 'error', error: 'Could not find Nisan moon' };
+    }
+    
+    // Calculate year-start uncertainty
+    // If Nisan moon is close to year start point, ΔT could cause wrong moon selection
+    const nissanMoon = moonEvents[nissanMoonIdx];
+    const yearStartMarginMs = nissanMoon.getTime() - yearStartPoint.getTime();
+    const yearStartMarginHours = yearStartMarginMs / (1000 * 60 * 60);
+    const deltaTUncertaintyHours = AstroEngines.nasaEclipse.getDeltaTUncertainty(test.year);
+    
+    let yearUncertainty = null;
+    if (deltaTUncertaintyHours > 0 && yearStartMarginHours <= deltaTUncertaintyHours) {
+      // Nisan moon is close to boundary - year selection could be wrong
+      const yearUncertaintyProb = Math.round(((deltaTUncertaintyHours - yearStartMarginHours) / (2 * deltaTUncertaintyHours)) * 100);
+      if (yearUncertaintyProb > 0) {
+        yearUncertainty = {
+          direction: 'ahead',  // Our dates are potentially 1 month ahead
+          probability: yearUncertaintyProb,
+          marginHours: yearStartMarginHours
+        };
+      }
+    }
+    
+    // Calculate which moon event corresponds to the test month
+    const targetMoonIdx = nissanMoonIdx + (test.month - 1);
+    if (targetMoonIdx >= moonEvents.length) {
+      Object.assign(state, savedState);
+      return { result: 'error', error: 'Month out of range' };
+    }
+    
+    // findMoonEvents returns array of Date objects directly
+    const moonEventDate = moonEvents[targetMoonIdx];
+    
+    // Calculate Day 1 of that month
+    const dayStartTime = getDayStartTime(moonEventDate);
+    const moonEventTs = moonEventDate.getTime();
+    
+    // Use the same logic as the calendar's buildLunarMonths function
+    // Get local date of moon event adjusted for observer longitude
+    const observerLon = test.location.lon;
+    const moonEventLocalDate = getLocalDateFromUTC(moonEventDate, observerLon);
+    
+    let day1Date = new Date(moonEventLocalDate.getTime());
+    
+    // For all moon phases (dark, full, crescent), the moonEventDate already has any
+    // necessary offset applied (crescent offset is added in findMoonEvents).
+    // The calculation for Day 1 is the same regardless of phase.
+    if (profile.dayStartTime === 'evening') {
+      const sunsetOnMoonDate = getSunsetTimestamp(moonEventLocalDate);
+      if (sunsetOnMoonDate != null) {
+        const moonEventLocalTime = moonEventDate.getTime() + (observerLon / 15) * 60 * 60 * 1000;
+        const sunsetLocalTime = sunsetOnMoonDate + (observerLon / 15) * 60 * 60 * 1000;
+        if (moonEventLocalTime > sunsetLocalTime) {
+          day1Date.setUTCDate(day1Date.getUTCDate() + 1);
+        }
+      }
+    } else if (profile.dayStartTime === 'morning') {
+      const sunriseOnMoonDate = getSunriseTimestamp(moonEventLocalDate);
+      if (sunriseOnMoonDate != null) {
+        const moonEventLocalTime = moonEventDate.getTime() + (observerLon / 15) * 60 * 60 * 1000;
+        const sunriseLocalTime = sunriseOnMoonDate + (observerLon / 15) * 60 * 60 * 1000;
+        if (moonEventLocalTime >= sunriseLocalTime) {
+          day1Date.setUTCDate(day1Date.getUTCDate() + 1);
+        }
+      }
+    } else {
+      day1Date.setUTCDate(day1Date.getUTCDate() + 1);
+    }
+    
+    // Calculate the target lunar day's Gregorian date
+    const targetDayDate = new Date(day1Date);
+    targetDayDate.setUTCDate(targetDayDate.getUTCDate() + (test.day - 1));
+    
+    // Get the weekday using correct Julian calendar calculation
+    const calculatedWeekday = getCorrectWeekday(targetDayDate);
+    const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const calculatedWeekdayName = weekdayNames[calculatedWeekday];
+    
+    // Calculate actual margin between moon event and day boundary
+    const uncertaintyHours = AstroEngines.nasaEclipse.getDeltaTUncertainty(test.year);
+    let marginHours = Infinity;
+    let dateUncertaintyProbability = 0;
+    let dateUncertaintyDirection = null;
+    
+    if (uncertaintyHours > 0) {
+      const moonEventLocalTime = moonEventDate.getTime() + (observerLon / 15) * 60 * 60 * 1000;
+      
+      // Get the day boundary time based on day start setting
+      let boundaryTime;
+      if (profile.dayStartTime === 'evening') {
+        boundaryTime = getSunsetTimestamp(moonEventLocalDate);
+      } else {
+        boundaryTime = getSunriseTimestamp(moonEventLocalDate);
+      }
+      
+      if (boundaryTime != null) {
+        const boundaryLocalTime = boundaryTime + (observerLon / 15) * 60 * 60 * 1000;
+        const marginMs = Math.abs(moonEventLocalTime - boundaryLocalTime);
+        marginHours = marginMs / (1000 * 60 * 60);
+        
+        if (marginHours <= uncertaintyHours) {
+          // Calculate probability that the date is wrong
+          // If margin is M and uncertainty is ±U, probability = (U - M) / (2U)
+          dateUncertaintyProbability = Math.round(((uncertaintyHours - marginHours) / (2 * uncertaintyHours)) * 100);
+          
+          // Determine direction
+          if (moonEventLocalTime >= boundaryLocalTime) {
+            dateUncertaintyDirection = '-'; // Dates could be 1 day earlier
+          } else {
+            dateUncertaintyDirection = '+'; // Dates could be 1 day later
+          }
+        }
+      }
+    }
+    
+    // Determine result based on actual margin-based uncertainty
+    // Check if there's significant uncertainty (margin within ΔT uncertainty)
+    const hasUncertainty = marginHours <= uncertaintyHours && uncertaintyHours > 0;
+    
+    let result, probability = null;
+    
+    if (calculatedWeekday === test.expectedWeekday) {
+      // Calculated matches expected
+      if (hasUncertainty) {
+        // Pass but with uncertainty - show as caution with % chance of passing
+        result = 'uncertain';
+        probability = 100 - dateUncertaintyProbability; // Probability we're correct (chance of passing)
+      } else {
+        result = 'pass';
+        probability = null;
+      }
+    } else {
+      // Calculated doesn't match expected
+      // Check if the alternative date (shifted by uncertainty direction) would match
+      let alternativeWeekday = null;
+      if (dateUncertaintyDirection === '-') {
+        // Dates could be 1 day earlier, so weekday would be previous day
+        alternativeWeekday = (calculatedWeekday + 6) % 7;
+      } else if (dateUncertaintyDirection === '+') {
+        // Dates could be 1 day later, so weekday would be next day
+        alternativeWeekday = (calculatedWeekday + 1) % 7;
+      }
+      
+      if (hasUncertainty && alternativeWeekday === test.expectedWeekday) {
+        // Alternative date would match - show as caution with % chance of passing
+        result = 'uncertain';
+        probability = dateUncertaintyProbability; // Probability the alternative is correct (chance of passing)
+      } else {
+        // Neither calculated nor alternative matches - definite fail
+        result = 'fail';
+      }
+    }
+    
+    // Debug: log uncertainty details for ancient dates
+    if (uncertaintyHours > 0 && profile === getSabbathTestProfiles()[0]) {
+      console.log(`[Test Debug] ${test.name}: marginHours=${marginHours.toFixed(2)}, uncertaintyHours=${uncertaintyHours}, ` +
+        `dateUncertaintyProb=${dateUncertaintyProbability}%, direction=${dateUncertaintyDirection}, ` +
+        `calculated=${calculatedWeekdayName}, expected=${test.expectedLabel}, result=${result}`);
+    }
+    
+    // Restore state
+    Object.assign(state, savedState);
+    
+    return {
+      result,
+      calculatedWeekday,
+      calculatedWeekdayName,
+      gregorianDate: targetDayDate,
+      uncertaintyHours,
+      marginHours,
+      probability,
+      dateUncertaintyProbability,
+      dateUncertaintyDirection,
+      moonEventDate,
+      yearUncertainty
+    };
+  } catch (e) {
+    console.error('Error running biblical test:', e);
+    return { result: 'error', error: e.message };
+  }
+}
+
+// Store pending test navigation data
+let pendingTestNavigation = null;
+
+// Navigate to a specific date on a test profile
+function navigateToTestResult(testId, profileId) {
+  // Find the test and profile from stored data
+  const test = BIBLICAL_TESTS.find(t => t.id === testId);
+  const profiles = getSabbathTestProfiles();
+  const profile = profiles.find(p => p.id === profileId);
+  
+  if (!test || !profile) {
+    console.error('Test or profile not found:', testId, profileId);
+    return;
+  }
+  
+  // Create a temporary profile with the test settings
+  const tempProfileId = 'sabbath-test-temp';
+  PROFILES[tempProfileId] = {
+    name: 'Sabbath Test',
+    icon: profile.moonPhase === 'full' ? '🌕' : profile.moonPhase === 'dark' ? '🌑' : '🌒',
+    ...profile
+  };
+  
+  // Apply the profile settings
+  state.selectedProfile = tempProfileId;
+  state.moonPhase = profile.moonPhase;
+  state.dayStartTime = profile.dayStartTime;
+  state.dayStartAngle = profile.dayStartAngle;
+  state.yearStartRule = profile.yearStartRule;
+  state.crescentThreshold = profile.crescentThreshold;
+  state.sabbathMode = profile.sabbathMode;
+  state.lat = test.location.lat;
+  state.lon = test.location.lon;
+  state.year = test.year;
+  
+  // Update UI inputs BEFORE generateCalendar (which reads from them)
+  document.getElementById('year-input').value = test.year;
+  document.getElementById('lat-input').value = test.location.lat;
+  document.getElementById('lon-input').value = test.location.lon;
+  document.getElementById('moon-phase-select').value = profile.moonPhase;
+  
+  // Generate calendar for this year
+  generateCalendar({ preserveMonth: false });
+  
+  // Find the month and day in the generated calendar
+  const targetMonth = state.lunarMonths.find(m => m.monthNumber === test.month);
+  if (targetMonth) {
+    state.currentMonthIndex = state.lunarMonths.indexOf(targetMonth);
+    const targetDay = targetMonth.days.find(d => d.lunarDay === test.day);
+    if (targetDay) {
+      state.highlightedLunarDay = test.day;
+    }
+  }
+  
+  // Hide sabbath tester page
+  document.getElementById('sabbath-tester-page').style.display = 'none';
+  
+  // Show calendar
+  const calendarOutput = document.getElementById('calendar-output');
+  const dayDetailPanel = document.getElementById('day-detail-panel');
+  calendarOutput.style.display = 'block';
+  
+  // Render the month
+  renderMonth(state.lunarMonths[state.currentMonthIndex]);
+  updateMonthButtons();
+  
+  // Use pushState so back button returns to tester
+  const params = new URLSearchParams();
+  params.set('year', state.year);
+  params.set('lat', state.lat);
+  params.set('lon', state.lon);
+  params.set('phase', state.moonPhase);
+  if (state.currentMonthIndex !== undefined) {
+    params.set('month', state.lunarMonths[state.currentMonthIndex].monthNumber);
+  }
+  if (state.highlightedLunarDay) {
+    params.set('day', state.highlightedLunarDay);
+  }
+  const newURL = window.location.pathname + '?' + params.toString();
+  window.history.pushState({ fromTester: true }, '', newURL);
+  
+  // Show day detail
+  if (state.highlightedLunarDay) {
+    const month = state.lunarMonths[state.currentMonthIndex];
+    const dayObj = month.days.find(d => d.lunarDay === state.highlightedLunarDay);
+    if (dayObj) {
+      dayDetailPanel.classList.remove('hidden');
+      dayDetailPanel.style.display = '';
+      showDayDetail(dayObj, month);
+    }
+  }
+  
+  // Clean up temporary profile
+  delete PROFILES[tempProfileId];
+}
+
+// Format a Gregorian date for ancient dates
+function formatAncientDate(date) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  
+  const weekday = weekdays[getCorrectWeekday(date)];
+  const monthName = months[date.getUTCMonth()];
+  const day = date.getUTCDate();
+  const year = date.getUTCFullYear();
+  const yearStr = year < 0 ? `${Math.abs(year) + 1} BC` : `${year} AD`;
+  
+  return `${weekday}, ${monthName} ${day}, ${yearStr}`;
+}
+
+// Render the Sabbath Tester page
+function renderSabbathTester() {
+  const loadingEl = document.getElementById('sabbath-tester-loading');
+  const resultsEl = document.getElementById('sabbath-tester-results');
+  
+  loadingEl.style.display = 'block';
+  resultsEl.innerHTML = '';
+  
+  // Use setTimeout to allow UI to update
+  setTimeout(() => {
+    const profiles = getSabbathTestProfiles();
+    const allResults = [];
+    
+    // Run all tests against all profiles
+    for (const test of BIBLICAL_TESTS) {
+      const testResults = [];
+      for (const profile of profiles) {
+        const result = runBiblicalTest(test, profile);
+        testResults.push({
+          profile,
+          ...result
+        });
+      }
+      allResults.push({
+        test,
+        results: testResults
+      });
+    }
+    
+    // Calculate scoreboard
+    const scoreboard = {};
+    for (const profile of profiles) {
+      scoreboard[profile.id] = {
+        profile,
+        passed: 0,
+        failed: 0,
+        uncertain: 0,
+        totalScore: 0
+      };
+    }
+    
+    for (const { test, results } of allResults) {
+      for (const r of results) {
+        const score = scoreboard[r.profile.id];
+        // Only count towards score if test is not excluded
+        const countsForScore = !test.excludeFromScore;
+        if (r.result === 'pass') {
+          if (countsForScore) {
+            score.passed++;
+            score.totalScore += 1; // Pass = 1
+          }
+        } else if (r.result === 'uncertain') {
+          if (countsForScore) {
+            score.uncertain++;
+            // Uncertain = probability / 100 (e.g., 55% = 0.55)
+            score.totalScore += (r.probability || 50) / 100;
+          }
+        } else if (r.result === 'fail') {
+          if (countsForScore) {
+            score.failed++;
+            // Fail = 0
+          }
+        }
+      }
+    }
+    
+    // Sort scoreboard: by passes (desc), then fails (asc), then score (desc)
+    const sortedScores = Object.values(scoreboard).sort((a, b) => {
+      // First: more passes is better
+      if (b.passed !== a.passed) return b.passed - a.passed;
+      // Second: fewer fails is better
+      if (a.failed !== b.failed) return a.failed - b.failed;
+      // Third: higher score is better (for uncertain probabilities)
+      return b.totalScore - a.totalScore;
+    });
+    
+    // Build HTML
+    let html = '';
+    
+    // Summary Scoreboard
+    html += `
+      <div class="sabbath-scoreboard">
+        <div class="sabbath-scoreboard-title">📊 Summary Scoreboard</div>
+        <table class="sabbath-scoreboard-table">
+          <thead>
+            <tr>
+              <th>Calendar Profile</th>
+              <th>Passed</th>
+              <th>Uncertain</th>
+              <th>Failed</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    const numTests = BIBLICAL_TESTS.filter(t => !t.excludeFromScore).length;
+    for (const score of sortedScores) {
+      // Score = sum / num tests, expressed as percentage
+      const pct = Math.round((score.totalScore / numTests) * 100);
+      let scoreClass = 'score-poor';
+      if (pct >= 90) scoreClass = 'score-perfect';
+      else if (pct >= 70) scoreClass = 'score-good';
+      else if (pct >= 50) scoreClass = 'score-medium';
+      
+      html += `
+        <tr>
+          <td>${score.profile.name}</td>
+          <td class="result-pass">${score.passed}</td>
+          <td class="result-uncertain">${score.uncertain}</td>
+          <td class="result-fail">${score.failed}</td>
+          <td class="${scoreClass}">${pct}%</td>
+        </tr>
+      `;
+    }
+    
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+    
+    // Individual Test Cards
+    for (const { test, results } of allResults) {
+      const yearDisplay = test.year < 0 ? `${Math.abs(test.year) + 1} BC` : `${test.year} AD`;
+      const excludedNote = test.excludeFromScore ? ' <span style="font-size: 0.8em; color: #888;">(not scored)</span>' : '';
+      
+      html += `
+        <div class="sabbath-test-card">
+          <div class="sabbath-test-title">
+            <span>📜 ${test.name}${excludedNote}</span>
+          </div>
+          <div class="sabbath-test-date">
+            ${test.day}${getDaySuffix(test.day)} of Month ${test.month}, ${yearDisplay}
+          </div>
+          <div class="sabbath-test-scripture">${test.scripture}</div>
+          <div class="sabbath-test-description">${test.description}</div>
+          <div class="sabbath-test-expected">
+            <strong>Expected:</strong> ${test.expectedLabel} (${test.expectedLabel === 'Saturday' ? 'Sabbath' : 'First Day of Week'})
+          </div>
+          <table class="sabbath-test-results-table">
+            <thead>
+              <tr>
+                <th>Calendar Profile</th>
+                <th>Gregorian Date</th>
+                <th>Weekday</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      // Group results by base profile (moon phase + day start, without year rule)
+      // to merge rows when both year rules produce same result
+      const groupedResults = {};
+      for (const r of results) {
+        // Extract base key (without year rule)
+        const baseKey = `${r.profile.moonPhase}-${r.profile.dayStartTime}`;
+        if (!groupedResults[baseKey]) {
+          groupedResults[baseKey] = { equinox: null, lamb: null };
+        }
+        if (r.profile.yearStartRule === 'equinox') {
+          groupedResults[baseKey].equinox = r;
+        } else {
+          groupedResults[baseKey].lamb = r;
+        }
+      }
+      
+      // Build merged results array
+      const mergedResults = [];
+      for (const [baseKey, group] of Object.entries(groupedResults)) {
+        const eq = group.equinox;
+        const lamb = group.lamb;
+        
+        // Check if both produce same weekday (can be merged)
+        if (eq && lamb && eq.calculatedWeekday === lamb.calculatedWeekday && eq.result === lamb.result) {
+          // Merge: use equinox data but show both icons
+          const moonIcon = eq.profile.moonPhase === 'full' ? '🌕' : eq.profile.moonPhase === 'dark' ? '🌑' : '🌒';
+          const moonName = eq.profile.moonPhase === 'full' ? 'Full Moon' : eq.profile.moonPhase === 'dark' ? 'Dark Moon' : 'Crescent Moon';
+          const dayStartName = eq.profile.dayStartTime === 'morning' ? 'Daybreak' : 'Sunset';
+          mergedResults.push({
+            ...eq,
+            mergedName: `${moonIcon} ${moonName} ${dayStartName} ⚖️🐑`,
+            isMerged: true,
+            // Use equinox profile for navigation (either would work)
+            profileIdForNav: eq.profile.id
+          });
+        } else {
+          // Show separately
+          if (eq) mergedResults.push({ ...eq, mergedName: eq.profile.name, isMerged: false, profileIdForNav: eq.profile.id });
+          if (lamb) mergedResults.push({ ...lamb, mergedName: lamb.profile.name, isMerged: false, profileIdForNav: lamb.profile.id });
+        }
+      }
+      
+      // Sort results: pass first, then uncertain, then fail
+      const sortedResults = mergedResults.sort((a, b) => {
+        const order = { pass: 0, uncertain: 1, fail: 2, error: 3 };
+        return (order[a.result] || 3) - (order[b.result] || 3);
+      });
+      
+      for (const r of sortedResults) {
+        let resultText, resultClass;
+        if (r.result === 'pass') {
+          resultText = '✅ Pass';
+          resultClass = 'result-pass';
+        } else if (r.result === 'uncertain') {
+          // Show caution with % chance of passing
+          resultText = `⚠️ ${r.probability}%`;
+          resultClass = 'result-uncertain';
+        } else if (r.result === 'fail') {
+          resultText = '❌ Fail';
+          resultClass = 'result-fail';
+        } else {
+          resultText = '⚠️ Error';
+          resultClass = 'result-uncertain';
+        }
+        
+        const dateStr = r.gregorianDate ? formatAncientDate(r.gregorianDate) : 'N/A';
+        const weekdayStr = r.calculatedWeekdayName || 'N/A';
+        
+        // Create year uncertainty indicator if present
+        let yearUncertaintyIcon = '';
+        if (r.yearUncertainty && r.yearUncertainty.probability > 0) {
+          const tooltipText = `Year uncertainty: ${r.yearUncertainty.probability}% chance all dates are 1 month ${r.yearUncertainty.direction} (ΔT uncertainty ±${Math.round(r.uncertaintyHours)} hours, Nisan margin: ${r.yearUncertainty.marginHours.toFixed(1)} hours)`;
+          yearUncertaintyIcon = ` <span class="year-uncertainty-icon" title="${tooltipText}">⚠️${r.yearUncertainty.probability}%</span>`;
+        }
+        
+        // Create onclick handler for date link using test ID and profile ID
+        const dateLink = r.gregorianDate ? 
+          `<a class="sabbath-test-date-link" onclick="navigateToTestResult('${test.id}', '${r.profileIdForNav}')">${dateStr}</a>${yearUncertaintyIcon}` :
+          dateStr;
+        
+        html += `
+          <tr>
+            <td>${r.mergedName}</td>
+            <td>${dateLink}</td>
+            <td>${weekdayStr}</td>
+            <td class="${resultClass}">${resultText}</td>
+          </tr>
+        `;
+      }
+      
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+    
+    loadingEl.style.display = 'none';
+    resultsEl.innerHTML = html;
+    
+    // Run engine comparison and log results to console
+    setTimeout(() => {
+      compareEngineResults();
+    }, 100);
+  }, 50);
+}
+
+// Helper to get day suffix (1st, 2nd, 3rd, etc.)
+function getDaySuffix(day) {
+  if (day >= 11 && day <= 13) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
+
+// =============================================================================
+// ENGINE COMPARISON - Verify new LunarCalendarEngine matches existing logic
+// =============================================================================
+
+function compareEngineResults() {
+  console.log('%c=== LUNAR CALENDAR ENGINE COMPARISON ===', 'color: #4fc3f7; font-weight: bold; font-size: 14px;');
+  
+  // Use the existing abstracted engine (which handles Swiss Ephemeris, ancient dates, etc.)
+  const existingEngine = getAstroEngine();
+  
+  // Create adapter for LunarCalendarEngine using the existing engine infrastructure
+  const astroAdapter = {
+    searchMoonPhase(phase, startDate, limitDays) {
+      return existingEngine.searchMoonPhase(phase, startDate, limitDays);
+    },
+    getSeasons(year) {
+      return existingEngine.getSeasons(year);
+    },
+    searchRiseSet(body, observer, direction, startDate, limitDays) {
+      return existingEngine.searchRiseSet(body, observer, direction, startDate, limitDays);
+    },
+    searchAltitude(body, observer, direction, startDate, limitDays, altitude) {
+      return existingEngine.searchAltitude(body, observer, direction, startDate, limitDays, altitude);
+    },
+    createObserver(lat, lon, elevation) {
+      return existingEngine.createObserver(lat, lon, elevation);
+    },
+    getDeltaTUncertainty(year) {
+      return existingEngine.getDeltaTUncertainty ? existingEngine.getDeltaTUncertainty(year) : 0;
+    }
+  };
+  
+  const engine = new LunarCalendarEngine(astroAdapter);
+  const profiles = getSabbathTestProfiles();
+  let totalTests = 0;
+  let matchCount = 0;
+  let mismatchCount = 0;
+  const mismatches = [];
+  
+  for (const test of BIBLICAL_TESTS) {
+    for (const profile of profiles) {
+      totalTests++;
+      
+      // Run existing test
+      const existingResult = runBiblicalTest(test, profile);
+      
+      // Debug: log existing result details for first profile of each test
+      if (profile === profiles[0]) {
+        console.log(`[Existing Debug] Test: ${test.name}, Year: ${test.year}`);
+        console.log(`[Existing Debug] Result: ${existingResult.gregorianDate?.toISOString()} ${existingResult.calculatedWeekdayName}`);
+        if (existingResult.moonEventDate) {
+          console.log(`[Existing Debug] Moon event: ${existingResult.moonEventDate.toISOString()}`);
+        }
+      }
+      
+      // Run engine test
+      engine.configure({
+        moonPhase: profile.moonPhase,
+        dayStartTime: profile.dayStartTime === 'morning' ? 'morning' : 'evening',
+        dayStartAngle: 0,
+        yearStartRule: profile.yearStartRule,
+        crescentThreshold: 18
+      });
+      
+      const location = test.location || { lat: 31.7683, lon: 35.2137 };
+      
+      try {
+        // Enable debug for first profile of each test to diagnose
+        const isFirstProfileForTest = profile === profiles[0];
+        const calendar = engine.generateYear(test.year, location, { debug: isFirstProfileForTest });
+        const dayInfo = engine.getDayInfo(calendar, test.month, test.day);
+        
+        if (!dayInfo) {
+          mismatches.push({
+            test: test.name,
+            profile: profile.name,
+            issue: 'Engine returned null for day info',
+            existing: existingResult
+          });
+          mismatchCount++;
+          continue;
+        }
+        
+        // Compare weekday
+        const existingWeekday = existingResult.calculatedWeekday;
+        const engineWeekday = dayInfo.weekday;
+        
+        // Compare Gregorian date
+        const existingDateStr = existingResult.gregorianDate ? 
+          existingResult.gregorianDate.toISOString().split('T')[0] : null;
+        const engineDateStr = dayInfo.gregorianDate ? 
+          dayInfo.gregorianDate.toISOString().split('T')[0] : null;
+        
+        // Get uncertainty from engine
+        const monthData = calendar.months.find(m => m.monthNumber === test.month);
+        const engineUncertainty = monthData ? monthData.uncertainty : null;
+        
+        const weekdayMatch = existingWeekday === engineWeekday;
+        const dateMatch = existingDateStr === engineDateStr;
+        
+        if (weekdayMatch && dateMatch) {
+          matchCount++;
+        } else {
+          mismatchCount++;
+          mismatches.push({
+            test: test.name,
+            profile: profile.name,
+            existingWeekday: existingResult.calculatedWeekdayName,
+            engineWeekday: dayInfo.weekdayName,
+            existingDate: existingDateStr,
+            engineDate: engineDateStr,
+            weekdayMatch,
+            dateMatch,
+            existingUncertainty: existingResult.uncertaintyHours,
+            engineUncertainty: engineUncertainty
+          });
+        }
+      } catch (e) {
+        mismatchCount++;
+        console.error('Engine error for', test.name, profile.name, ':', e);
+        mismatches.push({
+          test: test.name,
+          profile: profile.name,
+          issue: 'Engine threw error: ' + e.message,
+          existing: existingResult,
+          stack: e.stack
+        });
+      }
+    }
+  }
+  
+  // Log summary
+  console.log(`%cTotal tests: ${totalTests}`, 'color: #aaa;');
+  console.log(`%cMatches: ${matchCount}`, 'color: #4caf50; font-weight: bold;');
+  console.log(`%cMismatches: ${mismatchCount}`, mismatchCount > 0 ? 'color: #f44336; font-weight: bold;' : 'color: #4caf50;');
+  
+  if (mismatches.length > 0) {
+    console.log('%c--- MISMATCHES ---', 'color: #ff9800; font-weight: bold;');
+    for (const m of mismatches) {
+      console.log('%c' + m.test + ' / ' + m.profile, 'color: #ff9800;');
+      if (m.issue) {
+        console.log('  Issue:', m.issue);
+      } else {
+        console.log('  Existing:', m.existingDate, m.existingWeekday);
+        console.log('  Engine:  ', m.engineDate, m.engineWeekday);
+        console.log('  Date match:', m.dateMatch, '| Weekday match:', m.weekdayMatch);
+      }
+    }
+  } else {
+    console.log('%c✓ All results match!', 'color: #4caf50; font-weight: bold; font-size: 12px;');
+  }
+  
+  return { totalTests, matchCount, mismatchCount, mismatches };
+}
+
 // Helper to regenerate calendar while preserving scroll position
 function regenerateCalendarPreservingScroll() {
   const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -5346,6 +6733,17 @@ function updateYearStartButtons() {
   const iconEl = document.getElementById('yearstart-equinox-icon');
   if (iconEl) {
     iconEl.textContent = getMoonIcon();
+  }
+  
+  // Show/hide the year start rule explanations
+  const equinoxExplanation = document.getElementById('equinox-rule-explanation');
+  if (equinoxExplanation) {
+    equinoxExplanation.style.display = state.yearStartRule === 'equinox' ? 'block' : 'none';
+  }
+  
+  const lambExplanation = document.getElementById('lamb-rule-explanation');
+  if (lambExplanation) {
+    lambExplanation.style.display = state.yearStartRule === '13daysBefore' ? 'block' : 'none';
   }
 }
 
@@ -6446,11 +7844,35 @@ function generateCalendar(options = {}) {
   let nissanMoon = moonEvents.find(m => m >= yearStartPoint);
   if (!nissanMoon) nissanMoon = moonEvents[0];
   
+  // Calculate year-start uncertainty
+  // If the Nisan moon is close to the year start point, ΔT uncertainty could cause
+  // a different moon to be selected, shifting all months by ~29-30 days
+  const yearStartMarginMs = nissanMoon.getTime() - yearStartPoint.getTime();
+  const yearStartMarginHours = yearStartMarginMs / (1000 * 60 * 60);
+  const deltaTUncertaintyHours = AstroEngines.nasaEclipse.getDeltaTUncertainty(state.year);
+  
+  let yearStartUncertainty = null;
+  if (deltaTUncertaintyHours > 0 && yearStartMarginHours <= deltaTUncertaintyHours) {
+    // The Nisan moon is close enough to the year start that it could be uncertain
+    // If the moon shifts earlier due to ΔT error, it could fall BEFORE the year start point
+    // In that case, the NEXT moon would be Nisan instead, so our year is "1 month ahead"
+    // Probability: (U - M) / (2U) where U = uncertainty, M = margin
+    const probability = Math.round(((deltaTUncertaintyHours - yearStartMarginHours) / (2 * deltaTUncertaintyHours)) * 100);
+    if (probability > 0) {
+      yearStartUncertainty = {
+        direction: 'ahead',  // Our dates are potentially 1 month ahead of reality
+        probability: probability,
+        marginHours: yearStartMarginHours
+      };
+    }
+  }
+  
   // Store equinoxes and year start points in state for use in day details
   state.springEquinox = springEquinox;
   state.nextSpringEquinox = nextSpringEquinox;
   state.yearStartPoint = yearStartPoint;
   state.nextYearStartPoint = nextYearStartPoint;
+  state.yearStartUncertainty = yearStartUncertainty;
   
   state.lunarMonths = buildLunarMonths(nissanMoon, moonEvents, springEquinox, nextYearStartPoint);
   
@@ -6848,36 +8270,48 @@ function buildLunarMonths(nissanMoon, allMoonEvents, springEquinox, nextYearStar
     const daysInMonth = Math.round((nextMonthStart - monthStartDate) / (24 * 60 * 60 * 1000));
     
     // Calculate date uncertainty for this month
-    // If margin to sunset is within ΔT uncertainty, dates could be off by 1 day
+    // ΔT uncertainty affects the calculated time of the moon event (conjunction, full, or forged crescent).
+    // If the moon event is close to the day boundary (sunset for evening start, sunrise for morning start),
+    // the uncertainty could shift whether Day 1 starts on this date or the next.
     // Direction: '+' means dates could be 1 day later, '-' means 1 day earlier
     let dateUncertainty = null; // null, '+', or '-'
     let dateUncertaintyProbability = 0; // Probability that dates are wrong (0-100%)
     
-    if ((state.moonPhase === 'dark' || state.moonPhase === 'full') && state.dayStartTime === 'evening') {
-      // Check margin for THIS month's moon event (determines if prior month could have more/fewer days)
-      const sunsetOnMoonDate = getSunsetTimestamp(moonEventLocalDate);
+    const eventYear = moonEvent.getUTCFullYear();
+    const uncertaintyHours = AstroEngines.nasaEclipse.getDeltaTUncertainty(eventYear);
+    
+    if (uncertaintyHours > 0) {
       const moonEventLocalTime = moonEvent.getTime() + (observerLon / 15) * 60 * 60 * 1000;
-      const sunsetLocalTime = sunsetOnMoonDate + (observerLon / 15) * 60 * 60 * 1000;
-      const marginMs = Math.abs(moonEventLocalTime - sunsetLocalTime);
-      const marginHours = marginMs / (1000 * 60 * 60);
-      const eventYear = moonEvent.getUTCFullYear();
-      const uncertaintyHours = AstroEngines.nasaEclipse.getDeltaTUncertainty(eventYear);
       
-      if (uncertaintyHours > 0 && marginHours <= uncertaintyHours) {
-        // Calculate probability that the date is wrong
-        // If margin is M and uncertainty is ±U, probability = (U - M) / (2U)
-        dateUncertaintyProbability = Math.round(((uncertaintyHours - marginHours) / (2 * uncertaintyHours)) * 100);
+      // Get the day boundary time based on day start setting
+      let boundaryTime, boundaryLocalTime;
+      if (state.dayStartTime === 'evening') {
+        boundaryTime = getSunsetTimestamp(moonEventLocalDate);
+      } else {
+        boundaryTime = getSunriseTimestamp(moonEventLocalDate);
+      }
+      
+      if (boundaryTime != null) {
+        boundaryLocalTime = boundaryTime + (observerLon / 15) * 60 * 60 * 1000;
+        const marginMs = Math.abs(moonEventLocalTime - boundaryLocalTime);
+        const marginHours = marginMs / (1000 * 60 * 60);
         
-        // Conjunction was after sunset - prior month has 30 days
-        // If conjunction was actually earlier, prior month would have 29 days
-        // So dates in THIS month could be 1 day earlier (-)
-        if (moonEventLocalTime >= sunsetLocalTime) {
-          dateUncertainty = '-';
-        } else {
-          // Conjunction was before sunset - prior month has 29 days  
-          // If conjunction was actually later, prior month would have 30 days
-          // So dates in THIS month could be 1 day later (+)
-          dateUncertainty = '+';
+        if (marginHours <= uncertaintyHours) {
+          // Calculate probability that the date is wrong
+          // If margin is M and uncertainty is ±U, probability = (U - M) / (2U)
+          dateUncertaintyProbability = Math.round(((uncertaintyHours - marginHours) / (2 * uncertaintyHours)) * 100);
+          
+          // Moon event after boundary - prior month has 30 days
+          // If moon event was actually earlier, prior month would have 29 days
+          // So dates in THIS month could be 1 day earlier (-)
+          if (moonEventLocalTime >= boundaryLocalTime) {
+            dateUncertainty = '-';
+          } else {
+            // Moon event before boundary - prior month has 29 days  
+            // If moon event was actually later, prior month would have 30 days
+            // So dates in THIS month could be 1 day later (+)
+            dateUncertainty = '+';
+          }
         }
       }
     }
@@ -7105,7 +8539,11 @@ function getMoonAltitudeAtSunset(date) {
   try {
     const engine = getAstroEngine();
     const observer = engine.createObserver(state.lat, state.lon, 0);
-    const midnight = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+    
+    // Create midnight date with proper handling for ancient years
+    // Using setUTCFullYear to avoid JavaScript treating small years (0-99) as 1900+year
+    const midnight = new Date(Date.UTC(2000, date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));
+    midnight.setUTCFullYear(date.getUTCFullYear());
     
     // Find sunset on this day
     const sunset = engine.searchRiseSet('sun', observer, -1, midnight, 1);
@@ -7114,7 +8552,23 @@ function getMoonAltitudeAtSunset(date) {
       return null;
     }
     
-    // Calculate moon position at sunset
+    // Ensure the sunset date has the correct year (engine may return 1900+year for small years)
+    let sunsetDate = sunset.date;
+    if (sunsetDate.getUTCFullYear() !== date.getUTCFullYear()) {
+      // Create a corrected date with the proper year
+      const correctedSunset = new Date(Date.UTC(
+        2000,
+        sunsetDate.getUTCMonth(),
+        sunsetDate.getUTCDate(),
+        sunsetDate.getUTCHours(),
+        sunsetDate.getUTCMinutes(),
+        sunsetDate.getUTCSeconds()
+      ));
+      correctedSunset.setUTCFullYear(date.getUTCFullYear());
+      sunsetDate = correctedSunset;
+    }
+    
+    // Calculate moon position at sunset (use original sunset.date for astronomy calculations)
     const moonEquator = engine.getEquator('moon', sunset.date, observer);
     const moonHorizon = engine.getHorizon(sunset.date, observer, moonEquator.ra, moonEquator.dec);
     
@@ -7135,7 +8589,7 @@ function getMoonAltitudeAtSunset(date) {
     const elongation = Math.acos(Math.max(-1, Math.min(1, cosAngle))) * 180 / Math.PI;
     
     return {
-      sunsetTime: sunset.date,
+      sunsetTime: sunsetDate,  // Use corrected date with proper year
       moonAltitude: moonHorizon.altitude,
       moonAzimuth: moonHorizon.azimuth,
       elongation: elongation
@@ -7195,8 +8649,8 @@ function getYearStartPoint(year) {
   const springEquinox = engine.getSeasons(year).mar_equinox.date;
   
   if (state.yearStartRule === '13daysBefore') {
-    // Return 13 days before the equinox
-    return new Date(springEquinox.getTime() - 13 * 24 * 60 * 60 * 1000);
+    // Return 14 days before the equinox (Day 15 must be on or after equinox per Maimonides)
+    return new Date(springEquinox.getTime() - 14 * 24 * 60 * 60 * 1000);
   }
   
   return springEquinox;
@@ -7245,7 +8699,8 @@ function formatDatetimeLocal(date) {
   // datetime-local inputs don't support years before 1
   if (year < 1) return null;
   
-  return year + '-' + 
+  // Year must be 4 digits for datetime-local format
+  return String(year).padStart(4, '0') + '-' + 
     String(date.getUTCMonth() + 1).padStart(2, '0') + '-' +
     String(date.getUTCDate()).padStart(2, '0') + 'T' +
     String(date.getUTCHours()).padStart(2, '0') + ':' +
@@ -7645,7 +9100,11 @@ function renderMonth(month) {
           ${day1FeastIcons}
         </div>
       </div>
-      
+      ${state.yearStartUncertainty ? `
+      <div class="year-uncertainty-banner" title="The first moon of the year is close to the year start boundary. ΔT uncertainty of ${Math.round(AstroEngines.nasaEclipse.getDeltaTUncertainty(state.year))} hours means this could be the wrong year.">
+        ⚠️ ${state.yearStartUncertainty.probability}% chance 1 month ${state.yearStartUncertainty.direction}
+      </div>
+      ` : ''}
       <div class="week-header">
         <div class="day-label${sabbathColumnIndex === 0 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(0)}</div><div class="weekday">${shiftedWeekdays[0]}</div></div>
         <div class="day-label${sabbathColumnIndex === 1 ? ' sabbath-header' : ''}"><div class="day-name">Day ${getDayLabel(1)}</div><div class="weekday">${shiftedWeekdays[1]}</div></div>
@@ -7935,6 +9394,36 @@ function renderFeastTable(months) {
   }
 }
 
+// Handle browser back/forward buttons
+window.addEventListener('popstate', function(event) {
+  const params = new URLSearchParams(window.location.search);
+  
+  if (params.has('view')) {
+    const view = params.get('view');
+    if (view === 'sabbath-tester') {
+      // Navigate back to sabbath tester
+      const sabbathTesterPage = document.getElementById('sabbath-tester-page');
+      const calendarOutput = document.getElementById('calendar-output');
+      const dayDetailPanel = document.getElementById('day-detail-panel');
+      const exportPage = document.getElementById('export-page');
+      
+      calendarOutput.style.display = 'none';
+      dayDetailPanel.style.display = 'none';
+      exportPage.style.display = 'none';
+      sabbathTesterPage.style.display = 'block';
+      renderSabbathTester();
+    } else if (view === 'feasts') {
+      navigateTo('feasts');
+    }
+  } else if (params.has('year')) {
+    // Navigate to calendar with URL params
+    loadFromURL();
+  } else {
+    // Default to calendar
+    navigateTo('calendar');
+  }
+});
+
 document.addEventListener('DOMContentLoaded', async function() {
   // Rebuild profile dropdown with any saved custom profiles
   rebuildProfileDropdown();
@@ -8133,12 +9622,42 @@ function showDayDetail(dayObj, month) {
         // Get moon altitude at sunset for crescent mode
         let crescentAltitudeInfo = '';
         if (state.moonPhase === 'crescent') {
-          const moonData = getMoonAltitudeAtSunset(moonEventDate);
-          if (moonData) {
-            const altStr = moonData.moonAltitude.toFixed(1);
-            const elongStr = moonData.elongation.toFixed(1);
-            const sunsetFormatted = formatTimeInObserverTimezone(moonData.sunsetTime);
-            crescentAltitudeInfo = ` At sunset (${sunsetFormatted.full}), the moon was ${altStr}° above the horizon (threshold: ${state.crescentThreshold}°, elongation: ${elongStr}°).`;
+          // The moonEventTime is already the "forged" crescent event (conjunction + threshold hours)
+          // Calculate the actual conjunction time
+          const conjunctionDate = new Date(moonEventTime.getTime() - state.crescentThreshold * 60 * 60 * 1000);
+          
+          // For crescent visibility, we need to find the sunset when the crescent would be visible
+          // This is the first sunset AFTER the conjunction
+          let checkDate = new Date(conjunctionDate);
+          let sightingData = getMoonAltitudeAtSunset(checkDate);
+          
+          // If the sunset on conjunction day is BEFORE the conjunction, check next day
+          if (sightingData && sightingData.sunsetTime.getTime() < conjunctionDate.getTime()) {
+            checkDate = new Date(conjunctionDate.getTime() + 24 * 60 * 60 * 1000);
+            sightingData = getMoonAltitudeAtSunset(checkDate);
+          }
+          
+          if (sightingData) {
+            const altStr = sightingData.moonAltitude.toFixed(1);
+            const elongStr = sightingData.elongation.toFixed(1);
+            const sunsetFormatted = formatTimeInObserverTimezone(sightingData.sunsetTime);
+            const sunsetDateStr = formatAncientDate(sightingData.sunsetTime);
+            const conjTimeFormatted = formatTimeInObserverTimezone(conjunctionDate);
+            const conjDateStr = formatAncientDate(conjunctionDate);
+            
+            // Determine visibility status
+            let visibilityNote = '';
+            if (sightingData.moonAltitude < 0) {
+              visibilityNote = ' (below horizon - not visible)';
+            } else if (sightingData.moonAltitude < 5) {
+              visibilityNote = ' (very low - difficult to see)';
+            } else if (sightingData.elongation < 7) {
+              visibilityNote = ' (too close to sun - difficult to see)';
+            } else if (sightingData.moonAltitude >= 5 && sightingData.elongation >= 7) {
+              visibilityNote = ' (likely visible)';
+            }
+            
+            crescentAltitudeInfo = ` Conjunction: ${conjDateStr} ${conjTimeFormatted.full}. Crescent check on ${sunsetDateStr} at sunset (${sunsetFormatted.time}): moon ${altStr}° altitude, ${elongStr}° from sun${visibilityNote}.`;
           }
         }
         
@@ -8147,20 +9666,21 @@ function showDayDetail(dayObj, month) {
         let stellariumDateTime;
         
         if (state.moonPhase === 'crescent') {
-          // For crescent, use sunset time when you'd look for it
-          const moonData = getMoonAltitudeAtSunset(moonEventDate);
-          if (moonData) {
+          // For crescent, use sunset time when you'd look for the crescent
+          // Same logic as crescent altitude info: first sunset AFTER the conjunction
+          const conjunctionForLink = new Date(moonEventTime.getTime() - state.crescentThreshold * 60 * 60 * 1000);
+          let checkDateForLink = new Date(conjunctionForLink);
+          let moonDataForLink = getMoonAltitudeAtSunset(checkDateForLink);
+          
+          // If sunset on conjunction day is before conjunction, check next day
+          if (moonDataForLink && moonDataForLink.sunsetTime.getTime() < conjunctionForLink.getTime()) {
+            checkDateForLink = new Date(conjunctionForLink.getTime() + 24 * 60 * 60 * 1000);
+            moonDataForLink = getMoonAltitudeAtSunset(checkDateForLink);
+          }
+          
+          if (moonDataForLink) {
             // Use the sunset time on the crescent sighting day
-            const sunsetHours = moonData.sunsetTime.getUTCHours();
-            const sunsetMinutes = moonData.sunsetTime.getUTCMinutes();
-            stellariumDateTime = new Date(Date.UTC(
-              moonEventDate.getUTCFullYear(),
-              moonEventDate.getUTCMonth(),
-              moonEventDate.getUTCDate(),
-              sunsetHours,
-              sunsetMinutes,
-              0
-            ));
+            stellariumDateTime = moonDataForLink.sunsetTime;
           } else {
             stellariumDateTime = moonEventDate;
           }

@@ -1977,11 +1977,25 @@ body.feasts-open {
   flex: 1;
 }
 
+.day-detail-feast-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
 .day-detail-feast-name {
   font-weight: bold;
   color: #90ee90;
   font-size: 1.1em;
-  margin-bottom: 4px;
+}
+
+.day-detail-feast-header .stellarium-link {
+  margin-top: 0;
+  padding: 4px 8px;
+  font-size: 0.8em;
+  flex-shrink: 0;
 }
 
 .day-detail-feast-desc {
@@ -2020,6 +2034,32 @@ body.feasts-open {
   border-top: 1px solid rgba(126, 200, 227, 0.3);
   color: #aaa;
   font-size: 0.9em;
+}
+
+.stellarium-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: rgba(100, 150, 200, 0.2);
+  border: 1px solid rgba(100, 150, 200, 0.4);
+  border-radius: 6px;
+  color: #7ec8e3;
+  text-decoration: none;
+  font-size: 0.9em;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.stellarium-link:hover {
+  background: rgba(100, 150, 200, 0.35);
+  border-color: rgba(100, 150, 200, 0.6);
+  color: #fff;
+}
+
+.stellarium-link img {
+  width: 16px;
+  height: 16px;
 }
 
 .day-detail-dateline {
@@ -3628,6 +3668,35 @@ AstroEngines.nasaEclipse = {
       }
     }
     return false;
+  },
+  
+  // Get the exact time of a lunar eclipse for a given date
+  // Returns a Date object or null if no eclipse found
+  getLunarEclipseTime(date) {
+    if (!this._eclipses) {
+      return null;
+    }
+    
+    const jd = this._dateToJD(date);
+    
+    // Binary search to find nearby eclipses
+    let lo = 0, hi = this._eclipses.length - 1;
+    while (lo < hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      if (this._eclipses[mid].jd < jd) lo = mid + 1;
+      else hi = mid;
+    }
+    
+    // Check nearby eclipses (within a day on either side)
+    for (let i = Math.max(0, lo - 2); i < Math.min(this._eclipses.length, lo + 3); i++) {
+      const e = this._eclipses[i];
+      const diff = Math.abs(e.jd - jd);
+      if (e.t === 'f' && diff < 1.0) {
+        // Convert JD to Date
+        return this._jdToDate(e.jd);
+      }
+    }
+    return null;
   },
   
   // Helper to create Date with proper year handling (including negative years)
@@ -6938,6 +7007,36 @@ function getSunsetTimestamp(date) {
   return midnightUTC.getTime() + 18 * 60 * 60 * 1000;
 }
 
+// Format a UTC time in the observer's local timezone based on longitude
+// Returns an object with formatted time string and timezone abbreviation
+function formatTimeInObserverTimezone(utcDate) {
+  // Calculate timezone offset based on longitude (simple solar time approximation)
+  // Each 15 degrees = 1 hour
+  const offsetHours = state.lon / 15;
+  const offsetMs = offsetHours * 60 * 60 * 1000;
+  
+  // Create local time by adding offset
+  const localTime = new Date(utcDate.getTime() + offsetMs);
+  
+  // Format the time
+  let hours = localTime.getUTCHours();
+  const minutes = localTime.getUTCMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+  const timeStr = `${hours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+  
+  // Format timezone offset (e.g., UTC+2, UTC-5)
+  const offsetSign = offsetHours >= 0 ? '+' : '';
+  const offsetStr = `UTC${offsetSign}${offsetHours.toFixed(0)}`;
+  
+  return {
+    time: timeStr,
+    timezone: offsetStr,
+    full: `${timeStr} ${offsetStr}`
+  };
+}
+
 // Get all astronomical times for a given date (first light, sunrise, sunset, nautical twilight)
 function getAstronomicalTimes(date) {
   try {
@@ -7948,6 +8047,7 @@ function showDayDetail(dayObj, month) {
       
       // Check if this is a Renewed Moon feast and we have moon event data
       let basisHtml = '';
+      let stellariumLink = ''; // Initialize for all feasts
       if (feast.name === 'Renewed Moon' && dayObj.lunarDay === 1 && month.moonEvent) {
         const moonEventTime = month.moonEvent;
         const signName = getMoonLabel();
@@ -8037,14 +8137,50 @@ function showDayDetail(dayObj, month) {
           if (moonData) {
             const altStr = moonData.moonAltitude.toFixed(1);
             const elongStr = moonData.elongation.toFixed(1);
-            const sunsetStr = moonData.sunsetTime.toLocaleTimeString('en-US', { 
-              hour: 'numeric', minute: '2-digit', hour12: true 
-            });
-            crescentAltitudeInfo = ` At sunset (${sunsetStr}), the moon was ${altStr}° above the horizon (threshold: ${state.crescentThreshold}°, elongation: ${elongStr}°).`;
+            const sunsetFormatted = formatTimeInObserverTimezone(moonData.sunsetTime);
+            crescentAltitudeInfo = ` At sunset (${sunsetFormatted.full}), the moon was ${altStr}° above the horizon (threshold: ${state.crescentThreshold}°, elongation: ${elongStr}°).`;
           }
         }
         
+        // Generate Stellarium Web link for all moon phases
+        // Use an appropriate viewing time based on moon phase and day start
+        let stellariumDateTime;
+        
+        if (state.moonPhase === 'crescent') {
+          // For crescent, use sunset time when you'd look for it
+          const moonData = getMoonAltitudeAtSunset(moonEventDate);
+          if (moonData) {
+            // Use the sunset time on the crescent sighting day
+            const sunsetHours = moonData.sunsetTime.getUTCHours();
+            const sunsetMinutes = moonData.sunsetTime.getUTCMinutes();
+            stellariumDateTime = new Date(Date.UTC(
+              moonEventDate.getUTCFullYear(),
+              moonEventDate.getUTCMonth(),
+              moonEventDate.getUTCDate(),
+              sunsetHours,
+              sunsetMinutes,
+              0
+            ));
+          } else {
+            stellariumDateTime = moonEventDate;
+          }
+        } else if (state.moonPhase === 'full') {
+          // For full moon, use early morning before sunrise when moon is visible in west
+          // Get the day start time for Day 1
+          const day1Date = dayObj.gregorianDate;
+          const dayStartTs = getDayStartTime(day1Date);
+          stellariumDateTime = new Date(dayStartTs);
+        } else {
+          // For dark moon (conjunction), use the moon event time
+          // Note: dark moon isn't visible, but this shows the sky at that moment
+          stellariumDateTime = moonEventDate;
+        }
+        
+        const stellariumDate = stellariumDateTime.toISOString().split('.')[0] + 'Z';
+        stellariumLink = `<a href="https://stellarium-web.org/?date=${stellariumDate}&lat=${state.lat}&lng=${state.lon}" target="_blank" rel="noopener" class="stellarium-link"><img src="https://stellarium-web.org/favicon.ico" alt="" onerror="this.style.display='none'">View in Stellarium</a>`;
+        
         // Build explanation based on moon phase type and day start settings
+        // Stellarium link is stored separately to put in header
         let explanationText = '';
         
         if ((state.moonPhase === 'dark' || state.moonPhase === 'full') && state.dayStartTime === 'evening') {
@@ -8131,12 +8267,18 @@ function showDayDetail(dayObj, month) {
         ? getRenewedMoonDescription() 
         : feast.description;
       
+      // For Renewed Moon on Day 1, include the Stellarium link in the header
+      const showStellarium = feast.name === 'Renewed Moon' && dayObj.lunarDay === 1 && stellariumLink;
+      
       const item = document.createElement('div');
       item.className = 'day-detail-feast-item';
       item.innerHTML = `
         <div class="day-detail-feast-icon">${feast.icon}</div>
         <div class="day-detail-feast-info">
-          <div class="day-detail-feast-name">${nameText}</div>
+          <div class="day-detail-feast-header">
+            <div class="day-detail-feast-name">${nameText}</div>
+            ${showStellarium ? stellariumLink : ''}
+          </div>
           <div class="day-detail-feast-desc">${feastDescription}</div>
           ${basisHtml}
           ${feast.chapter ? `<a href="${feast.chapter}" class="day-detail-feast-link">Learn more &rarr;</a>` : ''}
@@ -8195,16 +8337,30 @@ function showDayDetail(dayObj, month) {
     const isPast = bloodMoonDate < now;
     const verb = isPast ? 'occurred' : 'will occur';
     
+    // Get the exact eclipse time for Stellarium link
+    const eclipseTime = AstroEngines.nasaEclipse.getLunarEclipseTime(dayObj.gregorianDate);
+    let eclipseTimeStr = '';
+    let stellariumBloodMoonLink = '';
+    if (eclipseTime) {
+      const eclipseFormatted = formatTimeInObserverTimezone(eclipseTime);
+      eclipseTimeStr = ` at ${eclipseFormatted.full}`;
+      const stellariumDate = eclipseTime.toISOString().split('.')[0] + 'Z';
+      stellariumBloodMoonLink = `<a href="https://stellarium-web.org/?date=${stellariumDate}&lat=${state.lat}&lng=${state.lon}" target="_blank" rel="noopener" class="stellarium-link"><img src="https://stellarium-web.org/favicon.ico" alt="" onerror="this.style.display='none'">View in Stellarium</a>`;
+    }
+    
     const item = document.createElement('div');
     item.className = 'day-detail-feast-item';
     item.innerHTML = `
       <div class="day-detail-feast-icon blood-moon-icon">🌕</div>
       <div class="day-detail-feast-info">
-        <div class="day-detail-feast-name" style="color: #ff6b6b;">Blood Moon (Total Lunar Eclipse)</div>
+        <div class="day-detail-feast-header">
+          <div class="day-detail-feast-name" style="color: #ff6b6b;">Blood Moon (Total Lunar Eclipse)</div>
+          ${stellariumBloodMoonLink}
+        </div>
         <div class="day-detail-feast-desc">A total lunar eclipse occurs when the Earth passes between the Sun and Moon, 
           casting Earth's shadow on the lunar surface. The Moon appears deep red due to sunlight filtered through Earth's atmosphere.</div>
         <div class="feast-basis">
-          A total lunar eclipse ${verb} on ${dayOfWeek}, ${monthName} ${dayNum}${daySuffix}, ${year}. 
+          A total lunar eclipse ${verb} on ${dayOfWeek}, ${monthName} ${dayNum}${daySuffix}, ${year}${eclipseTimeStr}. 
           In Scripture, blood moons are often associated with significant prophetic events (Joel 2:31, Acts 2:20, Revelation 6:12).
         </div>
       </div>

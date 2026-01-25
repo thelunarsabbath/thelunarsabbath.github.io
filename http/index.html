@@ -667,6 +667,11 @@ body.feasts-open {
   height: 100%;
 }
 
+/* Sabbath Tester page overflow control - hide body scroll, page has its own */
+body.sabbath-tester-open {
+  overflow: hidden !important;
+}
+
 #export-page {
   position: fixed;
   top: 55px; /* Below the top nav */
@@ -2707,6 +2712,7 @@ body.feasts-open {
   bottom: 0;
   background: linear-gradient(180deg, #1a3a5c 0%, #0d1f33 100%);
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 100;
 }
 
@@ -2772,6 +2778,107 @@ body.feasts-open {
   line-height: 1.6;
   margin-bottom: 16px;
   font-size: 0.95em;
+}
+
+/* Test Evidence Accordion */
+.test-evidence-accordion {
+  margin-bottom: 16px;
+  background: rgba(126, 200, 227, 0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(126, 200, 227, 0.2);
+}
+
+.test-evidence-accordion summary {
+  cursor: pointer;
+  color: #7ec8e3;
+  font-weight: 500;
+  padding: 12px 14px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.test-evidence-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.test-evidence-accordion summary::before {
+  content: '▶';
+  font-size: 0.7em;
+  transition: transform 0.2s;
+}
+
+.test-evidence-accordion[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.test-evidence-accordion summary:hover {
+  color: #a8dcf0;
+  background: rgba(126, 200, 227, 0.05);
+}
+
+.test-evidence-content {
+  padding: 0 14px 14px 14px;
+  animation: accordionOpen 0.2s ease-out;
+}
+
+.test-evidence-content p {
+  margin: 0 0 12px 0;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.6;
+}
+
+.test-evidence-content ul {
+  margin: 0 0 12px 0;
+  padding-left: 20px;
+  color: rgba(255,255,255,0.85);
+}
+
+.test-evidence-content li {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.test-evidence-content li strong {
+  color: #7ec8e3;
+}
+
+.test-evidence-content a {
+  color: #7ec8e3;
+  text-decoration: none;
+}
+
+.test-evidence-content a:hover {
+  text-decoration: underline;
+}
+
+.test-interpretation {
+  margin-bottom: 16px;
+  padding: 14px;
+  background: rgba(255, 193, 7, 0.1);
+  border-left: 3px solid #ffc107;
+  border-radius: 0 8px 8px 0;
+}
+
+.test-interpretation p {
+  margin: 0 0 10px 0;
+  color: rgba(255,255,255,0.9);
+}
+
+.test-interpretation ul {
+  margin: 0;
+  padding-left: 20px;
+  color: rgba(255,255,255,0.85);
+}
+
+.test-interpretation li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.test-interpretation li strong {
+  color: #ffc107;
 }
 
 .sabbath-test-expected {
@@ -2857,6 +2964,33 @@ body.feasts-open {
   gap: 8px;
 }
 
+.sabbath-scoreboard-intro {
+  margin-bottom: 20px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.85);
+  font-size: 0.95em;
+}
+
+.sabbath-scoreboard-intro p {
+  margin: 0 0 12px 0;
+}
+
+.scoreboard-conclusion {
+  background: rgba(126, 200, 227, 0.1);
+  border-left: 3px solid #7ec8e3;
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin-top: 12px;
+}
+
+.scoreboard-conclusion p {
+  margin: 0 0 8px 0;
+}
+
+.scoreboard-conclusion p:last-child {
+  margin-bottom: 0;
+}
+
 .sabbath-scoreboard-table {
   width: 100%;
   border-collapse: collapse;
@@ -2898,6 +3032,87 @@ body.feasts-open {
 .sabbath-scoreboard-table .score-poor {
   color: #f87171;
   font-weight: 600;
+}
+
+.scoreboard-expandable {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.scoreboard-expandable:hover {
+  background: rgba(126, 200, 227, 0.1);
+}
+
+.scoreboard-expandable .expand-arrow {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-size: 0.7em;
+  margin-right: 6px;
+}
+
+.scoreboard-expandable.expanded .expand-arrow {
+  transform: rotate(90deg);
+}
+
+.scoreboard-details td {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px 16px !important;
+}
+
+.score-breakdown {
+  font-size: 0.9em;
+  line-height: 1.6;
+}
+
+.breakdown-section {
+  margin-bottom: 6px;
+}
+
+.breakdown-section:last-child {
+  margin-bottom: 0;
+}
+
+.breakdown-label {
+  font-weight: 600;
+}
+
+/* Alt Score expandable in test tables */
+.alt-score-details {
+  cursor: pointer;
+}
+
+.alt-score-details summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.alt-score-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.alt-score-details summary::before {
+  content: '▶';
+  font-size: 0.6em;
+  transition: transform 0.2s;
+}
+
+.alt-score-details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.alt-score-breakdown {
+  margin-top: 8px;
+  font-size: 0.85em;
+  line-height: 1.5;
+  padding: 8px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+.alt-score-breakdown .breakdown-section {
+  margin-bottom: 4px;
 }
 
 .sabbath-test-loading {
@@ -4806,6 +5021,7 @@ function navigateTo(page) {
   // Hide all pages and reset body state
   document.documentElement.classList.remove('feasts-open');
   document.body.classList.remove('feasts-open');
+  document.body.classList.remove('sabbath-tester-open');
   document.body.style.overflow = ''; // Restore scrolling
   
   // Close settings slide-in
@@ -4854,6 +5070,7 @@ function navigateTo(page) {
       dayDetailPanel.style.display = 'none';
       sabbathTesterPage.style.display = 'block';
       sabbathTesterPage.scrollTop = 0;
+      document.body.classList.add('sabbath-tester-open');
       renderSabbathTester();
       updateURLWithView('sabbath-tester');
       break;
@@ -6220,7 +6437,7 @@ function navigateToTestResult(testId, profileId) {
 }
 
 // Format a Gregorian date for ancient dates
-function formatAncientDate(date) {
+function formatAncientDate(date, includeWeekday = true) {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
@@ -6230,13 +6447,32 @@ function formatAncientDate(date) {
   const year = date.getUTCFullYear();
   const yearStr = year < 0 ? `${Math.abs(year) + 1} BC` : `${year} AD`;
   
-  return `${weekday}, ${monthName} ${day}, ${yearStr}`;
+  if (includeWeekday) {
+    return `${weekday}, ${monthName} ${day}, ${yearStr}`;
+  }
+  return `${monthName} ${day}, ${yearStr}`;
 }
 
 // Render the Sabbath Tester page
+// Cache version for sabbath tester results - increment when test logic changes
+const SABBATH_TESTER_CACHE_VERSION = 'v3';
+
 function renderSabbathTester() {
   const loadingEl = document.getElementById('sabbath-tester-loading');
   const resultsEl = document.getElementById('sabbath-tester-results');
+  
+  // Check for cached results
+  const cacheKey = 'sabbathTesterResults';
+  const cacheVersionKey = 'sabbathTesterVersion';
+  const cachedVersion = localStorage.getItem(cacheVersionKey);
+  const cachedHtml = localStorage.getItem(cacheKey);
+  
+  if (cachedVersion === SABBATH_TESTER_CACHE_VERSION && cachedHtml) {
+    // Use cached results
+    loadingEl.style.display = 'none';
+    resultsEl.innerHTML = cachedHtml;
+    return;
+  }
   
   loadingEl.style.display = 'block';
   resultsEl.innerHTML = '';
@@ -6264,6 +6500,11 @@ function renderSabbathTester() {
     
     // Calculate scoreboard
     const scoreboard = {};
+    // Also calculate base scores excluding 32 AD for alternative year comparisons
+    const baseScoreWithout32AD = {};
+    // Track individual test results per profile for expandable details
+    const testResultsByProfile = {};
+    
     for (const profile of profiles) {
       scoreboard[profile.id] = {
         profile,
@@ -6272,17 +6513,40 @@ function renderSabbathTester() {
         uncertain: 0,
         totalScore: 0
       };
+      baseScoreWithout32AD[profile.id] = {
+        totalScore: 0,
+        testResults: [] // Track individual test results for alt-score breakdown
+      };
+      testResultsByProfile[profile.id] = [];
     }
     
     for (const { test, results } of allResults) {
       for (const r of results) {
         const score = scoreboard[r.profile.id];
+        const baseScore = baseScoreWithout32AD[r.profile.id];
         // Only count towards score if test is not excluded
         const countsForScore = !test.excludeFromScore;
+        // For base score, exclude both excluded tests AND the 32 AD test
+        const countsForBaseScore = !test.excludeFromScore && test.id !== 'resurrection-32ad';
+        
+        // Store test result for this profile (only scored tests)
+        if (countsForScore) {
+          testResultsByProfile[r.profile.id].push({
+            testName: test.name,
+            testId: test.id,
+            result: r.result,
+            probability: r.probability
+          });
+        }
+        
         if (r.result === 'pass') {
           if (countsForScore) {
             score.passed++;
             score.totalScore += 1; // Pass = 1
+          }
+          if (countsForBaseScore) {
+            baseScore.totalScore += 1;
+            baseScore.testResults.push({ testName: test.name, testId: test.id, result: 'pass' });
           }
         } else if (r.result === 'uncertain') {
           if (countsForScore) {
@@ -6290,11 +6554,19 @@ function renderSabbathTester() {
             // Uncertain = probability / 100 (e.g., 55% = 0.55)
             score.totalScore += (r.probability || 50) / 100;
           }
+          if (countsForBaseScore) {
+            baseScore.totalScore += (r.probability || 50) / 100;
+            baseScore.testResults.push({ testName: test.name, testId: test.id, result: 'uncertain', probability: r.probability });
+          }
         } else if (r.result === 'fail') {
           if (countsForScore) {
             score.failed++;
             // Fail = 0
           }
+          if (countsForBaseScore) {
+            baseScore.testResults.push({ testName: test.name, testId: test.id, result: 'fail' });
+          }
+          // Fail adds 0 to base score too (nothing to add)
         }
       }
     }
@@ -6316,13 +6588,17 @@ function renderSabbathTester() {
     html += `
       <div class="sabbath-scoreboard">
         <div class="sabbath-scoreboard-title">📊 Summary Scoreboard</div>
+        <div class="sabbath-scoreboard-intro">
+          <p>This scoreboard tests each calendar configuration against biblical events where both the lunar date and weekday can be determined from Scripture. Tests include the first Sabbath of Manna (Exodus 16), the First Fruits offering after crossing the Jordan (Joshua 5), and the Resurrection on First Fruits (Matthew 28).</p>
+          <div class="scoreboard-conclusion">
+            <p><strong>Key Finding:</strong> The <span class="result-pass">Lunar Sabbath</span> is compatible with all scored tests. It is also compatible with Rabbinic tradition that both Temples fell "the day after the Sabbath" (Talmud Ta'anit 29a) and Josephus' record that Romans built siege ramps on the Sabbath when the 8th of Av fell on that day.</p>
+            <p>For <span class="result-uncertain">Saturday Sabbath</span> to be compatible, only one specific configuration works: <strong>33 AD crucifixion, Full Moon month start, Sunset day start, and Lamb (early) year start</strong>. This requires assuming 33 AD despite the chronological cautions noted below, and abandons the crescent moon tradition while adopting the full moon start.</p>
+          </div>
+        </div>
         <table class="sabbath-scoreboard-table">
           <thead>
             <tr>
               <th>Calendar Profile</th>
-              <th>Passed</th>
-              <th>Uncertain</th>
-              <th>Failed</th>
               <th>Score</th>
             </tr>
           </thead>
@@ -6338,13 +6614,45 @@ function renderSabbathTester() {
       else if (pct >= 70) scoreClass = 'score-good';
       else if (pct >= 50) scoreClass = 'score-medium';
       
+      // Build test breakdown for this profile
+      const profileTests = testResultsByProfile[score.profile.id] || [];
+      const passedTests = profileTests.filter(t => t.result === 'pass');
+      const failedTests = profileTests.filter(t => t.result === 'fail');
+      const uncertainTests = profileTests.filter(t => t.result === 'uncertain');
+      
+      // Helper to format test names, keeping year info for resurrection tests
+      const formatName = (t) => {
+        if (t.testId === 'resurrection-32ad') return 'Resurrection 32 AD';
+        return t.testName.replace(/ \([^)]+\)$/, '');
+      };
+      
+      let testBreakdown = '<div class="score-breakdown">';
+      if (passedTests.length > 0) {
+        testBreakdown += '<div class="breakdown-section"><span class="breakdown-label result-pass">✅ Passed:</span> ';
+        testBreakdown += passedTests.map(formatName).join(', ');
+        testBreakdown += '</div>';
+      }
+      if (uncertainTests.length > 0) {
+        testBreakdown += '<div class="breakdown-section"><span class="breakdown-label result-uncertain">⚠️ Uncertain:</span> ';
+        testBreakdown += uncertainTests.map(t => `${formatName(t)} (${t.probability}%)`).join(', ');
+        testBreakdown += '</div>';
+      }
+      if (failedTests.length > 0) {
+        testBreakdown += '<div class="breakdown-section"><span class="breakdown-label result-fail">❌ Failed:</span> ';
+        testBreakdown += failedTests.map(formatName).join(', ');
+        testBreakdown += '</div>';
+      }
+      testBreakdown += '</div>';
+      
+      const rowId = `scoreboard-row-${score.profile.id.replace(/[^a-zA-Z0-9]/g, '-')}`;
+      
       html += `
-        <tr>
-          <td>${score.profile.name}</td>
-          <td class="result-pass">${score.passed}</td>
-          <td class="result-uncertain">${score.uncertain}</td>
-          <td class="result-fail">${score.failed}</td>
+        <tr class="scoreboard-expandable" onclick="toggleScoreboardRow('${rowId}')">
+          <td><span class="expand-arrow">▶</span> ${score.profile.name}</td>
           <td class="${scoreClass}">${pct}%</td>
+        </tr>
+        <tr class="scoreboard-details" id="${rowId}" style="display: none;">
+          <td colspan="2">${testBreakdown}</td>
         </tr>
       `;
     }
@@ -6370,6 +6678,47 @@ function renderSabbathTester() {
           </div>
           <div class="sabbath-test-scripture">${test.scripture}</div>
           <div class="sabbath-test-description">${test.description}</div>
+          ${test.id === 'resurrection-32ad' ? `
+          <details class="test-evidence-accordion">
+            <summary>📖 Why 32 AD? See the Evidence</summary>
+            <div class="test-evidence-content">
+              <p>Multiple independent chronological anchors converge on 32 AD:</p>
+              <ul>
+                <li><strong>Tiberius' 15th Year (Fall 28-29 AD)</strong> — John the Baptist began his ministry in the 15th year of Tiberius (Luke 3:1-2). Standard Roman historiography dates this to fall 28 – fall 29 AD.</li>
+                <li><strong>Year of Release (Fall 29 AD)</strong> — Jesus proclaimed "the year of the Lord's favor" in Nazareth (Luke 4:18-19). This sabbatical year proclamation aligns with Day of Atonement 29 AD, based on the 7-year cycle from the Jordan crossing in 1406 BC.</li>
+                <li><strong>46 Years Building the Temple (30 AD)</strong> — At the first Passover in John's Gospel, the Jews said the temple had been under construction 46 years (John 2:20). Herod began rebuilding ~17-16 BC, placing this first Passover in spring 30 AD.</li>
+                <li><strong>Three Passovers in John</strong> — John explicitly mentions three Passovers: 30 AD (John 2:13), 31 AD (John 6:4), and the final Passover 32 AD (John 11:55).</li>
+                <li><strong>Daniel's 490-Year Prophecy (32 AD)</strong> — The decree to restore Jerusalem was issued in Artaxerxes' 7th year, spring 458 BC (Ezra 7:7-9). The 490th year lands on spring 32 AD (Daniel 9:24-25).</li>
+                <li><strong>Passover Solar Eclipse (April 28, 32 AD)</strong> — NASA documents a partial solar eclipse visible in Jerusalem at midday on Passover 32 AD, matching the darkness recorded in Matthew 27:45.</li>
+              </ul>
+              <p>These independent lines of evidence—Tiberius' reign, the sabbatical cycle, temple construction, John's Passovers, Daniel's prophecy, and astronomical data—all align naturally on 32 AD without requiring ad hoc adjustments.</p>
+              <p style="margin-top: 15px;"><a href="/chapters/12-32-ad-resurrection/" style="color: #7ec8e3;">📖 Read the full chapter: 32 AD Resurrection</a></p>
+            </div>
+          </details>
+          ` : ''}
+          ${test.id === 'resurrection-33ad' ? `
+          <details class="test-evidence-accordion">
+            <summary>⚠️ Cautions with 33 AD</summary>
+            <div class="test-evidence-content">
+              <p>While 33 AD is a popular alternative, it requires assumptions that conflict with other evidence:</p>
+              <ul>
+                <li><strong>Exceeds Daniel's 490 Years</strong> — The decree to restore Jerusalem was issued in Artaxerxes' 7th year, spring 458 BC (Ezra 7:7-9). The 490th year ends spring 32 AD (Daniel 9:24-25). A 33 AD crucifixion falls in the 491st year, requiring non-literal or non-inclusive counting of Daniel's prophecy.</li>
+                <li><strong>Requires Undocumented 4th Passover</strong> — John explicitly mentions only three Passovers during Jesus' ministry (John 2:13, 6:4, 11:55). For 33 AD to work with John's ministry starting fall 28-29 AD (Tiberius' 15th year), a fourth unrecorded Passover must be assumed, extending to a 4-year ministry.</li>
+                <li><strong>No Passover Solar Eclipse</strong> — NASA documents a partial solar eclipse visible in Jerusalem at midday on April 28, 32 AD, matching the darkness at the cross (Matthew 27:45). There is no similar eclipse alignment for Passover 33 AD. Phlegon's record placing it in the "4th year of the 202nd Olympiad" (July 32 – July 33 AD) is approximate and written 105+ years after the event.</li>
+              </ul>
+              <p>These issues don't necessarily disprove 33 AD, but they require ad hoc adjustments that are unnecessary with a 32 AD crucifixion date.</p>
+              <p style="margin-top: 15px;"><a href="/chapters/12-32-ad-resurrection/" style="color: #7ec8e3;">📖 Read the full chapter: 32 AD Resurrection</a></p>
+            </div>
+          </details>
+          <div class="test-interpretation">
+            <p><strong>Interpreting the Results Below:</strong></p>
+            <ul>
+              <li><strong>Traditional April 3rd Friday</strong> — The popular "April 3, 33 AD" Friday crucifixion date relies on the crescent moon calendar with the Lamb (Passover after equinox) year start rule. However, this assumes the crescent sighting was delayed by one day when astronomical calculations show it would have been clearly visible the evening before.</li>
+              <li><strong>Other Passing Calendars Break Tradition</strong> — Any other calendar configuration that places the 16th on Sunday in 33 AD requires abandoning traditional assumptions: either using equinox-based year start instead of the Lamb rule, adopting full moon month starts instead of crescent, or starting the day at daybreak instead of sunset. Each of these deviates from the rabbinic traditions typically assumed by 33 AD proponents.</li>
+              <li><strong>Most Fail Other Biblical Tests</strong> — Expand the "Alt Score" column to see how each configuration performs on the other biblical tests. All but one configuration that passes 33 AD will fail the Manna Sabbath, Jordan Crossing, or 32 AD Resurrection tests. The only Saturday Sabbath configuration achieving 100% is Full Moon + Sunset + Lamb—which still requires accepting the chronological cautions above.</li>
+            </ul>
+          </div>
+          ` : ''}
           <div class="sabbath-test-expected">
             <strong>Expected:</strong> ${test.expectedLabel} (${test.expectedLabel === 'Saturday' ? 'Sabbath' : 'First Day of Week'})
           </div>
@@ -6377,9 +6726,10 @@ function renderSabbathTester() {
             <thead>
               <tr>
                 <th>Calendar Profile</th>
-                <th>Gregorian Date</th>
+                <th>${test.year < 1582 ? 'Julian Date' : 'Gregorian Date'}</th>
                 <th>Weekday</th>
                 <th>Result</th>
+                ${(test.id === 'resurrection-30ad' || test.id === 'resurrection-33ad') ? '<th title="Score if this year replaces 32 AD as the resurrection test">Alt Score</th>' : ''}
               </tr>
             </thead>
             <tbody>
@@ -6450,7 +6800,7 @@ function renderSabbathTester() {
           resultClass = 'result-uncertain';
         }
         
-        const dateStr = r.gregorianDate ? formatAncientDate(r.gregorianDate) : 'N/A';
+        const dateStr = r.gregorianDate ? formatAncientDate(r.gregorianDate, false) : 'N/A';
         const weekdayStr = r.calculatedWeekdayName || 'N/A';
         
         // Create year uncertainty indicator if present
@@ -6465,12 +6815,70 @@ function renderSabbathTester() {
           `<a class="sabbath-test-date-link" onclick="navigateToTestResult('${test.id}', '${r.profileIdForNav}')">${dateStr}</a>${yearUncertaintyIcon}` :
           dateStr;
         
+        // Calculate alternative score for 30 AD and 33 AD tests
+        let altScoreCell = '';
+        if (test.id === 'resurrection-30ad' || test.id === 'resurrection-33ad') {
+          // Get base score without 32 AD, then add this test's result
+          const baseScoreData = baseScoreWithout32AD[r.profile.id];
+          const baseScore = baseScoreData?.totalScore || 0;
+          const baseTestResults = baseScoreData?.testResults || [];
+          
+          let thisTestScore = 0;
+          if (r.result === 'pass') thisTestScore = 1;
+          else if (r.result === 'uncertain') thisTestScore = (r.probability || 50) / 100;
+          // else fail = 0
+          
+          const altTotalScore = baseScore + thisTestScore;
+          const altPct = Math.round((altTotalScore / numTests) * 100);
+          
+          let altScoreClass = 'score-poor';
+          if (altPct >= 90) altScoreClass = 'score-perfect';
+          else if (altPct >= 70) altScoreClass = 'score-good';
+          else if (altPct >= 50) altScoreClass = 'score-medium';
+          
+          // Build breakdown of tests (excluding current test - that's shown in Result column)
+          const passedTests = baseTestResults.filter(t => t.result === 'pass');
+          const failedTests = baseTestResults.filter(t => t.result === 'fail');
+          const uncertainTests = baseTestResults.filter(t => t.result === 'uncertain');
+          
+          // Helper to format test names, keeping year info for resurrection tests
+          const formatTestName = (t) => {
+            if (t.testId === 'resurrection-32ad') return 'Resurrection 32 AD';
+            return t.testName.replace(/ \([^)]+\)$/, '').replace('First Sabbath of ', '').replace('First Fruits After ', '');
+          };
+          
+          let altBreakdown = '';
+          if (passedTests.length > 0) {
+            altBreakdown += '<div class="breakdown-section"><span class="breakdown-label result-pass">✅</span> ';
+            altBreakdown += passedTests.map(formatTestName).join(', ');
+            altBreakdown += '</div>';
+          }
+          if (uncertainTests.length > 0) {
+            altBreakdown += '<div class="breakdown-section"><span class="breakdown-label result-uncertain">⚠️</span> ';
+            altBreakdown += uncertainTests.map(t => `${formatTestName(t)} (${t.probability}%)`).join(', ');
+            altBreakdown += '</div>';
+          }
+          if (failedTests.length > 0) {
+            altBreakdown += '<div class="breakdown-section"><span class="breakdown-label result-fail">❌</span> ';
+            altBreakdown += failedTests.map(formatTestName).join(', ');
+            altBreakdown += '</div>';
+          }
+          
+          altScoreCell = `<td class="${altScoreClass}">
+            <details class="alt-score-details">
+              <summary>${altPct}%</summary>
+              <div class="alt-score-breakdown">${altBreakdown}</div>
+            </details>
+          </td>`;
+        }
+        
         html += `
           <tr>
             <td>${r.mergedName}</td>
             <td>${dateLink}</td>
             <td>${weekdayStr}</td>
             <td class="${resultClass}">${resultText}</td>
+            ${altScoreCell}
           </tr>
         `;
       }
@@ -6485,11 +6893,32 @@ function renderSabbathTester() {
     loadingEl.style.display = 'none';
     resultsEl.innerHTML = html;
     
+    // Cache the results
+    try {
+      localStorage.setItem('sabbathTesterResults', html);
+      localStorage.setItem('sabbathTesterVersion', SABBATH_TESTER_CACHE_VERSION);
+    } catch (e) {
+      // localStorage might be full or unavailable
+      console.warn('Could not cache sabbath tester results:', e);
+    }
+    
     // Run engine comparison and log results to console
     setTimeout(() => {
       compareEngineResults();
     }, 100);
   }, 50);
+}
+
+// Toggle scoreboard row expansion
+function toggleScoreboardRow(rowId) {
+  const detailsRow = document.getElementById(rowId);
+  const mainRow = detailsRow?.previousElementSibling;
+  
+  if (detailsRow && mainRow) {
+    const isExpanded = detailsRow.style.display !== 'none';
+    detailsRow.style.display = isExpanded ? 'none' : 'table-row';
+    mainRow.classList.toggle('expanded', !isExpanded);
+  }
 }
 
 // Helper to get day suffix (1st, 2nd, 3rd, etc.)
@@ -9425,6 +9854,11 @@ window.addEventListener('popstate', function(event) {
 });
 
 document.addEventListener('DOMContentLoaded', async function() {
+  // Clear any lingering overflow classes from previous sessions
+  document.body.classList.remove('sabbath-tester-open', 'feasts-open');
+  document.documentElement.classList.remove('feasts-open');
+  document.body.style.overflow = '';
+  
   // Rebuild profile dropdown with any saved custom profiles
   rebuildProfileDropdown();
   

@@ -842,10 +842,21 @@ function navigateTo(page) {
         dayDetailPanel.classList.remove('hidden');
         dayDetailPanel.style.display = '';
       }
+      // Open settings directly (don't use toggleSettings which would close if already visible)
       settingsPage.classList.add('visible');
       settingsOverlay.classList.add('visible');
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
-      toggleSettings();
+      
+      // Initialize editing profile to current active profile
+      editingProfileId = state.selectedProfile || 'timeTested';
+      
+      // Update dropdown to show current profile
+      const select = document.getElementById('profile-select');
+      if (select) select.value = editingProfileId;
+      
+      // Update settings page state
+      updateSettingsPageState();
+      displayProfileSettings(editingProfileId);
       break;
     case 'sabbath-tester':
       document.body.classList.add('sabbath-tester-open');

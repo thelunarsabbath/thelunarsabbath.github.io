@@ -1063,10 +1063,8 @@ function handleCityPickerMapClick(event) {
   }
 }
 
-// Track the currently previewed location for World Clock mode
-let previewedLocationSlug = null;
-let previewedLocationCoords = null;
-
+// previewLocationSelection uses global variables previewedLocationSlug and previewedLocationCoords
+// (declared in index.html since they're used by functions in both files)
 function previewLocationSelection(slug, coords) {
   previewedLocationSlug = slug;
   previewedLocationCoords = coords;

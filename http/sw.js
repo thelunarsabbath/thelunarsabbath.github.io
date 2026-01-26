@@ -1,5 +1,5 @@
 // Lunar Sabbath Calendar Service Worker
-const CACHE_NAME = 'lunar-sabbath-v352';
+const CACHE_NAME = 'lunar-sabbath-v354';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -12,6 +12,8 @@ const ASSETS_TO_CACHE = [
   '/day-detail.js',
   '/settings-profiles.js',
   '/navigation-routing.js',
+  '/world-clock.js',
+  '/state-management.js',
   'https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js',
   '/lib/swisseph/swisseph-browser.js',
   '/lib/swisseph/swisseph.js',

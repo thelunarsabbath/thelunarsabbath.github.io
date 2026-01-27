@@ -182,18 +182,15 @@ function toggleProfilePicker(event) {
   const overlay = document.getElementById('profile-picker-overlay');
   
   if (picker.style.display === 'none') {
-    // Position dropdown near the moon icon
-    const moonIcon = document.querySelector('.full-moon-info');
-    if (moonIcon) {
-      const rect = moonIcon.getBoundingClientRect();
+    // Position dropdown near the profile selector in top nav
+    const profileBtn = document.getElementById('top-nav-profile');
+    if (profileBtn) {
+      const rect = profileBtn.getBoundingClientRect();
       picker.style.top = (rect.bottom + 8) + 'px';
-      picker.style.left = Math.max(8, rect.left) + 'px';
       
-      // Make sure it doesn't go off screen to the right
+      // Align right edge of picker with right edge of button
       const pickerWidth = 320;
-      if (rect.left + pickerWidth > window.innerWidth) {
-        picker.style.left = (window.innerWidth - pickerWidth - 8) + 'px';
-      }
+      picker.style.left = Math.max(8, rect.right - pickerWidth) + 'px';
     }
     
     picker.style.display = 'block';

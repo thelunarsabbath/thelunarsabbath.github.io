@@ -73,6 +73,41 @@
   background: rgba(255,255,255,0.1);
 }
 
+/* Top Nav Right Section */
+.top-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-nav-profile {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #7ec8e3;
+  font-size: 1.1em;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.top-nav-profile:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.top-nav-profile-moon {
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.top-nav-profile .dropdown-arrow {
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+
 /* Hamburger Menu Dropdown */
 .nav-menu-overlay {
   display: none;
@@ -336,11 +371,11 @@
   border-radius: 12px;
 }
 
-/* Header Section - New 3-row grid layout (Profile, Jubilee, Controls) */
+/* Header Section - 2-row grid layout (Profile, Controls) */
 .calendar-header {
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto auto;
+  grid-template-rows: auto auto;
   padding: 0;
   background: linear-gradient(180deg, #0d2840 0%, #1a3a5c 100%);
   color: white;
@@ -349,35 +384,28 @@
   overflow: hidden;
 }
 
-/* Row 1: Profile name */
+/* Row 1: Jubilee indicator */
 .header-row-1 {
   grid-column: 1;
   grid-row: 1;
-  padding: 8px 12px 4px;
+  padding: 6px 12px 2px;
 }
 
-/* Row 2: Jubilee indicator */
-.header-jubilee-row {
-  grid-column: 1;
-  grid-row: 2;
-  padding: 0 12px 4px;
-}
-
-/* Row 3: Year | Month | Time | Location */
+/* Row 2: Year | Month | Time | Location */
 .header-row-2 {
   grid-column: 1;
-  grid-row: 3;
+  grid-row: 2;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px 8px;
+  padding: 2px 12px 6px;
   flex-wrap: wrap;
 }
 
-/* Day 1 cell spans all three rows */
+/* Day 1 cell spans both rows */
 .new-moon-box {
   grid-column: 2;
-  grid-row: 1 / 4;
+  grid-row: 1 / 3;
 }
 
 /* Dropdown item styles */
@@ -399,18 +427,6 @@
 .header-dropdown .dropdown-arrow {
   font-size: 0.7em;
   opacity: 0.7;
-}
-
-.header-dropdown.profile {
-  color: #7ec8e3;
-  font-size: 1.95em;
-  font-weight: bold;
-  gap: 8px;
-}
-
-.header-dropdown.profile .profile-moon {
-  font-size: 1em;
-  line-height: 1;
 }
 
 .header-dropdown.year {
@@ -445,9 +461,17 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 2px 8px;
-  font-size: 0.95em;
+  padding: 4px 8px;
+  font-size: 1.3em;
+  font-weight: bold;
   color: #c9a227;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.jubilee-indicator:hover {
+  background: rgba(255,255,255,0.1);
 }
 
 .jubilee-indicator.sabbath-year {
@@ -456,7 +480,6 @@
 
 .jubilee-indicator.jubilee-year {
   color: #FFD700;
-  font-weight: bold;
 }
 
 .jubilee-text {
@@ -4697,15 +4720,12 @@ body.torah-info-open {
   }
   
   .header-row-1 {
-    padding: 6px 10px 2px;
-  }
-  
-  .header-jubilee-row {
-    padding: 0 10px 2px;
+    padding: 4px 10px 2px;
   }
   
   .jubilee-indicator {
-    font-size: 0.8em;
+    font-size: 1.1em;
+    padding: 2px 6px;
   }
   
   .header-row-2 {
@@ -4718,12 +4738,9 @@ body.torah-info-open {
     font-size: 0.95em !important;
   }
   
-  .header-dropdown.profile {
-    font-size: 1.35em !important;
-  }
-  
-  .header-dropdown.profile .profile-moon {
-    font-size: 1em;
+  .top-nav-profile {
+    font-size: 0.95em;
+    padding: 3px 8px;
   }
   
   .header-separator {
@@ -4938,16 +4955,13 @@ body.torah-info-open {
   }
 
   .header-row-1 {
-    padding: 4px 8px 2px;
-  }
-  
-  .header-jubilee-row {
-    padding: 0 8px 2px;
+    padding: 3px 8px 1px;
   }
   
   .jubilee-indicator {
-    font-size: 0.7em;
+    font-size: 0.95em;
     gap: 4px;
+    padding: 2px 4px;
   }
   
   .header-row-2 {
@@ -4960,16 +4974,18 @@ body.torah-info-open {
     font-size: 0.85em !important;
   }
   
-  .header-dropdown.profile {
-    font-size: 1.15em !important;
-  }
-  
-  .header-dropdown.profile .profile-moon {
-    font-size: 1em;
-  }
-  
   .header-dropdown .dropdown-arrow {
     font-size: 0.6em;
+  }
+  
+  .top-nav-profile {
+    font-size: 0.85em;
+    padding: 2px 6px;
+    gap: 4px;
+  }
+  
+  .top-nav-profile-moon {
+    font-size: 1em;
   }
   
   .header-separator {
@@ -5034,25 +5050,28 @@ body.torah-info-open {
     font-size: 0.75em !important;
   }
   
-  .header-dropdown.profile {
-    font-size: 1em !important;
-  }
-  
-  .header-dropdown.profile .profile-moon {
-    font-size: 1em;
-  }
-  
   .header-separator {
     font-size: 0.45em;
   }
   
   .jubilee-indicator {
-    font-size: 0.6em;
+    font-size: 0.8em;
     gap: 3px;
+    padding: 1px 3px;
   }
   
   .jubilee-info-link {
     font-size: 0.8em;
+  }
+  
+  .top-nav-profile {
+    font-size: 0.75em;
+    padding: 2px 4px;
+    gap: 3px;
+  }
+  
+  .top-nav-profile-moon {
+    font-size: 0.9em;
   }
 }
 
@@ -6055,5 +6074,1267 @@ body.torah-info-open {
   
   .scripture-refs {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   Historical Events Page
+   ========================================== */
+
+body.events-open {
+  overflow: hidden !important;
+}
+
+body.biblical-timeline-open {
+  overflow: hidden !important;
+}
+
+.events-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #1a3a5c 0%, #0d2840 100%);
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 100;
+}
+
+.events-header {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(180deg, #1a3a5c 0%, #0d1f33 50%);
+  z-index: 10;
+  border-bottom: 1px solid rgba(126, 200, 227, 0.2);
+}
+
+.events-header-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.events-header h2 {
+  margin: 0;
+  font-size: 1.3em;
+  color: #7ec8e3;
+  flex: 1;
+}
+
+.events-header .close-btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #ccc;
+  font-size: 1.2em;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.events-header .close-btn:hover {
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.events-page-content {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.events-intro {
+  background: rgba(0,0,0,0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.events-intro p {
+  color: #b0c4de;
+  margin: 0 0 15px 0;
+  line-height: 1.6;
+}
+
+.events-profile-context {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.events-profile-label {
+  color: #888;
+  font-size: 0.9em;
+}
+
+.events-profile-value {
+  color: #7ec8e3;
+  font-weight: bold;
+}
+
+.events-profile-change-btn {
+  background: rgba(126, 200, 227, 0.2);
+  border: 1px solid rgba(126, 200, 227, 0.3);
+  color: #7ec8e3;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.events-profile-change-btn:hover {
+  background: rgba(126, 200, 227, 0.3);
+}
+
+.events-controls {
+  background: rgba(0,0,0,0.15);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.events-filter-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.events-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.events-filter-group label {
+  color: #888;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.events-filter-group select,
+.events-filter-group input {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #eee;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+.events-filter-group select:focus,
+.events-filter-group input:focus {
+  outline: none;
+  border-color: #7ec8e3;
+}
+
+.events-filter-group input::placeholder {
+  color: #666;
+}
+
+.events-timeline-toggle {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+}
+
+.events-view-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #aaa;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 0.95em;
+}
+
+.events-view-btn:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.events-view-btn:last-child {
+  border-radius: 0 8px 8px 0;
+  border-left: none;
+}
+
+.events-view-btn.active {
+  background: rgba(126, 200, 227, 0.2);
+  border-color: rgba(126, 200, 227, 0.4);
+  color: #7ec8e3;
+}
+
+.events-view-btn:hover:not(.active) {
+  background: rgba(255,255,255,0.15);
+}
+
+/* Events List Container */
+.events-list-container {
+  min-height: 200px;
+}
+
+.events-loading {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+.events-era-group {
+  margin-bottom: 24px;
+}
+
+.events-era-header {
+  color: #7ec8e3;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(126, 200, 227, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.events-era-count {
+  background: rgba(126, 200, 227, 0.2);
+  color: #7ec8e3;
+  font-size: 0.75em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: normal;
+}
+
+.event-card {
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.event-card:hover {
+  background: rgba(0,0,0,0.3);
+  border-color: rgba(126, 200, 227, 0.3);
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.event-card-title {
+  color: #eee;
+  font-size: 1.05em;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+
+.event-card-type {
+  background: rgba(126, 200, 227, 0.15);
+  color: #7ec8e3;
+  font-size: 0.75em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.event-card-dates {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.event-date-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.event-date-label {
+  color: #666;
+  font-size: 0.8em;
+}
+
+.event-date-value {
+  color: #d4a017;
+  font-size: 0.9em;
+}
+
+.event-card-desc {
+  color: #999;
+  font-size: 0.9em;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.event-card-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.event-tag {
+  background: rgba(255,255,255,0.08);
+  color: #888;
+  font-size: 0.75em;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.event-validation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-left: 10px;
+}
+
+.event-validation-badge.valid {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.event-validation-badge.invalid {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+/* Event Detail Modal */
+.event-detail-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.event-detail-overlay.visible {
+  display: flex;
+}
+
+.event-detail-modal {
+  background: linear-gradient(180deg, #1a3a5c 0%, #0d2840 100%);
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  border: 1px solid rgba(126, 200, 227, 0.2);
+}
+
+.event-detail-header {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(180deg, #1a3a5c 0%, #0d1f33 100%);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+  border-bottom: 1px solid rgba(126, 200, 227, 0.15);
+}
+
+.event-detail-header h3 {
+  margin: 0;
+  color: #7ec8e3;
+  font-size: 1.3em;
+  flex: 1;
+}
+
+.event-detail-close {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #ccc;
+  font-size: 1.2em;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-detail-close:hover {
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.event-detail-content {
+  padding: 20px;
+}
+
+.event-detail-dates {
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.event-detail-date-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.event-detail-date-row:last-child {
+  border-bottom: none;
+}
+
+.event-detail-dates .date-label {
+  color: #888;
+  font-size: 0.9em;
+}
+
+.event-detail-dates .date-value {
+  color: #d4a017;
+  font-weight: 500;
+}
+
+.event-detail-description {
+  margin-bottom: 20px;
+}
+
+.event-detail-description p {
+  color: #ccc;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.event-detail-sources {
+  margin-bottom: 20px;
+}
+
+.event-detail-sources h4 {
+  color: #7ec8e3;
+  font-size: 0.95em;
+  margin: 0 0 10px 0;
+}
+
+.event-detail-sources ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.event-detail-sources li {
+  color: #999;
+  font-size: 0.9em;
+  padding: 5px 0;
+  padding-left: 20px;
+  position: relative;
+}
+
+.event-detail-sources li::before {
+  content: '📖';
+  position: absolute;
+  left: 0;
+  font-size: 0.8em;
+}
+
+.event-detail-sources li.historical::before {
+  content: '📜';
+}
+
+.event-detail-sources li.astronomical::before {
+  content: '🔭';
+}
+
+.event-detail-sources .scripture-link {
+  color: #7ec8e3;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.event-detail-sources .scripture-link:hover {
+  color: #a8e0f3;
+  text-decoration: underline;
+}
+
+.event-detail-sources .source-quote {
+  font-style: italic;
+  color: #777;
+  font-size: 0.85em;
+  margin-top: 4px;
+  padding-left: 10px;
+  border-left: 2px solid rgba(126, 200, 227, 0.3);
+}
+
+.event-detail-validation {
+  background: rgba(0,0,0,0.15);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.event-detail-validation h4 {
+  color: #7ec8e3;
+  font-size: 0.95em;
+  margin: 0 0 10px 0;
+}
+
+.event-detail-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.event-detail-article-btn,
+.event-detail-calendar-btn {
+  flex: 1;
+  min-width: 150px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 0.95em;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.event-detail-article-btn {
+  background: rgba(126, 200, 227, 0.2);
+  border: 1px solid rgba(126, 200, 227, 0.3);
+  color: #7ec8e3;
+}
+
+.event-detail-article-btn:hover {
+  background: rgba(126, 200, 227, 0.3);
+}
+
+.event-detail-calendar-btn {
+  background: rgba(212, 160, 23, 0.2);
+  border: 1px solid rgba(212, 160, 23, 0.3);
+  color: #d4a017;
+}
+
+.event-detail-calendar-btn:hover {
+  background: rgba(212, 160, 23, 0.3);
+}
+
+/* Timeline View */
+.events-timeline-container {
+  min-height: 400px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+}
+
+.events-timeline-loading {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+.events-no-results {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  .events-page-content {
+    padding: 15px;
+  }
+  
+  .events-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .events-filter-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .events-filter-group label {
+    margin-bottom: 4px;
+  }
+  
+  .event-card-dates {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .event-card-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .event-detail-modal {
+    max-height: 90vh;
+  }
+  
+  .event-detail-actions {
+    flex-direction: column;
+  }
+  
+  .event-detail-article-btn,
+  .event-detail-calendar-btn {
+    min-width: auto;
+  }
+}
+
+/* Biblical Timeline Page */
+.biblical-timeline-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(180deg, #1a3a5c 0%, #0d2840 100%);
+  overflow: hidden;
+  z-index: 1000; /* Higher z-index to ensure it covers everything */
+  display: flex;
+  flex-direction: column;
+}
+
+.biblical-timeline-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(0,0,0,0.3);
+  border-bottom: 1px solid rgba(126, 200, 227, 0.2);
+  flex-shrink: 0;
+}
+
+.biblical-timeline-header h2 {
+  margin: 0;
+  font-size: 1.1em;
+  color: #7ec8e3;
+  font-weight: 500;
+}
+
+.biblical-timeline-header .close-btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #ccc;
+  font-size: 1em;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.biblical-timeline-header .close-btn:hover {
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.biblical-timeline-vis-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Important for flex children to shrink */
+  height: 100%; /* Ensure it takes parent height */
+}
+
+/* Timeline Controls - stays at top */
+.timeline-controls {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(0,0,0,0.3);
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(126, 200, 227, 0.2);
+}
+
+.timeline-zoom-btn {
+  background: rgba(126, 200, 227, 0.2);
+  border: 1px solid rgba(126, 200, 227, 0.4);
+  color: #7ec8e3;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.timeline-zoom-btn:hover {
+  background: rgba(126, 200, 227, 0.3);
+  border-color: rgba(126, 200, 227, 0.6);
+  transform: scale(1.1);
+}
+
+/* Ruler-style Timeline - Events stacked on right, connected by lines */
+.ruler-timeline-container {
+  width: 100%;
+  position: relative;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  /* Height is set dynamically via inline style */
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.ruler-timeline-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+.ruler-timeline-wrapper {
+  position: relative;
+  width: 100%;
+  /* Height is set dynamically via inline style */
+}
+
+.timeline-zoom-info {
+  color: #7ec8e3;
+  font-size: 0.9em;
+  margin-left: 10px;
+  font-weight: 500;
+}
+
+/* Timeline Ruler (left side with year labels) */
+.timeline-ruler {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 45px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.ruler-tick {
+  position: absolute;
+  left: 2px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+.ruler-tick-line {
+  height: 2px;
+  background: rgba(126, 200, 227, 0.6);
+  margin-left: auto;
+}
+
+/* Major tick lines (labeled intervals) */
+.ruler-tick-line.major {
+  width: 20px;
+  height: 2px;
+  background: rgba(126, 200, 227, 1);
+}
+
+/* Medium tick lines (50-year intervals) */
+.ruler-tick-line.medium {
+  width: 14px;
+  height: 2px;
+  background: rgba(126, 200, 227, 0.7);
+}
+
+/* Minor tick lines (10-year intervals) */
+.ruler-tick-line.minor {
+  width: 10px;
+  height: 2px;
+  background: rgba(126, 200, 227, 0.5);
+}
+
+/* Yearly tick lines (1-year intervals) */
+.ruler-tick-line.yearly {
+  width: 6px;
+  height: 1px;
+  background: rgba(126, 200, 227, 0.4);
+}
+
+/* Monthly tick lines - shorter than year ticks */
+.ruler-tick-line.month {
+  width: 8px;
+  height: 1px;
+  background: rgba(212, 160, 23, 0.8);
+}
+
+/* Weekly tick lines */
+.ruler-tick-line.week {
+  width: 4px;
+  height: 1px;
+  background: rgba(212, 160, 23, 0.6);
+}
+
+/* Daily tick lines */
+.ruler-tick-line.day {
+  width: 3px;
+  height: 1px;
+  background: rgba(212, 160, 23, 0.4);
+}
+
+/* Lunar calendar bars - after year ruler */
+.lunar-bars-container {
+  position: absolute;
+  left: 45px; /* After year ruler */
+  top: 0;
+  width: 10px; /* 5px lunar years + 5px lunar months */
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: transparent !important;
+}
+
+/* Lunar year bar */
+.lunar-year-bar {
+  position: absolute;
+  left: 0;
+  width: 5px;
+}
+
+.lunar-year-bar.odd {
+  background: rgba(50, 200, 100, 0.6);
+}
+
+.lunar-year-bar.even {
+  background: rgba(150, 50, 200, 0.5);
+}
+
+/* Lunar month bar - 5px strip after lunar year bar */
+.lunar-month-bar {
+  position: absolute;
+  left: 5px; /* After 5px lunar year bar */
+  width: 5px;
+}
+
+.lunar-month-bar.odd {
+  background: rgba(212, 160, 23, 0.6);
+}
+
+.lunar-month-bar.even {
+  background: rgba(100, 70, 10, 0.4);
+}
+
+/* Canvas for event connecting lines */
+.event-lines-canvas {
+  background: none !important;
+  background-color: transparent !important;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+}
+
+/* Duration event bars */
+.duration-bars-container {
+  position: absolute;
+  left: 60px; /* After ruler (45) + lunar bars (10) + axis (5) */
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: transparent !important;
+}
+
+.duration-event-bar {
+  position: absolute;
+  width: 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  pointer-events: auto;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
+}
+
+.duration-event-bar:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 6px rgba(255,255,255,0.4);
+}
+
+.duration-event-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: 0.7em;
+  font-weight: 500;
+  color: white;
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  padding: 4px 2px;
+  max-height: calc(100% - 8px);
+}
+
+/* Vertical year label - number on top, era below */
+.ruler-tick-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #7ec8e3;
+  font-size: 0.65em;
+  font-weight: 500;
+  line-height: 1.1;
+  padding-right: 2px;
+}
+
+.ruler-tick-label .year-num {
+  font-size: 1.1em;
+}
+
+.ruler-tick-label .year-era {
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+/* Timeline axis line - after lunar bars */
+.timeline-axis-line {
+  position: absolute;
+  left: 55px; /* After ruler (45) + lunar bars (10) */
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(126, 200, 227, 0.8);
+  z-index: 2;
+}
+
+/* Drag cursor for timeline */
+.ruler-timeline-container {
+  cursor: grab;
+}
+.ruler-timeline-container:active {
+  cursor: grabbing;
+}
+
+/* Duration events as vertical lines on timeline */
+/* Old duration lines - replaced by duration-bars-container */
+
+.duration-vertical-line:hover {
+  opacity: 1;
+  width: 6px;
+  z-index: 5;
+}
+
+/* Events stacked on the right */
+.timeline-events-stack {
+  position: absolute;
+  /* Left position set dynamically based on duration bars width */
+  top: 0;
+  right: 10px;
+  z-index: 3;
+}
+
+.stacked-event {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  background: rgba(20, 40, 60, 0.85);
+  border-left: 3px solid;
+  border-radius: 4px;
+  cursor: pointer;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-size: 0.85em;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.stacked-event:hover {
+  background: rgba(30, 55, 80, 0.95);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.stacked-event-icon {
+  font-size: 1em;
+  flex-shrink: 0;
+}
+
+.stacked-event-title {
+  color: #d8e8f0;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+/* Cluster badge - shows number of grouped events */
+.cluster-badge {
+  background: rgba(126, 200, 227, 0.4);
+  color: #7ec8e3;
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+/* Removed - date now in tooltip only */
+
+/* Duration parallel line (unused, keeping for reference) */
+.duration-parallel-line {
+  position: absolute;
+  width: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+}
+
+.duration-line-label {
+  position: absolute;
+  left: 10px;
+  top: 0;
+  padding: 4px 8px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  font-size: 0.8em;
+  white-space: nowrap;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.duration-parallel-line:hover .duration-line-label {
+  opacity: 1;
+}
+
+/* Point events with callout boxes */
+.timeline-point-events {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 5;
+}
+
+.point-event-callout {
+  position: absolute;
+  transform: translateY(-50%);
+}
+
+.point-event-callout.left {
+  left: 150px;
+}
+
+.point-event-callout.right {
+  right: 0;
+}
+
+.callout-line {
+  position: absolute;
+  top: 50%;
+  width: 100px;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+.point-event-callout.left .callout-line {
+  left: 0;
+}
+
+.point-event-callout.right .callout-line {
+  right: 0;
+}
+
+.callout-marker {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.8);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 6;
+}
+
+.point-event-callout.left .callout-marker {
+  left: 100px;
+}
+
+.point-event-callout.right .callout-marker {
+  right: 100px;
+  transform: translate(50%, -50%);
+}
+
+.callout-marker:hover {
+  transform: translate(-50%, -50%) scale(1.5);
+  box-shadow: 0 0 10px currentColor;
+}
+
+.point-event-callout.right .callout-marker:hover {
+  transform: translate(50%, -50%) scale(1.5);
+}
+
+.callout-box {
+  position: absolute;
+  top: 50%;
+  padding: 10px 12px;
+  border: 2px solid;
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 200px;
+  max-width: 250px;
+  transform: translateY(-50%);
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.point-event-callout.left .callout-box {
+  left: 120px;
+}
+
+.point-event-callout.right .callout-box {
+  right: 120px;
+}
+
+.callout-box:hover {
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.callout-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.callout-icon {
+  font-size: 1.1em;
+  flex-shrink: 0;
+}
+
+.callout-title {
+  color: white;
+  font-weight: 600;
+  font-size: 0.95em;
+  line-height: 1.3;
+}
+
+.callout-date {
+  color: #d4a017;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.biblical-timeline-loading,
+.biblical-timeline-error,
+.biblical-timeline-no-results {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+  font-size: 1.1em;
+}
+
+/* Override vis.js timeline styles to match our theme */
+.biblical-timeline-vis-container .vis-timeline {
+  border-color: rgba(126, 200, 227, 0.3);
+  background: rgba(0,0,0,0.1);
+}
+
+.biblical-timeline-vis-container .vis-time-axis {
+  background: rgba(0,0,0,0.2);
+}
+
+.biblical-timeline-vis-container .vis-time-axis .vis-text {
+  color: #b0c4de;
+}
+
+.biblical-timeline-vis-container .vis-time-axis .vis-grid.vis-vertical {
+  border-color: rgba(126, 200, 227, 0.2);
+}
+
+.biblical-timeline-vis-container .vis-labelset .vis-label {
+  background: rgba(0,0,0,0.3);
+  border-color: rgba(126, 200, 227, 0.3);
+  color: #7ec8e3;
+  font-weight: 500;
+}
+
+.biblical-timeline-vis-container .vis-item {
+  border-radius: 4px;
+  font-size: 0.85em;
+  padding: 2px 6px;
+}
+
+.biblical-timeline-vis-container .vis-item.vis-point {
+  /* Point events are small dots - no text, just icon */
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+.biblical-timeline-vis-container .vis-item.vis-point .vis-item-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.biblical-timeline-vis-container .vis-item.vis-selected {
+  box-shadow: 0 0 10px rgba(126, 200, 227, 0.5);
+}
+
+.biblical-timeline-vis-container .vis-item.vis-point.vis-selected {
+  box-shadow: 0 0 10px rgba(126, 200, 227, 0.5);
+  transform: scale(1.2);
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  .biblical-timeline-header h2 {
+    font-size: 1em;
   }
 }

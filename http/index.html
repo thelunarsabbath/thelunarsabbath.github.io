@@ -21,7 +21,7 @@ title: "Lunar Sabbath Calendar"
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css?v=9.9">
 </head>
 <body>
 
@@ -179,7 +179,14 @@ title: "Lunar Sabbath Calendar"
         <div class="top-nav-tagline">a time tested tradition</div>
       </div>
     </div>
-    <button class="hamburger-btn" onclick="toggleNavMenu()" aria-label="Menu">☰</button>
+    <div class="top-nav-right">
+      <div id="top-nav-profile" class="top-nav-profile" onclick="toggleProfilePicker()" title="Change calendar profile">
+        <span id="top-nav-profile-moon" class="top-nav-profile-moon"></span>
+        <span id="top-nav-profile-name" class="top-nav-profile-name"></span>
+        <span class="dropdown-arrow">▼</span>
+      </div>
+      <button class="hamburger-btn" onclick="toggleNavMenu()" aria-label="Menu">☰</button>
+    </div>
   </div>
 </nav>
 
@@ -213,6 +220,16 @@ title: "Lunar Sabbath Calendar"
       <span class="icon">👨‍🦳</span>
       <span>Priestly Divisions</span>
     </button>
+    <button class="nav-menu-item" onclick="navigateTo('events')">
+      <span class="icon">📜</span>
+      <span>Historical Events</span>
+    </button>
+    <!-- Temporarily hidden while fixing timeline rendering
+    <button class="nav-menu-item" onclick="navigateTo('biblical-timeline')">
+      <span class="icon">⏱️</span>
+      <span>Biblical Timeline</span>
+    </button>
+    -->
     <div class="nav-menu-divider"></div>
     <button class="nav-menu-item" id="install-app-btn" style="display: none;" onclick="handleInstallClick()">
       <span class="icon">📲</span>
@@ -1129,7 +1146,141 @@ title: "Lunar Sabbath Calendar"
   </div>
 </div>
 
+<!-- Historical Events Page -->
+<div id="events-page" class="events-page" style="display: none;">
+  <div class="events-header">
+    <div class="events-header-inner">
+      <h2>📜 Historical Events</h2>
+      <button class="close-btn" onclick="navigateTo('calendar')" aria-label="Close">✕</button>
+    </div>
+  </div>
+  <div class="events-page-content">
+    <div class="events-intro">
+      <p>Explore key historical events across 7,000 years of biblical history. Events are displayed according to your current calendar profile, showing how different calendar interpretations affect the dating of historical events.</p>
+      <div class="events-profile-context">
+        <span class="events-profile-label">Current Profile:</span>
+        <span id="events-profile-name" class="events-profile-value">Time-Tested</span>
+        <button class="events-profile-change-btn" onclick="navigateTo('settings')">Change</button>
+      </div>
+    </div>
+    
+    <div class="events-controls">
+      <div class="events-filter-row">
+        <div class="events-filter-group">
+          <label for="events-type-filter">Type:</label>
+          <select id="events-type-filter" onchange="filterEvents()">
+            <option value="all">All Events</option>
+            <option value="milestone">Milestones</option>
+            <option value="reign">Reigns</option>
+            <option value="construction">Construction</option>
+            <option value="feast">Feasts</option>
+            <option value="death">Deaths</option>
+            <option value="conquest">Conquests</option>
+            <option value="prophecy">Prophecies</option>
+            <option value="astronomical">Astronomical</option>
+            <option value="destruction">Destructions</option>
+          </select>
+        </div>
+        <div class="events-filter-group">
+          <label for="events-era-filter">Era:</label>
+          <select id="events-era-filter" onchange="filterEvents()">
+            <option value="all">All Eras</option>
+            <option value="creation">Creation - Flood</option>
+            <option value="patriarchs">Patriarchs</option>
+            <option value="exodus">Exodus - Judges</option>
+            <option value="monarchy">United Monarchy</option>
+            <option value="divided">Divided Kingdom</option>
+            <option value="exile">Exile - Return</option>
+            <option value="second-temple">Second Temple</option>
+            <option value="roman">Roman Period</option>
+          </select>
+        </div>
+        <div class="events-filter-group">
+          <label for="events-search">Search:</label>
+          <input type="text" id="events-search" placeholder="Search events..." oninput="filterEvents()">
+        </div>
+      </div>
+    </div>
+    
+    <div class="events-timeline-toggle">
+      <button id="events-list-btn" class="events-view-btn active" onclick="setEventsView('list')">List View</button>
+      <button id="events-timeline-btn" class="events-view-btn" onclick="setEventsView('timeline')">Timeline View</button>
+    </div>
+    
+    <div id="events-list-container" class="events-list-container">
+      <!-- Populated by JavaScript -->
+      <div class="events-loading">Loading historical events...</div>
+    </div>
+    
+    <div id="events-timeline-container" class="events-timeline-container" style="display: none;">
+      <!-- Timeline visualization populated by JavaScript -->
+      <div class="events-timeline-loading">Loading timeline...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Biblical Timeline Page -->
+<div id="biblical-timeline-page" class="biblical-timeline-page" style="display: none;">
+  <div class="biblical-timeline-header">
+    <button class="close-btn" onclick="navigateTo('calendar')" aria-label="Close">✕</button>
+    <h2>Biblical Timeline</h2>
+  </div>
+  <div id="biblical-timeline-vis-container" class="biblical-timeline-vis-container">
+    <div class="biblical-timeline-loading">Loading timeline...</div>
+  </div>
+</div>
+
+<!-- Event Detail Modal -->
+<div id="event-detail-overlay" class="event-detail-overlay" onclick="closeEventDetail(event)">
+  <div class="event-detail-modal" onclick="event.stopPropagation()">
+    <div class="event-detail-header">
+      <h3 id="event-detail-title">Event Title</h3>
+      <button class="event-detail-close" onclick="closeEventDetail()">✕</button>
+    </div>
+    <div class="event-detail-content">
+      <div class="event-detail-dates">
+        <div class="event-detail-date-row">
+          <span class="date-label">Lunar Date:</span>
+          <span id="event-detail-lunar" class="date-value">Month 1, Day 14</span>
+        </div>
+        <div class="event-detail-date-row">
+          <span class="date-label">Gregorian Date:</span>
+          <span id="event-detail-gregorian" class="date-value">April 14, 32 AD</span>
+        </div>
+        <div class="event-detail-date-row" id="event-detail-regal-row" style="display: none;">
+          <span class="date-label">Regal Year:</span>
+          <span id="event-detail-regal" class="date-value">Year 18 of Tiberius</span>
+        </div>
+      </div>
+      <div class="event-detail-description">
+        <p id="event-detail-desc">Event description goes here...</p>
+      </div>
+      <div class="event-detail-sources">
+        <h4>Sources</h4>
+        <ul id="event-detail-sources-list">
+          <!-- Populated by JavaScript -->
+        </ul>
+      </div>
+      <div class="event-detail-validation" id="event-detail-validation" style="display: none;">
+        <h4>Profile Validation</h4>
+        <div id="event-detail-validation-content"></div>
+      </div>
+      <div class="event-detail-actions">
+        <a id="event-detail-article-link" href="#" class="event-detail-article-btn" style="display: none;">
+          📖 Read Full Article
+        </a>
+        <button class="event-detail-calendar-btn" onclick="navigateToEventDate()">
+          📅 View on Calendar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<!-- vis.js Timeline library -->
+<script type="text/javascript" src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
+<link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
 <!-- offline-geocode-city: Currently has browser compatibility bug (GitHub issue #2)
      Keeping reference for when it's fixed. Falls back to CITY_SLUGS. -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/offline-geocode-city@1.0.2/dist/index.iife.js"></script> -->
@@ -1145,6 +1296,9 @@ title: "Lunar Sabbath Calendar"
 <script src="/state-management.js"></script>
 <script src="/astronomy-engine-abstraction.js"></script>
 <script src="/priestly-divisions.js"></script>
+<script src="/historical-events.js"></script>
+<script src="/event-resolver.js?v=1.3"></script>
+<script src="/biblical-timeline.js?v=11.6"></script>
 <script src="/bible-reader.js"></script>
 <script src="/torah-portions.js"></script>
 <script>
@@ -1157,28 +1311,105 @@ title: "Lunar Sabbath Calendar"
 
 let bibleEventsByMonthDay = null;
 
-// Load bible events from JSON file
+// Load bible events from both JSON files
 async function loadBibleEvents() {
+  bibleEventsByMonthDay = {};
+  let totalEvents = 0;
+  
+  // Load from bible-events-by-month-day.json (legacy format)
   try {
     const response = await fetch('/bible-events-by-month-day.json');
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const events = await response.json();
-    
-    // Index events by month-day for fast lookup
-    bibleEventsByMonthDay = {};
-    for (const event of events) {
-      const key = `${event.month}-${event.day}`;
-      if (!bibleEventsByMonthDay[key]) {
-        bibleEventsByMonthDay[key] = [];
+    if (response.ok) {
+      const events = await response.json();
+      for (const event of events) {
+        const key = `${event.month}-${event.day}`;
+        if (!bibleEventsByMonthDay[key]) {
+          bibleEventsByMonthDay[key] = [];
+        }
+        bibleEventsByMonthDay[key].push(event);
+        totalEvents++;
       }
-      bibleEventsByMonthDay[key].push(event);
     }
-    console.log(`Bible events loaded: ${events.length} events`);
-    return true;
   } catch (err) {
-    console.warn('Bible events not available:', err.message);
-    return false;
+    console.warn('Bible events file not available:', err.message);
   }
+  
+  // Load from historical-events.json (new format)
+  try {
+    const response = await fetch('/historical-events.json');
+    if (response.ok) {
+      const data = await response.json();
+      const events = data.events || [];
+      
+      for (const event of events) {
+        // Only include events that have lunar month AND day
+        if (event.dates?.lunar?.month && event.dates?.lunar?.day) {
+          const key = `${event.dates.lunar.month}-${event.dates.lunar.day}`;
+          if (!bibleEventsByMonthDay[key]) {
+            bibleEventsByMonthDay[key] = [];
+          }
+          
+          // Convert to legacy format for display compatibility
+          // Show as anniversary on all years, noting original year if known
+          const originalYear = event.dates?.gregorian?.year;
+          let titleWithYear = event.title;
+          if (originalYear !== undefined && originalYear !== null) {
+            const yearStr = originalYear < 0 ? `${Math.abs(originalYear)} BC` : 
+                           originalYear === 0 ? '1 BC' : `${originalYear} AD`;
+            titleWithYear = `${event.title} (${yearStr})`;
+          }
+          
+          const legacyEvent = {
+            month: event.dates.lunar.month,
+            day: event.dates.lunar.day,
+            title: titleWithYear,
+            description: event.description,
+            verse: event.sources?.filter(s => s.type === 'scripture').map(s => s.ref).join('; ') || '',
+            bookChapter: event.article,
+            // No condition - show as anniversary every year
+            condition: null,
+            // Store original year for potential highlighting when viewing that year
+            originalYear: originalYear,
+            // Pass through original event for rich data access
+            _historicalEvent: event
+          };
+          
+          // Check if this event is already in the list (avoid duplicates)
+          // Use fuzzy matching: check if titles contain each other or share key words
+          // If duplicate found, REPLACE with the new (more detailed) version
+          const newTitleLower = event.title.toLowerCase();
+          const duplicateIndex = bibleEventsByMonthDay[key].findIndex(e => {
+            // Exact match
+            if (e.title === legacyEvent.title) return true;
+            // Same historical event ID
+            if (e._historicalEvent && e._historicalEvent.id === event.id) return true;
+            // Fuzzy match: one title contains the other
+            const existingTitleLower = e.title.toLowerCase().replace(/\s*\(\d+\s*(bc|ad)\)/gi, ''); // Remove year suffix
+            if (existingTitleLower.includes(newTitleLower) || newTitleLower.includes(existingTitleLower)) return true;
+            // Check for key word overlap (e.g., "Exodus from Egypt" vs "Exodus from Egypt Begins")
+            const newWords = newTitleLower.split(/\s+/).filter(w => w.length > 3);
+            const existingWords = existingTitleLower.split(/\s+/).filter(w => w.length > 3);
+            const overlap = newWords.filter(w => existingWords.includes(w)).length;
+            if (overlap >= 2 && overlap >= Math.min(newWords.length, existingWords.length) * 0.5) return true;
+            return false;
+          });
+          
+          if (duplicateIndex >= 0) {
+            // Replace old event with new (more detailed) version
+            bibleEventsByMonthDay[key][duplicateIndex] = legacyEvent;
+          } else {
+            bibleEventsByMonthDay[key].push(legacyEvent);
+            totalEvents++;
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Historical events file not available:', err.message);
+  }
+  
+  console.log(`Bible events loaded: ${totalEvents} events`);
+  return totalEvents > 0;
 }
 
 // Get bible events for a specific lunar month and day
@@ -1259,6 +1490,7 @@ const FEASTS = [
   { name: 'First Fruits', shortName: 'First Fruits', icon: '🌾', month: 1, day: 16, description: 'Wave sheaf offering (also Unleavened 2)', chapter: '/chapters/18-appointed-times/#first-fruits-of-barley' },
   { name: 'Atzeret of Unleavened', shortName: 'Atzeret', icon: '🕍', month: 1, day: 21, description: 'Solemn assembly - 7th day of Unleavened Bread', chapter: '/chapters/18-appointed-times/#unleavened-bread' },
   { name: 'Shavuot', shortName: 'Shavuot', icon: '🌾', month: 3, day: 16, description: '7 complete weeks after First Fruits', chapter: '/chapters/18-appointed-times/#shavuot---first-fruits-of-wheat' },
+  { name: 'First Fruits of Wine', shortName: 'New Wine', icon: '🍷', month: 5, day: 9, description: 'First Fruits of Wine / New Wine Feast - 9th of Av', chapter: '/chapters/18-appointed-times/#first-fruits-of-wine-pentecost' },
   { name: 'Trumpets', shortName: 'Trumpets', icon: '🎺', month: 7, day: 1, description: 'Day of shouting/blowing', chapter: '/chapters/18-appointed-times/#trumpets---first-fruits-of-oil' },
   { name: 'Atonement', shortName: 'Atonement', icon: '🩸', month: 7, day: 10, description: 'Yom Kippur - day of fasting', chapter: '/chapters/18-appointed-times/#day-of-atonement' },
   { name: 'Tabernacles', shortName: 'Tabernacles', icon: '⛺', month: 7, day: 15, endDay: 21, description: 'Feast of Booths', chapter: '/chapters/18-appointed-times/#tabernacles' },
@@ -2951,6 +3183,7 @@ function closeYearPicker() {
 function updateYearPicker() {
   // Just show the year number (no BC/AD suffix - the dropdown handles that)
   const displayYear = state.year <= 0 ? Math.abs(state.year - 1) : state.year;
+  console.log(`updateYearPicker: state.year=${state.year} → displayYear=${displayYear} ${state.year <= 0 ? 'BC' : 'AD'}`);
   document.getElementById('picker-year').textContent = displayYear;
   updateEraButtons();
 }
@@ -3090,17 +3323,24 @@ function getPickerEra() {
 }
 
 function changeEra(era) {
+  console.log('=== changeEra CALLED with:', era, '===');
   const input = document.getElementById('picker-year-input');
   const currentEra = getPickerEra();
+  console.log('Current era:', currentEra, 'state.year:', state.year);
   
-  if (era === currentEra) return;
+  if (era === currentEra) {
+    console.log('Same era, returning');
+    return;
+  }
   
   // Get current display year
   let displayYear;
   if (input.classList.contains('visible')) {
     displayYear = parseInt(input.value) || 1;
+    console.log('Input visible, using input value:', displayYear);
   } else {
     displayYear = state.year <= 0 ? Math.abs(state.year - 1) : state.year;
+    console.log('Input hidden, calculated displayYear:', displayYear);
   }
   
   // Convert to new era
@@ -3110,6 +3350,7 @@ function changeEra(era) {
   } else {
     newInternalYear = displayYear;
   }
+  console.log(`changeEra: display=${displayYear} → internal=${newInternalYear} (${era})`);
   
   // Validate range
   if (newInternalYear >= -3999 && newInternalYear <= 4000) {
@@ -3117,6 +3358,7 @@ function changeEra(era) {
     document.getElementById('year-input').value = state.year;
     generateCalendar({ preserveMonthIndex: true });
     updateMonthPicker();
+    updateYearPicker();  // Update year display after era change
   }
 }
 
@@ -3128,22 +3370,33 @@ function updateEraButtons() {
 }
 
 function applyYearInput() {
+  console.log('=== applyYearInput CALLED ===');
   const input = document.getElementById('picker-year-input');
   let displayYear = parseInt(input.value);
+  console.log('Input value:', input.value, '→ displayYear:', displayYear);
   
   if (isNaN(displayYear) || displayYear < 1 || displayYear > 4000) {
+    console.log('Invalid year, returning');
     hideYearInput();
     return;
   }
   
-  // Convert display year to internal year based on current era
-  const isBC = state.year <= 0;
+  // Convert display year to internal year based on era DROPDOWN (not current state)
+  const eraSelect = document.getElementById('era-select');
+  const isBC = eraSelect ? eraSelect.value === 'BC' : state.year <= 0;
+  console.log('Era select value:', eraSelect?.value, '→ isBC:', isBC);
+  
   let internalYear;
   if (isBC) {
+    // BC year N → internal -(N-1)
+    // So 1 BC = 0, 2 BC = -1, 17 BC = -16, 2026 BC = -2025
     internalYear = -(displayYear - 1);
   } else {
     internalYear = displayYear;
   }
+  
+  console.log(`YEAR CONVERSION: display=${displayYear} ${isBC ? 'BC' : 'AD'} → internal=${internalYear}`);
+  console.log(`Will display as: ${internalYear <= 0 ? Math.abs(internalYear - 1) + ' BC' : internalYear + ' AD'}`);
   
   // Validate range: -3999 (4000 BC) to 4000 (4000 AD)
   if (internalYear >= -3999 && internalYear <= 4000) {
@@ -4248,11 +4501,13 @@ window.addEventListener('popstate', function(event) {
     const dayDetailPanel = document.getElementById('day-detail-panel');
     const exportPage = document.getElementById('export-page');
     const sabbathTesterPage = document.getElementById('sabbath-tester-page');
+    const eventsPage = document.getElementById('events-page');
     
     calendarOutput.style.display = 'none';
     dayDetailPanel.style.display = 'none';
     exportPage.style.display = 'none';
     sabbathTesterPage.style.display = 'none';
+    if (eventsPage) eventsPage.style.display = 'none';
     priestlyPage.style.display = 'block';
     if (typeof renderPriestlyTable === 'function') {
       const yearSpan = document.getElementById('priestly-year');
@@ -4260,6 +4515,29 @@ window.addEventListener('popstate', function(event) {
       if (yearSpan) yearSpan.textContent = formatYear(state.year);
       if (profileSpan) profileSpan.textContent = getCurrentProfileName();
       renderPriestlyTable();
+    }
+  } else if (urlState.view === 'events') {
+    // Apply URL state and navigate to events page
+    const { needsRegenerate } = applyURLState(urlState);
+    if (needsRegenerate) {
+      generateCalendar();
+    }
+    const eventsPage = document.getElementById('events-page');
+    const calendarOutput = document.getElementById('calendar-output');
+    const dayDetailPanel = document.getElementById('day-detail-panel');
+    const exportPage = document.getElementById('export-page');
+    const sabbathTesterPage = document.getElementById('sabbath-tester-page');
+    const priestlyPage = document.getElementById('priestly-page');
+    
+    calendarOutput.style.display = 'none';
+    dayDetailPanel.style.display = 'none';
+    exportPage.style.display = 'none';
+    sabbathTesterPage.style.display = 'none';
+    if (priestlyPage) priestlyPage.style.display = 'none';
+    eventsPage.style.display = 'block';
+    eventsPage.scrollTop = 0;
+    if (typeof initEventsPage === 'function') {
+      initEventsPage();
     }
   } else {
     // Navigate to calendar with URL state
@@ -4280,7 +4558,7 @@ window.addEventListener('popstate', function(event) {
 
 document.addEventListener('DOMContentLoaded', async function() {
   // Clear any lingering overflow classes from previous sessions
-  document.body.classList.remove('sabbath-tester-open', 'feasts-open');
+  document.body.classList.remove('sabbath-tester-open', 'feasts-open', 'events-open');
   document.documentElement.classList.remove('feasts-open');
   document.body.style.overflow = '';
   
@@ -4294,6 +4572,11 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   // Rebuild profile dropdown with any saved custom profiles
   rebuildProfileDropdown();
+  
+  // Initialize top nav profile display
+  if (typeof updateTopNavProfile === 'function') {
+    updateTopNavProfile();
+  }
   
   // Initialize settings editability (presets are read-only)
   updateSettingsEditability();

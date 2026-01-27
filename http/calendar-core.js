@@ -81,6 +81,16 @@ function renderJubileeIndicator(lunarYearStart) {
   `;
 }
 
+// Update the top nav profile selector
+function updateTopNavProfile() {
+  const moonEl = document.getElementById('top-nav-profile-moon');
+  const nameEl = document.getElementById('top-nav-profile-name');
+  if (!moonEl || !nameEl) return;
+  
+  moonEl.textContent = getMoonIcon();
+  nameEl.textContent = getCurrentProfileName();
+}
+
 // Get event icon for a day cell (📰 for historical, 📜 for biblical)
 function getDayEventIcon(monthNumber, lunarDay, gregorianYear) {
   // Only check if getBibleEvents is available
@@ -809,20 +819,14 @@ function renderMonth(month) {
   const lunarYearStart = firstDay1 ? firstDay1.gregorianDate.getUTCFullYear() : state.year;
   const displayYear = formatYear(lunarYearStart);
   
+  // Update the top nav profile selector
+  updateTopNavProfile();
+  
   let html = `
     <div class="month-calendar">
       <div class="calendar-header">
-        <!-- Row 1: Moon + Profile name -->
+        <!-- Row 1: Jubilee Indicator -->
         <div class="header-row-1">
-          <div class="header-dropdown profile" onclick="toggleProfilePicker()" title="Change calendar profile">
-            <span class="profile-moon">${getMoonIcon()}</span>
-            <span>${getCurrentProfileName()}</span>
-            <span class="dropdown-arrow">▼</span>
-          </div>
-        </div>
-        
-        <!-- Jubilee Indicator Row -->
-        <div class="header-jubilee-row">
           ${renderJubileeIndicator(lunarYearStart)}
         </div>
         

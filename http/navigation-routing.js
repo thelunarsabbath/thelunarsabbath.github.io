@@ -262,6 +262,14 @@ function updateURLWithView(view) {
     const profile = getCurrentProfileSlug();
     const yearStr = formatYearForURL(state.year);
     newURL = `/${profile}/${yearStr}/priestly/`;
+  } else if (view === 'events') {
+    // Build events URL with profile/events
+    const profile = getCurrentProfileSlug();
+    newURL = `/${profile}/events/`;
+  } else if (view === 'biblical-timeline') {
+    // Build biblical timeline URL with profile/biblical-timeline
+    const profile = getCurrentProfileSlug();
+    newURL = `/${profile}/biblical-timeline/`;
   } else {
     // Calendar view - use standard path URL
     newURL = buildPathURL();
@@ -313,11 +321,23 @@ function parsePathURL() {
   if (segments[0] === 'feasts') {
     return { view: 'feasts', segments: segments.slice(1) };
   }
+  if (segments[0] === 'biblical-timeline') {
+    // Handle standalone biblical-timeline URL
+    return { view: 'biblical-timeline', profile: 'time-tested' };
+  }
   
-  // Check if the last segment is "priestly" - this can be appended to any calendar URL
+  // Check if the last segment is "priestly", "events", or "biblical-timeline" - these can be appended to any calendar URL
   const hasPriestlyView = segments[segments.length - 1] === 'priestly';
+  const hasEventsView = segments[segments.length - 1] === 'events';
+  const hasBiblicalTimelineView = segments[segments.length - 1] === 'biblical-timeline';
   if (hasPriestlyView) {
     segments = segments.slice(0, -1); // Remove 'priestly' from segments for normal parsing
+  }
+  if (hasEventsView) {
+    segments = segments.slice(0, -1); // Remove 'events' from segments for normal parsing
+  }
+  if (hasBiblicalTimelineView) {
+    segments = segments.slice(0, -1); // Remove 'biblical-timeline' from segments for normal parsing
   }
   
   // Handle Gregorian date lookup: /gregorian/year/month/day/
@@ -511,6 +531,16 @@ function parsePathURL() {
     result.view = 'priestly';
   }
   
+  // Add events view flag if URL ended with /events/
+  if (hasEventsView) {
+    result.view = 'events';
+  }
+  
+  // Add biblical timeline view flag if URL ended with /biblical-timeline/
+  if (hasBiblicalTimelineView) {
+    result.view = 'biblical-timeline';
+  }
+  
   return result;
 }
 
@@ -613,6 +643,26 @@ function loadFromURL() {
       generateCalendar();
     }
     navigateTo('priestly');
+    return;
+  }
+  
+  if (urlState.view === 'events') {
+    // Apply URL state first (for profile settings), then show events page
+    const { needsRegenerate } = applyURLState(urlState);
+    if (needsRegenerate) {
+      generateCalendar();
+    }
+    navigateTo('events');
+    return;
+  }
+  
+  if (urlState.view === 'biblical-timeline') {
+    // Apply URL state first (for profile settings), then show biblical timeline page
+    const { needsRegenerate } = applyURLState(urlState);
+    if (needsRegenerate) {
+      generateCalendar();
+    }
+    navigateTo('biblical-timeline');
     return;
   }
   
@@ -833,21 +883,33 @@ function navigateTo(page) {
   const exportPage = document.getElementById('export-page');
   const sabbathTesterPage = document.getElementById('sabbath-tester-page');
   const priestlyPage = document.getElementById('priestly-page');
+  const eventsPage = document.getElementById('events-page');
+  const biblicalTimelinePage = document.getElementById('biblical-timeline-page');
   
   // Hide all pages and reset body state
   document.documentElement.classList.remove('feasts-open');
   document.body.classList.remove('feasts-open');
   document.body.classList.remove('sabbath-tester-open');
+  document.body.classList.remove('events-open');
+  document.body.classList.remove('biblical-timeline-open');
   document.body.style.overflow = ''; // Restore scrolling
   
   // Close settings slide-in
   settingsPage.classList.remove('visible');
   settingsOverlay.classList.remove('visible');
   
-  // Hide export page, sabbath tester, and priestly page
+  // Hide export page, sabbath tester, priestly page, events page, and biblical timeline page
   exportPage.style.display = 'none';
   sabbathTesterPage.style.display = 'none';
   if (priestlyPage) priestlyPage.style.display = 'none';
+  if (eventsPage) eventsPage.style.display = 'none';
+  if (biblicalTimelinePage) {
+    biblicalTimelinePage.style.display = 'none';
+    // Cleanup timeline when navigating away
+    if (typeof cleanupBiblicalTimeline === 'function') {
+      cleanupBiblicalTimeline();
+    }
+  }
   
   switch(page) {
     case 'calendar':
@@ -913,6 +975,40 @@ function navigateTo(page) {
         renderPriestlyTable();
       }
       updateURLWithView('priestly');
+      break;
+    case 'events':
+      const eventsPage = document.getElementById('events-page');
+      document.body.classList.add('events-open');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      calendarOutput.style.display = 'none';
+      dayDetailPanel.style.display = 'none';
+      eventsPage.style.display = 'block';
+      eventsPage.scrollTop = 0;
+      if (typeof initEventsPage === 'function') {
+        initEventsPage();
+      }
+      updateURLWithView('events');
+      break;
+    case 'biblical-timeline':
+      const biblicalTimelinePage = document.getElementById('biblical-timeline-page');
+      document.body.classList.add('biblical-timeline-open');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      calendarOutput.style.display = 'none';
+      dayDetailPanel.style.display = 'none';
+      biblicalTimelinePage.style.display = 'block';
+      biblicalTimelinePage.scrollTop = 0;
+      // Cleanup other pages that might have resources
+      if (typeof cleanupBiblicalTimeline === 'function') {
+        // Re-initialize to ensure fresh state
+        setTimeout(() => {
+          if (typeof initBiblicalTimelinePage === 'function') {
+            initBiblicalTimelinePage();
+          }
+        }, 100);
+      } else if (typeof initBiblicalTimelinePage === 'function') {
+        initBiblicalTimelinePage();
+      }
+      updateURLWithView('biblical-timeline');
       break;
   }
 }

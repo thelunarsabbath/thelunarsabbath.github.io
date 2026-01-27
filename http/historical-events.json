@@ -1,0 +1,1730 @@
+{
+  "meta": {
+    "version": "1.0",
+    "description": "Historical events database with multi-calendar support",
+    "year_notation": "Negative years = BC (e.g., -1406 = 1406 BC), positive = AD",
+    "calendar_source_rules": {
+      "description": "How to interpret lunar dates based on their source",
+      "biblical_events": "Use user's selected calendar profile - reflects their understanding of God's calendar",
+      "jewish_historical_events": "Events from Josephus or other Jewish sources describing Temple/Jewish practices use user's profile, as Josephus recorded what the Temple followed",
+      "secular_sources": "Babylonian, Persian, or other pagan sources should annotate calendar_source (e.g., 'babylonian-crescent') since these explicitly used crescent-based calendars",
+      "islamic_sources": "Islamic dates use crescent calendar - annotate with calendar_source",
+      "gregorian_attested": "When Gregorian date is directly attested (inscriptions, astronomical records), keep as primary; lunar date is derived"
+    },
+    "duration_calculation": "Duration of N years means: Day 1 of start year + N years - 1 day = Day 1 of end year (reaches START of final year, not end)",
+    "anniversary_display": {
+      "description": "Controls whether event appears as anniversary on calendar day view",
+      "false": "One-time historical events (births, deaths, conquests, appointments) - hide from anniversary display",
+      "true_or_omitted": "Recurring observances (feasts, appointed times) - show as anniversary every year",
+      "default": "If omitted, show as anniversary (for biblical/feast events)"
+    }
+  },
+  
+  "epochs": {
+    "tiberius": {
+      "name": "Tiberius Caesar",
+      "start_gregorian": { "year": 14, "month": 9, "day": 17 },
+      "reckoning": "exact-date",
+      "duration_years": 23,
+      "notes": "The Senate formally recognized and invested Tiberius with the principate (imperial powers) on September 17, AD 14. This exact date marks the start of his regnal years, not fall-to-fall reckoning. Reigned until 37 AD. Luke 3:1 dates John the Baptist's ministry to Tiberius's 15th year."
+    },
+    "philip": {
+      "name": "Philip the Tetrarch",
+      "start_gregorian": { "year": -2 },
+      "reckoning": "spring-to-spring",
+      "duration_years": 37,
+      "notes": "Philip's first regnal year includes 2 BC, indicating Herod died before Nisan 1 in 1 BC. Josephus records Philip reigned 37 years. Spring-to-spring reckoning means his Year 1 begins spring after Herod's death."
+    },
+    "herod-regal": {
+      "name": "Herod the Great (Regal)",
+      "start_gregorian": { "year": -38 },
+      "reckoning": "spring-to-spring",
+      "duration_years": 37,
+      "notes": "From Roman Senate appointment. Josephus: 'reigned 37 years from when the Romans declared him king.' Spring-to-spring reckoning means Year 1 begins spring after -38 BC. Reign ends with Herod's death before Nisan 1 in 1 BC. Philip's first regnal year including 2 BC confirms this dating."
+    },
+    "herod-defacto": {
+      "name": "Herod the Great (De Facto)",
+      "start_gregorian": { "year": -35 },
+      "reckoning": "spring-to-spring",
+      "duration_years": 34,
+      "notes": "From capture of Jerusalem on Day of Atonement. Josephus: 'reigned 34 years from when he took Jerusalem.' Spring-to-spring reckoning means de facto Year 1 begins spring after the fall conquest."
+    },
+    "nebuchadnezzar": {
+      "name": "Nebuchadnezzar II",
+      "start_gregorian": { "year": -604 },
+      "accession_year": -605,
+      "reckoning": "accession-year",
+      "duration_years": 43,
+      "notes": "Accession year 605 BC (after Nabopolassar's death), 1st regnal year 604 BC. Dating established by VAT 4956, a Babylonian astronomical diary from his 37th year containing lunar and planetary observations that can be astronomically verified to 568/567 BC. Working back: 37th year = 568 BC, so 1st year = 604 BC. Additional confirmation from Babylonian Chronicles (BM 21946) and other cuneiform records."
+    },
+    "artaxerxes": {
+      "name": "Artaxerxes I (Longimanus)",
+      "start_gregorian": { "year": -465 },
+      "reckoning": "accession-year",
+      "duration_years": 41,
+      "notes": "Persian king 465-424 BC. His 7th year (458 BC) marks Ezra's decree, the starting point of Daniel's 70 weeks prophecy."
+    },
+    "david": {
+      "name": "King David",
+      "start_gregorian": { "year": -1010 },
+      "reckoning": "spring-to-spring",
+      "duration_years": 40,
+      "notes": "Derived from Solomon's reign: Solomon began 970 BC, David reigned 40 years (1 Kings 2:11), so David's reign began 1010 BC. David reigned 7 years in Hebron over Judah, then 33 years in Jerusalem over all Israel."
+    },
+    "solomon": {
+      "name": "King Solomon",
+      "start_gregorian": { "year": -970 },
+      "reckoning": "spring-to-spring",
+      "duration_years": 40,
+      "notes": "Derived from Temple chronology: 1 Kings 6:1 states Temple foundation was in Solomon's 4th year, 480 years after the Exodus (1446 BC). Thus: 1446 - 480 = 966 BC = Solomon's 4th year, making his 1st regnal year 969 BC and reign beginning 970 BC. Duration of 40 years confirmed by 1 Kings 11:42."
+    }
+  },
+
+  "events": [
+    {
+      "id": "creation",
+      "title": "Creation",
+      "type": "milestone",
+      "description": "God creates the heavens and the earth in six days.",
+      "dates": {
+        "anno_mundi": { "year": 1, "month": 1, "day": 1 }
+      },
+      "certainty": "theological",
+      "sources": [{ "ref": "Genesis 1:1", "type": "scripture" }],
+      "tags": ["creation", "beginning"]
+    },
+    {
+      "id": "noah-enters-ark",
+      "title": "🚢 Noah Enters the Ark",
+      "type": "biblical-event",
+      "description": "Noah enters the ark with his family and all the animals, 7 days before the flood begins. Noah was 600 years old when the flood waters came. God shut the door after 7 days of waiting.",
+      "dates": {
+        "lunar": { "month": 2, "day": 10 },
+        "anno_mundi": { "year": 1656 }
+      },
+      "relative_to": [
+        { "event_id": "flood-begins", "offset": { "days": -7 }, "relation": "before", "notes": "7 days before flood begins" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 7:7-10", "type": "scripture", "quote": "And Noah went in, and his sons, and his wife, and his sons' wives with him, into the ark, because of the waters of the flood... And it came to pass after seven days, that the waters of the flood were upon the earth." },
+        { "ref": "Genesis 7:13-16", "type": "scripture", "quote": "In the selfsame day entered Noah, and Shem, and Ham, and Japheth, the sons of Noah, and Noah's wife, and the three wives of his sons with them, into the ark... And the LORD shut him in." },
+        { "ref": "Genesis 7:6", "type": "scripture", "quote": "And Noah was six hundred years old when the flood of waters was upon the earth." }
+      ],
+      "tags": ["flood", "noah", "ark", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "flood-begins",
+      "title": "🚢 Great Flood Begins",
+      "type": "catastrophe",
+      "description": "In Noah's 600th year, on the 17th day of the 2nd month, the fountains of the deep burst forth and the windows of heaven opened. Rain falls for 40 days and nights. This is the exact starting date of the deluge. The Flood year is established from Abraham's timeline: Covenant with Abraham occurs in 1876 BC when Abraham is ~75 years old, placing Abraham's birth at ~1951 BC. Based on genealogy from Genesis 11:10-26, Abraham was born 352 years after the Flood (Shem→Arphaxad 2 yrs + genealogy 220 yrs + Terah→Abraham 130 yrs). Therefore, the Flood occurred ~2303 BC (1951 + 352). This calculation uses the Masoretic Text genealogy with no generational gaps, assuming direct father-son relationships as stated.",
+      "dates": {
+        "lunar": { "month": 2, "day": 17 },
+        "anno_mundi": { "year": 1656 },
+        "gregorian": { "year": -2303 },
+        "notes": "Year established from Abraham's timeline: Covenant (1876 BC) - 75 years (Abraham's age) - 352 years (genealogy) = ~2303 BC"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 7:11", "type": "scripture", "quote": "In the six hundredth year of Noah's life, in the second month, the seventeenth day of the month, the same day were all the fountains of the great deep broken up, and the windows of heaven were opened." },
+        { "ref": "Genesis 7:12", "type": "scripture", "quote": "And the rain was upon the earth forty days and forty nights." }
+      ],
+      "tags": ["flood", "noah", "judgment", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "rain-continues-40-days",
+      "title": "🚢 Rain Continues 40 Days",
+      "type": "catastrophe",
+      "description": "Rain continues for 40 days and nights. Waters increase and lift the ark. Mountains are covered by 15 cubits as the floodwaters rise.",
+      "dates": {
+        "lunar": { "month": 2, "day": 17 }
+      },
+      "duration": { "days": 40 },
+      "relative_to": [
+        { "event_id": "flood-begins", "offset": { "days": 0 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 7:12", "type": "scripture", "quote": "And the rain was upon the earth forty days and forty nights." },
+        { "ref": "Genesis 7:17", "type": "scripture", "quote": "And the flood was forty days upon the earth; and the waters increased, and bare up the ark, and it was lift up above the earth." },
+        { "ref": "Genesis 7:19-20", "type": "scripture", "quote": "And the waters prevailed exceedingly upon the earth; and all the high hills, that were under the whole heaven, were covered. Fifteen cubits upward did the waters prevail; and the mountains were covered." }
+      ],
+      "tags": ["flood", "noah", "rain", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "waters-prevail-150-days",
+      "title": "🚢 Waters Prevail 150 Days",
+      "type": "catastrophe",
+      "description": "The waters prevailed upon the earth for 150 days total from the start of the flood. This period includes the 40 days of rain plus the continued prevailing of the waters.",
+      "dates": {
+        "lunar": { "month": 2, "day": 17 }
+      },
+      "duration": { "days": 150 },
+      "relative_to": [
+        { "event_id": "flood-begins", "offset": { "days": 0 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 7:24", "type": "scripture", "quote": "And the waters prevailed upon the earth an hundred and fifty days." }
+      ],
+      "tags": ["flood", "noah", "waters", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "ark-rests-ararat",
+      "title": "🚢 Ark Rests on Mountains of Ararat",
+      "type": "milestone",
+      "description": "On the 17th day of the 7th month, after 150 days of prevailing waters (exactly 5 months later, assuming 30-day months), the ark comes to rest on the mountains of Ararat as floodwaters recede.",
+      "dates": {
+        "lunar": { "month": 7, "day": 17 },
+        "anno_mundi": { "year": 1656 }
+      },
+      "relative_to": [
+        { "event_id": "flood-begins", "offset": { "months": 5 }, "relation": "after", "notes": "After 150 days of prevailing waters; exact 5 months later" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 8:4", "type": "scripture", "quote": "And the ark rested in the seventh month, on the seventeenth day of the month, upon the mountains of Ararat." }
+      ],
+      "tags": ["flood", "noah", "ararat", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "mountain-tops-seen",
+      "title": "🚢 Tops of Mountains Seen",
+      "type": "milestone",
+      "description": "On the 1st day of the 10th month, the tops of the mountains are seen. Waters continue to decrease.",
+      "dates": {
+        "lunar": { "month": 10, "day": 1 },
+        "anno_mundi": { "year": 1656 }
+      },
+      "relative_to": [
+        { "event_id": "ark-rests-ararat", "offset": { "months": 2, "days": 14 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 8:5", "type": "scripture", "quote": "And the waters decreased continually until the tenth month: in the tenth month, on the first day of the month, were the tops of the mountains seen." }
+      ],
+      "tags": ["flood", "noah", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "noah-sends-raven",
+      "title": "🚢 Noah Sends Out the Raven",
+      "type": "biblical-event",
+      "description": "At the end of forty days after the mountain tops were seen, Noah opens the window of the ark and sends forth a raven. The raven went forth to and fro, until the waters were dried up, and did not return.",
+      "dates": {
+        "lunar": { "month": 11, "day": 10 },
+        "anno_mundi": { "year": 1656 }
+      },
+      "relative_to": [
+        { "event_id": "mountain-tops-seen", "offset": { "days": 40 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 8:6-7", "type": "scripture", "quote": "And it came to pass at the end of forty days, that Noah opened the window of the ark which he had made: And he sent forth a raven, which went forth to and fro, until the waters were dried up from off the earth." }
+      ],
+      "tags": ["flood", "noah", "raven", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "noah-sends-dove-first",
+      "title": "🚢 Noah Sends Out the Dove (First Time)",
+      "type": "biblical-event",
+      "description": "After sending the raven, Noah sends out a dove to see if the waters had abated from off the face of the ground. The dove returns because she found no rest for the sole of her foot, indicating the waters still cover the earth.",
+      "dates": {
+        "lunar": { "month": 11, "day": 11 },
+        "anno_mundi": { "year": 1656 }
+      },
+      "relative_to": [
+        { "event_id": "noah-sends-raven", "offset": { "days": 1 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 8:8-9", "type": "scripture", "quote": "Also he sent forth a dove from him, to see if the waters were abated from off the face of the ground; But the dove found no rest for the sole of her foot, and she returned unto him into the ark, for the waters were on the face of the whole earth: then he put forth his hand, and took her, and pulled her in unto him into the ark." }
+      ],
+      "tags": ["flood", "noah", "dove", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "noah-sends-dove-second",
+      "title": "🚢 Noah Sends Out the Dove (Second Time)",
+      "type": "biblical-event",
+      "description": "Seven days after sending the dove the first time, Noah sends out the dove again. The dove returns in the evening with an olive leaf plucked off, showing that the waters had abated.",
+      "dates": {
+        "lunar": { "month": 11, "day": 18 },
+        "anno_mundi": { "year": 1656 }
+      },
+      "relative_to": [
+        { "event_id": "noah-sends-dove-first", "offset": { "days": 7 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 8:10", "type": "scripture", "quote": "And he stayed yet other seven days; and again he sent forth the dove out of the ark; And the dove came in to him in the evening; and, lo, in her mouth was an olive leaf plucked off: so Noah knew that the waters were abated from off the earth." }
+      ],
+      "tags": ["flood", "noah", "dove", "olive-leaf", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "noah-sends-dove-third",
+      "title": "🚢 Noah Sends Out the Dove (Third Time)",
+      "type": "biblical-event",
+      "description": "Seven days after sending the dove the second time, Noah sends out the dove again. This time the dove does not return, signifying that the waters had fully receded from the face of the ground.",
+      "dates": {
+        "lunar": { "month": 11, "day": 25 },
+        "anno_mundi": { "year": 1656 }
+      },
+      "relative_to": [
+        { "event_id": "noah-sends-dove-second", "offset": { "days": 7 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 8:11-12", "type": "scripture", "quote": "And he stayed yet other seven days; and sent forth the dove; which returned not again unto him any more." }
+      ],
+      "tags": ["flood", "noah", "dove", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "waters-dried-up",
+      "title": "🚢 Waters Dried Up - Noah Removes Ark Covering",
+      "type": "milestone",
+      "description": "In the 601st year, on the 1st day of the 1st month, the waters were dried up from off the earth. Noah removes the covering of the ark and sees that the face of the ground was dry.",
+      "dates": {
+        "lunar": { "month": 1, "day": 1 },
+        "anno_mundi": { "year": 1657 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 8:13", "type": "scripture", "quote": "And it came to pass in the six hundredth and first year, in the first month, the first day of the month, the waters were dried up from off the earth: and Noah removed the covering of the ark, and looked, and, behold, the face of the ground was dry." }
+      ],
+      "tags": ["flood", "noah", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "earth-dried",
+      "title": "🚢 Earth Completely Dry - Exit from Ark",
+      "type": "milestone",
+      "description": "In the 601st year, on the 27th day of the 2nd month, the earth was completely dried. God commands Noah, his family, and all the animals to exit the ark.",
+      "dates": {
+        "lunar": { "month": 2, "day": 27 },
+        "anno_mundi": { "year": 1657 }
+      },
+      "relative_to": [
+        { "event_id": "waters-dried-up", "offset": { "months": 1, "days": 26 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 8:14", "type": "scripture", "quote": "And in the second month, on the seven and twentieth day of the month, was the earth dried." },
+        { "ref": "Genesis 8:15-19", "type": "scripture", "quote": "And God spake unto Noah, saying, Go forth of the ark, thou, and thy wife, and thy sons, and thy sons' wives with thee. Bring forth with thee every living thing that is with thee... And Noah went forth, and his sons, and his wife, and his sons' wives with him: Every beast, every creeping thing, and every fowl, and whatsoever creepeth upon the earth, after their kinds, went forth out of the ark." }
+      ],
+      "tags": ["flood", "noah", "days-of-noah"],
+      "anniversary_display": false
+    },
+    {
+      "id": "abraham-birth",
+      "title": "Abraham Born",
+      "type": "birth",
+      "description": "Abraham (Abram) is born to Terah when Terah is 70 years old. Based on genealogy from Genesis 11:10-26: Shem fathers Arphaxad 2 years after Flood (at age 100), then Arphaxad (35) → Shelah (30) → Eber (34) → Peleg (30) → Reu (32) → Serug (30) → Nahor (29) → Terah (born ~222 years after Flood). Terah fathers Abraham at age 130 (inferred from Genesis 11:26, 32; 12:4; Acts 7:4). Total: 2 + 220 (to Terah's birth) + 130 = 352 years from Flood to Abraham's birth. This event establishes the Flood year when calculated backwards from the Covenant (1876 BC when Abraham is ~75) = Abraham's birth ~1951 BC = Flood ~2303 BC.",
+      "dates": {
+        "gregorian": { "year": -1951 }
+      },
+      "relative_to": [
+        { "event_id": "flood-begins", "offset": { "years": 352 }, "relation": "after", "notes": "352 years after Flood based on genealogy: Shem→Arphaxad (2 yrs) + Arphaxad→Shelah→Eber→Peleg→Reu→Serug→Nahor→Terah (220 yrs) + Terah→Abraham (130 yrs)" },
+        { "event_id": "covenant-with-abraham", "offset": { "years": -75 }, "relation": "before", "notes": "Abraham is ~75 years old at the Covenant" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 11:26", "type": "scripture", "quote": "And Terah lived seventy years, and begat Abram, Nahor, and Haran." },
+        { "ref": "Genesis 11:10-26", "type": "scripture", "quote": "These are the generations of Shem: Shem was an hundred years old, and begat Arphaxad two years after the flood... [genealogy continues through Terah]" }
+      ],
+      "tags": ["abraham", "abram", "birth", "genealogy", "flood-calculation"],
+      "anniversary_display": false
+    },
+    {
+      "id": "abraham-departs-haran",
+      "title": "Abraham Departs from Haran",
+      "type": "biblical-event",
+      "description": "Abraham departs from Haran at age 75, entering Canaan and receiving the initial promise of land and descendants. This marks the beginning of God's covenant relationship with Abraham. Genesis 12:4 records: 'So Abram went, as the LORD had told him; and Lot went with him. Abram was seventy-five years old when he set out from Haran.' This occurs after Terah's death in Haran (Terah died at 205, and Abraham left at 75, confirming Terah was 130 when Abraham was born).",
+      "dates": {
+        "gregorian": { "year": -1876 }
+      },
+      "relative_to": [
+        { "event_id": "abraham-birth", "offset": { "years": 75 }, "relation": "after" },
+        { "event_id": "covenant-with-abraham", "offset": { "days": 0 }, "relation": "before", "notes": "Covenant occurs shortly after entering Canaan, when Abraham is ~75 years old" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 12:4", "type": "scripture", "quote": "So Abram went, as the LORD had told him; and Lot went with him. Abram was seventy-five years old when he set out from Haran." },
+        { "ref": "Genesis 12:1-7", "type": "scripture", "quote": "Now the LORD had said unto Abram, Get thee out of thy country... And Abram passed through the land... And the LORD appeared unto Abram, and said, Unto thy seed will I give this land." }
+      ],
+      "tags": ["abraham", "abram", "canaan", "promise", "haran"],
+      "anniversary_display": false
+    },
+    {
+      "id": "abraham-separates-from-lot",
+      "title": "Abraham Separates from Lot",
+      "type": "biblical-event",
+      "description": "After entering Canaan, Abraham and Lot separate due to their herds being too large to dwell together. Abraham gives Lot the choice of land, and Lot chooses the well-watered plain of Jordan, settling near Sodom. Abraham remains in Canaan. This occurs shortly after entering Canaan, before the war with the kings.",
+      "dates": {
+        "gregorian": { "year": -1876 }
+      },
+      "relative_to": [
+        { "event_id": "abraham-departs-haran", "offset": { "days": 0 }, "relation": "after", "notes": "Occurs after entering Canaan" },
+        { "event_id": "abraham-war-kings", "offset": { "days": 0 }, "relation": "before", "notes": "Before the war with kings" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 13:1-12", "type": "scripture", "quote": "And Abram went up out of Egypt... And Lot also, which went with Abram, had flocks, and herds, and tents. And the land was not able to bear them, that they might dwell together... And Abram said unto Lot, Let there be no strife... Is not the whole land before thee? separate thyself, I pray thee, from me... Then Lot chose him all the plain of Jordan... and Lot dwelled in the cities of the plain, and pitched his tent toward Sodom." }
+      ],
+      "tags": ["abraham", "lot", "separation", "canaan"],
+      "anniversary_display": false
+    },
+    {
+      "id": "abraham-war-kings",
+      "title": "Abraham Rescues Lot - War with Kings",
+      "type": "biblical-event",
+      "description": "Four kings (led by Chedorlaomer) defeat five kings of the plain (including the kings of Sodom and Gomorrah) and take Lot captive. Abraham, with 318 trained men, pursues and defeats the four kings, rescuing Lot and recovering all the goods. This occurs after separating from Lot and before the Covenant Between the Pieces.",
+      "dates": {
+        "gregorian": { "year": -1876 }
+      },
+      "relative_to": [
+        { "event_id": "abraham-separates-from-lot", "offset": { "days": 0 }, "relation": "after" },
+        { "event_id": "covenant-with-abraham", "offset": { "days": 0 }, "relation": "before", "notes": "Genesis 15:1 states 'After this [the events of Gen 14], the word of the LORD came to Abram in a vision'" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 14:1-16", "type": "scripture", "quote": "And it came to pass in the days of Amraphel king of Shinar... [four kings] made war with [five kings]... And they took Lot, Abram's brother's son, who dwelt in Sodom... And when Abram heard that his brother was taken captive, he armed his trained servants, born in his own house, three hundred and eighteen, and pursued them... And he brought back all the goods, and also brought again his brother Lot, and his goods, and the women also, and the people." },
+        { "ref": "Genesis 15:1", "type": "scripture", "quote": "After this [the events of Gen 14], the word of the LORD came to Abram in a vision, saying, Fear not, Abram: I am thy shield, and thy exceeding great reward." }
+      ],
+      "tags": ["abraham", "lot", "war", "kings", "rescue"],
+      "anniversary_display": false
+    },
+    {
+      "id": "covenant-with-abraham",
+      "title": "Covenant with Abraham - Dark Night",
+      "type": "biblical-event",
+      "description": "On the 15th day of the 1st month, exactly 430 years to the day before the Exodus from Egypt, God makes a covenant with Abraham (then Abram) in a dark night. Genesis 15:12-17 records: 'And when the sun was going down, a deep sleep fell upon Abram; and, lo, an horror of great darkness fell upon him... And it came to pass, that, when the sun went down, and it was dark, behold a smoking furnace, and a burning lamp that passed between those pieces.' The emphasis on total darkness—'horror of great darkness' and 'it was dark'—suggests a dark moon (no lunar light), which aligns with the 15th being naturally dark if the month starts at full moon (waning to dark mid-month). The covenant is sealed as God passes between the pieces of the sacrifice, confirming the promise that Abraham's seed would inherit the land. Exodus 12:40-41 explicitly connects this event to the Exodus: 'Now the sojourning of the children of Israel, who dwelt in Egypt, [was] four hundred and thirty years. And it came to pass at the end of the four hundred and thirty years, even the selfsame day it came to pass, that all the hosts of the LORD went out from the land of Egypt.' Galatians 3:17 confirms: 'And this I say, [that] the covenant, that was confirmed before of God in Christ, the law, which was four hundred and thirty years after, cannot disannul, that it should make the promise of none effect.' This establishes the covenant as occurring on the 'selfsame day' 430 years before the Exodus—both events occurring on the 15th of the 1st month in total darkness, providing evidence for a full moon calendar where mid-month (15th) is naturally dark.",
+      "dates": {
+        "lunar": { "month": 1, "day": 15, "time_of_day": "night" },
+        "gregorian": { "year": -1876 }
+      },
+      "relative_to": [
+        { "event_id": "exodus-from-egypt", "offset": { "years": -430 }, "relation": "before", "notes": "Exactly 430 years to the day before the Exodus - 'selfsame day' (Exodus 12:40-41)" },
+        { "event_id": "abraham-birth", "offset": { "years": 75 }, "relation": "after", "notes": "Abraham is ~75 years old at the Covenant (~427 years after Flood)" },
+        { "event_id": "abraham-war-kings", "offset": { "days": 0 }, "relation": "after", "notes": "Genesis 15:1: 'After this [the events of Gen 14], the word of the LORD came to Abram in a vision'" }
+      ],
+      "anniversary_display": true,
+      "certainty": "high",
+      "sources": [
+        { "ref": "Genesis 15:12", "type": "scripture", "quote": "And when the sun was going down, a deep sleep fell upon Abram; and, lo, an horror of great darkness fell upon him." },
+        { "ref": "Genesis 15:17", "type": "scripture", "quote": "And it came to pass, that, when the sun went down, and it was dark, behold a smoking furnace, and a burning lamp that passed between those pieces." },
+        { "ref": "Genesis 15:18", "type": "scripture", "quote": "In the same day the LORD made a covenant with Abram, saying, Unto thy seed have I given this land, from the river of Egypt unto the great river, the river Euphrates:" },
+        { "ref": "Exodus 12:40-41", "type": "scripture", "quote": "Now the sojourning of the children of Israel, who dwelt in Egypt, [was] four hundred and thirty years. And it came to pass at the end of the four hundred and thirty years, even the selfsame day it came to pass, that all the hosts of the LORD went out from the land of Egypt." },
+        { "ref": "Galatians 3:17", "type": "scripture", "quote": "And this I say, [that] the covenant, that was confirmed before of God in Christ, the law, which was four hundred and thirty years after, cannot disannul, that it should make the promise of none effect." }
+      ],
+      "tags": ["covenant", "abraham", "abram", "promise", "dark-night", "dark-moon", "430-years", "exodus-connection", "calendar-evidence"],
+      "article": "/chapters/07-when-does-the-month-start/"
+    },
+    {
+      "id": "exodus-from-egypt",
+      "title": "Exodus from Egypt",
+      "type": "milestone",
+      "description": "On the 15th day of the 1st month, the Israelites depart from Egypt at night following the Passover, beginning their journey to the Promised Land. Scripture specifies they departed 'by night' after the death of the firstborn.",
+      "dates": {
+        "lunar": { "month": 1, "day": 15, "time_of_day": "night" },
+        "gregorian": { "year": -1446 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Exodus 12:41", "type": "scripture" },
+        { "ref": "Numbers 33:3", "type": "scripture" },
+        { "ref": "Deuteronomy 16:1", "type": "scripture" }
+      ],
+      "tags": ["exodus", "israel", "passover", "deliverance", "night"],
+      "article": "/chapters/08_When_does_the_Year_Start/"
+    },
+    {
+      "id": "journey-ramses-succoth",
+      "title": "Journey from Ramses to Succoth",
+      "type": "journey",
+      "description": "The Israelites journey from Ramses to Succoth, a distance of approximately 20 miles or less, making camp on the 16th day of the 1st month (First Fruits) after one day's journey. Exodus 12:37 records: 'And the children of Israel journeyed from Rameses to Succoth.' Upon arriving at Succoth, Scripture transitions into the narrative about the firstborn belonging to the LORD: 'Sanctify unto me all the firstborn, whatsoever openeth the womb among the children of Israel, both of man and of beast: it is mine' (Exodus 13:2). This marks the first camp after leaving Egypt and establishes the law of the firstborn. This date (16th of 1st month, 1446 BC) is known from Scripture to be the 1st day of the week, providing a ground truth validation point for calendar profile calculations.",
+      "dates": {
+        "lunar": { "month": 1, "day": 16 },
+        "gregorian": { "year": -1446 },
+        "day_of_week": 1,
+        "notes": "1st day of the week (Sunday) - ground truth validation point for calendar profiles"
+      },
+      "validation": {
+        "day_of_week": 1,
+        "description": "Scripture establishes this as the 1st day of the week, providing a validation point to verify calendar profile day-of-week calculations"
+      },
+      "relative_to": [
+        { "event_id": "exodus-from-egypt", "offset": { "days": 1 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Exodus 12:37", "type": "scripture", "quote": "And the children of Israel journeyed from Rameses to Succoth, about six hundred thousand on foot that were men, beside children" },
+        { "ref": "Exodus 13:1-2", "type": "scripture", "quote": "And the LORD spake unto Moses, saying, Sanctify unto me all the firstborn, whatsoever openeth the womb among the children of Israel, both of man and of beast: it is mine" },
+        { "ref": "Numbers 33:5", "type": "scripture", "quote": "And the children of Israel removed from Rameses, and pitched in Succoth" }
+      ],
+      "tags": ["exodus", "journey", "succoth", "firstborn", "first-fruits", "calendar-validation"],
+      "article": "/chapters/08_When_does_the_Year_Start/"
+    },
+    {
+      "id": "quail-provided",
+      "title": "Quail Provided in the Evening",
+      "type": "provision",
+      "description": "On the evening of the 15th day of the 2nd month, the LORD provides quail to feed the Israelites in the wilderness. This occurs after they complain about hunger, and the quail covers the camp.",
+      "dates": {
+        "lunar": { "month": 2, "day": 15, "time_of_day": "evening" },
+        "gregorian": { "year": -1446 }
+      },
+      "relative_to": [
+        { "event_id": "journey-ramses-succoth", "offset": { "days": 30 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Exodus 16:13", "type": "scripture", "quote": "And it came to pass, that at even the quails came up, and covered the camp" }
+      ],
+      "tags": ["exodus", "quail", "provision", "wilderness"],
+      "article": "/chapters/08_When_does_the_Year_Start/"
+    },
+    {
+      "id": "manna-begins",
+      "title": "Manna Begins - First Fruits",
+      "type": "provision",
+      "description": "On the 16th day of the 2nd month (First Fruits), the LORD begins providing manna to sustain Israel in the wilderness. Exodus 16:15 records: 'And when the children of Israel saw it, they said one to another, It is manna: for they wist not what it was.' This provision continues for 40 years until they enter the Promised Land. The manna appears each morning, with a double portion on the 6th day (22nd of the month) in preparation for the Sabbath, when no manna falls.",
+      "dates": {
+        "lunar": { "month": 2, "day": 16 },
+        "gregorian": { "year": -1446 }
+      },
+      "duration": { "years": 40 },
+      "end_dates": {
+        "event_id": "manna-ceases"
+      },
+      "relative_to": [
+        { "event_id": "quail-provided", "offset": { "days": 1 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Exodus 16:15", "type": "scripture", "quote": "And when the children of Israel saw it, they said one to another, It is manna: for they wist not what it was. And Moses said unto them, This is the bread which the LORD hath given you to eat" },
+        { "ref": "Exodus 16:4-5", "type": "scripture", "quote": "Then said the LORD unto Moses, Behold, I will rain bread from heaven for you; and the people shall go out and gather a certain rate every day, that I may prove them, whether they will walk in my law, or no. And it shall come to pass, that on the sixth day they shall prepare that which they bring in; and it shall be twice as much as they gather daily" }
+      ],
+      "tags": ["manna", "provision", "wilderness", "first-fruits"],
+      "article": "/chapters/08_When_does_the_Year_Start/"
+    },
+    {
+      "id": "first-weekly-sabbath",
+      "title": "First Documented Weekly Sabbath",
+      "type": "observance",
+      "description": "On the 22nd day of the 2nd month, the first weekly Sabbath is documented in Scripture. This is the 7th day after manna began (16th-22nd = 6 days + Sabbath). Exodus 16:22-30 records that on the 6th day (21st) they gathered twice as much manna, and on the 7th day (22nd) there was no manna—the Sabbath rest. This date (22nd of 2nd month, 1446 BC) is known from Scripture to be the 7th day of the week, providing a critical ground truth validation point for calendar profile day-of-week calculations. Combined with the 16th of 1st month being the 1st day of the week, this establishes the weekly cycle.",
+      "dates": {
+        "lunar": { "month": 2, "day": 22 },
+        "gregorian": { "year": -1446 },
+        "day_of_week": 7,
+        "notes": "7th day of the week (Saturday) - ground truth validation point for calendar profiles. 6 days after manna began (16th-22nd)."
+      },
+      "validation": {
+        "day_of_week": 7,
+        "description": "Scripture establishes this as the 7th day of the week (Sabbath), providing a validation point to verify calendar profile day-of-week calculations. This is 6 days after manna began on the 16th (1st day of week), confirming the weekly cycle."
+      },
+      "relative_to": [
+        { "event_id": "manna-begins", "offset": { "days": 6 }, "relation": "after" },
+        { "event_id": "journey-ramses-succoth", "offset": { "days": 37 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Exodus 16:22-23", "type": "scripture", "quote": "And it came to pass, that on the sixth day they gathered twice as much bread, two omers for one man: and all the rulers of the congregation came and told Moses. And he said unto them, This is that which the LORD hath said, To morrow is the rest of the holy sabbath unto the LORD" },
+        { "ref": "Exodus 16:25-26", "type": "scripture", "quote": "And Moses said, Eat that to day; for to day is a sabbath unto the LORD: to day ye shall not find it in the field. Six days ye shall gather it; but on the seventh day, which is the sabbath, in it there shall be none" },
+        { "ref": "Exodus 16:29-30", "type": "scripture", "quote": "See, for that the LORD hath given you the sabbath, therefore he giveth you on the sixth day the bread of two days; abide ye every man in his place, let no man go out of his place on the seventh day. So the people rested on the seventh day" }
+      ],
+      "tags": ["sabbath", "manna", "weekly-cycle", "calendar-validation", "ground-truth"],
+      "article": "/chapters/08_When_does_the_Year_Start/"
+    },
+    {
+      "id": "golden-calf-incident",
+      "title": "Golden Calf Incident - New Wine Feast",
+      "type": "biblical-event",
+      "description": "While Moses is on Mount Sinai receiving the Ten Commandments, the Israelites grow impatient and demand that Aaron make them gods. Aaron creates a golden calf, builds an altar before it, and proclaims: 'Tomorrow is a feast to the LORD' (Exodus 32:5). The Hebrew word for 'feast' here is chag (חַג), denoting a pilgrimage festival or appointed time (moed). The following day involves offerings, eating, drinking, and revelry—elements consistent with biblical harvest feasts where wine plays a central role. When Moses descends from the mountain, the Septuagint records him saying: 'It is not the voice of them that begin the battle, nor the voice of them that begin of defeat, but the voice of them that begin of wine do I hear' (Exodus 32:18 LXX). This 'beginning with wine' marks the appointed time for accessing and celebrating the fresh produce of the vine—the First Fruits of Wine. Moses shatters the tablets, grinds the golden calf to powder, and about 3000 men die as judgment. This event establishes the New Wine Feast as a biblical appointed time (moed) on the 9th of Av, which is 7 complete Sabbath weeks after Shavuot (16th of 3rd month). The timeline of Exodus shows the Golden Calf incident occurred at least 50 days after Israel arrived at Mount Sinai on the 3rd day of the 3rd month, aligning perfectly with the 9th day of the 5th month.",
+      "dates": {
+        "lunar": { "month": 5, "day": 9 },
+        "gregorian": { "year": -1446 }
+      },
+      "relative_to": [
+        { "lunar": { "month": 3, "day": 3 }, "offset": { "days": 67 }, "relation": "after", "notes": "At least 50 days after arriving at Mount Sinai on the 3rd day of the 3rd month" },
+        { "lunar": { "month": 3, "day": 16 }, "offset": { "sabbath_weeks": 7 }, "relation": "after", "notes": "7 complete Sabbath weeks after Shavuot (16th of 3rd month) - counted in Sabbath week cycles" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Exodus 32:1-6", "type": "scripture", "quote": "And when the people saw that Moses delayed to come down out of the mount, the people gathered themselves together unto Aaron, and said unto him, Up, make us gods, which shall go before us... And Aaron said unto them, Break off the golden earrings... And he received them at their hand, and fashioned it with a graving tool, after he had made it a molten calf... And when Aaron saw it, he built an altar before it; and Aaron made proclamation, and said, Tomorrow is a feast to the LORD. And they rose up early on the morrow, and offered burnt offerings, and brought peace offerings; and the people sat down to eat and to drink, and rose up to play." },
+        { "ref": "Exodus 32:18", "type": "scripture", "quote": "And Moses said, It is not the voice of them that begin the battle, nor the voice of them that begin of defeat, but the voice of them that begin of wine do I hear. (LXX)" },
+        { "ref": "Exodus 32:28", "type": "scripture", "quote": "And the children of Levi did according to the word of Moses: and there fell of the people that day about three thousand men." }
+      ],
+      "tags": ["golden-calf", "exodus", "new-wine", "first-fruits-of-wine", "9th-of-av", "appointed-time", "moed", "judgment"],
+      "article": "/chapters/18-appointed-times/#first-fruits-of-wine-pentecost"
+    },
+    {
+      "id": "jordan-crossing",
+      "title": "Crossing the Jordan River",
+      "type": "milestone",
+      "description": "The Israelites cross the Jordan River on the 10th day of the 1st month, entering the Promised Land after 40 years in the wilderness. This marks Year 1 of the Jubilee cycle.",
+      "dates": {
+        "lunar": { "month": 1, "day": 10 },
+        "gregorian": { "year": -1406 }
+      },
+      "relative_to": [{ "event_id": "exodus-from-egypt", "offset": { "years": 40 }, "relation": "after" }],
+      "certainty": "high",
+      "sources": [{ "ref": "Joshua 4:19", "type": "scripture" }],
+      "tags": ["israel", "conquest", "jubilee-anchor", "promised-land"],
+      "article": "/chapters/08_When_does_the_Year_Start/"
+    },
+    {
+      "id": "manna-ceases",
+      "title": "Manna Ceases - First Fruits",
+      "type": "milestone",
+      "description": "The manna that had sustained Israel for 40 years in the wilderness ceases on the 16th day of the 1st month (First Fruits), the day after the Israelites ate of the produce of the land. Joshua 5:11-12 records: 'And they ate of the produce of the land on the morrow after the passover, unleavened cakes, and parched corn in the selfsame day. And the manna ceased on the morrow after they had eaten of the old corn of the land.' This marks the transition from wilderness provision to living off the land of promise—a type of the resurrection and new creation. The timing on First Fruits is significant, as Yeshua rose on First Fruits, ending the old covenant provision and beginning the new.",
+      "dates": {
+        "lunar": { "month": 1, "day": 16 },
+        "gregorian": { "year": -1405 }
+      },
+      "relative_to": [
+        { "event_id": "jordan-crossing", "offset": { "days": 6 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Joshua 5:11", "type": "scripture", "quote": "And they ate of the produce of the land on the morrow after the passover, unleavened cakes, and parched corn in the selfsame day" },
+        { "ref": "Joshua 5:12", "type": "scripture", "quote": "And the manna ceased on the morrow after they had eaten of the old corn of the land; neither had the children of Israel manna any more; but they did eat of the fruit of the land of Canaan that year" },
+        { "ref": "Joshua 5:10", "type": "scripture", "quote": "And the children of Israel encamped in Gilgal, and kept the passover on the fourteenth day of the month at even in the plains of Jericho" }
+      ],
+      "tags": ["manna", "first-fruits", "israel", "conquest", "typology"],
+      "article": "/chapters/08_When_does_the_Year_Start/"
+    },
+    {
+      "id": "joshua-long-day",
+      "title": "Joshua's Long Day - Sun and Moon Stand Still",
+      "type": "battle",
+      "description": "Joshua defeats the five Amorite kings at Gibeon in a battle marked by extraordinary celestial signs. Joshua prayed: 'Sun, stand still at Gibeon, and you, moon, over the Valley of Aijalon.' This was a natural celestial alignment where the sun and moon appeared in opposition (full moon phase, ~90-99% illuminated), both visible simultaneously during daylight—interpreted in ANE omen practices as celestial bodies 'standing still' or 'being silent' (Hebrew damam), a divine sign. The biblical geometry precisely describes the locations: From Upper Beth Horon (observer: 31.87722°N, 35.11861°E), Gibeon (31.84750°N, 35.18639°E) was at ~118° azimuth (sun high in sky at dawn), while Aijalon (31.84028°N, 35.02250°E) was at ~296° azimuth (moon low on opposite horizon). This specific geometric configuration, combined with the celestial alignment requirements, allows us to pinpoint the exact date: January 23, 1405 BC at dawn. The timing aligns with peak hail season in Israel, and indeed more Amorites died from hailstones than from Israel's swords. The five kings hid in a cave at Makkedah and were sealed with rocks—typological of the Day of the Lord when kings hide in caves (Revelation 6:15-17). The Gibeonites (Canaanites who made covenant with Israel) were spared, becoming servants—typological of nations seeking the LORD in the last days (Zechariah 8:20-23). This event has never been equaled and serves as a critical watch date for Day of the Lord parallels: celestial signs, hail judgment, kings hiding, covenant people spared, and 'a day known only to the LORD' (Zechariah 14:7).",
+      "dates": {
+        "gregorian": { "year": -1405, "month": 1, "day": 23 },
+        "notes": "January 23, 1405 BC at dawn - exact Gregorian date from celestial calculations. Sun azimuth ~118° (elevation ~2°), Moon azimuth ~296° (elevation 12-24°). This natural alignment (full moon phase, ~90-99% illuminated) was the celestial event ancients interpreted as sun and moon 'standing still.'"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Joshua 10:11-14", "type": "scripture", "quote": "As they fled before Israel... the LORD hurled large hailstones down on them, and more of them died from the hail than were killed by the swords of the Israelites... 'Sun, stand still at Gibeon, and you, moon, over the Valley of Aijalon.' So the sun stood still, and the moon stopped, until the nation avenged itself on its enemies" },
+        { "ref": "Joshua 10:16-27", "type": "scripture", "quote": "The five kings had fled and hidden in the cave at Makkedah... At sunset Joshua gave the order and they took them down from the poles and threw them into the cave where they had been hiding" },
+        { "ref": "Joshua 9:3-27", "type": "scripture", "quote": "The Gibeonites... made a covenant with them... So Joshua made peace with them and made a covenant with them, to let them live" },
+        { "ref": "Revelation 6:15-17", "type": "scripture", "quote": "The kings of the earth... hid in caves and among the rocks of the mountains. They called to the mountains and the rocks, 'Fall on us and hide us from the face of him who sits on the throne'" },
+        { "ref": "Revelation 16:21", "type": "scripture", "quote": "From the sky huge hailstones, each weighing about a hundred pounds, fell on people" },
+        { "ref": "Zechariah 14:7", "type": "scripture", "quote": "It will be a unique day—a day known only to the LORD—with no distinction between day and night. When evening comes, there will be light" },
+        { "ref": "Zechariah 8:20-23", "type": "scripture", "quote": "Many peoples and strong nations shall come to seek the LORD of hosts in Jerusalem... ten men from the nations of every tongue shall take hold of the robe of a Jew, saying, 'Let us go with you, for we have heard that God is with you'" }
+      ],
+      "tags": ["joshua", "gibeon", "battle", "celestial-sign", "day-of-lord", "hail", "covenant", "watch-date", "typology"],
+      "article": "/chapters/08_When_does_the_Year_Start/"
+    },
+    {
+      "id": "tabernacle-erected",
+      "title": "Erection of the Tabernacle",
+      "type": "construction",
+      "description": "God commands Moses to set up the tabernacle on the first day of the first month in the second year after the exodus.",
+      "dates": {
+        "lunar": { "month": 1, "day": 1 }
+      },
+      "relative_to": [{ "event_id": "exodus-from-egypt", "offset": { "years": 2 }, "relation": "after" }],
+      "certainty": "high",
+      "sources": [{ "ref": "Exodus 40:2,17", "type": "scripture" }],
+      "tags": ["tabernacle", "worship", "moses"]
+    },
+    {
+      "id": "pompey-captures-jerusalem",
+      "title": "Pompey Captures Jerusalem",
+      "type": "conquest",
+      "description": "Roman general Pompey captures Jerusalem on a fast day (likely Day of Atonement), ending Hasmonean independence after a 3-month siege. Josephus records that the siege works were completed and the largest tower fell in the 3rd month. The Romans exploited the Jews' observance of the Sabbath: 'The Jews only acted defensively on Sabbath days... Pompey filled up the ditch and the entire fosse with materials his soldiers brought.' The city fell with 12,000 Jews slain, while priests continued their sacrifices even as they were cut down.",
+      "dates": {
+        "lunar": { "month": 7, "day": 10 },
+        "gregorian": { "year": -63 }
+      },
+      "duration": { "months": 3 },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 14.4.2", "type": "historical", "quote": "Now the soldiers had at first carried on the work on all days alike; but now on the Sabbaths they rested from their labor, for the Jews only defended themselves on those days" },
+        { "ref": "Josephus, Antiquities 14.4.3", "type": "historical", "quote": "The city was taken in the third month of the siege, on the day of the fast" },
+        { "ref": "Josephus, Wars 1.7.4", "type": "historical", "quote": "The battering-ram was brought to bear, and the largest tower was battered down" },
+        { "ref": "Josephus, Wars 1.7.5", "type": "historical", "quote": "Of the Jews there fell twelve thousand; but of the Romans very few" }
+      ],
+      "tags": ["rome", "jerusalem", "pompey", "conquest", "sabbath", "day-of-atonement"],
+      "article": "/chapters/13_Herod_the_Great/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-birth",
+      "title": "Birth of Herod the Great",
+      "type": "birth",
+      "description": "Herod is born around 70/69 BC. This is calculated from his age at death (~70 years) and his age when appointed governor of Galilee (15 years old in 55/54 BC). Josephus states Herod was 'about seventy when he died' (Antiquities 17.6.1 & War 1.33.1).",
+      "dates": {
+        "gregorian": { "year": -70 }
+      },
+      "certainty": "medium",
+      "sources": [
+        { "ref": "Josephus, Antiquities 17.6.1", "type": "historical", "quote": "He was about seventy when he died" },
+        { "ref": "Josephus, War 1.33.1", "type": "historical", "quote": "He was about seventy when he died" },
+        { "ref": "Josephus, Antiquities 14.9.2", "type": "historical", "quote": "Antipater... made his son Herod governor of Galilee, when he was but fifteen years old" }
+      ],
+      "tags": ["herod", "birth"],
+      "article": "/chapters/13_Herod_the_Great/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-governor-galilee",
+      "title": "Herod Appointed Governor of Galilee",
+      "type": "appointment",
+      "description": "Herod is appointed governor of Galilee at age 15, during the 9th year of Hyrcanus II (spring 55 BC to spring 54 BC), in the month Panemus (July). This appointment occurred in 55/54 BC. Josephus records: 'Antipater... made his son Herod governor of Galilee, when he was but fifteen years old.' This age anchor, combined with Herod's age at death (~70), confirms his birth around 70/69 BC and death in 1 BC.",
+      "dates": {
+        "gregorian": { "year": -55, "month": 7 },
+        "regal": { "reign": "hyrcanus-ii", "year": 9 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 14.8.5", "type": "historical", "quote": "This [appointment as governor of Galilee] was done in the ninth year of Hyrcanus the high priest and ethnarch, in the month Panemus" },
+        { "ref": "Josephus, Antiquities 14.9.2", "type": "historical", "quote": "Antipater... made his son Herod governor of Galilee, when he was but fifteen years old" }
+      ],
+      "tags": ["herod", "galilee", "appointment", "chronology-anchor"],
+      "article": "/chapters/13_Herod_the_Great/",
+      "anniversary_display": false
+    },
+    {
+      "id": "parthian-invasion-shavuot",
+      "title": "Parthian Invasion at Shavuot",
+      "type": "invasion",
+      "description": "The Parthian invasion escalates around Shavuot (Pentecost), when the enemy exploited the large crowds gathering for the feast. Josephus records: 'But while there were daily skirmishes, the enemy waited for the coming of the multitude out of the country to Pentecost, a feast of ours so called.' Assuming Pentecost was fixed on the 15th of the third month in the Temple calendar, and months beginning at the visible full moon, the feast falls on July 1, 40 BC. This invasion prompts Herod's immediate overland escape.",
+      "dates": {
+        "lunar": { "month": 3, "day": 16 },
+        "gregorian": { "year": -40, "month": 7, "day": 1 },
+        "notes": "Shavuot per full moon calendar reckoning"
+      },
+      "certainty": "medium",
+      "sources": [
+        { "ref": "Josephus, Antiquities 14.13.3", "type": "historical", "quote": "But while there were daily skirmishes, the enemy waited for the coming of the multitude out of the country to Pentecost, a feast of ours so called" }
+      ],
+      "tags": ["parthian", "invasion", "shavuot", "herod"],
+      "article": "/chapters/13_Herod_the_Great/",
+      "anniversary_display": false
+    },
+    {
+      "id": "battle-of-actium",
+      "title": "Battle of Actium - Earthquake in Judea",
+      "type": "battle",
+      "description": "The decisive naval battle between Octavian (Augustus) and Mark Antony occurs on September 2, 31 BC—one of the most precisely dated events in ancient history. Josephus records a major earthquake in Judea during this battle, stating it occurred 'in the seventh year of the reign of Herod.' With Herod's regnal years starting spring 38 BC (from 39 BC appointment), Year 7 runs spring 32 BC to spring 31 BC. The Battle of Actium (September 2, 31 BC) falls approximately 5 months into Year 8—a close but not perfect fit, likely due to approximate language or boundary issues. The earthquake caused ~10,000-30,000 casualties, destroyed cattle and houses, but spared Herod's army (encamped in open fields). This provides an independent chronological anchor verifying Herod's regnal year system.",
+      "dates": {
+        "gregorian": { "year": -31, "month": 9, "day": 2 },
+        "regal": { "reign": "herod-regal", "year": 7, "notes": "Josephus states 7th year; battle falls ~5 months into Year 8 with 38 BC regnal start" }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 15.5.2", "type": "historical", "quote": "Now at this time it was that the fight happened at Actium, between Octavius Caesar and Antony, in the seventh year of the reign of Herod" },
+        { "ref": "Plutarch, Life of Antony 66-68", "type": "historical", "quote": "The battle was fought on the 2nd of September" },
+        { "ref": "Dio Cassius, Roman History 50.31", "type": "historical", "quote": "The battle of Actium took place on September 2" },
+        { "ref": "Velleius Paterculus, Roman History 2.85", "type": "historical" }
+      ],
+      "tags": ["actium", "octavian", "antony", "earthquake", "herod", "chronology-anchor"],
+      "article": "/chapters/extra/e02_Battle_of_Actium/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-captures-jerusalem",
+      "title": "Herod Captures Jerusalem",
+      "type": "conquest",
+      "description": "Herod with Roman legions captures Jerusalem on the Day of Atonement, exactly 27 years after Pompey's conquest on the same day. Josephus emphasizes this remarkable coincidence: 'The Jews were overcome... on the very same day, on which, twenty-seven years before, Pompey had taken the city.' This occurs during a Sabbath year, compounding the tragedy. The siege lasted 5 months with the outer court taken after 40 days.",
+      "dates": {
+        "lunar": { "month": 7, "day": 10 },
+        "gregorian": { "year": -36 }
+      },
+      "duration": { "months": 5 },
+      "relative_to": [{ "event_id": "pompey-captures-jerusalem", "offset": { "years": 27 }, "relation": "after" }],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 14.16.2", "type": "historical", "quote": "The outer court was taken on the fortieth day, and after that the holy house itself on the same day" },
+        { "ref": "Josephus, Antiquities 14.16.4", "type": "historical", "quote": "The city was taken on the third month, on the day of the fast, as if a periodical revolution of calamities had returned since that which befell the Jews under Pompey; for the Jews were overcome by him on the same day" },
+        { "ref": "Josephus, Wars 1.18.2", "type": "historical" }
+      ],
+      "tags": ["herod", "jerusalem", "conquest", "sabbath-year", "day-of-atonement", "27-years"],
+      "article": "/chapters/13_Herod_the_Great/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-senate-appointment",
+      "title": "Roman Senate Appoints Herod King",
+      "type": "reign",
+      "description": "The Roman Senate, at the urging of Mark Antony and Octavian, appoints Herod as King of Judea in April/May 39 BC (after Nisan 1), so that spring 38 BC becomes his first full regnal year under non-inclusive reckoning. Herod's journey from the Parthian invasion (July 40 BC) through Alexandria, Rhodes (wintering due to mare clausum), and finally to Rome took 8-9 months, explaining the delay from the traditional late 40 BC date. This begins his regal reign (37 years according to Josephus), though he would not actually control Jerusalem for another 2-3 years. Dio Cassius places Herod's campaigns after Ventidius's 39-38 BC Parthian victories, supporting the 39 BC appointment.",
+      "dates": {
+        "gregorian": { "year": -39, "month": 4 },
+        "notes": "April/May 39 BC, after Nisan 1 - first regnal year begins spring 38 BC"
+      },
+      "duration": { "years": 37 },
+      "end_dates": {
+        "gregorian": { "year": -1 }
+      },
+      "regal_epoch": {
+        "id": "herod-regal",
+        "name": "Herod the Great (Regal)",
+        "reckoning": "spring-to-spring"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 14.14.4-5", "type": "historical" },
+        { "ref": "Josephus, Wars 1.14.4", "type": "historical" },
+        { "ref": "Appian, Civil Wars 5.75", "type": "historical", "quote": "He [Antony] appointed kings over the nations who had assisted him, Herod over Idumaea and Samaria" },
+        { "ref": "Dio Cassius, Roman History 49.22", "type": "historical", "quote": "Places Herod's campaigns after Ventidius's 39-38 BC Parthian victories" }
+      ],
+      "tags": ["herod", "reign", "rome", "senate", "chronology-anchor"],
+      "article": "/chapters/13_Herod_the_Great/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-defacto-reign-begins",
+      "title": "Herod's De Facto Reign Begins",
+      "type": "reign",
+      "description": "Herod's de facto reign begins in the spring following his capture of Jerusalem, using spring-to-spring reckoning. Josephus records he reigned 34 years from this point.",
+      "dates": {
+        "gregorian": { "year": -35 }
+      },
+      "duration": { "years": 34, "months": 0, "days": 0 },
+      "relative_to": [{ "event_id": "herod-captures-jerusalem", "offset": { "months": 6 }, "relation": "after" }],
+      "regal_epoch": {
+        "id": "herod-defacto",
+        "name": "Herod the Great (De Facto)",
+        "reckoning": "spring-to-spring"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 17.8.1", "type": "historical" },
+        { "ref": "Josephus, Wars 1.33.8", "type": "historical" }
+      ],
+      "tags": ["herod", "reign"],
+      "article": "/chapters/13_Herod_the_Great/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-temple-project-announced",
+      "title": "Herod Announces Temple Renovation",
+      "type": "construction",
+      "description": "In his 18th de facto year, Herod announces plans to renovate and expand the Second Temple. This year is spent securing materials and preparing for construction.",
+      "dates": {
+        "regal": { "reign": "herod-defacto", "year": 18 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 15.11.1", "type": "historical" }
+      ],
+      "tags": ["herod", "temple", "construction"],
+      "article": "/chapters/12_32_AD_Resurrection/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-temple-construction-begins",
+      "title": "Temple Construction Begins",
+      "type": "construction",
+      "description": "Actual construction on Herod's Temple begins in his 19th de facto year, after a year of preparation and securing materials. Using spring-to-spring reckoning with de facto reign starting spring 35 BC, this is spring 17 BC. Counting 46 years of construction arrives at spring 30 AD (the 46th year runs spring 29 to spring 30 AD).",
+      "dates": {
+        "regal": { "reign": "herod-defacto", "year": 19 },
+        "gregorian": { "year": -17 }
+      },
+      "relative_to": [{ "event_id": "herod-temple-project-announced", "offset": { "years": 1 }, "relation": "after" }],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 15.11.1", "type": "historical" }
+      ],
+      "tags": ["herod", "temple", "construction"],
+      "article": "/chapters/12_32_AD_Resurrection/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-eclipse",
+      "title": "Lunar Eclipse Before Herod's Death",
+      "type": "astronomical",
+      "description": "A lunar eclipse occurs the night Herod burns alive the rabbis who tore down the golden eagle. The total eclipse of January 10, 1 BC is far more dramatic than the partial eclipse of 4 BC.",
+      "dates": {
+        "gregorian": { "year": -1, "month": 1, "day": 10 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 17.6.4", "type": "historical" },
+        { "ref": "NASA Eclipse Catalog", "type": "astronomical" }
+      ],
+      "tags": ["herod", "eclipse", "astronomical"],
+      "article": "/chapters/13_Herod_the_Great/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-death",
+      "title": "Death of Herod the Great",
+      "type": "death",
+      "description": "Herod the Great dies after a gruesome illness, approximately 35-85 days after the lunar eclipse, before Nisan 1 in 1 BC. His 37 regal years (spring-to-spring reckoning) end with his death. Philip's first regnal year includes 2 BC, confirming Herod died before the spring of 1 BC. Josephus records Herod reigned 37 years from when the Romans declared him king.",
+      "dates": {
+        "gregorian": { "year": -1 },
+        "notes": "Before Nisan 1, 1 BC (spring-to-spring: his 37th regal year ends with his death)"
+      },
+      "regal": {
+        "reign": "herod-regal",
+        "year": 37
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 17.6-9", "type": "historical" }
+      ],
+      "tags": ["herod", "death"],
+      "article": "/chapters/13_Herod_the_Great/",
+      "anniversary_display": false
+    },
+    {
+      "id": "census-2bc",
+      "title": "Empire-Wide Loyalty Oath - Census of Augustus",
+      "type": "decree",
+      "description": "Augustus issues an empire-wide loyalty oath (apographē) to celebrate the 25th anniversary of his rule and the granting of the title Pater Patriae in February 2 BC. The OGIS 532 inscription from Paphlagonia dates the oath to March 4-5, 2 BC (day before the nones of March). This registration brings Joseph and Mary to Bethlehem, where Yeshua is born. Luke uses apographē—the exact term for this registration—which in Roman administrative language meant any formal registration producing a written list, whether for taxation, military service, or loyalty oath. Josephus records Herod commanded the Jews to swear allegiance to Caesar and himself, with the Pharisees refusing. This census is distinct from the later tax census of 6 AD mentioned in Acts 5:37.",
+      "dates": {
+        "gregorian": { "year": -2, "month": 3, "day": 4 },
+        "notes": "March 4-5, 2 BC (day before the nones of March) per OGIS 532 inscription"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Luke 2:1-2", "type": "scripture", "quote": "And it came to pass in those days, that there went out a decree from Caesar Augustus, that a census (apographē) should be taken of the entire Roman world. (This was the first census that took place while Quirinius was governor of Syria.)" },
+        { "ref": "Luke 2:3-5", "type": "scripture", "quote": "And everyone went to their own town to register. So Joseph also went up from the town of Nazareth in Galilee to Judea, to Bethlehem the town of David" },
+        { "ref": "OGIS 532 (Paphlagonia Inscription)", "type": "historical", "quote": "In the third year after the twelfth consulship of Imperator Caesar, son of the god, Augustus, on the day before the nones of March [March 4-5] at Gangra" },
+        { "ref": "Res Gestae Divi Augusti, Chapter 35", "type": "historical", "quote": "Records the empire-wide loyalty oath celebrating 25th anniversary and Pater Patriae title" },
+        { "ref": "Josephus, Antiquities 17.2.4", "type": "historical", "quote": "There was also a great disturbance among the people because of a command that the king gave to swear allegiance to Caesar and to himself" },
+        { "ref": "Acts 5:37", "type": "scripture", "quote": "After this man rose up Judas of Galilee in the days of the taxing" }
+      ],
+      "tags": ["census", "loyalty-oath", "augustus", "quirinius", "yeshua", "bethlehem", "chronology-anchor", "apographē"],
+      "article": "/chapters/13_Herod_the_Great/",
+      "anniversary_display": false
+    },
+    {
+      "id": "tiberius-reign",
+      "title": "Reign of Tiberius Caesar",
+      "type": "reign",
+      "description": "Tiberius Caesar reigns as emperor for 23 years. The Senate formally recognized and invested Tiberius with the principate (imperial powers) on September 17, AD 14. This exact date marks the start of his regnal years, not fall-to-fall reckoning. Reigned until 37 AD. Luke 3:1 dates John the Baptist's ministry to 'the fifteenth year of the reign of Tiberius Caesar'—counting from September 17, 14 AD, the 15th year runs September 17, 28 AD to September 16, 29 AD.",
+      "dates": {
+        "gregorian": { "year": 14, "month": 9, "day": 17 },
+        "notes": "Senate formal recognition and investiture with principate"
+      },
+      "end_dates": {
+        "gregorian": { "year": 37 }
+      },
+      "duration": { "years": 23 },
+      "regal_epoch": {
+        "id": "tiberius",
+        "name": "Tiberius Caesar",
+        "reckoning": "exact-date"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Luke 3:1", "type": "scripture", "quote": "In the fifteenth year of the reign of Tiberius Caesar... the word of God came unto John" },
+        { "ref": "Tacitus, Annals 1.5-14", "type": "historical", "quote": "Senate formally recognized and invested Tiberius with imperial powers" },
+        { "ref": "Suetonius, Life of Tiberius 23-24", "type": "historical" },
+        { "ref": "Dio Cassius, Roman History 56.30", "type": "historical" }
+      ],
+      "tags": ["rome", "tiberius", "reign", "chronology-anchor"]
+    },
+    {
+      "id": "philip-reign",
+      "title": "Reign of Philip the Tetrarch",
+      "type": "reign",
+      "description": "Philip the Tetrarch reigns for 37 years over Ituraea and Trachonitis. His first regnal year includes 2 BC, which confirms Herod the Great died before Nisan 1 in 1 BC. Using spring-to-spring reckoning, Philip's Year 1 begins in the spring after Herod's death. Josephus records Philip reigned 37 years.",
+      "dates": {
+        "gregorian": { "year": -2 },
+        "notes": "First regnal year includes 2 BC, confirming Herod died before spring 1 BC"
+      },
+      "end_dates": {
+        "gregorian": { "year": 34 }
+      },
+      "duration": { "years": 37 },
+      "regal_epoch": {
+        "id": "philip",
+        "name": "Philip the Tetrarch",
+        "reckoning": "spring-to-spring"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Antiquities 18.4.6", "type": "historical", "quote": "Philip died after he had reigned thirty-seven years" },
+        { "ref": "Luke 3:1", "type": "scripture", "quote": "Philip being tetrarch of Ituraea and of the region of Trachonitis" }
+      ],
+      "tags": ["philip", "tetrarch", "reign", "chronology-anchor"]
+    },
+    {
+      "id": "john-baptist-conception",
+      "title": "John the Baptist Conception (Earliest Possible)",
+      "type": "birth",
+      "description": "Earliest possible date for John the Baptist's conception, calculated as 40 weeks (280 days) before his earliest possible birth date. This is a duration event for timeline purposes only, establishing the earliest boundary for when John could have been conceived. Luke 1:5-25 records the angel Gabriel's announcement to Zechariah during his priestly service.",
+      "dates": {
+        "gregorian": { "year": -17, "month": 12, "day": 17 },
+        "notes": "Earliest possible - 40 weeks before earliest birth date (September 17, 16 BC)"
+      },
+      "duration": { "weeks": 40 },
+      "end_dates": {
+        "event_id": "john-baptist-birth-earliest"
+      },
+      "certainty": "low",
+      "sources": [
+        { "ref": "Luke 1:5-25", "type": "scripture", "quote": "There was in the days of Herod, the king of Judaea, a certain priest named Zacharias... And there appeared unto him an angel of the Lord" }
+      ],
+      "tags": ["john-baptist", "conception", "timeline-boundary"],
+      "article": "/chapters/12_32_AD_Resurrection/",
+      "anniversary_display": false,
+      "timeline_only": true
+    },
+    {
+      "id": "john-baptist-birth-earliest",
+      "title": "John the Baptist Birth (Earliest Possible)",
+      "type": "birth",
+      "description": "Earliest possible date for John the Baptist's birth, calculated as 30 years before September 17, AD 14 (when Tiberius's reign began and John would have turned 30). Luke 1:57-66 records his birth and naming. This is a duration event for timeline purposes only, establishing the earliest boundary. John's actual birth may have been later, but this represents the earliest possible date given Luke 3:1-2 dating his ministry to Tiberius's 15th year when he was 'about thirty years of age' (Luke 3:23).",
+      "dates": {
+        "gregorian": { "year": -16, "month": 9, "day": 17 },
+        "notes": "Earliest possible - 30 years before September 17, AD 14 (Tiberius's accession)"
+      },
+      "duration": { "years": 30 },
+      "end_dates": {
+        "gregorian": { "year": 14, "month": 9, "day": 17 },
+        "event_id": "tiberius-reign",
+        "notes": "John turns 30 on Tiberius's accession date"
+      },
+      "certainty": "low",
+      "sources": [
+        { "ref": "Luke 1:57-66", "type": "scripture", "quote": "Now Elisabeth's full time came that she should be delivered; and she brought forth a son" },
+        { "ref": "Luke 3:1-2", "type": "scripture", "quote": "In the fifteenth year of the reign of Tiberius Caesar... the word of God came unto John" },
+        { "ref": "Luke 3:23", "type": "scripture", "quote": "And Jesus himself began to be about thirty years of age" }
+      ],
+      "tags": ["john-baptist", "birth", "timeline-boundary"],
+      "article": "/chapters/12_32_AD_Resurrection/",
+      "anniversary_display": false,
+      "timeline_only": true
+    },
+    {
+      "id": "john-baptist-ministry-begins",
+      "title": "John the Baptist Begins Ministry",
+      "type": "ministry",
+      "description": "In the 15th year of Tiberius Caesar (September 17, 28 AD to September 16, 29 AD), the word of God comes to John in the wilderness. Luke 3:1-2 dates this precisely. John was 'about thirty years of age' (Luke 3:23), having been born approximately 30 years earlier.",
+      "dates": {
+        "gregorian": { "year": 28 },
+        "regal": { "reign": "tiberius", "year": 15 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Luke 3:1-2", "type": "scripture", "quote": "In the fifteenth year of the reign of Tiberius Caesar... the word of God came unto John" },
+        { "ref": "Luke 3:23", "type": "scripture", "quote": "And Jesus himself began to be about thirty years of age" }
+      ],
+      "tags": ["john-baptist", "ministry", "tiberius"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "jesus-baptism",
+      "title": "Baptism of Jesus",
+      "type": "milestone",
+      "description": "Jesus is baptized by John, likely around the start of Nisan 29 AD, aligned with the anniversary of Aaron's dedication of the priests.",
+      "dates": {
+        "lunar": { "month": 1 },
+        "gregorian": { "year": 29 }
+      },
+      "certainty": "medium",
+      "sources": [
+        { "ref": "Matthew 3:13-17", "type": "scripture" },
+        { "ref": "Luke 3:21-23", "type": "scripture" }
+      ],
+      "tags": ["jesus", "baptism", "ministry"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "year-of-lords-favor",
+      "title": "Jesus Proclaims Year of the Lord's Favor",
+      "type": "prophecy",
+      "description": "On the Day of Atonement in the Year of Release (29 AD), Jesus reads from Isaiah 61 in Nazareth and declares 'Today this Scripture has been fulfilled in your hearing.' The crowd attempts to throw him off a cliff like the scapegoat.",
+      "dates": {
+        "lunar": { "month": 7, "day": 10 },
+        "gregorian": { "year": 29 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Luke 4:16-30", "type": "scripture" },
+        { "ref": "Isaiah 61:1-2", "type": "scripture" }
+      ],
+      "tags": ["jesus", "prophecy", "sabbath-year", "day-of-atonement", "year-of-release"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "temple-46-years",
+      "title": "Temple 46 Years in Building",
+      "type": "milestone",
+      "description": "At the first Passover of Jesus' ministry, the Jews say 'This temple has been under construction for 46 years.' Construction began in Herod's 19th de facto year (spring 17 BC). The 46th year of construction runs from spring 29 AD to spring 30 AD, placing this Passover in spring 30 AD.",
+      "dates": {
+        "lunar": { "month": 1, "day": 14 },
+        "gregorian": { "year": 30 }
+      },
+      "relative_to": [{ "event_id": "herod-temple-construction-begins", "offset": { "years": 46 }, "relation": "after" }],
+      "certainty": "high",
+      "sources": [
+        { "ref": "John 2:13-20", "type": "scripture" }
+      ],
+      "tags": ["jesus", "temple", "passover", "chronology"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "passover-30ad",
+      "title": "First Passover of Jesus' Ministry",
+      "type": "feast",
+      "description": "Jesus goes to Jerusalem for Passover and cleanses the Temple. The Jews reference 46 years of construction.",
+      "dates": {
+        "lunar": { "month": 1, "day": 14 },
+        "gregorian": { "year": 30 }
+      },
+      "certainty": "high",
+      "sources": [{ "ref": "John 2:13", "type": "scripture" }],
+      "tags": ["jesus", "passover", "temple"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "first-year-ministry",
+      "title": "First Year of Jesus' Ministry",
+      "type": "biblical-event",
+      "description": "The period between the first and second Passovers of Jesus' public ministry (30-31 AD). This year includes: the first Temple cleansing and dialogue about '46 years' of construction (John 2:13-22); Nicodemus visiting Jesus by night (John 3:1-21); Jesus and His disciples baptizing in Judea while John baptizes at Aenon (John 3:22-36); the journey through Samaria and the woman at the well (John 4:1-42); healing the nobleman's son at Capernaum (John 4:46-54); an unnamed feast in Jerusalem, likely Pentecost or Tabernacles (John 5:1); the healing at the Pool of Bethesda and the ensuing conflict over healing on the Sabbath (John 5:2-18); and Jesus' discourse on His authority from the Father (John 5:19-47). During this year, Jesus also began His Galilean ministry, calling His first disciples and performing many signs.",
+      "start": {
+        "event": "passover-30ad"
+      },
+      "end": {
+        "event": "passover-31ad"
+      },
+      "duration": {
+        "value": 1,
+        "unit": "lunar_years",
+        "reckoning": "spring-to-spring",
+        "notes": "One full year from Passover to Passover"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "John 2:13-25", "type": "scripture", "quote": "And the Jews' passover was at hand, and Jesus went up to Jerusalem" },
+        { "ref": "John 3:1-21", "type": "scripture", "quote": "There was a man of the Pharisees, named Nicodemus..." },
+        { "ref": "John 4:1-42", "type": "scripture", "quote": "When therefore the Lord knew how the Pharisees had heard that Jesus made and baptized more disciples than John..." },
+        { "ref": "John 4:46-54", "type": "scripture", "quote": "So Jesus came again into Cana of Galilee...there was a certain nobleman, whose son was sick at Capernaum" },
+        { "ref": "John 5:1", "type": "scripture", "quote": "After this there was a feast of the Jews; and Jesus went up to Jerusalem" },
+        { "ref": "John 5:2-18", "type": "scripture", "quote": "Now there is at Jerusalem by the sheep market a pool, which is called in the Hebrew tongue Bethesda" },
+        { "ref": "John 6:4", "type": "scripture", "quote": "And the passover, a feast of the Jews, was nigh" }
+      ],
+      "tags": ["jesus", "ministry", "first-year", "passover", "galilee", "judea", "samaria"],
+      "article": "/chapters/12_32_AD_Resurrection/",
+      "anniversary_display": false,
+      "notes": "John's Gospel provides the chronological framework for this period, punctuated by feast references."
+    },
+    {
+      "id": "passover-31ad",
+      "title": "Second Passover of Jesus' Ministry",
+      "type": "feast",
+      "description": "Passover is near when Jesus feeds the 5,000.",
+      "dates": {
+        "lunar": { "month": 1, "day": 14 },
+        "gregorian": { "year": 31 }
+      },
+      "certainty": "high",
+      "sources": [{ "ref": "John 6:4", "type": "scripture" }],
+      "tags": ["jesus", "passover", "feeding-5000"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "triumphal-entry",
+      "title": "Triumphal Entry into Jerusalem",
+      "type": "milestone",
+      "description": "Jesus enters Jerusalem on the 10th day of Abib, the day the Passover lamb is selected. John records that 6 days before Passover (using inclusive counting), Jesus arrived in Bethany; the next day He went up to Jerusalem as crowds proclaimed 'Hosanna!' and 'Blessed is He who comes in the name of the Lord!' The timing is prophetically significant—as Israel selected their lambs, God's Lamb was presented to the nation.",
+      "dates": {
+        "lunar": { "month": 1, "day": 10 },
+        "gregorian": { "year": 32 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "John 12:1,12-13", "type": "scripture" },
+        { "ref": "Matthew 21:1-11", "type": "scripture" },
+        { "ref": "Mark 11:1-11", "type": "scripture" },
+        { "ref": "Luke 19:28-44", "type": "scripture" },
+        { "ref": "Exodus 12:3", "type": "scripture" }
+      ],
+      "tags": ["jesus", "jerusalem", "palm-sunday", "passover-lamb", "prophecy"],
+      "article": "/chapters/14_Passion_Week_-_3_Days_&_3_Nights/"
+    },
+    {
+      "id": "crucifixion-32ad",
+      "title": "Crucifixion of Jesus",
+      "type": "death",
+      "description": "Jesus is crucified on Passover, the 14th day of the 1st month, in 32 AD. This is the 490th year from Ezra's decree, fulfilling Daniel's prophecy.",
+      "dates": {
+        "lunar": { "month": 1, "day": 14 },
+        "gregorian": { "year": 32 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "John 11:55", "type": "scripture" },
+        { "ref": "Daniel 9:24-27", "type": "scripture" }
+      ],
+      "tags": ["jesus", "crucifixion", "passover", "prophecy", "490-years"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "resurrection-32ad",
+      "title": "Resurrection of Jesus",
+      "type": "milestone",
+      "description": "Jesus rises from the dead on the 17th day of the 1st month, the day of First Fruits.",
+      "dates": {
+        "lunar": { "month": 1, "day": 17 },
+        "gregorian": { "year": 32 }
+      },
+      "relative_to": [{ "event_id": "crucifixion-32ad", "offset": { "days": 3 }, "relation": "after" }],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Matthew 28:1-6", "type": "scripture" },
+        { "ref": "1 Corinthians 15:20", "type": "scripture" }
+      ],
+      "tags": ["jesus", "resurrection", "first-fruits"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "pentecost-32ad",
+      "title": "Pentecost - Outpouring of the Holy Spirit",
+      "type": "milestone",
+      "description": "On Shavuot (Pentecost), the 16th day of the 3rd month, the Holy Spirit is poured out on the disciples in Jerusalem. This is exactly 1000 years after King David died on Shavuot in 969 BC—from the death of the shepherd-king to the birth of the Spirit-filled assembly. Peter quotes David's Psalms extensively in his sermon (Acts 2:25-31).",
+      "dates": {
+        "lunar": { "month": 3, "day": 16 },
+        "gregorian": { "year": 32 }
+      },
+      "relative_to": [
+        { "event_id": "resurrection-32ad", "offset": { "days": 50 }, "relation": "after" },
+        { "event_id": "david-death", "offset": { "years": 1000 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Acts 2:1-4", "type": "scripture" },
+        { "ref": "Acts 2:25-31", "type": "scripture", "quote": "David speaketh concerning him..." },
+        { "ref": "Leviticus 23:15-16", "type": "scripture" }
+      ],
+      "tags": ["pentecost", "shavuot", "holy-spirit", "1000-years", "david"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "passover-eclipse-32ad",
+      "title": "Solar Eclipse at Passover 32 AD",
+      "type": "astronomical",
+      "description": "A partial solar eclipse occurs visible from Jerusalem on Passover 32 AD, correlating with the darkness during the crucifixion.",
+      "dates": {
+        "gregorian": { "year": 32, "month": 4, "day": 14 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "NASA Eclipse Catalog", "type": "astronomical" },
+        { "ref": "Matthew 27:45", "type": "scripture" }
+      ],
+      "tags": ["eclipse", "crucifixion", "astronomical"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "temple-destruction-first",
+      "title": "Destruction of the First Temple",
+      "type": "destruction",
+      "description": "The First Temple is destroyed by the Babylonians under Nebuchadnezzar on the 10th of Av (5th month). Scripture gives the date as the 10th in Jeremiah 52:12, while 2 Kings 25:8 says the 7th (likely when Nebuzaradan arrived, with the burning on the 10th). One month after the walls were breached, the captain of the guard 'burnt the house of the LORD.' Josephus confirms both temples fell on the same day, and that Jehoiarib (Course 1) was serving—the same course serving 657 years later.",
+      "dates": {
+        "lunar": { "month": 5, "day": 10 },
+        "gregorian": { "year": -586 }
+      },
+      "relative_to": [
+        { "event_id": "jerusalem-walls-breached", "offset": { "months": 1 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Jeremiah 52:12-13", "type": "scripture", "quote": "In the fifth month, in the tenth day of the month... came Nebuzaradan... and burned the house of the LORD" },
+        { "ref": "2 Kings 25:8-9", "type": "scripture", "quote": "On the seventh day of the fifth month... came Nebuzaradan... and he burnt the house of the LORD" },
+        { "ref": "Zechariah 7:3-5", "type": "scripture", "quote": "Should I weep in the fifth month, separating myself, as I have done these so many years?" },
+        { "ref": "Josephus, Wars 6.4.5", "type": "historical", "quote": "The same month and day were now observed wherein the holy house was burnt formerly by the Babylonians" }
+      ],
+      "tags": ["temple", "destruction", "babylon", "10th-of-av", "nebuchadnezzar"]
+    },
+    {
+      "id": "temple-destruction-second",
+      "title": "Destruction of the Second Temple",
+      "type": "destruction",
+      "description": "The Second Temple is destroyed by the Romans under Titus on the 10th of Av, exactly 657 years after the First Temple's destruction on the same day. Josephus emphasizes this remarkable providence: 'The same month and day were now observed wherein the holy house was burnt formerly by the Babylonians.' Scripture records the First Temple burning on the 10th (Jeremiah 52:12). Josephus confirms Jehoiarib (Course 1) was serving—the same course as at the First Temple's fall—providing a critical anchor for reconstructing the priestly cycle. Jewish tradition observes the fast on the 9th.",
+      "dates": {
+        "lunar": { "month": 5, "day": 10 },
+        "gregorian": { "year": 70 }
+      },
+      "relative_to": [
+        { "event_id": "temple-destruction-first", "offset": { "years": 657 }, "relation": "after" }
+      ],
+      "validation": {
+        "priestly_course": 1,
+        "priestly_name": "Jehoiarib",
+        "description": "Same course serving as at First Temple destruction"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Josephus, Wars 6.4.5", "type": "historical", "quote": "The same month and day were now observed, as I said before, wherein the holy house was burnt formerly by the Babylonians" },
+        { "ref": "Josephus, Wars 6.4.8", "type": "historical", "quote": "A soldier, moved by a divine impulse, snatched a brand from the burning timber and threw it through a golden window" },
+        { "ref": "Jeremiah 52:12", "type": "scripture", "quote": "In the fifth month, in the tenth day of the month... came Nebuzaradan... and burned the house of the LORD" }
+      ],
+      "tags": ["temple", "destruction", "rome", "10th-of-av", "priestly-anchor", "657-years"]
+    },
+    {
+      "id": "david-reign",
+      "title": "Reign of King David",
+      "type": "reign",
+      "description": "David becomes king, first over Judah in Hebron for 7 years, then over all Israel in Jerusalem for 33 years—40 years total. His reign dates are derived from Solomon: since Solomon's 4th year is 966 BC (Temple anchor), Solomon's 1st year is 969 BC. David reigned 40 years and abdicated in 970 BC when Solomon was crowned, but David died in Solomon's 1st year (969 BC). David was 30 years old when he began to reign.",
+      "dates": {
+        "gregorian": { "year": -1010 }
+      },
+      "end_dates": {
+        "gregorian": { "year": -970 },
+        "notes": "Abdication when Solomon crowned; David died 969 BC in Solomon's 1st year"
+      },
+      "duration": { "years": 40 },
+      "regal_epoch": {
+        "id": "david",
+        "name": "King David",
+        "reckoning": "spring-to-spring"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "2 Samuel 5:4-5", "type": "scripture" },
+        { "ref": "1 Kings 2:11", "type": "scripture" },
+        { "ref": "1 Kings 1:32-48", "type": "scripture" },
+        { "ref": "1 Chronicles 29:27", "type": "scripture" }
+      ],
+      "tags": ["david", "reign", "israel", "chronology-anchor"]
+    },
+    {
+      "id": "david-death",
+      "title": "Death of King David",
+      "type": "death",
+      "description": "David dies on Shavuot (Pentecost), the 16th day of the 3rd month, in Solomon's 1st year at age 70. Jewish tradition holds he died on his birthday. The Talmud states: 'David died on Shavuot' (Shabbat 30a). This is exactly 1000 years before Pentecost 32 AD when the Holy Spirit was poured out—from the death of the shepherd-king to the birth of the Spirit-filled assembly.",
+      "dates": {
+        "lunar": { "month": 3, "day": 16 },
+        "gregorian": { "year": -969 },
+        "regal": { "reign": "solomon", "year": 1 }
+      },
+      "relative_to": [
+        { "event_id": "pentecost-32ad", "offset": { "years": -1000 }, "relation": "before" }
+      ],
+      "certainty": "medium",
+      "sources": [
+        { "ref": "1 Kings 2:10-12", "type": "scripture" },
+        { "ref": "Talmud, Shabbat 30a", "type": "historical", "quote": "David died on Shavuot" },
+        { "ref": "Jerusalem Talmud, Hagigah 2:3", "type": "historical" },
+        { "ref": "Ruth Rabbah 3:2", "type": "historical", "quote": "David was born on Shavuot and died on Shavuot" }
+      ],
+      "tags": ["david", "death", "shavuot", "1000-years", "chronology-anchor"]
+    },
+    {
+      "id": "david-birth",
+      "title": "Birth of King David",
+      "type": "birth",
+      "description": "David is born on Shavuot (Pentecost), the 16th day of the 3rd month. Jewish tradition holds he died on his 70th birthday, allowing us to calculate his birth from his death in 969 BC. The Midrash states: 'David was born on Shavuot and died on Shavuot.' David was 30 when he became king and reigned 40 years, confirming he lived 70 years.",
+      "dates": {
+        "lunar": { "month": 3, "day": 16 },
+        "gregorian": { "year": -1039 }
+      },
+      "certainty": "medium",
+      "sources": [
+        { "ref": "2 Samuel 5:4", "type": "scripture", "quote": "David was thirty years old when he began to reign, and he reigned forty years" },
+        { "ref": "Ruth Rabbah 3:2", "type": "historical", "quote": "David was born on Shavuot and died on Shavuot" },
+        { "ref": "Talmud, Shabbat 30a", "type": "historical" }
+      ],
+      "tags": ["david", "birth", "shavuot"]
+    },
+    {
+      "id": "solomon-reign",
+      "title": "Reign of King Solomon",
+      "type": "reign",
+      "description": "Solomon becomes king of Israel, succeeding his father David. His reign dates are derived from the Temple chronology: Scripture states the Temple foundation was laid in Solomon's 4th year, 480 years after the Exodus. With the Exodus in 1446 BC, this places Solomon's 4th year at 966 BC, his 1st year at 969 BC, and his reign beginning in 970 BC. Solomon reigned 40 years over all Israel.",
+      "dates": {
+        "gregorian": { "year": -970 }
+      },
+      "duration": { "years": 40 },
+      "regal_epoch": {
+        "id": "solomon",
+        "name": "King Solomon",
+        "reckoning": "spring-to-spring"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "1 Kings 11:42", "type": "scripture" },
+        { "ref": "1 Kings 6:1", "type": "scripture" },
+        { "ref": "2 Chronicles 9:30", "type": "scripture" }
+      ],
+      "tags": ["solomon", "reign", "israel", "chronology-anchor"]
+    },
+    {
+      "id": "solomon-temple-construction",
+      "title": "Construction of Solomon's Temple",
+      "type": "construction",
+      "description": "In the 4th year of Solomon's reign, in the 2nd month (Zif/Iyyar), construction of the First Temple begins. Scripture explicitly states this was 480 years after the Exodus from Egypt. The Temple is completed 7 years later in Solomon's 11th year, 8th month (Bul). This chronology is a cornerstone date established by: (1) 1 Kings 6:1 - '480th year after the Exodus' and 'fourth year of Solomon's reign, in the month Zif'; (2) 1 Kings 6:37-38 - foundation in month Zif, finished in month Bul, 'seven years in building it'; (3) Josephus confirms the timeframe in Antiquities.",
+      "dates": {
+        "lunar": { "month": 2 },
+        "gregorian": { "year": -966 },
+        "regal": { "reign": "solomon", "year": 4 }
+      },
+      "end_dates": {
+        "lunar": { "month": 8 },
+        "gregorian": { "year": -959 },
+        "regal": { "reign": "solomon", "year": 11 }
+      },
+      "duration": { "years": 7 },
+      "relative_to": [
+        { "event_id": "exodus-from-egypt", "offset": { "years": 480 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "1 Kings 6:1", "type": "scripture" },
+        { "ref": "1 Kings 6:37", "type": "scripture" },
+        { "ref": "1 Kings 6:38", "type": "scripture" },
+        { "ref": "2 Chronicles 3:1-2", "type": "scripture" },
+        { "ref": "Josephus, Antiquities 8.3.1", "type": "historical" }
+      ],
+      "tags": ["solomon", "temple", "construction", "chronology-anchor", "480-years"]
+    },
+    {
+      "id": "solomon-temple-dedication",
+      "title": "Solomon's Temple Dedication",
+      "type": "construction",
+      "description": "Solomon dedicates the First Temple in a 16-day celebration. Days 8-14: Seven days of priests sanctifying themselves and consecrating the altar. Day 15: The Ark is brought into the Most Holy Place and the glory of the LORD fills the Temple so the priests cannot stand to minister. Days 15-21: Seven days of the Feast of Tabernacles. Day 22: The solemn assembly (Shemini Atzeret). Day 23: Solomon blesses the people and sends them home. After this celebration, the regular priestly rotations begin with Jehoiarib (Course 1).",
+      "dates": {
+        "lunar": { "month": 7, "day": 8 },
+        "gregorian": { "year": -959 }
+      },
+      "duration": { "days": 16 },
+      "certainty": "high",
+      "sources": [
+        { "ref": "1 Kings 8:1-11,65-66", "type": "scripture" },
+        { "ref": "2 Chronicles 5:2-14", "type": "scripture" },
+        { "ref": "2 Chronicles 7:8-10", "type": "scripture" },
+        { "ref": "1 Chronicles 24:7", "type": "scripture" }
+      ],
+      "tags": ["solomon", "temple", "dedication", "tabernacles", "priestly-cycle"]
+    },
+    {
+      "id": "ezra-decree",
+      "title": "Ezra's Decree to Restore Jerusalem",
+      "type": "decree",
+      "description": "In the 7th year of Artaxerxes I, Ezra receives the decree to restore and rebuild Jerusalem. This begins Daniel's 70 weeks (490 years) prophecy: 'From the going forth of the commandment to restore and to build Jerusalem unto the Messiah the Prince shall be seven weeks, and threescore and two weeks.' The 490-year prophecy (Day 1 of 458 BC + 490 years - 1 day) reaches the start of 32 AD, culminating with the crucifixion of Yeshua.",
+      "dates": {
+        "gregorian": { "year": -458 },
+        "regal": { "reign": "artaxerxes", "year": 7 }
+      },
+      "end_dates": {
+        "gregorian": { "year": 32 },
+        "event_id": "crucifixion-32ad"
+      },
+      "duration": { "years": 490 },
+      "relative_to": [
+        { "event_id": "crucifixion-32ad", "offset": { "years": -490 }, "relation": "before" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Ezra 7:7-26", "type": "scripture", "quote": "This Ezra went up from Babylon... in the seventh year of Artaxerxes the king" },
+        { "ref": "Daniel 9:25", "type": "scripture", "quote": "From the going forth of the commandment to restore and to build Jerusalem unto the Messiah the Prince shall be seven weeks, and threescore and two weeks" },
+        { "ref": "Daniel 9:24", "type": "scripture", "quote": "Seventy weeks are determined upon thy people and upon thy holy city, to finish the transgression, and to make an end of sins" }
+      ],
+      "tags": ["ezra", "decree", "490-years", "70-weeks", "prophecy", "chronology-anchor"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "second-temple-completed",
+      "title": "Second Temple Completed",
+      "type": "construction",
+      "description": "The second temple is completed on the 3rd day of Adar in Darius's 6th year, restoring worship after the exile.",
+      "dates": {
+        "lunar": { "month": 12, "day": 3 },
+        "gregorian": { "year": -516 }
+      },
+      "certainty": "high",
+      "sources": [{ "ref": "Ezra 6:15", "type": "scripture" }],
+      "tags": ["temple", "construction", "darius"]
+    },
+    {
+      "id": "death-of-aaron",
+      "title": "Death of Aaron",
+      "type": "death",
+      "description": "Aaron ascends Mount Hor and dies on the 1st day of the 5th month in the 40th year after the exodus, marking the end of his priestly service.",
+      "dates": {
+        "lunar": { "month": 5, "day": 1 }
+      },
+      "relative_to": [{ "event_id": "exodus-from-egypt", "offset": { "years": 40 }, "relation": "after" }],
+      "certainty": "high",
+      "sources": [{ "ref": "Numbers 33:38", "type": "scripture" }],
+      "tags": ["aaron", "death", "priesthood"]
+    },
+    {
+      "id": "fall-of-babylon",
+      "title": "Fall of Babylon - Writing on the Wall",
+      "type": "conquest",
+      "description": "During Belshazzar's feast, a hand appears and writes on the wall: MENE, MENE, TEKEL, UPHARSIN. Daniel interprets: 'Thy kingdom is divided, and given to the Medes and Persians.' That very night Belshazzar is slain and Darius the Mede takes the kingdom. The Nabonidus Chronicle records that Babylon fell on the 16th of Tishri—during the Feast of Tabernacles! Sippar fell on the 14th (around Day of Atonement). This ends the Babylonian empire and begins the Medo-Persian period, enabling the Jews' return from exile.",
+      "dates": {
+        "lunar": { 
+          "month": 7, 
+          "day": 16,
+          "calendar_source": "babylonian-crescent",
+          "notes": "From Nabonidus Chronicle - Babylonian calendar used crescent moon for month start"
+        },
+        "gregorian": { "year": -539, "month": 10, "day": 12 },
+        "notes": "October 12, 539 BC (Julian) - 2nd day of Tabernacles per Babylonian reckoning"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "Daniel 5:25-28", "type": "scripture", "quote": "MENE, MENE, TEKEL, UPHARSIN... God hath numbered thy kingdom, and finished it... Thou art weighed in the balances, and art found wanting... Thy kingdom is divided, and given to the Medes and Persians" },
+        { "ref": "Daniel 5:30-31", "type": "scripture", "quote": "In that night was Belshazzar the king of the Chaldeans slain. And Darius the Median took the kingdom, being about threescore and two years old" },
+        { "ref": "Nabonidus Chronicle (BM 35382)", "type": "historical", "quote": "On the 16th day, Ugbaru, governor of Gutium, and the army of Cyrus entered Babylon without battle" },
+        { "ref": "Cyrus Cylinder", "type": "historical" },
+        { "ref": "Isaiah 45:1", "type": "scripture", "quote": "Thus saith the LORD to his anointed, to Cyrus, whose right hand I have holden, to subdue nations before him" }
+      ],
+      "tags": ["babylon", "persia", "belshazzar", "cyrus", "darius", "prophecy", "tabernacles", "16th-of-tishri"]
+    },
+    {
+      "id": "nebuchadnezzar-reign",
+      "title": "Reign of Nebuchadnezzar II",
+      "type": "reign",
+      "description": "Nebuchadnezzar II reigns over Babylon for 43 years. Accession year: 605 BC (after Nabopolassar's death). 1st regnal year: 604 BC. Reign ends: 562 BC. This dating is astronomically verified by the VAT 4956 tablet—a Babylonian astronomical diary from his 37th year containing lunar positions, planetary observations, and eclipse records that modern astronomy confirms to 568/567 BC. Calculation: 37th year = 568 BC, therefore 1st year = 604 BC, accession = 605 BC. This makes Nebuchadnezzar's chronology one of the most securely dated in ancient history.",
+      "dates": {
+        "gregorian": { "year": -604 },
+        "notes": "Accession year 605 BC; 1st regnal year 604 BC"
+      },
+      "end_dates": {
+        "gregorian": { "year": -562 }
+      },
+      "duration": { "years": 43 },
+      "regal_epoch": {
+        "id": "nebuchadnezzar",
+        "name": "Nebuchadnezzar II",
+        "reckoning": "accession-year"
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "VAT 4956", "type": "historical", "quote": "Babylonian astronomical diary, 37th year of Nebuchadnezzar, containing verifiable lunar and planetary positions" },
+        { "ref": "BM 21946 (Babylonian Chronicles)", "type": "historical", "quote": "Records Nebuchadnezzar's early campaigns and accession" },
+        { "ref": "2 Kings 24:1", "type": "scripture" },
+        { "ref": "Jeremiah 25:1", "type": "scripture", "quote": "The word that came to Jeremiah... in the fourth year of Jehoiakim... that was the first year of Nebuchadrezzar king of Babylon" },
+        { "ref": "Daniel 4:29-33", "type": "scripture", "quote": "Nebuchadnezzar's 7 years of madness" }
+      ],
+      "tags": ["babylon", "nebuchadnezzar", "reign", "astronomical-verification", "chronology-anchor"]
+    },
+    {
+      "id": "first-captivity-daniel",
+      "title": "First Captivity - Daily Sacrifice Taken Away",
+      "type": "captivity",
+      "description": "In Nebuchadnezzar's 7th year, Jerusalem falls (around Purim), and the temple vessels and captives including Daniel are taken to Babylon after the start of the new year. This marks when 'the daily sacrifice was taken away' (Daniel 12:11-12), beginning two prophetic countdowns: (1) 1290 years to the abomination (Dome of the Rock); (2) 1335 years to 'blessed is he that waiteth.' Note: Duration extends from Day 1 of year 1 to Day 1 of year N (i.e., + N years - 1 day). Thus 1290 years reaches the start of 692 AD; 1335 years reaches the start of 737 AD.",
+      "dates": {
+        "gregorian": { "year": -598 },
+        "regal": { "reign": "nebuchadnezzar", "year": 7 }
+      },
+      "durations": [
+        { "years": 1290, "to_event": "dome-of-rock", "prophecy": "Daniel 12:11" },
+        { "years": 1335, "to_event": "1335-year-endpoint", "prophecy": "Daniel 12:12" }
+      ],
+      "end_dates": {
+        "gregorian": { "year": 692 },
+        "event_id": "dome-of-rock"
+      },
+      "certainty": "medium",
+      "sources": [
+        { "ref": "Daniel 1:1-2", "type": "scripture", "quote": "Nebuchadnezzar king of Babylon came unto Jerusalem, and besieged it. And the Lord gave Jehoiakim king of Judah into his hand, with part of the vessels of the house of God" },
+        { "ref": "Daniel 12:11", "type": "scripture", "quote": "And from the time that the daily sacrifice shall be taken away, and the abomination that maketh desolate set up, there shall be a thousand two hundred and ninety days" },
+        { "ref": "2 Kings 24:10-16", "type": "scripture" },
+        { "ref": "2 Chronicles 36:6-7", "type": "scripture" }
+      ],
+      "tags": ["babylon", "captivity", "daniel", "1290-years", "prophecy", "daily-sacrifice", "chronology-anchor"]
+    },
+    {
+      "id": "dome-of-rock",
+      "title": "Dome of the Rock Constructed",
+      "type": "construction",
+      "description": "The Dome of the Rock is constructed on the Temple Mount by Caliph Abd al-Malik. The building's inscription dates it to Islamic year AH 72 (691-692 AD). The 1290-year prophecy (Day 1 of 598 BC + 1290 years - 1 day) reaches the start of 692 AD, overlapping by approximately 3 months with AH 72. This fulfills Daniel's prophecy: 'From the time that the daily sacrifice shall be taken away, and the abomination that maketh desolate set up, there shall be 1290 days.' The Islamic lunar calendar began at the Hijra (622 AD); AH 72 spans from roughly July 691 to July 692 AD.",
+      "dates": {
+        "gregorian": { "year": 692 },
+        "islamic": { "year": 72, "notes": "AH 72 per building inscription" }
+      },
+      "relative_to": [
+        { "event_id": "first-captivity-daniel", "offset": { "years": 1290 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Daniel 12:11", "type": "scripture", "quote": "The abomination that maketh desolate set up, there shall be a thousand two hundred and ninety days" },
+        { "ref": "Dome of the Rock Inscription", "type": "historical", "quote": "Built in AH 72 under Caliph Abd al-Malik ibn Marwan" },
+        { "ref": "K.A.C. Creswell, Early Muslim Architecture", "type": "historical" }
+      ],
+      "tags": ["temple-mount", "abomination", "1290-years", "prophecy", "islam", "inscription"]
+    },
+    {
+      "id": "1335-year-endpoint",
+      "title": "1335 Years - 'Blessed is He That Waiteth'",
+      "type": "prophecy",
+      "description": "Daniel 12:12 states: 'Blessed is he that waiteth, and cometh to the thousand three hundred and five and thirty days.' The 1335-year prophecy (Day 1 of 598 BC + 1335 years - 1 day) reaches the start of 737 AD—45 years after the abomination (Dome of the Rock) was set up. This is during the Umayyad Caliphate, and marks the beginning of Islamic decline. The Battle of Akroinon (740 AD) was a major Byzantine victory, and the Abbasid Revolution (750 AD) ended the Umayyads. 'Blessed is he that waiteth' suggests hope or deliverance at this point.",
+      "dates": {
+        "gregorian": { "year": 737 }
+      },
+      "relative_to": [
+        { "event_id": "first-captivity-daniel", "offset": { "years": 1335 }, "relation": "after" },
+        { "event_id": "dome-of-rock", "offset": { "years": 45 }, "relation": "after" }
+      ],
+      "certainty": "medium",
+      "sources": [
+        { "ref": "Daniel 12:12", "type": "scripture", "quote": "Blessed is he that waiteth, and cometh to the thousand three hundred and five and thirty days" }
+      ],
+      "tags": ["prophecy", "1335-years", "daniel", "islam"]
+    },
+    {
+      "id": "siege-jerusalem-begins",
+      "title": "Siege of Jerusalem Begins",
+      "type": "siege",
+      "description": "On the 10th day of the 10th month in Zedekiah's 9th year, Nebuchadnezzar begins the siege of Jerusalem. This is the most frequently dated event in Scripture—recorded in four separate passages. God emphatically commands Ezekiel: 'Son of man, write thee the name of the day, even of this same day: the king of Babylon set himself against Jerusalem this same day.' This is the only date in Scripture where God explicitly commands that it be written down and remembered.",
+      "dates": {
+        "lunar": { "month": 10, "day": 10 },
+        "gregorian": { "year": -588 },
+        "regal": { "reign": "zedekiah", "year": 9 }
+      },
+      "certainty": "high",
+      "sources": [
+        { "ref": "2 Kings 25:1", "type": "scripture", "quote": "In the ninth year of his reign, in the tenth month, in the tenth day of the month, Nebuchadnezzar king of Babylon came, he, and all his host, against Jerusalem" },
+        { "ref": "Jeremiah 52:4", "type": "scripture", "quote": "In the ninth year of his reign, in the tenth month, in the tenth day of the month, Nebuchadnezzar king of Babylon came, he and all his army, against Jerusalem" },
+        { "ref": "Jeremiah 39:1", "type": "scripture", "quote": "In the ninth year of Zedekiah king of Judah, in the tenth month, came Nebuchadrezzar king of Babylon and all his army against Jerusalem, and they besieged it" },
+        { "ref": "Ezekiel 24:1-2", "type": "scripture", "quote": "Son of man, write thee the name of the day, even of this same day: the king of Babylon set himself against Jerusalem this same day" }
+      ],
+      "tags": ["babylon", "siege", "jerusalem", "zedekiah", "most-documented-date"]
+    },
+    {
+      "id": "jerusalem-walls-breached",
+      "title": "Jerusalem's Walls Breached",
+      "type": "conquest",
+      "description": "On the 9th day of the 4th month in Zedekiah's 11th year, after 18 months of siege, the famine-stricken city of Jerusalem is breached by the Babylonians. The siege began on the 10th of the 10th month (the date God commanded Ezekiel to write down), and the city held for approximately 18 months before falling. Zedekiah and his army fled by night but were captured near Jericho.",
+      "dates": {
+        "lunar": { "month": 4, "day": 9 },
+        "gregorian": { "year": -586 },
+        "regal": { "reign": "zedekiah", "year": 11 }
+      },
+      "relative_to": [
+        { "event_id": "siege-jerusalem-begins", "offset": { "months": 18 }, "relation": "after" }
+      ],
+      "certainty": "high",
+      "sources": [
+        { "ref": "Jeremiah 39:2", "type": "scripture", "quote": "In the eleventh year of Zedekiah, in the fourth month, the ninth day of the month, the city was broken up" },
+        { "ref": "Jeremiah 52:6-7", "type": "scripture", "quote": "In the fourth month, in the ninth day of the month, the famine was sore in the city... Then the city was broken up, and all the men of war fled" },
+        { "ref": "2 Kings 25:3-4", "type": "scripture", "quote": "On the ninth day of the fourth month the famine prevailed in the city... and the city was broken up" }
+      ],
+      "tags": ["babylon", "jerusalem", "breach", "zedekiah", "famine"]
+    },
+    {
+      "id": "nehemiah-walls-completed",
+      "title": "Completion of Jerusalem's Walls",
+      "type": "construction",
+      "description": "Nehemiah completes the rebuilding of Jerusalem's walls on the 25th day of Elul (6th month) after 52 days of work.",
+      "dates": {
+        "lunar": { "month": 6, "day": 25 },
+        "gregorian": { "year": -445 }
+      },
+      "certainty": "high",
+      "sources": [{ "ref": "Nehemiah 6:15", "type": "scripture" }],
+      "tags": ["nehemiah", "walls", "construction", "jerusalem"]
+    },
+    {
+      "id": "purim-defense",
+      "title": "Jews Defend Themselves",
+      "type": "battle",
+      "description": "On the 13th day of Adar, the Jews assemble to defend themselves against their enemies as per the reversed decree.",
+      "dates": {
+        "lunar": { "month": 12, "day": 13 }
+      },
+      "certainty": "high",
+      "sources": [{ "ref": "Esther 9:1", "type": "scripture" }],
+      "tags": ["purim", "esther", "deliverance"]
+    },
+    {
+      "id": "purim-celebration",
+      "title": "Purim Celebration",
+      "type": "feast",
+      "description": "The Jews rest and celebrate on the 14th day of Adar, establishing the annual feast of Purim to commemorate their deliverance.",
+      "dates": {
+        "lunar": { "month": 12, "day": 14 }
+      },
+      "certainty": "high",
+      "sources": [{ "ref": "Esther 9:17", "type": "scripture" }],
+      "tags": ["purim", "esther", "feast"]
+    }
+  ],
+
+  "recurring_events": [
+    {
+      "id": "passover",
+      "title": "Passover",
+      "type": "feast",
+      "description": "The Passover is observed on the 14th day of the 1st month, commemorating the sparing of Israelite firstborns during the final plague on Egypt.",
+      "recurrence": { "lunar_month": 1, "lunar_day": 14 },
+      "sources": [{ "ref": "Leviticus 23:5", "type": "scripture" }],
+      "tags": ["feast", "passover", "appointed-time"]
+    },
+    {
+      "id": "unleavened-bread",
+      "title": "Feast of Unleavened Bread Begins",
+      "type": "feast",
+      "description": "The Feast of Unleavened Bread begins on the 15th day of the 1st month and lasts 7 days.",
+      "recurrence": { "lunar_month": 1, "lunar_day": 15 },
+      "sources": [{ "ref": "Leviticus 23:6", "type": "scripture" }],
+      "tags": ["feast", "unleavened-bread", "appointed-time"]
+    },
+    {
+      "id": "feast-of-trumpets",
+      "title": "Feast of Trumpets",
+      "type": "feast",
+      "description": "A holy convocation with trumpet blasts on the 1st day of the 7th month, serving as a memorial and day of rest.",
+      "recurrence": { "lunar_month": 7, "lunar_day": 1 },
+      "sources": [{ "ref": "Leviticus 23:24", "type": "scripture" }],
+      "tags": ["feast", "trumpets", "appointed-time"]
+    },
+    {
+      "id": "day-of-atonement",
+      "title": "Day of Atonement",
+      "type": "feast",
+      "description": "On the 10th day of the 7th month, the people afflict their souls and the high priest makes atonement for Israel.",
+      "recurrence": { "lunar_month": 7, "lunar_day": 10 },
+      "sources": [{ "ref": "Leviticus 23:27", "type": "scripture" }],
+      "tags": ["feast", "atonement", "appointed-time"]
+    },
+    {
+      "id": "feast-of-tabernacles",
+      "title": "Feast of Tabernacles Begins",
+      "type": "feast",
+      "description": "The Feast of Tabernacles commences on the 15th day of the 7th month, a seven-day celebration of dwelling in booths.",
+      "recurrence": { "lunar_month": 7, "lunar_day": 15 },
+      "sources": [{ "ref": "Leviticus 23:34", "type": "scripture" }],
+      "tags": ["feast", "tabernacles", "appointed-time"]
+    },
+    {
+      "id": "feast-of-new-wine",
+      "title": "Feast of New Wine",
+      "type": "feast",
+      "description": "The Feast of New Wine is observed on the 9th day of the 5th month (Av). This feast is 7 complete Sabbath weeks from Shavuot (Pentecost, 16th of 3rd month), which itself is 7 complete Sabbath weeks from First Fruits (16th of 1st month). It is also 7 complete Sabbath weeks before the Feast of Trumpets (1st of 7th month). This establishes a pattern of 7-week intervals: First Fruits → Shavuot → New Wine → Trumpets. Note: These are counted in units of Sabbath weeks (Lunar Sabbath calendar cycles), not literal 49-day periods, because Renewed Moon days are intercalary and do not count in the weekly cycle. The 9th of Av is also the date when both Temples were destroyed, transforming this feast day into a day of mourning.",
+      "dates": {
+        "lunar": { "month": 5, "day": 9 }
+      },
+      "recurrence": { "lunar_month": 5, "lunar_day": 9 },
+      "relative_to": [
+        { "lunar": { "month": 3, "day": 16 }, "offset": { "sabbath_weeks": 7 }, "relation": "after", "notes": "7 complete Sabbath weeks from Shavuot (16th of 3rd month) - counted in Sabbath week cycles, not literal days due to Renewed Moon days" },
+        { "lunar": { "month": 7, "day": 1 }, "offset": { "sabbath_weeks": -7 }, "relation": "before", "notes": "7 complete Sabbath weeks before Feast of Trumpets (1st of 7th month) - counted in Sabbath week cycles" }
+      ],
+      "certainty": "medium",
+      "sources": [
+        { "ref": "Leviticus 23:15-16", "type": "scripture", "quote": "And ye shall count unto you from the morrow after the sabbath, from the day that ye brought the sheaf of the wave offering; seven sabbaths shall be complete" },
+        { "ref": "Deuteronomy 16:9-10", "type": "scripture", "quote": "Seven weeks shalt thou number unto thee: begin to number the seven weeks from such time as thou beginnest to put the sickle to the corn" }
+      ],
+      "tags": ["feast", "new-wine", "9th-of-av", "appointed-time", "seven-weeks", "shavuot"]
+    },
+    {
+      "id": "second-passover",
+      "title": "Second Passover",
+      "type": "feast",
+      "description": "Those who are ceremonially unclean or on a journey may observe Passover on the 14th day of the 2nd month.",
+      "recurrence": { "lunar_month": 2, "lunar_day": 14 },
+      "sources": [{ "ref": "Numbers 9:11", "type": "scripture" }],
+      "tags": ["feast", "passover", "appointed-time"]
+    }
+  ]
+}

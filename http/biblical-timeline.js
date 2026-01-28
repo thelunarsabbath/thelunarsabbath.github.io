@@ -28,6 +28,20 @@ let timelineFilters = {
   prophecy: true
 };
 
+// Simple markdown to HTML converter for descriptions and quotes
+function renderMarkdown(text) {
+  if (!text) return '';
+  return text
+    // Bold: **text** or __text__
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(.+?)__/g, '<strong>$1</strong>')
+    // Italic: *text* or _text_
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    .replace(/_([^_]+)_/g, '<em>$1</em>')
+    // Line breaks
+    .replace(/\n/g, '<br>');
+}
+
 // Load filter state from localStorage
 function loadTimelineFilters() {
   try {
@@ -857,11 +871,59 @@ function initDetailPanel() {
         margin: 8px 0;
         color: #c0c0c0;
       }
+      .detail-source-quote strong {
+        color: #7ec8e3;
+        font-style: normal;
+      }
       
       .detail-notes {
         font-size: 0.95em;
         line-height: 1.6;
         color: #b0b0b0;
+      }
+      .detail-notes strong {
+        color: #7ec8e3;
+      }
+      
+      /* Collapsible description box */
+      .detail-description-wrapper {
+        position: relative;
+      }
+      .detail-description-wrapper.truncated {
+        cursor: pointer;
+      }
+      .detail-description-text {
+        max-height: 100px;
+        overflow: hidden;
+      }
+      .detail-description-wrapper.expanded .detail-description-text {
+        max-height: none;
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
+      /* Text fade using CSS mask - only when truncated */
+      .detail-description-wrapper.truncated .detail-description-text {
+        -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+        mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+      }
+      /* Centered chevron indicator - only shown when truncated */
+      .detail-expand-chevron {
+        display: none;
+        justify-content: center;
+        padding: 4px 0;
+        color: #7ec8e3;
+        font-size: 12px;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+      }
+      .detail-description-wrapper.truncated .detail-expand-chevron {
+        display: flex;
+      }
+      .detail-description-wrapper.truncated:hover .detail-expand-chevron {
+        opacity: 1;
+      }
+      .detail-description-wrapper.expanded .detail-expand-chevron {
+        display: none;
       }
       
       /* Prev/Next Event Navigation */
@@ -1111,9 +1173,9 @@ async function openDurationDetailInternal(durationId, addHistory = true) {
       claimedStr = `${duration.claimed.value} ${duration.claimed.unit || 'years'}`;
     } else {
       const parts = [];
-      if (duration.claimed.years) parts.push(`${duration.claimed.years} years`);
-      if (duration.claimed.months) parts.push(`${duration.claimed.months} months`);
-      if (duration.claimed.days) parts.push(`${duration.claimed.days} days`);
+      if (duration.claimed.years !== undefined) parts.push(`${duration.claimed.years} years`);
+      if (duration.claimed.months !== undefined) parts.push(`${duration.claimed.months} months`);
+      if (duration.claimed.days !== undefined) parts.push(`${duration.claimed.days} days`);
       claimedStr = parts.join(', ') || 'unknown';
     }
   }
@@ -1161,13 +1223,13 @@ async function openDurationDetailInternal(durationId, addHistory = true) {
           return `
             <div class="detail-source-item">
               <div class="detail-source-ref">${srcIcon} ${src.ref || 'Unknown'}</div>
-              ${src.quote ? `<div class="detail-source-quote">"${src.quote}"</div>` : ''}
+              ${src.quote ? `<div class="detail-source-quote">"${renderMarkdown(src.quote)}"</div>` : ''}
             </div>
           `;
         }).join('') :
         `<div class="detail-source-item">
           <div class="detail-source-ref">${sourceIcon} ${duration.source?.ref || 'Unknown'}</div>
-          ${duration.source?.quote ? `<div class="detail-source-quote">"${duration.source.quote}"</div>` : ''}
+          ${duration.source?.quote ? `<div class="detail-source-quote">"${renderMarkdown(duration.source.quote)}"</div>` : ''}
         </div>`
       }
     </div>
@@ -1338,11 +1400,74 @@ async function openEventDetailInternal(eventId, addHistory = true) {
     </div>
   `;
   
+  // Find previous and next events chronologically (needed early for layout)
+  const sortedEvents = resolved
+    .filter(e => e.startJD != null)
+    .sort((a, b) => a.startJD - b.startJD);
+  
+  const currentIndex = sortedEvents.findIndex(e => e.id === eventId);
+  const prevEvent = currentIndex > 0 ? sortedEvents[currentIndex - 1] : null;
+  const nextEvent = currentIndex < sortedEvents.length - 1 ? sortedEvents[currentIndex + 1] : null;
+  
+  // Helper to get nav info for an event
+  const getEventNavInfo = (ev) => {
+    if (!ev) return null;
+    const evData = data?.events?.find(e => e.id === ev.id);
+    const evIcon = evData ? getTypeIcon(evData.type) : '📍';
+    const evTitle = evData?.title || ev.id;
+    let evYear = '';
+    if (ev.startJD && typeof EventResolver !== 'undefined') {
+      const greg = EventResolver.julianDayToGregorian(ev.startJD);
+      evYear = greg.year > 0 ? `${greg.year} AD` : `${Math.abs(greg.year)} BC`;
+    }
+    return { id: ev.id, icon: evIcon, title: evTitle, year: evYear };
+  };
+  
+  // Description with max-height, text fade, and chevron indicator
   if (event.description) {
+    const descId = `desc-${eventId}`;
     html += `
       <div class="detail-section">
         <h4>Description</h4>
-        <p class="detail-notes">${event.description}</p>
+        <div class="detail-description-wrapper" id="${descId}" onclick="toggleDescriptionExpand('${descId}')">
+          <div class="detail-description-text">
+            <span class="detail-notes">${renderMarkdown(event.description)}</span>
+          </div>
+          <div class="detail-expand-chevron">▾</div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // Prev/next navigation (right after description for consistent position)
+  if (prevEvent || nextEvent) {
+    const prevInfo = getEventNavInfo(prevEvent);
+    const nextInfo = getEventNavInfo(nextEvent);
+    
+    html += `
+      <div class="detail-section detail-nav-section" style="margin-top: 0; padding-top: 15px; border-top: none;">
+        <div class="detail-prev-next">
+          ${prevInfo ? `
+            <div class="detail-nav-event detail-prev-event" onclick="openEventDetail('${prevInfo.id}')">
+              <div class="detail-nav-label">◀ Previous</div>
+              <div class="detail-nav-event-info">
+                <span>${prevInfo.icon}</span>
+                <span>${prevInfo.title}</span>
+              </div>
+              <div class="detail-nav-year">${prevInfo.year}</div>
+            </div>
+          ` : '<div class="detail-nav-event detail-nav-placeholder"></div>'}
+          ${nextInfo ? `
+            <div class="detail-nav-event detail-next-event" onclick="openEventDetail('${nextInfo.id}')">
+              <div class="detail-nav-label">Next ▶</div>
+              <div class="detail-nav-event-info">
+                <span>${nextInfo.icon}</span>
+                <span>${nextInfo.title}</span>
+              </div>
+              <div class="detail-nav-year">${nextInfo.year}</div>
+            </div>
+          ` : '<div class="detail-nav-event detail-nav-placeholder"></div>'}
+        </div>
       </div>
     `;
   }
@@ -1400,7 +1525,7 @@ async function openEventDetailInternal(eventId, addHistory = true) {
           return `
             <div class="detail-source-item">
               <div class="detail-source-ref">${srcIcon} ${src.ref || 'Unknown'}</div>
-              ${src.quote ? `<div class="detail-source-quote">"${src.quote}"</div>` : ''}
+              ${src.quote ? `<div class="detail-source-quote">"${renderMarkdown(src.quote)}"</div>` : ''}
             </div>
           `;
         }).join('')}
@@ -1425,9 +1550,9 @@ async function openEventDetailInternal(eventId, addHistory = true) {
           
           let claimedStr = '';
           if (dur.claimed) {
-            if (dur.claimed.years) claimedStr = `${dur.claimed.years} years`;
-            else if (dur.claimed.months) claimedStr = `${dur.claimed.months} months`;
-            else if (dur.claimed.days) claimedStr = `${dur.claimed.days} days`;
+            if (dur.claimed.years !== undefined) claimedStr = `${dur.claimed.years} years`;
+            else if (dur.claimed.months !== undefined) claimedStr = `${dur.claimed.months} months`;
+            else if (dur.claimed.days !== undefined) claimedStr = `${dur.claimed.days} days`;
           }
           
           return `
@@ -1456,62 +1581,18 @@ async function openEventDetailInternal(eventId, addHistory = true) {
     `;
   }
   
-  // Find previous and next events chronologically
-  const sortedEvents = resolved
-    .filter(e => e.startJD != null)
-    .sort((a, b) => a.startJD - b.startJD);
-  
-  const currentIndex = sortedEvents.findIndex(e => e.id === eventId);
-  const prevEvent = currentIndex > 0 ? sortedEvents[currentIndex - 1] : null;
-  const nextEvent = currentIndex < sortedEvents.length - 1 ? sortedEvents[currentIndex + 1] : null;
-  
-  // Add prev/next navigation
-  if (prevEvent || nextEvent) {
-    const getEventNavInfo = (ev) => {
-      if (!ev) return null;
-      const evData = data?.events?.find(e => e.id === ev.id);
-      const evIcon = evData ? getTypeIcon(evData.type) : '📍';
-      const evTitle = evData?.title || ev.id;
-      let evYear = '';
-      if (ev.startJD && typeof EventResolver !== 'undefined') {
-        const greg = EventResolver.julianDayToGregorian(ev.startJD);
-        evYear = greg.year > 0 ? `${greg.year} AD` : `${Math.abs(greg.year)} BC`;
-      }
-      return { id: ev.id, icon: evIcon, title: evTitle, year: evYear };
-    };
-    
-    const prevInfo = getEventNavInfo(prevEvent);
-    const nextInfo = getEventNavInfo(nextEvent);
-    
-    html += `
-      <div class="detail-section detail-nav-section">
-        <div class="detail-prev-next">
-          ${prevInfo ? `
-            <div class="detail-nav-event detail-prev-event" onclick="openEventDetail('${prevInfo.id}')">
-              <div class="detail-nav-label">◀ Previous</div>
-              <div class="detail-nav-event-info">
-                <span>${prevInfo.icon}</span>
-                <span>${prevInfo.title}</span>
-              </div>
-              <div class="detail-nav-year">${prevInfo.year}</div>
-            </div>
-          ` : '<div class="detail-nav-event detail-nav-placeholder"></div>'}
-          ${nextInfo ? `
-            <div class="detail-nav-event detail-next-event" onclick="openEventDetail('${nextInfo.id}')">
-              <div class="detail-nav-label">Next ▶</div>
-              <div class="detail-nav-event-info">
-                <span>${nextInfo.icon}</span>
-                <span>${nextInfo.title}</span>
-              </div>
-              <div class="detail-nav-year">${nextInfo.year}</div>
-            </div>
-          ` : '<div class="detail-nav-event detail-nav-placeholder"></div>'}
-        </div>
-      </div>
-    `;
-  }
-  
   showDetailPanel(html);
+  
+  // Check if description is truncated and add class if so
+  requestAnimationFrame(() => {
+    const descWrapper = document.getElementById(`desc-${eventId}`);
+    if (descWrapper) {
+      const textEl = descWrapper.querySelector('.detail-description-text');
+      if (textEl && textEl.scrollHeight > textEl.clientHeight) {
+        descWrapper.classList.add('truncated');
+      }
+    }
+  });
   
   // Scroll timeline to center on this event's year
   if (resolvedGregorian) {
@@ -1580,12 +1661,24 @@ function scrollTimelineToYear(year) {
   });
 }
 
+// Toggle description expand/collapse
+function toggleDescriptionExpand(descId) {
+  const descEl = document.getElementById(descId);
+  if (!descEl) return;
+  // Only expand if truncated
+  if (descEl.classList.contains('truncated')) {
+    descEl.classList.remove('truncated');
+    descEl.classList.add('expanded');
+  }
+}
+
 // Make functions globally available
 window.openEventDetail = openEventDetail;
 window.scrollTimelineToYear = scrollTimelineToYear;
 window.openDurationDetail = openDurationDetail;
 window.closeDurationDetail = closeDurationDetail;
 window.openDurationDetail_openEvent = openDurationDetail_openEvent;
+window.toggleDescriptionExpand = toggleDescriptionExpand;
 
 // Render ruler-style timeline with events stacked on right, connected by lines
 async function renderBiblicalTimeline() {
@@ -2025,9 +2118,9 @@ async function renderBiblicalTimeline() {
             // Format claimed
             const claimed = dur.claimed || {};
             let claimedStr = '';
-            if (claimed.years) claimedStr += claimed.years + 'y ';
-            if (claimed.months) claimedStr += claimed.months + 'm ';
-            if (claimed.days) claimedStr += claimed.days + 'd';
+            if (claimed.years !== undefined) claimedStr += claimed.years + 'y ';
+            if (claimed.months !== undefined) claimedStr += claimed.months + 'm ';
+            if (claimed.days !== undefined) claimedStr += claimed.days + 'd';
             if (!claimedStr) claimedStr = '-';
             
             // Check if claimed matches actual
@@ -3062,9 +3155,9 @@ async function renderBiblicalTimeline() {
       } else {
         // Old format: {years: N, months: M, days: D}
         const parts = [];
-        if (bar.claimed.years) parts.push(`${bar.claimed.years} years`);
-        if (bar.claimed.months) parts.push(`${bar.claimed.months} months`);
-        if (bar.claimed.days) parts.push(`${bar.claimed.days} days`);
+        if (bar.claimed.years !== undefined) parts.push(`${bar.claimed.years} years`);
+        if (bar.claimed.months !== undefined) parts.push(`${bar.claimed.months} months`);
+        if (bar.claimed.days !== undefined) parts.push(`${bar.claimed.days} days`);
         claimedStr = parts.join(', ') || 'unknown';
       }
     }

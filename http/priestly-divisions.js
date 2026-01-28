@@ -752,12 +752,12 @@ function validateJehoiaribAtNinthOfAv(year, yearLabel, profile) {
     return { valid: true, year: year, yearLabel: yearLabel };
   }
   
-  const course = PRIESTLY_DIVISIONS[weekIndex];
+  const course = PRIESTLY_DIVISIONS ? PRIESTLY_DIVISIONS[weekIndex] : null;
   return {
     valid: false,
     year: year,
     yearLabel: yearLabel,
-    actualCourse: course?.name || 'Unknown',
+    actualCourse: course?.course || 'Unknown',
     order: weekIndex + 1,
     expectedCourse: 'Jehoiarib',
     expectedOrder: 1
@@ -779,26 +779,26 @@ function validateTempleDestructionCourse(profile) {
   return validateJehoiaribAtNinthOfAv(70, '70 AD', profile);
 }
 
-// Get a warning message if the priestly cycle doesn't meet the historical invariants
+// Get an info message about Jehoiarib tradition vs calculated cycle
 function getPriestlyCycleWarning() {
   const validations = validateTempleDestructionCourses();
-  const warnings = [];
+  const discrepancies = [];
   
   // Check First Temple destruction (587 BC)
   if (validations.firstTemple && !validations.firstTemple.error && !validations.firstTemple.valid) {
-    warnings.push(`First Temple Destruction (9th of Av, 587 BC): Expected Jehoiarib (Course 1), but this configuration shows ${validations.firstTemple.actualCourse} (Course ${validations.firstTemple.order}).`);
+    discrepancies.push(`First Temple Destruction (9th of Av, 587 BC): Tradition claims Jehoiarib (Course 1), but calculation shows ${validations.firstTemple.actualCourse} (Course ${validations.firstTemple.order}).`);
   }
   
-  // Check Second Temple destruction (70 AD) - this is the strongest anchor
+  // Check Second Temple destruction (70 AD)
   if (validations.secondTemple && !validations.secondTemple.error && !validations.secondTemple.valid) {
-    warnings.push(`Second Temple Destruction (9th of Av, 70 AD): Expected Jehoiarib (Course 1), but this configuration shows ${validations.secondTemple.actualCourse} (Course ${validations.secondTemple.order}). This is the strongest historical anchor point.`);
+    discrepancies.push(`Second Temple Destruction (9th of Av, 70 AD): Tradition claims Jehoiarib (Course 1), but calculation shows ${validations.secondTemple.actualCourse} (Course ${validations.secondTemple.order}).`);
   }
   
-  if (warnings.length === 0) {
+  if (discrepancies.length === 0) {
     return null;
   }
   
-  return `Warning: This calendar configuration does not maintain the historical invariant that Jehoiarib was serving when the Temple(s) fell:\n• ${warnings.join('\n• ')}`;
+  return `Note: The Talmudic tradition that Jehoiarib was serving when the Temple(s) fell does not align with this calendar's calculations. This tradition comes from sources with known internal contradictions and may not be a reliable anchor:\n• ${discrepancies.join('\n• ')}`;
 }
 
 // Render the priestly divisions table
@@ -806,12 +806,12 @@ function renderPriestlyTable() {
   const tbody = document.getElementById('priestly-table-body');
   if (!tbody || !PRIESTLY_DIVISIONS) return;
   
-  // Check for validation warning
-  const warning = getPriestlyCycleWarning();
+  // Check for discrepancy note about Jehoiarib tradition
+  const note = getPriestlyCycleWarning();
   const warningContainer = document.getElementById('priestly-warning');
   if (warningContainer) {
-    if (warning) {
-      warningContainer.innerHTML = `<div class="priestly-warning-message">⚠️ ${warning}</div>`;
+    if (note) {
+      warningContainer.innerHTML = `<div class="priestly-warning-message priestly-info-message">ℹ️ ${note}</div>`;
       warningContainer.style.display = 'block';
     } else {
       warningContainer.style.display = 'none';

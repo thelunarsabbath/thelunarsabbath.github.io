@@ -816,36 +816,48 @@ function showDayDetail(dayObj, month) {
     if (!skipPriestlyCourse) {
       const courseInfo = getPriestlyCourseForDay(dayObj, month);
       if (courseInfo) {
-        // Check if this course has extra info (notes or famous_people)
-        const hasExtraInfo = (courseInfo.notes && courseInfo.notes.trim()) || 
-                            (courseInfo.famous_people && courseInfo.famous_people.length > 0);
-        
-        let infoIconHtml = '';
-        if (hasExtraInfo) {
-          // Build popup content
-          let popupContent = '';
-          if (courseInfo.notes && courseInfo.notes.trim()) {
-            popupContent += `<div class="priestly-popup-notes">${courseInfo.notes}</div>`;
-          }
-          if (courseInfo.famous_people && courseInfo.famous_people.length > 0) {
-            popupContent += `<div class="priestly-popup-famous"><strong>Notable figures:</strong><ul>`;
-            for (const person of courseInfo.famous_people) {
-              popupContent += `<li><strong>${person.name}</strong>: ${person.notes}</li>`;
+        // Handle dates before Temple dedication
+        if (courseInfo.beforeDedication) {
+          const dedicationYear = Math.abs(courseInfo.dedicationYear - 1); // Convert to BC year
+          priestlyContainer.innerHTML = `
+            <span class="priestly-course-subtle before-dedication">
+              <span class="priestly-course-clickable" onclick="navigateToDedicationDate()" title="Navigate to Temple Dedication">
+                🏛️ Before priestly cycle (est. ${dedicationYear} BC)
+              </span>
+            </span>
+          `;
+        } else {
+          // Check if this course has extra info (notes or famous_people)
+          const hasExtraInfo = (courseInfo.notes && courseInfo.notes.trim()) || 
+                              (courseInfo.famous_people && courseInfo.famous_people.length > 0);
+          
+          let infoIconHtml = '';
+          if (hasExtraInfo) {
+            // Build popup content
+            let popupContent = '';
+            if (courseInfo.notes && courseInfo.notes.trim()) {
+              popupContent += `<div class="priestly-popup-notes">${courseInfo.notes}</div>`;
             }
-            popupContent += `</ul></div>`;
+            if (courseInfo.famous_people && courseInfo.famous_people.length > 0) {
+              popupContent += `<div class="priestly-popup-famous"><strong>Notable figures:</strong><ul>`;
+              for (const person of courseInfo.famous_people) {
+                popupContent += `<li><strong>${person.name}</strong>: ${person.notes}</li>`;
+              }
+              popupContent += `</ul></div>`;
+            }
+            // Escape quotes for HTML attribute
+            const escapedContent = popupContent.replace(/"/g, '&quot;');
+            infoIconHtml = `<span class="priestly-info-trigger" data-popup="${escapedContent}">ⓘ</span>`;
           }
-          // Escape quotes for HTML attribute
-          const escapedContent = popupContent.replace(/"/g, '&quot;');
-          infoIconHtml = `<span class="priestly-info-trigger" data-popup="${escapedContent}">ⓘ</span>`;
+          
+          priestlyContainer.innerHTML = `
+            <span class="priestly-course-subtle">
+              <button class="priestly-nav-btn" onclick="jumpToPriestlyCourse(${courseInfo.order}, -1)" title="Previous time ${courseInfo.course} served">◀</button>
+              ${infoIconHtml}<span class="priestly-course-clickable" onclick="showPriestlyPage()" title="View all priestly divisions">${courseInfo.course} (${courseInfo.order}) — ${courseInfo.meaning}</span>
+              <button class="priestly-nav-btn" onclick="jumpToPriestlyCourse(${courseInfo.order}, 1)" title="Next time ${courseInfo.course} serves">▶</button>
+            </span>
+          `;
         }
-        
-        priestlyContainer.innerHTML = `
-          <span class="priestly-course-subtle">
-            <button class="priestly-nav-btn" onclick="jumpToPriestlyCourse(${courseInfo.order}, -1)" title="Previous time ${courseInfo.course} served">◀</button>
-            ${infoIconHtml}<span class="priestly-course-clickable" onclick="showPriestlyPage()" title="View all priestly divisions">${courseInfo.course} (${courseInfo.order}) — ${courseInfo.meaning}</span>
-            <button class="priestly-nav-btn" onclick="jumpToPriestlyCourse(${courseInfo.order}, 1)" title="Next time ${courseInfo.course} serves">▶</button>
-          </span>
-        `;
       } else {
         priestlyContainer.innerHTML = '';
       }

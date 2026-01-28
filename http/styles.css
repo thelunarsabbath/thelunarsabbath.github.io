@@ -1708,6 +1708,12 @@ body.sabbath-tester-open {
   font-size: 0.9em;
 }
 
+.priestly-warning-message.priestly-info-message {
+  background: rgba(126, 200, 227, 0.1);
+  border: 1px solid rgba(126, 200, 227, 0.3);
+  color: #a0c8d8;
+}
+
 .priestly-table-container {
   overflow-x: auto;
 }

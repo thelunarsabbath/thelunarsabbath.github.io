@@ -647,8 +647,22 @@ function resolveDateSpec(dateSpec, profile, epochs, context) {
     // If there's also a lunar date specified, use it to refine the result
     // (e.g., get the exact Nisan 1 of the calculated year)
     if (dateSpec.lunar) {
-      const approxGregorian = julianDayToGregorian(resultJD);
-      return lunarToJulianDay(dateSpec.lunar, approxGregorian.year, profile);
+      // If the reference event has a lunar year, calculate target year from that
+      // This is more accurate than deriving from approximate JD
+      const refLunar = refEvent.start?.lunar;
+      let targetYear;
+      
+      if (refLunar?.year !== undefined && offset.years) {
+        // Calculate lunar year directly from reference lunar year
+        const yearsOffset = direction === 'before' ? -offset.years : offset.years;
+        targetYear = refLunar.year + yearsOffset;
+      } else {
+        // Fall back to deriving from approximate Gregorian
+        const approxGregorian = julianDayToGregorian(resultJD);
+        targetYear = approxGregorian.year;
+      }
+      
+      return lunarToJulianDay(dateSpec.lunar, targetYear, profile);
     }
     
     return resultJD;

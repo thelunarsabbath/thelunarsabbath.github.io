@@ -556,20 +556,6 @@
       "doc": "_durations/captivity-prophecy.md"
     },
     {
-      "id": "flood-begins-to-methuselah-death",
-      "title": "Methuselah Dies at Flood",
-      "from_event": "flood-begins",
-      "to_event": "methuselah-death",
-      "claimed": {
-        "years": 0
-      },
-      "source": {
-        "ref": "Genesis 5:27, 7:6",
-        "type": "scripture",
-        "quote": "Methuselah lived 969 years. Noah was 600 when the flood came. Calculated from genealogy, Methuselah died the year of the flood."
-      }
-    },
-    {
       "id": "adam-lifespan",
       "title": "Adam's Lifespan: 930 Years",
       "from_event": "adam-creation",
@@ -1079,36 +1065,6 @@
       }
     },
     {
-      "id": "abraham-departs-haran-to-abraham-separates-from-lot",
-      "title": "Abraham and Lot Separate After Entering Canaan",
-      "description": "Shortly after entering Canaan, Abraham and Lot's herdsmen strove together, leading Abraham to offer Lot the choice of land.",
-      "from_event": "abraham-departs-haran",
-      "to_event": "abraham-separates-from-lot",
-      "claimed": {
-        "years": 0
-      },
-      "source": {
-        "ref": "Genesis 13:5-11",
-        "type": "scripture",
-        "quote": "And Lot also, which went with Abram, had flocks, and herds, and tents. And **the land was not able to bear them, that they might dwell together**... And Lot chose him all the plain of Jordan."
-      }
-    },
-    {
-      "id": "abraham-separates-from-lot-to-abraham-war-kings",
-      "title": "Abraham Rescues Lot from the Kings",
-      "description": "After Lot settled near Sodom, four kings made war against five kings of the plain, and Lot was taken captive. Abraham armed his trained servants and rescued Lot.",
-      "from_event": "abraham-separates-from-lot",
-      "to_event": "abraham-war-kings",
-      "claimed": {
-        "years": 0
-      },
-      "source": {
-        "ref": "Genesis 14:12-16",
-        "type": "scripture",
-        "quote": "And **they took Lot**, Abram's brother's son, who dwelt in Sodom, and his goods, and departed... And when Abram heard that his brother was taken captive, **he armed his trained servants**, born in his own house, three hundred and eighteen, **and pursued them** unto Dan."
-      }
-    },
-    {
       "id": "exodus-from-egypt-to-journey-ramses-succoth",
       "title": "exodus-from-egypt to journey-ramses-succoth: 1 days",
       "from_event": "exodus-from-egypt",
@@ -1216,20 +1172,6 @@
       }
     },
     {
-      "id": "herod-takes-jerusalem-to-herod-defacto-reign",
-      "title": "herod-takes-jerusalem to herod-defacto-reign: same time",
-      "from_event": "herod-takes-jerusalem",
-      "to_event": "herod-defacto-reign",
-      "claimed": {
-        "years": 0
-      },
-      "source": {
-        "ref": "Josephus",
-        "type": "historical",
-        "quote": "Herod chronology"
-      }
-    },
-    {
       "id": "herod-takes-jerusalem-to-herod-senate-appointment",
       "title": "herod-takes-jerusalem to herod-senate-appointment: 3 years",
       "from_event": "herod-takes-jerusalem",
@@ -1252,20 +1194,6 @@
       "claimed": {
         "years": 40,
         "direction": "before"
-      },
-      "source": {
-        "ref": "1 Kings 1-6",
-        "type": "scripture",
-        "quote": "Monarchy narrative"
-      }
-    },
-    {
-      "id": "david-death-to-solomon-reign",
-      "title": "david-death to solomon-reign: same time",
-      "from_event": "david-death",
-      "to_event": "solomon-reign",
-      "claimed": {
-        "years": 0
       },
       "source": {
         "ref": "1 Kings 1-6",
@@ -1318,40 +1246,12 @@
       }
     },
     {
-      "id": "earliest-jesus-baptism-to-earliest-wilderness-start",
-      "title": "earliest-jesus-baptism to earliest-wilderness-start: same time",
-      "from_event": "earliest-jesus-baptism",
-      "to_event": "earliest-wilderness-start",
-      "claimed": {
-        "years": 0
-      },
-      "source": {
-        "ref": "Gospel accounts",
-        "type": "scripture",
-        "quote": "Jesus ministry"
-      }
-    },
-    {
       "id": "earliest-jesus-baptism-to-jesus-isaiah-61",
       "title": "earliest-jesus-baptism to jesus-isaiah-61: 6 months",
       "from_event": "earliest-jesus-baptism",
       "to_event": "jesus-isaiah-61",
       "claimed": {
         "months": 6
-      },
-      "source": {
-        "ref": "Gospel accounts",
-        "type": "scripture",
-        "quote": "Jesus ministry"
-      }
-    },
-    {
-      "id": "earliest-jesus-baptism-to-first-year-ministry",
-      "title": "earliest-jesus-baptism to first-year-ministry: same time",
-      "from_event": "earliest-jesus-baptism",
-      "to_event": "first-year-ministry",
-      "claimed": {
-        "years": 0
       },
       "source": {
         "ref": "Gospel accounts",
@@ -3048,39 +2948,6 @@
         "typology"
       ],
       "article": "/chapters/08_When_does_the_Year_Start/"
-    },
-    {
-      "id": "wilderness-wandering",
-      "title": "Wilderness Wandering",
-      "type": "biblical-event",
-      "description": "Israel wanders in the wilderness for 40 years, eating manna until they enter the Promised Land.",
-      "start": {
-        "event": "exodus-from-egypt"
-      },
-      "duration": {
-        "value": 40,
-        "unit": "lunar_years"
-      },
-      "end": {
-        "event": "manna-ceases"
-      },
-      "certainty": "high",
-      "sources": [
-        {
-          "ref": "Numbers 14:33-34",
-          "type": "scripture"
-        },
-        {
-          "ref": "Exodus 16:35",
-          "type": "scripture",
-          "quote": "And the children of Israel did eat manna forty years, until they came to a land inhabited"
-        }
-      ],
-      "tags": [
-        "wilderness",
-        "manna",
-        "40-years"
-      ]
     },
     {
       "id": "manna-ceases",

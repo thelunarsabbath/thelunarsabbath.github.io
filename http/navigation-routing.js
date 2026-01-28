@@ -957,6 +957,10 @@ function navigateTo(page) {
     if (typeof cleanupBiblicalTimeline === 'function') {
       cleanupBiblicalTimeline();
     }
+    // Close the detail slideout panel if open
+    if (typeof closeDetailPanel === 'function') {
+      closeDetailPanel();
+    }
   }
   
   switch(page) {

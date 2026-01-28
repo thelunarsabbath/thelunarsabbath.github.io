@@ -322,22 +322,49 @@ function parsePathURL() {
     return { view: 'feasts', segments: segments.slice(1) };
   }
   if (segments[0] === 'biblical-timeline') {
-    // Handle standalone biblical-timeline URL
-    return { view: 'biblical-timeline', profile: 'time-tested' };
+    // Handle standalone biblical-timeline URL with optional event/duration
+    const result = { view: 'biblical-timeline', profile: 'time-tested' };
+    // Check for /biblical-timeline/event/id or /biblical-timeline/duration/id
+    if (segments.length >= 3) {
+      if (segments[1] === 'event') {
+        result.eventId = segments[2];
+      } else if (segments[1] === 'duration') {
+        result.durationId = segments[2];
+      }
+    }
+    return result;
   }
   
   // Check if the last segment is "priestly", "events", or "biblical-timeline" - these can be appended to any calendar URL
   const hasPriestlyView = segments[segments.length - 1] === 'priestly';
   const hasEventsView = segments[segments.length - 1] === 'events';
-  const hasBiblicalTimelineView = segments[segments.length - 1] === 'biblical-timeline';
+  
+  // Check for biblical-timeline with optional event/duration deep link
+  // Format: .../biblical-timeline/ or .../biblical-timeline/event/id or .../biblical-timeline/duration/id
+  let hasBiblicalTimelineView = false;
+  let timelineEventId = null;
+  let timelineDurationId = null;
+  
+  const btIndex = segments.indexOf('biblical-timeline');
+  if (btIndex !== -1) {
+    hasBiblicalTimelineView = true;
+    // Check for event/duration after biblical-timeline
+    if (segments.length > btIndex + 2) {
+      if (segments[btIndex + 1] === 'event') {
+        timelineEventId = segments[btIndex + 2];
+      } else if (segments[btIndex + 1] === 'duration') {
+        timelineDurationId = segments[btIndex + 2];
+      }
+    }
+    // Remove biblical-timeline and any sub-paths from segments
+    segments = segments.slice(0, btIndex);
+  }
+  
   if (hasPriestlyView) {
     segments = segments.slice(0, -1); // Remove 'priestly' from segments for normal parsing
   }
   if (hasEventsView) {
     segments = segments.slice(0, -1); // Remove 'events' from segments for normal parsing
-  }
-  if (hasBiblicalTimelineView) {
-    segments = segments.slice(0, -1); // Remove 'biblical-timeline' from segments for normal parsing
   }
   
   // Handle Gregorian date lookup: /gregorian/year/month/day/
@@ -539,6 +566,12 @@ function parsePathURL() {
   // Add biblical timeline view flag if URL ended with /biblical-timeline/
   if (hasBiblicalTimelineView) {
     result.view = 'biblical-timeline';
+    if (timelineEventId) {
+      result.timelineEventId = timelineEventId;
+    }
+    if (timelineDurationId) {
+      result.timelineDurationId = timelineDurationId;
+    }
   }
   
   return result;
@@ -663,6 +696,21 @@ function loadFromURL() {
       generateCalendar();
     }
     navigateTo('biblical-timeline');
+    
+    // Open specific event or duration if specified in URL
+    if (urlState.timelineEventId) {
+      setTimeout(() => {
+        if (typeof openEventDetail === 'function') {
+          openEventDetail(urlState.timelineEventId);
+        }
+      }, 500); // Allow timeline to initialize first
+    } else if (urlState.timelineDurationId) {
+      setTimeout(() => {
+        if (typeof openDurationDetail === 'function') {
+          openDurationDetail(urlState.timelineDurationId);
+        }
+      }, 500);
+    }
     return;
   }
   

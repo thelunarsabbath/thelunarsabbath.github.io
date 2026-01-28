@@ -6089,6 +6089,11 @@ body.biblical-timeline-open {
   overflow: hidden !important;
 }
 
+/* Full-width nav when timeline is open */
+body.biblical-timeline-open .top-nav-inner {
+  max-width: 100%;
+}
+
 .events-page {
   position: fixed;
   top: 0;
@@ -6110,7 +6115,7 @@ body.biblical-timeline-open {
 }
 
 .events-header-inner {
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 16px 20px;
   display: flex;
@@ -6146,7 +6151,7 @@ body.biblical-timeline-open {
 
 .events-page-content {
   padding: 20px;
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -6709,10 +6714,10 @@ body.biblical-timeline-open {
   }
 }
 
-/* Biblical Timeline Page */
+/* Biblical Timeline Page - positioned below main nav */
 .biblical-timeline-page {
   position: fixed;
-  top: 0;
+  top: 56px; /* Height of top-nav */
   left: 0;
   right: 0;
   bottom: 0;
@@ -6725,14 +6730,9 @@ body.biblical-timeline-open {
   flex-direction: column;
 }
 
+/* Hide the biblical timeline's own header - main nav is visible */
 .biblical-timeline-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
-  background: rgba(0,0,0,0.3);
-  border-bottom: 1px solid rgba(126, 200, 227, 0.2);
-  flex-shrink: 0;
+  display: none;
 }
 
 .biblical-timeline-header h2 {
@@ -6783,14 +6783,48 @@ body.biblical-timeline-open {
   border-bottom: 1px solid rgba(126, 200, 227, 0.2);
 }
 
+/* Controls panel - fixed bottom left with zoom and filters */
+.timeline-controls-panel {
+  position: fixed;
+  bottom: 20px;
+  left: 2px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
+  z-index: 8000;
+}
+
+/* Zoom controls - stacked vertically */
+.timeline-zoom-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(26, 26, 46, 0.9);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(126, 200, 227, 0.2);
+}
+
+/* Filter controls - horizontal row next to zoom */
+.timeline-filter-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  background: rgba(26, 26, 46, 0.9);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(126, 200, 227, 0.2);
+}
+
 .timeline-zoom-btn {
   background: rgba(126, 200, 227, 0.2);
   border: 1px solid rgba(126, 200, 227, 0.4);
   color: #7ec8e3;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 6px;
-  font-size: 1.2em;
+  font-size: 1.1em;
   font-weight: bold;
   cursor: pointer;
   display: flex;
@@ -6802,7 +6836,11 @@ body.biblical-timeline-open {
 .timeline-zoom-btn:hover {
   background: rgba(126, 200, 227, 0.3);
   border-color: rgba(126, 200, 227, 0.6);
-  transform: scale(1.1);
+  transform: scale(1.05);
+}
+
+.timeline-zoom-btn:active {
+  transform: scale(0.95);
 }
 
 /* Ruler-style Timeline - Events stacked on right, connected by lines */
@@ -6834,15 +6872,44 @@ body.biblical-timeline-open {
   font-weight: 500;
 }
 
+/* Timeline Filter Buttons */
+.timeline-filter-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline-filter-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0.8;
+}
+
+.timeline-filter-btn.active {
+  background: rgba(74, 158, 255, 0.3);
+  border-color: rgba(74, 158, 255, 0.5);
+  opacity: 1;
+}
+
 /* Timeline Ruler (left side with year labels) */
 .timeline-ruler {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 45px;
+  width: 35px;
   z-index: 10;
   pointer-events: none;
+  overflow: visible;
 }
 
 .ruler-tick {
@@ -6858,61 +6925,62 @@ body.biblical-timeline-open {
   height: 2px;
   background: rgba(126, 200, 227, 0.6);
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 /* Major tick lines (labeled intervals) */
 .ruler-tick-line.major {
-  width: 20px;
+  width: 8px;
   height: 2px;
   background: rgba(126, 200, 227, 1);
 }
 
 /* Medium tick lines (50-year intervals) */
 .ruler-tick-line.medium {
-  width: 14px;
+  width: 6px;
   height: 2px;
   background: rgba(126, 200, 227, 0.7);
 }
 
 /* Minor tick lines (10-year intervals) */
 .ruler-tick-line.minor {
-  width: 10px;
-  height: 2px;
+  width: 4px;
+  height: 1px;
   background: rgba(126, 200, 227, 0.5);
 }
 
 /* Yearly tick lines (1-year intervals) */
 .ruler-tick-line.yearly {
-  width: 6px;
+  width: 2px;
   height: 1px;
   background: rgba(126, 200, 227, 0.4);
 }
 
-/* Monthly tick lines - shorter than year ticks */
+/* Monthly tick lines */
 .ruler-tick-line.month {
-  width: 8px;
+  width: 4px;
   height: 1px;
   background: rgba(212, 160, 23, 0.8);
 }
 
 /* Weekly tick lines */
 .ruler-tick-line.week {
-  width: 4px;
+  width: 3px;
   height: 1px;
   background: rgba(212, 160, 23, 0.6);
 }
 
 /* Daily tick lines */
 .ruler-tick-line.day {
-  width: 3px;
+  width: 2px;
   height: 1px;
   background: rgba(212, 160, 23, 0.4);
 }
 
-/* Lunar calendar bars - after year ruler */
+/* Lunar calendar bars - after axis line */
 .lunar-bars-container {
   position: absolute;
-  left: 45px; /* After year ruler */
+  left: 35px; /* After axis (33) + axis width (2) */
   top: 0;
   width: 10px; /* 5px lunar years + 5px lunar months */
   bottom: 0;
@@ -6962,7 +7030,7 @@ body.biblical-timeline-open {
 /* Duration event bars */
 .duration-bars-container {
   position: absolute;
-  left: 60px; /* After ruler (45) + lunar bars (10) + axis (5) */
+  /* left position set dynamically via inline style */
   top: 0;
   bottom: 0;
   z-index: 2;
@@ -6989,6 +7057,13 @@ body.biblical-timeline-open {
   box-shadow: 0 0 6px rgba(255,255,255,0.4);
 }
 
+.duration-event-bar.selected {
+  background-color: #f0c040 !important;
+  border: 2px solid #fff !important;
+  box-shadow: 0 0 12px rgba(240, 192, 64, 0.8), 0 0 20px rgba(255, 255, 255, 0.4);
+  z-index: 100;
+}
+
 .duration-event-text {
   writing-mode: vertical-rl;
   text-orientation: mixed;
@@ -7010,25 +7085,27 @@ body.biblical-timeline-open {
   flex-direction: column;
   align-items: center;
   color: #7ec8e3;
-  font-size: 0.65em;
+  font-size: 0.7em;
   font-weight: 500;
   line-height: 1.1;
-  padding-right: 2px;
+  padding-right: 4px;
+  white-space: nowrap;
 }
 
 .ruler-tick-label .year-num {
-  font-size: 1.1em;
+  font-size: 1.2em;
+  font-weight: 500;
 }
 
 .ruler-tick-label .year-era {
-  font-size: 0.9em;
-  opacity: 0.8;
+  font-size: 0.95em;
+  opacity: 0.85;
 }
 
-/* Timeline axis line - after lunar bars */
+/* Timeline axis line - slightly inside ruler */
 .timeline-axis-line {
   position: absolute;
-  left: 55px; /* After ruler (45) + lunar bars (10) */
+  left: 33px; /* 2px inside ruler edge - JS overrides */
   top: 0;
   bottom: 0;
   width: 2px;
@@ -7334,7 +7411,7 @@ body.biblical-timeline-open {
 
 /* Mobile Responsive */
 @media (max-width: 600px) {
-  .biblical-timeline-header h2 {
-    font-size: 1em;
+  .biblical-timeline-page {
+    top: 48px; /* Smaller nav on mobile */
   }
 }

@@ -9,16 +9,105 @@ This schema defines the structure for biblical and historical events used throug
 3. **Sabbath testing** - Validating calendar theories against known events
 4. **Cross-referencing** - Linking events to chapters, articles, and related events
 
-## Core Principle: Source Data vs Computed Data
+## Core Principle: Events and Durations
+
+The chronological data is structured like a **spreadsheet** where:
+- **Events** = Points in time (cells with values or formulas)
+- **Durations** = Relationships between events (formulas linking cells)
+
+### Events (Points in Time)
+
+Each event represents a specific moment with either:
+- **Stipulated date** (white in debug table) - Directly specified lunar date
+- **Calculated date** (blue in debug table) - Derived from another event via duration
+
+**Primary calendar:** Lunar (month/day/year)  
+**Secondary calendar:** Gregorian (always calculated from Julian Day)
+
+### Durations (Evidence/Testimony)
+
+The `durations` array contains **lines of evidence** - claims from sources about the time between events.
+
+**Key distinction:**
+- **Events table** = The math we're actually doing (contains `relative` formulas)
+- **Durations table** = Documentary evidence for that math (can have multiple per event pair)
+
+```
+Event B = Event A ± Duration (defined in event.start.relative)
+Duration record = testimony that A to B is X years (validation)
+```
+
+**Validation process:**
+1. Resolver calculates events using their `relative` formulas
+2. For each duration, compare `claimed` offset to actual calculated difference
+3. Mismatches flag errors in original testimony ("doesn't overlap")
+
+Multiple durations can point to same event pair (cross-validation).
+
+### Durations Schema
+
+```json
+{
+  "durations": [
+    {
+      "id": "josephus-pompey-herod-27y",
+      "title": "Pompey to Herod: 27 Years",
+      "from_event": "pompey-takes-jerusalem",
+      "to_event": "herod-takes-jerusalem",
+      "claimed": { 
+        "years": 27,
+        "months": 0,
+        "days": 0,
+        "approximate": false,
+        "reckoning": "lunar"
+      },
+      "source": {
+        "ref": "Josephus, Antiquities 14.16.4",
+        "type": "historical|scripture|astronomical|chronological",
+        "quote": "after twenty-seven years' time"
+      },
+      "doc": "_durations/pompey-to-herod-jerusalem.md",
+      "validates": true,
+      "notes": "Optional clarification"
+    }
+  ]
+}
+```
+
+**Fields:**
+| Field | Required | Description |
+|-------|----------|-------------|
+| `id` | Yes | Unique identifier |
+| `title` | Yes | Human-readable title |
+| `from_event` | Yes | Start event ID |
+| `to_event` | Yes | End event ID |
+| `claimed` | Yes | The claimed offset (years/months/days) |
+| `source` | Yes | Citation with ref, type, and quote |
+| `doc` | No | Link to markdown documentation |
+| `validates` | No | Secondary validation source (not primary) |
+| `notes` | No | Clarification or discrepancy notes |
+
+### Date Anchors
+
+Some dates are **fixed anchors** (astronomically or historically attested):
+- Eclipses (e.g., Jan 10, 1 BC lunar eclipse before Herod's death)
+- Astronomical tablets (e.g., VAT 4956 for Nebuchadnezzar's 37th year)
+- Roman records (e.g., Tiberius accession Sept 17, 14 AD)
+
+All other dates are **derived** through duration chains back to these anchors.
+
+---
+
+## Data vs Computed Values
 
 The JSON stores **source data** - what scripture or history actually states. The application **computes** Julian Day numbers at runtime based on the user's calendar profile settings.
 
 ### Date Certainty Levels
 
-1. **Fixed Julian/Gregorian** - Astronomically or historically attested (e.g., eclipses, Roman records)
-2. **Fixed Lunar** - Scripture gives lunar month/day, year may be fixed or derived
-3. **Relative** - Defined by offset from another event
-4. **Derived** - Calculated from duration + start point
+1. **Fixed Gregorian** - Astronomically attested (eclipses, astronomical tablets)
+2. **Fixed Lunar** - Scripture gives complete lunar date (month/day/year)
+3. **Relative** - Defined by offset from another event (duration formula)
+4. **Partial Lunar** - Month/day known, year derived from reference chain
 
 ---
 
@@ -83,6 +172,7 @@ The JSON stores **source data** - what scripture or history actually states. The
   },
   
   "certainty": "high",
+  "priority": 1,
   "sources": [
     {
       "ref": "Genesis 7:11",

@@ -181,6 +181,10 @@ function lunationForJD(jd, profile) {
   return Math.floor((adjustedJD - referenceJD) / SYNODIC_MONTH);
 }
 
+// Track iterations to detect runaway calculations
+let _resolverIterationCount = 0;
+const MAX_RESOLVER_ITERATIONS = 10000;
+
 /**
  * Convert lunar date to Julian Day
  * Uses astronomy engine for accurate calculations when available
@@ -190,13 +194,30 @@ function lunationForJD(jd, profile) {
  * @returns {number} Julian Day Number
  */
 function lunarToJulianDay(lunar, gregorianYear, profile) {
+  // Track iterations
+  _resolverIterationCount++;
+  if (_resolverIterationCount > MAX_RESOLVER_ITERATIONS) {
+    throw new Error(`Resolver exceeded ${MAX_RESOLVER_ITERATIONS} iterations - possible infinite loop`);
+  }
+  
   const year = lunar.year !== undefined ? lunar.year : gregorianYear;
+  
+  // Default month/day to 1 if not specified (year-only lunar date)
+  const month = lunar.month !== undefined ? lunar.month : 1;
+  const day = lunar.day !== undefined ? lunar.day : 1;
+  
+  // Create normalized lunar object with defaults
+  const normalizedLunar = { year, month, day };
+  
+  // TEMPORARILY DISABLED: Astronomy engine is too slow for bulk resolution
+  // Skip directly to fallback calculation
+  const USE_ASTRONOMY_ENGINE = false;
   
   // Try to use the astronomy engine for accurate moon phase calculation
   // Only for years within the Swiss Ephemeris range (~3000 BC to present)
   const MIN_ASTRO_YEAR = -3000;
   
-  if (year >= MIN_ASTRO_YEAR && typeof findMoonEvents === 'function' && typeof getYearStartPoint === 'function' && typeof state !== 'undefined') {
+  if (USE_ASTRONOMY_ENGINE && year >= MIN_ASTRO_YEAR && typeof findMoonEvents === 'function' && typeof getYearStartPoint === 'function' && typeof state !== 'undefined') {
     try {
       // Map resolver profile to calendar state settings
       const moonPhaseMap = {
@@ -247,14 +268,14 @@ function lunarToJulianDay(lunar, gregorianYear, profile) {
         if (!nissanMoon) nissanMoon = moonEvents[0];
         
         // Get the target month's moon event (month 1 = Nisan = index 0)
-        const monthIndex = lunar.month - 1;
+        const monthIndex = normalizedLunar.month - 1;
         const nissanIndex = moonEvents.indexOf(nissanMoon);
         const targetMoonIndex = nissanIndex + monthIndex;
         
         if (targetMoonIndex < moonEvents.length) {
           const monthStart = moonEvents[targetMoonIndex];
           // monthStart is a Date object, convert to JD
-          const jd = dateToJulianDay(monthStart) + (lunar.day - 1);
+          const jd = dateToJulianDay(monthStart) + (normalizedLunar.day - 1);
           
           // Restore state
           Object.assign(state, savedState);
@@ -280,9 +301,9 @@ function lunarToJulianDay(lunar, gregorianYear, profile) {
   }
   
   const yearStartLunation = lunationForJD(yearStartApprox, profile);
-  const targetLunation = yearStartLunation + (lunar.month - 1);
+  const targetLunation = yearStartLunation + (normalizedLunar.month - 1);
   const monthStartJD = newMoonJD(targetLunation, profile);
-  let jd = monthStartJD + (lunar.day - 1);
+  let jd = monthStartJD + (normalizedLunar.day - 1);
   
   // Adjust for time of day
   if (lunar.time_of_day) {
@@ -485,6 +506,7 @@ function applyDuration(startJD, duration, profile) {
     case 'solar_years':
       return startJD + (value * 365.2422);
       
+    case 'years':
     case 'lunar_years': {
       // For lunar year durations:
       // 1. Convert the start JD to a lunar date (month, day, year)
@@ -719,19 +741,54 @@ function resolveEvent(event, profile, epochs, context = null) {
     });
   }
   
+  // Calculate resolved gregorian dates from JD
+  let resolvedStartGreg = null;
+  let resolvedEndGreg = null;
+  
+  if (startJD !== null && isFinite(startJD)) {
+    resolvedStartGreg = julianDayToGregorian(startJD);
+  }
+  
+  if (endJD !== null && isFinite(endJD)) {
+    resolvedEndGreg = julianDayToGregorian(endJD);
+  }
+  
   const result = {
+    // Identity
     id: event.id,
     title: event.title,
     type: event.type,
+    
+    // TOP-LEVEL JD values for backward compatibility with resolver chain
     startJD,
     endJD,
+    
+    // SOURCE DATA (stipulated - exactly as provided in JSON)
+    source: {
+      start: event.start || null,
+      end: event.end || null,
+      duration: event.duration || null
+    },
+    
+    // RESOLVED DATA (calculated from source)
+    // Note: Lunar dates require full calendar profile and are NOT reverse-calculated here
+    resolved: {
+      startJD,
+      endJD,
+      startGregorian: resolvedStartGreg,
+      endGregorian: resolvedEndGreg,
+      durationDays: (startJD !== null && endJD !== null) ? (endJD - startJD) : null
+    },
+    
+    // Prophecies (each with their own resolved dates)
     prophecies,
-    // Include useful metadata
+    
+    // Metadata (passed through from source)
     certainty: event.certainty,
     tags: event.tags,
     anniversary_display: event.anniversary_display,
-    // Include duration info for display
-    duration: event.duration
+    description: event.description,
+    sources: event.sources
   };
   
   // Cache result
@@ -749,6 +806,9 @@ function resolveEvent(event, profile, epochs, context = null) {
  * @returns {object[]} Array of resolved events
  */
 function resolveAllEvents(data, profile) {
+  // Reset iteration counter
+  _resolverIterationCount = 0;
+  
   const epochs = data.epochs || {};
   const events = data.events || [];
   

@@ -1539,6 +1539,11 @@ function getBibleEvents(month, day, gregorianYear = null) {
           const endYear = parseInt(parts[1]);
           return gregorianYear >= startYear && gregorianYear <= endYear;
         }
+        // Check for moon phase conditions (e.g., "moonPhase_full", "moonPhase_dark", "moonPhase_crescent")
+        if (event.condition.startsWith('moonPhase_')) {
+          const requiredPhase = event.condition.substring(10);
+          return state.moonPhase === requiredPhase;
+        }
         return false; // Unknown condition, don't show
     }
   });

@@ -310,6 +310,141 @@
   },
   {
     "month": 11,
+    "day": 1,
+    "title": "Joshua's Long Day — Sun & Moon Stand Still",
+    "description": "During Israel's battle against the Amorite coalition, Joshua commanded: 'Sun, stand thou still upon Gibeon; and thou, Moon, in the valley of Aijalon.' The Book of Jasher (88:63-64) specifies this lasted 36 moments (~36 minutes). The date requires a full moon, which falls on Day 1 when using a full moon month start.",
+    "verse": "Joshua 10:12-14; Jasher 88:63-64",
+    "quote": "And the sun stood still, and the moon stayed, until the people had avenged themselves upon their enemies... So the sun stood still in the midst of heaven, and hasted not to go down about a whole day.",
+    "condition": "moonPhase_full",
+    "image": "/assets/img/LongDay.jpg",
+    "detailsTitle": "The 'Long Day' Reinterpreted",
+    "details": [
+      {
+        "heading": "God's Covenant: Day and Night Shall Not Cease",
+        "text": "Genesis 8:22 declares: 'While the earth remaineth, seedtime and harvest, and cold and heat, and summer and winter, and day and night shall not cease.' A literal stopping of the sun and moon would break God's own unbreakable word. This covenant constrains interpretation toward a phenomenological reading rather than supernatural physics."
+      },
+      {
+        "heading": "36 Moments: The Book of Jasher's Detail",
+        "text": "The surviving Book of Jasher (88:63-64), referenced by Joshua's rhetorical question 'Is not this written in the book of Jasher?', specifies the phenomenon lasted about 36 moments (roughly 36 minutes). This brief but noticeable extension fits an observable astronomical event, not an Earth-stopping miracle requiring hours."
+      },
+      {
+        "heading": "The Sunset Transition: Day Becoming 'Whole'",
+        "text": "As evening approached during the battle, the sun was low in the west over Aijalon valley, nearing sunset—the point where the day's 'complete' (tamim) cycle ends and authority symbolically shifts to the moon's rule over night. The day only becomes 'whole' once the sun sets. By lingering longer than normal in its descent, the sun postponed this completion, allowing extra usable daylight."
+      },
+      {
+        "heading": "Waxing Gibbous Moon Rising Early",
+        "text": "The moon, in a waxing gibbous phase (almost full but not quite at opposition), rose in the east slightly earlier than usual relative to the sun's position, signaling the impending start of its nocturnal dominion. Joshua's command for both to 'stand still' poetically captures this moment: the sun did not hasten to set, delaying the handover for about 36 minutes."
+      },
+      {
+        "heading": "Hebrew 'Damam' — Be Silent, Cease Activity",
+        "text": "The Hebrew word translated 'stand still' (דָּמַם, damam) often means 'be silent' or 'cease activity' in figurative contexts (cf. Psalms). This is strikingly similar to Revelation 8:1: 'There was silence in heaven for about half an hour.' Both describe celestial bodies being 'still' as an omen—not physical stoppage."
+      },
+      {
+        "heading": "ANE Poetic Battle Language",
+        "text": "This is an observable natural alignment—lunar rise timing relative to sunset during certain phases—described in heightened, phenomenological language typical of Ancient Near Eastern battle reports and poetry (as sourced from the Book of Jasher, a collection of heroic songs). The rhetorical question inviting readers to check Jasher underscores it as a documented, real occurrence."
+      },
+      {
+        "heading": "Providence Through Celestial Mechanics",
+        "text": "This interpretation recognizes God's providence working through ordinary celestial mechanics timed precisely for the battle's needs—not myth or miracle in the supernatural physics sense, but divine orchestration of natural events. It preserves Scripture's integrity while honoring God's covenant that day and night shall not cease."
+      },
+      {
+        "heading": "Seasonal Timing: Peak Hail Season",
+        "text": "The horizon angles indicate the 10th or 11th month (winter in Israel). This aligns with peak hail season—and Scripture records that hail killed more enemies than Israel's army in this battle (Joshua 10:11), confirming the winter timing."
+      }
+    ]
+  },
+  {
+    "month": 11,
+    "day": 14,
+    "title": "Joshua's Long Day — Sun & Moon Stand Still",
+    "description": "During Israel's battle against the Amorite coalition, Joshua commanded: 'Sun, stand thou still upon Gibeon; and thou, Moon, in the valley of Aijalon.' The Book of Jasher (88:63-64) specifies this lasted 36 moments (~36 minutes). The date requires a full moon, which falls on Day 14 when using a crescent moon month start.",
+    "verse": "Joshua 10:12-14; Jasher 88:63-64",
+    "quote": "And the sun stood still, and the moon stayed, until the people had avenged themselves upon their enemies... So the sun stood still in the midst of heaven, and hasted not to go down about a whole day.",
+    "condition": "moonPhase_crescent",
+    "image": "/assets/img/LongDay.jpg",
+    "detailsTitle": "The 'Long Day' Reinterpreted",
+    "details": [
+      {
+        "heading": "God's Covenant: Day and Night Shall Not Cease",
+        "text": "Genesis 8:22 declares: 'While the earth remaineth, seedtime and harvest, and cold and heat, and summer and winter, and day and night shall not cease.' A literal stopping of the sun and moon would break God's own unbreakable word. This covenant constrains interpretation toward a phenomenological reading rather than supernatural physics."
+      },
+      {
+        "heading": "36 Moments: The Book of Jasher's Detail",
+        "text": "The surviving Book of Jasher (88:63-64), referenced by Joshua's rhetorical question 'Is not this written in the book of Jasher?', specifies the phenomenon lasted about 36 moments (roughly 36 minutes). This brief but noticeable extension fits an observable astronomical event, not an Earth-stopping miracle requiring hours."
+      },
+      {
+        "heading": "The Sunset Transition: Day Becoming 'Whole'",
+        "text": "As evening approached during the battle, the sun was low in the west over Aijalon valley, nearing sunset—the point where the day's 'complete' (tamim) cycle ends and authority symbolically shifts to the moon's rule over night. The day only becomes 'whole' once the sun sets. By lingering longer than normal in its descent, the sun postponed this completion, allowing extra usable daylight."
+      },
+      {
+        "heading": "Waxing Gibbous Moon Rising Early",
+        "text": "The moon, in a waxing gibbous phase (almost full but not quite at opposition), rose in the east slightly earlier than usual relative to the sun's position, signaling the impending start of its nocturnal dominion. Joshua's command for both to 'stand still' poetically captures this moment: the sun did not hasten to set, delaying the handover for about 36 minutes."
+      },
+      {
+        "heading": "Hebrew 'Damam' — Be Silent, Cease Activity",
+        "text": "The Hebrew word translated 'stand still' (דָּמַם, damam) often means 'be silent' or 'cease activity' in figurative contexts (cf. Psalms). This is strikingly similar to Revelation 8:1: 'There was silence in heaven for about half an hour.' Both describe celestial bodies being 'still' as an omen—not physical stoppage."
+      },
+      {
+        "heading": "ANE Poetic Battle Language",
+        "text": "This is an observable natural alignment—lunar rise timing relative to sunset during certain phases—described in heightened, phenomenological language typical of Ancient Near Eastern battle reports and poetry (as sourced from the Book of Jasher, a collection of heroic songs). The rhetorical question inviting readers to check Jasher underscores it as a documented, real occurrence."
+      },
+      {
+        "heading": "Providence Through Celestial Mechanics",
+        "text": "This interpretation recognizes God's providence working through ordinary celestial mechanics timed precisely for the battle's needs—not myth or miracle in the supernatural physics sense, but divine orchestration of natural events. It preserves Scripture's integrity while honoring God's covenant that day and night shall not cease."
+      },
+      {
+        "heading": "Seasonal Timing: Peak Hail Season",
+        "text": "The horizon angles indicate the 10th or 11th month (winter in Israel). This aligns with peak hail season—and Scripture records that hail killed more enemies than Israel's army in this battle (Joshua 10:11), confirming the winter timing."
+      }
+    ]
+  },
+  {
+    "month": 11,
+    "day": 15,
+    "title": "Joshua's Long Day — Sun & Moon Stand Still",
+    "description": "During Israel's battle against the Amorite coalition, Joshua commanded: 'Sun, stand thou still upon Gibeon; and thou, Moon, in the valley of Aijalon.' The Book of Jasher (88:63-64) specifies this lasted 36 moments (~36 minutes). The date requires a full moon, which falls on Day 15 when using a dark moon month start.",
+    "verse": "Joshua 10:12-14; Jasher 88:63-64",
+    "quote": "And the sun stood still, and the moon stayed, until the people had avenged themselves upon their enemies... So the sun stood still in the midst of heaven, and hasted not to go down about a whole day.",
+    "condition": "moonPhase_dark",
+    "image": "/assets/img/LongDay.jpg",
+    "detailsTitle": "The 'Long Day' Reinterpreted",
+    "details": [
+      {
+        "heading": "God's Covenant: Day and Night Shall Not Cease",
+        "text": "Genesis 8:22 declares: 'While the earth remaineth, seedtime and harvest, and cold and heat, and summer and winter, and day and night shall not cease.' A literal stopping of the sun and moon would break God's own unbreakable word. This covenant constrains interpretation toward a phenomenological reading rather than supernatural physics."
+      },
+      {
+        "heading": "36 Moments: The Book of Jasher's Detail",
+        "text": "The surviving Book of Jasher (88:63-64), referenced by Joshua's rhetorical question 'Is not this written in the book of Jasher?', specifies the phenomenon lasted about 36 moments (roughly 36 minutes). This brief but noticeable extension fits an observable astronomical event, not an Earth-stopping miracle requiring hours."
+      },
+      {
+        "heading": "The Sunset Transition: Day Becoming 'Whole'",
+        "text": "As evening approached during the battle, the sun was low in the west over Aijalon valley, nearing sunset—the point where the day's 'complete' (tamim) cycle ends and authority symbolically shifts to the moon's rule over night. The day only becomes 'whole' once the sun sets. By lingering longer than normal in its descent, the sun postponed this completion, allowing extra usable daylight."
+      },
+      {
+        "heading": "Waxing Gibbous Moon Rising Early",
+        "text": "The moon, in a waxing gibbous phase (almost full but not quite at opposition), rose in the east slightly earlier than usual relative to the sun's position, signaling the impending start of its nocturnal dominion. Joshua's command for both to 'stand still' poetically captures this moment: the sun did not hasten to set, delaying the handover for about 36 minutes."
+      },
+      {
+        "heading": "Hebrew 'Damam' — Be Silent, Cease Activity",
+        "text": "The Hebrew word translated 'stand still' (דָּמַם, damam) often means 'be silent' or 'cease activity' in figurative contexts (cf. Psalms). This is strikingly similar to Revelation 8:1: 'There was silence in heaven for about half an hour.' Both describe celestial bodies being 'still' as an omen—not physical stoppage."
+      },
+      {
+        "heading": "ANE Poetic Battle Language",
+        "text": "This is an observable natural alignment—lunar rise timing relative to sunset during certain phases—described in heightened, phenomenological language typical of Ancient Near Eastern battle reports and poetry (as sourced from the Book of Jasher, a collection of heroic songs). The rhetorical question inviting readers to check Jasher underscores it as a documented, real occurrence."
+      },
+      {
+        "heading": "Providence Through Celestial Mechanics",
+        "text": "This interpretation recognizes God's providence working through ordinary celestial mechanics timed precisely for the battle's needs—not myth or miracle in the supernatural physics sense, but divine orchestration of natural events. It preserves Scripture's integrity while honoring God's covenant that day and night shall not cease."
+      },
+      {
+        "heading": "Seasonal Timing: Peak Hail Season",
+        "text": "The horizon angles indicate the 10th or 11th month (winter in Israel). This aligns with peak hail season—and Scripture records that hail killed more enemies than Israel's army in this battle (Joshua 10:11), confirming the winter timing."
+      }
+    ]
+  },
+  {
+    "month": 11,
     "day": 24,
     "title": "Vision to Zechariah",
     "description": "On the twenty-fourth day of the eleventh month in Darius's second year, Zechariah receives visions symbolizing God's plans for Jerusalem and Israel.",

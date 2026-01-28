@@ -722,6 +722,11 @@ function showDayDetail(dayObj, month) {
       } else if (event.condition && event.condition.startsWith('year_')) {
         conditionBadge = '<span class="event-condition-badge historical-event-badge" title="Historical event that occurred in this specific year">📅 Historical Event</span>';
         eventClass = ' historical-event';
+      } else if (event.condition && event.condition.startsWith('moonPhase_')) {
+        const phase = event.condition.substring(10);
+        const phaseLabel = phase === 'full' ? 'Full Moon' : phase === 'dark' ? 'Dark Moon' : 'Crescent';
+        conditionBadge = `<span class="event-condition-badge moonphase-event-badge" title="This event requires a full moon — date varies by month start rule (${phaseLabel} = Day ${dayObj.lunarDay})">🌕 Full Moon Event</span>`;
+        eventClass = ' moonphase-event';
       }
       
       // Extract context citation (book + chapter) from verse reference for "v. X" style references
@@ -782,12 +787,19 @@ function showDayDetail(dayObj, month) {
         `;
       }
       
+      // Add image if present
+      let imageHtml = '';
+      if (event.image) {
+        imageHtml = `<div class="bible-event-image"><img src="${event.image}" alt="${event.title}" onclick="window.open('${event.image}', '_blank')"></div>`;
+      }
+      
       eventsHtml += `
         <div class="bible-event-item${eventClass}">
           ${conditionBadge}
           <div class="bible-event-title">${event.title}</div>
           <div class="bible-event-description">${linkedDescription}</div>
           ${quoteHtml}
+          ${imageHtml}
           ${detailsHtml}
           <div class="bible-event-verse">${verseLink}</div>
           ${bookLinkHtml}

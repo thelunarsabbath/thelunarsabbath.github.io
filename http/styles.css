@@ -3924,6 +3924,17 @@ body.sabbath-tester-open {
   background: rgba(126, 200, 227, 0.1);
 }
 
+/* Moon phase event styling */
+.bible-event-item.moonphase-event {
+  border-left-color: #f0e68c;
+  background: rgba(240, 230, 140, 0.1);
+}
+
+.moonphase-event-badge {
+  background: rgba(240, 230, 140, 0.2);
+  border: 1px solid rgba(240, 230, 140, 0.4);
+}
+
 /* Scripture quote in bible events */
 .bible-event-quote {
   margin: 12px 0;
@@ -3935,6 +3946,26 @@ body.sabbath-tester-open {
   color: #e8dcc8;
   line-height: 1.6;
   font-size: 0.95em;
+}
+
+/* Bible event image */
+.bible-event-image {
+  margin: 12px 0;
+  text-align: center;
+}
+
+.bible-event-image img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  border: 1px solid rgba(126, 200, 227, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.bible-event-image img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(126, 200, 227, 0.3);
 }
 
 /* Book chapter link */

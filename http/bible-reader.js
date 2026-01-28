@@ -8,6 +8,101 @@ const BIBLE_CACHE_KEY = 'kjv_bible_cache';
 let bibleData = null;
 let bibleIndex = {}; // Index by "Book Chapter:Verse" for fast lookup
 
+// Hebrew word annotations - words that have translation ambiguity
+// These add emoji markers that show tooltips explaining the Hebrew
+const HEBREW_ANNOTATIONS = {
+  // Woman/Fire ambiguity: אִשָּׁה (ishah/woman) vs אִשֶּׁה (isheh/fire offering)
+  'woman_fire': {
+    emoji: '🔥',
+    tooltip: "Hebrew Word Ambiguity: Woman or Fire? (See Zechariah 5:5-11)\n\nIn Hebrew, 'woman' (אִשָּׁה, ishah) and 'fire offering' (אִשֶּׁה, isheh) are spelled identically without vowel points—vowels were added later by tradition. The consonantal text allows for an alternate reading."
+  },
+  'lead_payload': {
+    emoji: '☢️',
+    tooltip: "A talent of lead weighs approximately 70 pounds (~32 kg). Combined with the ephah's cylindrical dimensions, this describes a heavy payload in a flying container—remarkably similar to modern missile specifications.\n\nNotably, uranium decays into lead. Lead is often used as shielding for radioactive materials. A 'talent of lead' covering a fire-bringing payload adds another dimension to this prophetic imagery."
+  },
+  'shinar_babylon': {
+    emoji: '🏛️',
+    tooltip: "Shinar is the ancient name for Babylon/Mesopotamia (Genesis 10:10, 11:2). The 'fire offering' is being carried to Babylon—connecting to prophecies of Babylon the Great's destruction by fire (Revelation 18)."
+  }
+};
+
+// Verse-specific word annotations: { "Book Chapter:Verse": [{ word: "...", annotation: "key" }, ...] }
+const VERSE_ANNOTATIONS = {
+  // Zechariah 5:7 - woman in the ephah
+  "Zechariah 5:7": [
+    { word: "woman", annotation: "woman_fire" },
+    { word: "talent of lead", annotation: "lead_payload" }
+  ],
+  // Zechariah 5:9 - women with wings
+  "Zechariah 5:9": [
+    { word: "two women", annotation: "woman_fire" }
+  ],
+  // Zechariah 5:11 - land of Shinar
+  "Zechariah 5:11": [
+    { word: "land of Shinar", annotation: "shinar_babylon" },
+    { word: "woman", annotation: "woman_fire" }
+  ],
+  // Jeremiah 50:37 - upon her mighty men / upon her treasures
+  "Jeremiah 50:37": [
+    { word: "women", annotation: "woman_fire" }
+  ],
+  // Nahum 3:13 - thy people are women
+  "Nahum 3:13": [
+    { word: "women", annotation: "woman_fire" }
+  ]
+};
+
+// Apply annotations to verse text
+function applyVerseAnnotations(reference, text) {
+  const annotations = VERSE_ANNOTATIONS[reference];
+  if (!annotations) return text;
+  
+  let annotatedText = text;
+  for (const ann of annotations) {
+    const info = HEBREW_ANNOTATIONS[ann.annotation];
+    if (!info) continue;
+    
+    // Create clickable emoji that shows tooltip
+    const replacement = `${ann.word}<span class="hebrew-annotation" data-tooltip="${info.tooltip.replace(/"/g, '&quot;')}" onclick="showHebrewTooltip(event)">${info.emoji}</span>`;
+    
+    // Replace first occurrence (case-insensitive)
+    const regex = new RegExp(`\\b${ann.word}\\b`, 'i');
+    annotatedText = annotatedText.replace(regex, replacement);
+  }
+  
+  return annotatedText;
+}
+
+// Show tooltip for Hebrew annotation
+function showHebrewTooltip(event) {
+  event.stopPropagation();
+  const el = event.target;
+  const tooltip = el.dataset.tooltip;
+  
+  // Remove any existing tooltip
+  const existing = document.querySelector('.hebrew-tooltip');
+  if (existing) existing.remove();
+  
+  // Create tooltip
+  const tooltipEl = document.createElement('div');
+  tooltipEl.className = 'hebrew-tooltip';
+  tooltipEl.innerHTML = tooltip.replace(/\n/g, '<br>');
+  document.body.appendChild(tooltipEl);
+  
+  // Position tooltip above the emoji
+  const rect = el.getBoundingClientRect();
+  tooltipEl.style.left = Math.max(10, rect.left - 100) + 'px';
+  tooltipEl.style.top = (rect.top - tooltipEl.offsetHeight - 10 + window.scrollY) + 'px';
+  
+  // Close on click outside
+  setTimeout(() => {
+    document.addEventListener('click', function closeTooltip() {
+      tooltipEl.remove();
+      document.removeEventListener('click', closeTooltip);
+    }, { once: true });
+  }, 10);
+}
+
 // Show/hide Bible loading dialog
 function showBibleLoadingDialog() {
   const dialog = document.getElementById('bible-loading-dialog');
@@ -865,9 +960,11 @@ function displayBibleChapter(bookName, chapter, highlightVerse = null) {
   
   for (const verse of verses) {
     const highlighted = highlightVerse && verse.verse === highlightVerse ? ' highlighted' : '';
+    const reference = `${bookName} ${chapter}:${verse.verse}`;
+    const annotatedText = applyVerseAnnotations(reference, verse.text);
     html += `<div class="bible-explorer-verse${highlighted}" id="verse-${verse.verse}">
       <span class="bible-verse-number" onclick="copyVerseReference('${bookName}', ${chapter}, ${verse.verse})" title="Click to copy reference">${verse.verse}</span>
-      <span class="bible-verse-text">${verse.text}</span>
+      <span class="bible-verse-text">${annotatedText}</span>
     </div>`;
   }
   

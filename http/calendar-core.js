@@ -91,7 +91,7 @@ function updateTopNavProfile() {
   nameEl.textContent = getCurrentProfileName();
 }
 
-// Get event icon for a day cell (📰 for historical, 📜 for biblical, or custom icon)
+// Get event icon for a day cell (📰 for historical, 📜 for biblical, or custom icons)
 function getDayEventIcon(monthNumber, lunarDay, gregorianYear) {
   // Only check if getBibleEvents is available
   if (typeof getBibleEvents !== 'function') return '';
@@ -99,12 +99,25 @@ function getDayEventIcon(monthNumber, lunarDay, gregorianYear) {
   const events = getBibleEvents(monthNumber, lunarDay, gregorianYear);
   if (!events || events.length === 0) return '';
   
-  // Check for custom icons first - use the first one found
-  const customIconEvent = events.find(e => e.icon);
-  if (customIconEvent) {
-    return `<div class="day-event-icon" title="${customIconEvent.title || 'Event on this date'}">${customIconEvent.icon}</div>`;
+  // Collect all unique custom icons from events
+  const customIcons = [];
+  const seenIcons = new Set();
+  const titles = [];
+  
+  for (const event of events) {
+    if (event.icon && !seenIcons.has(event.icon)) {
+      seenIcons.add(event.icon);
+      customIcons.push(event.icon);
+      if (event.title) titles.push(event.title.replace(/^[^\w\s]+\s*/, '')); // Remove leading emoji from title
+    }
   }
   
+  if (customIcons.length > 0) {
+    const title = titles.length > 0 ? titles.join(' • ') : 'Events on this date';
+    return `<div class="day-event-icon" title="${title}">${customIcons.join('')}</div>`;
+  }
+  
+  // Fall back to generic icons if no custom icons
   // Check if any events are historical (year-specific)
   const hasHistorical = events.some(e => e.condition && e.condition.startsWith('year_'));
   // Check if any events are biblical (no condition, cycle-based, or moon phase)

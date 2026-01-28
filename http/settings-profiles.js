@@ -493,6 +493,11 @@ function displayProfileSettings(profileId) {
   
   // Update the map to show this profile's location
   renderSettingsPageMap();
+  
+  // Update default profile checkbox
+  if (typeof updateDefaultProfileCheckbox === 'function') {
+    updateDefaultProfileCheckbox();
+  }
 }
 
 // Profile Management Functions

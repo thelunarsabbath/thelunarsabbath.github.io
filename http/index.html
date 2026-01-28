@@ -269,6 +269,7 @@ title: "Lunar Sabbath Calendar"
       </div>
     </div>
     <div class="top-nav-right">
+      <button id="today-btn" class="today-btn" onclick="event.stopPropagation(); goToToday()" title="Go to today's date using your default profile and current location (GPS if allowed, otherwise IP)">Today ›</button>
       <div id="top-nav-profile" class="top-nav-profile" onclick="toggleProfilePicker()" title="Change calendar profile">
         <span id="top-nav-profile-moon" class="top-nav-profile-moon"></span>
         <span id="top-nav-profile-name" class="top-nav-profile-name"></span>
@@ -704,6 +705,16 @@ title: "Lunar Sabbath Calendar"
           <option value="thursday">Thursday</option>
           <option value="friday">Friday</option>
         </select>
+      </div>
+    </div>
+    
+    <div class="settings-section">
+      <div class="settings-checkbox-row">
+        <label class="settings-checkbox-label">
+          <input type="checkbox" id="make-default-profile" onchange="toggleDefaultProfile(this.checked)">
+          <span class="checkbox-text">Make This Profile Default</span>
+        </label>
+        <span class="settings-checkbox-hint">Used when clicking "Today" button</span>
       </div>
     </div>
     
@@ -2774,6 +2785,118 @@ function saveCustomProfiles() {
     }
   }
   localStorage.setItem('customProfiles', JSON.stringify(customProfiles));
+}
+
+// ============================================================================
+// DEFAULT PROFILE MANAGEMENT
+// ============================================================================
+
+// Get the default profile ID from localStorage
+function getDefaultProfileId() {
+  return localStorage.getItem('defaultProfileId') || 'timeTested';
+}
+
+// Set the default profile ID
+function setDefaultProfileId(profileId) {
+  localStorage.setItem('defaultProfileId', profileId);
+}
+
+// Toggle a profile as the default (called from checkbox)
+function toggleDefaultProfile(checked) {
+  const profileId = editingProfileId || state.selectedProfile;
+  if (checked) {
+    setDefaultProfileId(profileId);
+  } else {
+    // If unchecking, revert to timeTested as default
+    setDefaultProfileId('timeTested');
+  }
+  // Update checkbox state for any other open settings
+  updateDefaultProfileCheckbox();
+}
+
+// Update the checkbox state based on current editing profile
+function updateDefaultProfileCheckbox() {
+  const checkbox = document.getElementById('make-default-profile');
+  if (!checkbox) return;
+  
+  const profileId = editingProfileId || state.selectedProfile;
+  const defaultId = getDefaultProfileId();
+  checkbox.checked = (profileId === defaultId);
+}
+
+// Go to today's date using default profile and current location (GPS preferred, IP fallback)
+async function goToToday() {
+  // Apply default profile settings first
+  const defaultProfileId = getDefaultProfileId();
+  const profile = PROFILES[defaultProfileId] || PROFILES['timeTested'];
+  
+  if (profile) {
+    state.moonPhase = profile.moonPhase;
+    state.dayStartTime = profile.dayStartTime;
+    state.dayStartAngle = profile.dayStartAngle;
+    state.yearStartRule = profile.yearStartRule;
+    state.crescentThreshold = profile.crescentThreshold || 18;
+    state.sabbathMode = profile.sabbathMode;
+    state.selectedProfile = defaultProfileId;
+  }
+  
+  // Try GPS first, then fall back to IP
+  let locationFound = false;
+  
+  // Try GPS location (requires user permission)
+  if (navigator.geolocation) {
+    try {
+      const gpsLocation = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => resolve({
+            lat: Math.round(position.coords.latitude * 10000) / 10000,
+            lon: Math.round(position.coords.longitude * 10000) / 10000
+          }),
+          (error) => reject(error),
+          { enableHighAccuracy: false, timeout: 5000, maximumAge: 86400000 }  // 5s timeout, cache for 24 hours
+        );
+      });
+      
+      state.lat = gpsLocation.lat;
+      state.lon = gpsLocation.lon;
+      state.locationSource = 'gps';
+      state.city = '';
+      locationFound = true;
+      console.log('Today button: GPS location:', gpsLocation.lat, gpsLocation.lon);
+    } catch (gpsError) {
+      console.log('GPS location denied or unavailable:', gpsError.message);
+    }
+  }
+  
+  // Fall back to IP location if GPS failed
+  if (!locationFound) {
+    try {
+      const ipLocation = await getLocationFromIP();
+      if (ipLocation) {
+        state.lat = ipLocation.lat;
+        state.lon = ipLocation.lon;
+        state.locationSource = 'ip';
+        state.city = '';
+        locationFound = true;
+        console.log('Today button: IP location fallback:', ipLocation.city || `${ipLocation.lat}, ${ipLocation.lon}`);
+      }
+    } catch (e) {
+      console.log('IP geolocation also failed, using existing location');
+    }
+  }
+  
+  // Update top nav profile display
+  updateTopNavProfile();
+  
+  // Jump to today (regenerates calendar with current state.lat/lon)
+  jumpToToday();
+  
+  // Update URL and save state
+  updateURL();
+  saveState();
+  
+  // Ensure we're on the calendar view
+  navigateTo('calendar');
 }
 
 // Rebuild profile dropdown with all profiles
@@ -4925,9 +5048,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     generateCalendar();
     loadFromURL(); // Then override with URL params/path
   } else {
-    // No URL data - always jump to today's date on fresh load
-    jumpToToday();
-    updateURL(); // Set initial URL
+    // No URL data - fresh load: use default profile and detect location via IP
+    await initializeFreshLoad();
   }
   
   // Start live time updates for header display
@@ -5009,6 +5131,41 @@ document.addEventListener('DOMContentLoaded', async function() {
 // jdnToWeekday moved to day-detail.js
 
 // jumpToEquinoxDate moved to day-detail.js
+
+// Initialize fresh page load with default profile and IP-based location
+async function initializeFreshLoad() {
+  // Apply default profile
+  const defaultProfileId = getDefaultProfileId();
+  const profile = PROFILES[defaultProfileId];
+  
+  if (profile) {
+    // Apply profile settings to state without triggering calendar regeneration yet
+    state.moonPhase = profile.moonPhase;
+    state.dayStartTime = profile.dayStartTime;
+    state.dayStartAngle = profile.dayStartAngle;
+    state.yearStartRule = profile.yearStartRule;
+    state.crescentThreshold = profile.crescentThreshold || 18;
+    state.sabbathMode = profile.sabbathMode;
+    state.selectedProfile = defaultProfileId;
+  }
+  
+  // Try to get location via IP
+  try {
+    const location = await getLocationFromIP();
+    if (location) {
+      state.lat = location.lat;
+      state.lon = location.lon;
+      state.locationSource = 'ip';
+    }
+  } catch (e) {
+    console.log('IP geolocation failed, using saved/default location');
+  }
+  
+  // Now jump to today with all settings applied
+  jumpToToday();
+  updateURL();
+  saveState();
+}
 
 function jumpToToday() {
   const now = new Date();

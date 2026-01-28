@@ -688,13 +688,13 @@ function renderMonth(month) {
   
   const container = document.getElementById('calendar-output');
   
-  // Get today's date string for comparison (YYYY-MM-DD format) at the state location
-  // Convert current UTC time to local time at state location
+  // Get today's date for comparison at the state location
+  // Use the same method as jumpToToday() for consistency
   const nowUtc = new Date();
-  const tzOffsetHours = Math.round(state.lon / 15);
-  const localNowMs = nowUtc.getTime() + (tzOffsetHours * 60 * 60 * 1000);
-  const localNow = new Date(localNowMs);
-  const todayStr = `${localNow.getUTCFullYear()}-${String(localNow.getUTCMonth() + 1).padStart(2, '0')}-${String(localNow.getUTCDate()).padStart(2, '0')}`;
+  const localDateAtLocation = utcToLocalTime(nowUtc.getTime(), state.lon);
+  const todayYear = localDateAtLocation.getUTCFullYear();
+  const todayMonth = localDateAtLocation.getUTCMonth();
+  const todayDay = localDateAtLocation.getUTCDate();
   
   // Day 1 is New Moon shown in header
   // Days 2-8 form the first week, 9-15 second week, etc.
@@ -767,8 +767,11 @@ function renderMonth(month) {
   // Blood moon styling for Day 1
   const day1BloodMoonClass = (day1 && day1.isBloodMoon) ? ' blood-moon' : '';
   
-  // Check if Day 1 is today
-  const day1IsToday = day1 && day1.gregorianDate.toISOString().split('T')[0] === todayStr;
+  // Check if Day 1 is today (compare using local date methods for consistency with jumpToToday)
+  const day1IsToday = day1 && 
+    day1.gregorianDate.getFullYear() === todayYear && 
+    day1.gregorianDate.getMonth() === todayMonth && 
+    day1.gregorianDate.getDate() === todayDay;
   
   // Get event icon for Day 1
   const day1EventIcon = day1 ? getDayEventIcon(month.monthNumber, 1, day1.gregorianDate.getUTCFullYear()) : '';
@@ -936,9 +939,12 @@ function renderMonth(month) {
       if (day.lunarDay === state.highlightedLunarDay) classes.push('highlighted');
       if (day.isUncertain) classes.push('date-uncertain');
       
-      // Check if this day is today
-      const dayDateStr = day.gregorianDate.toISOString().split('T')[0];
-      if (dayDateStr === todayStr) classes.push('today');
+      // Check if this day is today (compare using local date methods for consistency)
+      if (day.gregorianDate.getFullYear() === todayYear && 
+          day.gregorianDate.getMonth() === todayMonth && 
+          day.gregorianDate.getDate() === todayDay) {
+        classes.push('today');
+      }
       
       let feastLabel = '';
       const icons = [];
@@ -1003,8 +1009,12 @@ function renderMonth(month) {
     // Day 30 with '-' means it might not exist (only show uncertainty for '-' direction)
     const day30Uncertain = day30.isUncertain && month.dateUncertainty === '-';
     if (day30Uncertain) classes.push('date-uncertain');
-    // Check if Day 30 is today
-    if (day30.gregorianDate.toISOString().split('T')[0] === todayStr) classes.push('today');
+    // Check if Day 30 is today (compare using local date methods for consistency)
+    if (day30.gregorianDate.getFullYear() === todayYear && 
+        day30.gregorianDate.getMonth() === todayMonth && 
+        day30.gregorianDate.getDate() === todayDay) {
+      classes.push('today');
+    }
     
     let feastLabel = '';
     const icons = [];

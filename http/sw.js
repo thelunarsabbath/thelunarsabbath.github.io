@@ -1,5 +1,5 @@
 // Lunar Sabbath Calendar Service Worker
-const CACHE_NAME = 'lunar-sabbath-v541';
+const CACHE_NAME = 'lunar-sabbath-v547';
 
 // Core app files
 const CORE_ASSETS = [
@@ -40,6 +40,7 @@ const DATA_ASSETS = [
 // Bible and book content
 const CONTENT_ASSETS = [
   '/kjv.txt',
+  '/asv.txt',
   '/media/time-tested-tradition.pdf'
 ];
 

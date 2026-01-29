@@ -271,7 +271,9 @@ function updateURLWithView(view) {
     const profile = getCurrentProfileSlug();
     newURL = `/${profile}/biblical-timeline/`;
   } else if (view === 'bible-explorer') {
-    newURL = '/bible/';
+    // Include current translation in URL
+    const translation = typeof currentTranslation !== 'undefined' ? currentTranslation : 'kjv';
+    newURL = `/bible/${translation}/`;
   } else {
     // Calendar view - use standard path URL
     newURL = buildPathURL();
@@ -338,13 +340,23 @@ function parsePathURL() {
   }
   
   if (segments[0] === 'bible') {
-    // Handle /bible/ or /bible/Book/Chapter?verse=X
+    // Handle /bible/, /bible/kjv/, /bible/kjv/Book/Chapter?verse=X
     const result = { view: 'bible-explorer' };
-    if (segments.length >= 2) {
-      result.bibleBook = decodeURIComponent(segments[1]);
+    
+    // Check if second segment is a translation (kjv, asv, etc.)
+    const knownTranslations = ['kjv', 'asv'];
+    let offset = 1;
+    
+    if (segments.length >= 2 && knownTranslations.includes(segments[1].toLowerCase())) {
+      result.bibleTranslation = segments[1].toLowerCase();
+      offset = 2;
     }
-    if (segments.length >= 3) {
-      result.bibleChapter = parseInt(segments[2]);
+    
+    if (segments.length >= offset + 1) {
+      result.bibleBook = decodeURIComponent(segments[offset]);
+    }
+    if (segments.length >= offset + 2) {
+      result.bibleChapter = parseInt(segments[offset + 1]);
     }
     // Check for verse in query params
     if (params.has('verse')) {
@@ -709,13 +721,24 @@ function loadFromURL() {
   
   if (urlState.view === 'bible-explorer') {
     navigateTo('bible-explorer');
-    // Open to specific book/chapter/verse if specified
+    // Switch translation if specified in URL
+    if (urlState.bibleTranslation && typeof switchTranslation === 'function') {
+      switchTranslation(urlState.bibleTranslation);
+    }
+    // Open to specific book/chapter/verse if specified, otherwise show home page
     if (urlState.bibleBook) {
       setTimeout(() => {
         if (typeof openBibleExplorerTo === 'function') {
           openBibleExplorerTo(urlState.bibleBook, urlState.bibleChapter || 1, urlState.bibleVerse || null);
         }
       }, 300);
+    } else {
+      // No book specified - show Bible home page
+      setTimeout(() => {
+        if (typeof goToBibleHome === 'function') {
+          goToBibleHome();
+        }
+      }, 100);
     }
     return;
   }

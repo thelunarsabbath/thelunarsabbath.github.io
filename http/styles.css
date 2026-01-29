@@ -7772,11 +7772,17 @@ body.biblical-timeline-open .top-nav-inner {
   margin: 0 auto;
 }
 
-.bible-explorer-title {
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #d4a017;
-  white-space: nowrap;
+.bible-home-link {
+  font-size: 1.5em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.bible-home-link:hover {
+  transform: scale(1.1);
 }
 
 .bible-explorer-select {
@@ -7807,6 +7813,11 @@ body.biblical-timeline-open .top-nav-inner {
 
 #bible-chapter-select {
   min-width: 70px;
+}
+
+.bible-translation-select {
+  min-width: 70px !important;
+  font-weight: 600;
 }
 
 .bible-explorer-search-inline {
@@ -8145,14 +8156,14 @@ body.biblical-timeline-open .top-nav-inner {
 /* Welcome Screen */
 .bible-explorer-welcome {
   text-align: center;
-  padding: 60px 20px;
-  max-width: 500px;
+  padding: 40px 20px;
+  max-width: 700px;
   margin: 0 auto;
 }
 
 .bible-welcome-icon {
-  font-size: 4em;
-  margin-bottom: 20px;
+  font-size: 3em;
+  margin-bottom: 15px;
 }
 
 .bible-explorer-welcome h3 {
@@ -8163,7 +8174,109 @@ body.biblical-timeline-open .top-nav-inner {
 
 .bible-explorer-welcome p {
   color: #888;
+  margin-bottom: 25px;
+}
+
+/* Translation Cards */
+.bible-translation-cards {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
   margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.bible-translation-card {
+  background: linear-gradient(135deg, rgba(30, 30, 50, 0.9) 0%, rgba(20, 20, 35, 0.95) 100%);
+  border: 1px solid rgba(126, 200, 227, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  width: 280px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.bible-translation-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d4a017, #7ec8e3);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.bible-translation-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212, 160, 23, 0.5);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.bible-translation-card:hover::before {
+  opacity: 1;
+}
+
+.translation-card-icon {
+  font-size: 2.5em;
+  margin-bottom: 12px;
+}
+
+.translation-card-content h4 {
+  color: #e8e8e8;
+  font-size: 1.1em;
+  margin: 0 0 4px 0;
+}
+
+.translation-card-year {
+  display: inline-block;
+  background: rgba(126, 200, 227, 0.2);
+  color: #7ec8e3;
+  font-size: 0.75em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.translation-card-content p {
+  color: #999;
+  font-size: 0.85em;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+  text-align: left;
+}
+
+.translation-card-traits {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.translation-card-traits .trait {
+  background: rgba(212, 160, 23, 0.15);
+  color: #d4a017;
+  font-size: 0.7em;
+  padding: 3px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive translation cards */
+@media (max-width: 640px) {
+  .bible-translation-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .bible-translation-card {
+    width: 100%;
+    max-width: 320px;
+  }
 }
 
 .bible-quick-links {
@@ -8294,12 +8407,8 @@ body.biblical-timeline-open .top-nav-inner {
     row-gap: 10px;
   }
   
-  .bible-explorer-title {
-    font-size: 1em;
-  }
-  
-  .bible-title-text {
-    display: none;
+  .bible-home-link {
+    font-size: 1.3em;
   }
   
   .bible-explorer-select {
@@ -8351,12 +8460,8 @@ body.biblical-timeline-open .top-nav-inner {
     row-gap: 10px;
   }
   
-  .bible-explorer-title {
-    font-size: 1.1em;
-  }
-  
-  .bible-title-text {
-    display: none;
+  .bible-home-link {
+    font-size: 1.2em;
   }
   
   .bible-explorer-select {

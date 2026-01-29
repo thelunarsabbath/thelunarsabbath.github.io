@@ -1,12 +1,55 @@
 // Bible Reader Module
-// Parses KJV text and provides verse lookup functionality
+// Parses Bible translations and provides verse lookup functionality
 
-// Cache version - increment this when kjv.txt format changes or is updated
-const BIBLE_CACHE_VERSION = 1;
-const BIBLE_CACHE_KEY = 'kjv_bible_cache';
+// Cache version - increment this when text format changes or is updated
+const BIBLE_CACHE_VERSION = 2;
 
-let bibleData = null;
-let bibleIndex = {}; // Index by "Book Chapter:Verse" for fast lookup
+// Translation configuration
+const BIBLE_TRANSLATIONS = {
+  kjv: {
+    id: 'kjv',
+    name: 'KJV',
+    fullName: 'King James Version',
+    file: '/kjv.txt',
+    separator: '\t',  // Tab-separated
+    skipLines: 2,     // Header lines to skip
+    cacheKey: 'bible_cache_kjv'
+  },
+  asv: {
+    id: 'asv',
+    name: 'ASV',
+    fullName: 'American Standard Version',
+    file: '/asv.txt',
+    separator: ' ',   // Space-separated (first space after reference)
+    skipLines: 4,     // Header lines to skip (includes blank lines)
+    cacheKey: 'bible_cache_asv'
+  }
+};
+
+// Translation data storage
+let bibleTranslations = {};  // { kjv: [...], asv: [...] }
+let bibleIndexes = {};       // { kjv: {...}, asv: {...} }
+let currentTranslation = 'kjv';
+let translationsLoading = {};  // Track which translations are currently loading
+
+// Backwards-compatible getters
+function getBibleData() {
+  return bibleTranslations[currentTranslation] || null;
+}
+
+function getBibleIndex() {
+  return bibleIndexes[currentTranslation] || {};
+}
+
+// Legacy compatibility - these are used throughout the codebase
+let bibleData = null;  // Will be updated when translation changes
+let bibleIndex = {};   // Will be updated when translation changes
+
+// Sync legacy variables with current translation
+function syncLegacyVariables() {
+  bibleData = bibleTranslations[currentTranslation] || null;
+  bibleIndex = bibleIndexes[currentTranslation] || {};
+}
 
 // Hebrew word annotations - words that have translation ambiguity
 // These add emoji markers that show tooltips explaining the Hebrew
@@ -114,75 +157,132 @@ function hideBibleLoadingDialog() {
   if (dialog) dialog.classList.remove('visible');
 }
 
-// Load Bible from cache or parse from source
-// showDialog: if true, shows loading dialog (use when user is waiting for Bible)
-async function loadBible(showDialog = false) {
-  // Try to load from cache first
-  const cached = loadBibleFromCache();
-  if (cached) {
-    bibleData = cached.data;
-    rebuildIndex();
-    console.log(`Bible loaded from cache: ${bibleData.length} verses (v${cached.version})`);
-    return true;
-  }
-  
-  // Show loading dialog only if requested (user is actively waiting)
-  if (showDialog) {
-    showBibleLoadingDialog();
-  }
-  
-  // Parse from source file
-  try {
-    const response = await fetch('/kjv.txt');
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    
-    bibleData = await parseBibleText(text);
-    rebuildIndex();
-    
-    // Cache the parsed data
-    saveBibleToCache(bibleData);
-    
-    // Hide loading dialog
-    if (showDialog) {
-      hideBibleLoadingDialog();
-    }
-    
-    console.log(`Bible parsed and cached: ${bibleData.length} verses (v${BIBLE_CACHE_VERSION})`);
-    return true;
-  } catch (err) {
-    if (showDialog) {
-      hideBibleLoadingDialog();
-    }
-    console.warn('Bible not available:', err.message);
+// Load a specific translation from cache or parse from source
+// translationId: 'kjv', 'asv', etc.
+// showDialog: if true, shows loading dialog (use when user is waiting)
+async function loadTranslation(translationId, showDialog = false) {
+  const config = BIBLE_TRANSLATIONS[translationId];
+  if (!config) {
+    console.warn(`Unknown translation: ${translationId}`);
     return false;
   }
+  
+  // Already loaded?
+  if (bibleTranslations[translationId]) {
+    console.log(`${config.name} already loaded`);
+    return true;
+  }
+  
+  // Currently loading?
+  if (translationsLoading[translationId]) {
+    console.log(`${config.name} already loading, waiting...`);
+    return translationsLoading[translationId];
+  }
+  
+  // Try to load from cache first
+  const cached = loadTranslationFromCache(translationId);
+  if (cached) {
+    bibleTranslations[translationId] = cached.data;
+    rebuildTranslationIndex(translationId);
+    syncLegacyVariables();
+    console.log(`${config.name} loaded from cache: ${cached.data.length} verses`);
+    return true;
+  }
+  
+  // Show loading dialog only if requested
+  if (showDialog) {
+    showBibleLoadingDialog();
+    updateLoadingDialogText(`Loading ${config.name}...`);
+  }
+  
+  // Create loading promise
+  translationsLoading[translationId] = (async () => {
+    try {
+      const response = await fetch(config.file);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const text = await response.text();
+      
+      const data = await parseBibleText(text, config);
+      bibleTranslations[translationId] = data;
+      rebuildTranslationIndex(translationId);
+      syncLegacyVariables();
+      
+      // Cache the parsed data
+      saveTranslationToCache(translationId, data);
+      
+      if (showDialog) {
+        hideBibleLoadingDialog();
+      }
+      
+      console.log(`${config.name} parsed and cached: ${data.length} verses`);
+      return true;
+    } catch (err) {
+      if (showDialog) {
+        hideBibleLoadingDialog();
+      }
+      console.warn(`${config.name} not available:`, err.message);
+      return false;
+    } finally {
+      delete translationsLoading[translationId];
+    }
+  })();
+  
+  return translationsLoading[translationId];
 }
 
-// Parse the KJV text file into structured data (async to avoid blocking UI)
-async function parseBibleText(text) {
+// Load Bible (backwards compatible - loads KJV)
+async function loadBible(showDialog = false) {
+  return loadTranslation('kjv', showDialog);
+}
+
+// Load all translations in background (KJV first, then others)
+async function loadAllTranslations() {
+  // Load KJV first (primary translation)
+  await loadTranslation('kjv', false);
+  
+  // Then load ASV in background
+  loadTranslation('asv', false).catch(err => 
+    console.log('ASV loading deferred:', err.message)
+  );
+}
+
+// Parse Bible text file into structured data (async to avoid blocking UI)
+// config: translation config object with separator and skipLines
+async function parseBibleText(text, config = BIBLE_TRANSLATIONS.kjv) {
   const data = [];
   const lines = text.split('\n');
   const totalLines = lines.length;
+  const skipLines = config.skipLines || 2;
+  const useTabSeparator = config.separator === '\t';
   
   // Process in chunks to yield to main thread
   const CHUNK_SIZE = 2000;
   
-  for (let i = 2; i < totalLines; i++) { // Skip header lines
+  for (let i = skipLines; i < totalLines; i++) {
     const line = lines[i].trim();
     if (!line) continue;
     
-    const tabIndex = line.indexOf('\t');
-    if (tabIndex === -1) continue;
+    let reference, verseText;
     
-    const reference = line.substring(0, tabIndex);
-    const verseText = line.substring(tabIndex + 1);
+    if (useTabSeparator) {
+      // Tab-separated (KJV format)
+      const tabIndex = line.indexOf('\t');
+      if (tabIndex === -1) continue;
+      reference = line.substring(0, tabIndex);
+      verseText = line.substring(tabIndex + 1);
+    } else {
+      // Space-separated (ASV format) - find the verse reference pattern
+      const match = line.match(/^(.+?\s+\d+:\d+)\s+(.+)$/);
+      if (!match) continue;
+      reference = match[1];
+      verseText = match[2];
+    }
     
     // Parse reference: "Book Chapter:Verse"
-    const match = reference.match(/^(.+?)\s+(\d+):(\d+)$/);
-    if (!match) continue;
+    const refMatch = reference.match(/^(.+?)\s+(\d+):(\d+)$/);
+    if (!refMatch) continue;
     
-    const [, book, chapter, verse] = match;
+    const [, book, chapter, verse] = refMatch;
     data.push({
       book: book,
       chapter: parseInt(chapter),
@@ -192,7 +292,7 @@ async function parseBibleText(text) {
     });
     
     // Yield to main thread every CHUNK_SIZE lines to keep UI responsive
-    if ((i - 2) % CHUNK_SIZE === 0 && i > 2) {
+    if ((i - skipLines) % CHUNK_SIZE === 0 && i > skipLines) {
       await new Promise(resolve => setTimeout(resolve, 0));
     }
   }
@@ -200,48 +300,61 @@ async function parseBibleText(text) {
   return data;
 }
 
-// Rebuild the index from bibleData
-function rebuildIndex() {
-  bibleIndex = {};
-  if (bibleData) {
-    for (const entry of bibleData) {
-      bibleIndex[entry.reference] = entry;
+// Rebuild index for a specific translation
+function rebuildTranslationIndex(translationId) {
+  bibleIndexes[translationId] = {};
+  const data = bibleTranslations[translationId];
+  if (data) {
+    for (const entry of data) {
+      bibleIndexes[translationId][entry.reference] = entry;
     }
   }
 }
 
-// Load Bible data from localStorage cache
-function loadBibleFromCache() {
+// Rebuild the index from bibleData (backwards compatible)
+function rebuildIndex() {
+  rebuildTranslationIndex(currentTranslation);
+  syncLegacyVariables();
+}
+
+// Load translation data from localStorage cache
+function loadTranslationFromCache(translationId) {
+  const config = BIBLE_TRANSLATIONS[translationId];
+  if (!config) return null;
+  
   try {
-    const cached = localStorage.getItem(BIBLE_CACHE_KEY);
+    const cached = localStorage.getItem(config.cacheKey);
     if (!cached) return null;
     
     const parsed = JSON.parse(cached);
     
     // Check version
     if (parsed.version !== BIBLE_CACHE_VERSION) {
-      console.log(`Bible cache version mismatch (cached: ${parsed.version}, current: ${BIBLE_CACHE_VERSION}), reparsing...`);
-      localStorage.removeItem(BIBLE_CACHE_KEY);
+      console.log(`${config.name} cache version mismatch, reparsing...`);
+      localStorage.removeItem(config.cacheKey);
       return null;
     }
     
     // Validate data
     if (!parsed.data || !Array.isArray(parsed.data) || parsed.data.length === 0) {
-      console.log('Bible cache invalid, reparsing...');
-      localStorage.removeItem(BIBLE_CACHE_KEY);
+      console.log(`${config.name} cache invalid, reparsing...`);
+      localStorage.removeItem(config.cacheKey);
       return null;
     }
     
     return parsed;
   } catch (err) {
-    console.warn('Failed to load Bible cache:', err.message);
-    localStorage.removeItem(BIBLE_CACHE_KEY);
+    console.warn(`Failed to load ${config.name} cache:`, err.message);
+    localStorage.removeItem(config.cacheKey);
     return null;
   }
 }
 
-// Save Bible data to localStorage cache
-function saveBibleToCache(data) {
+// Save translation data to localStorage cache
+function saveTranslationToCache(translationId, data) {
+  const config = BIBLE_TRANSLATIONS[translationId];
+  if (!config) return;
+  
   try {
     const cacheData = {
       version: BIBLE_CACHE_VERSION,
@@ -249,11 +362,89 @@ function saveBibleToCache(data) {
       data: data
     };
     
-    localStorage.setItem(BIBLE_CACHE_KEY, JSON.stringify(cacheData));
-    console.log('Bible data cached successfully');
+    localStorage.setItem(config.cacheKey, JSON.stringify(cacheData));
+    console.log(`${config.name} data cached successfully`);
   } catch (err) {
     // localStorage might be full or disabled
-    console.warn('Failed to cache Bible data:', err.message);
+    console.warn(`Failed to cache ${config.name} data:`, err.message);
+  }
+}
+
+// Legacy cache functions for backwards compatibility
+function loadBibleFromCache() {
+  return loadTranslationFromCache('kjv');
+}
+
+function saveBibleToCache(data) {
+  saveTranslationToCache('kjv', data);
+}
+
+// Update loading dialog text
+function updateLoadingDialogText(text) {
+  const dialog = document.getElementById('bible-loading-dialog');
+  if (dialog) {
+    const msgEl = dialog.querySelector('.bible-loading-text');
+    if (msgEl) msgEl.textContent = text;
+  }
+}
+
+// Switch to a different translation
+async function switchTranslation(translationId) {
+  const config = BIBLE_TRANSLATIONS[translationId];
+  if (!config) {
+    console.warn(`Unknown translation: ${translationId}`);
+    return false;
+  }
+  
+  // Load if not already loaded
+  if (!bibleTranslations[translationId]) {
+    await loadTranslation(translationId, true);
+  }
+  
+  if (!bibleTranslations[translationId]) {
+    console.warn(`Failed to load ${config.name}`);
+    return false;
+  }
+  
+  // Switch current translation
+  currentTranslation = translationId;
+  syncLegacyVariables();
+  
+  // Save preference
+  try {
+    localStorage.setItem('bible_translation_preference', translationId);
+  } catch (e) {}
+  
+  // Update UI
+  updateTranslationUI();
+  
+  // Rebuild chapter counts and redisplay current chapter
+  buildBookChapterCounts();
+  if (bibleExplorerState.currentBook && bibleExplorerState.currentChapter) {
+    displayBibleChapter(bibleExplorerState.currentBook, bibleExplorerState.currentChapter, bibleExplorerState.highlightedVerse);
+  }
+  
+  return true;
+}
+
+// Update UI to reflect current translation
+function updateTranslationUI() {
+  const config = BIBLE_TRANSLATIONS[currentTranslation];
+  if (!config) return;
+  
+  // Update translation dropdown
+  const translationSelect = document.getElementById('bible-translation-select');
+  if (translationSelect) {
+    translationSelect.value = currentTranslation;
+  }
+}
+
+// Get saved translation preference
+function getSavedTranslationPreference() {
+  try {
+    return localStorage.getItem('bible_translation_preference') || 'kjv';
+  } catch (e) {
+    return 'kjv';
   }
 }
 
@@ -465,9 +656,10 @@ function formatVersesForDisplay(verses, title = '') {
       }
       currentChapter = verse.chapter;
       const bookEncoded = encodeURIComponent(verse.book);
+      const trans = currentTranslation || 'kjv';
       html += `<div class="bible-chapter-section">`;
       html += `<div class="bible-chapter-header">
-        <a href="/bible/${bookEncoded}/${verse.chapter}" 
+        <a href="/bible/${trans}/${bookEncoded}/${verse.chapter}" 
            onclick="openBibleExplorerFromModal('${verse.book}', ${verse.chapter}); return false;" 
            class="bible-chapter-link" title="Read full chapter in Bible Explorer">
           Chapter ${verse.chapter} →
@@ -478,8 +670,9 @@ function formatVersesForDisplay(verses, title = '') {
     
     // Verse with superscript verse number - clickable to open in Bible Explorer at that verse
     const bookEncoded = encodeURIComponent(verse.book);
+    const trans = currentTranslation || 'kjv';
     html += `<span class="bible-verse"><sup class="bible-verse-num">
-      <a href="/bible/${bookEncoded}/${verse.chapter}?verse=${verse.verse}" 
+      <a href="/bible/${trans}/${bookEncoded}/${verse.chapter}?verse=${verse.verse}" 
          onclick="openBibleExplorerFromModal('${verse.book}', ${verse.chapter}, ${verse.verse}); return false;"
          title="Open ${verse.book} ${verse.chapter}:${verse.verse} in Bible Explorer">${verse.verse}</a>
     </sup>${verse.text} </span>`;
@@ -557,17 +750,18 @@ function handleCitationClick(event) {
 }
 
 // Build a proper Bible URL from a citation string like "Genesis 1:5" or "Ezekiel 26:4-5"
-function buildBibleUrl(citation) {
+function buildBibleUrl(citation, translation = null) {
   // Parse citation: "Book Chapter:Verse" or "Book Chapter"
   const match = citation.match(/^(.+?)\s+(\d+)(?::(\d+))?/);
-  if (!match) return '/bible-explorer';
+  if (!match) return '/bible/kjv/';
   
   const book = match[1];
   const chapter = match[2];
   const verse = match[3];
+  const trans = translation || currentTranslation || 'kjv';
   
   const bookEncoded = encodeURIComponent(book);
-  let url = `/bible/${bookEncoded}/${chapter}`;
+  let url = `/bible/${trans}/${bookEncoded}/${chapter}`;
   if (verse) {
     url += `?verse=${verse}`;
   }
@@ -810,16 +1004,143 @@ let bibleExplorerState = {
 
 // Initialize Bible Explorer
 function initBibleExplorer() {
+  // Restore saved translation preference
+  const savedTranslation = getSavedTranslationPreference();
+  if (savedTranslation && BIBLE_TRANSLATIONS[savedTranslation]) {
+    currentTranslation = savedTranslation;
+  }
+  
+  // Populate translation dropdown
+  populateTranslationDropdown();
+  
   if (!bibleData) {
     // User is actively waiting, so show loading dialog
-    loadBible(true).then(() => {
+    loadTranslation(currentTranslation, true).then(() => {
       buildBookChapterCounts();
       populateBibleBooks();
+      updateTranslationUI();
     });
   } else {
     buildBookChapterCounts();
     populateBibleBooks();
+    updateTranslationUI();
   }
+}
+
+// Populate translation dropdown
+function populateTranslationDropdown() {
+  const translationSelect = document.getElementById('bible-translation-select');
+  if (!translationSelect) return;
+  
+  let html = '';
+  for (const [id, config] of Object.entries(BIBLE_TRANSLATIONS)) {
+    const selected = id === currentTranslation ? ' selected' : '';
+    html += `<option value="${id}"${selected}>${config.name}</option>`;
+  }
+  translationSelect.innerHTML = html;
+}
+
+// Handle translation dropdown change
+function onTranslationChange(translationId) {
+  if (!translationId || translationId === currentTranslation) return;
+  switchTranslation(translationId);
+}
+
+// Select a translation from the welcome screen and open Genesis 1
+async function selectTranslationAndStart(translationId) {
+  if (!translationId) return;
+  
+  // Switch to the selected translation
+  await switchTranslation(translationId);
+  
+  // Open Genesis 1 to start reading
+  openBibleExplorerTo('Genesis', 1);
+}
+
+// Go to Bible home page (translation selector)
+function goToBibleHome() {
+  // Clear current book/chapter state
+  bibleExplorerState.currentBook = null;
+  bibleExplorerState.currentChapter = null;
+  bibleExplorerState.highlightedVerse = null;
+  
+  // Reset dropdowns
+  const bookSelect = document.getElementById('bible-book-select');
+  const chapterSelect = document.getElementById('bible-chapter-select');
+  if (bookSelect) bookSelect.value = '';
+  if (chapterSelect) {
+    chapterSelect.innerHTML = '<option value="">Ch.</option>';
+    chapterSelect.disabled = true;
+  }
+  
+  // Show welcome screen
+  const textContainer = document.getElementById('bible-explorer-text');
+  if (textContainer) {
+    // Restore welcome content
+    textContainer.innerHTML = getBibleWelcomeHTML();
+  }
+  
+  // Update chapter title
+  const titleEl = document.getElementById('bible-chapter-title');
+  if (titleEl) titleEl.textContent = 'Select a book to begin';
+  
+  // Disable navigation buttons
+  const prevBtn = document.getElementById('bible-prev-chapter');
+  const nextBtn = document.getElementById('bible-next-chapter');
+  if (prevBtn) prevBtn.disabled = true;
+  if (nextBtn) nextBtn.disabled = true;
+  
+  // Update URL
+  window.history.replaceState({}, '', `/bible/${currentTranslation}/`);
+}
+
+// Get the Bible welcome HTML
+function getBibleWelcomeHTML() {
+  return `
+    <div class="bible-explorer-welcome">
+      <div class="bible-welcome-icon">📖</div>
+      <h3>Welcome to the Bible</h3>
+      <p>Choose a translation to begin reading, or select a book and chapter from the dropdowns above.</p>
+      
+      <div class="bible-translation-cards">
+        <div class="bible-translation-card" onclick="selectTranslationAndStart('kjv')">
+          <div class="translation-card-icon">👑</div>
+          <div class="translation-card-content">
+            <h4>King James Version</h4>
+            <span class="translation-card-year">1611</span>
+            <p>The classic English translation beloved for its majestic, poetic language. Features formal, archaic English ("thee," "thou," "hath") that has shaped English literature for over 400 years.</p>
+            <div class="translation-card-traits">
+              <span class="trait">Traditional</span>
+              <span class="trait">Literary</span>
+              <span class="trait">Formal</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bible-translation-card" onclick="selectTranslationAndStart('asv')">
+          <div class="translation-card-icon">📜</div>
+          <div class="translation-card-content">
+            <h4>American Standard Version</h4>
+            <span class="translation-card-year">1901</span>
+            <p>A highly literal translation valued for accuracy and consistency. Uses "Jehovah" for God's name and modernizes some archaic KJV expressions while maintaining formal language.</p>
+            <div class="translation-card-traits">
+              <span class="trait">Literal</span>
+              <span class="trait">Accurate</span>
+              <span class="trait">Study</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bible-quick-links">
+        <span class="bible-quick-label">Quick Start:</span>
+        <button onclick="openBibleExplorerTo('Genesis', 1)">Genesis 1</button>
+        <button onclick="openBibleExplorerTo('Psalms', 23)">Psalm 23</button>
+        <button onclick="openBibleExplorerTo('John', 1)">John 1</button>
+        <button onclick="openBibleExplorerTo('Revelation', 1)">Revelation 1</button>
+      </div>
+    </div>
+  `;
 }
 
 // Build cache of chapter counts for each book
@@ -1173,7 +1494,7 @@ function openBibleExplorerTo(book, chapter, verse = null) {
 // Update browser URL for Bible Explorer
 function updateBibleExplorerURL(book, chapter, verse = null) {
   const bookEncoded = encodeURIComponent(book);
-  let url = `/bible/${bookEncoded}/${chapter}`;
+  let url = `/bible/${currentTranslation}/${bookEncoded}/${chapter}`;
   if (verse) {
     url += `?verse=${verse}`;
   }

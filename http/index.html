@@ -14,7 +14,7 @@ title: "Lunar Sabbath Calendar"
   
   <!-- SEO Meta Tags -->
   <meta name="description" content="Explore the biblical lunar calendar with Full Moon, Dark Moon, and Crescent Moon options. Track Sabbaths, feast days, priestly courses, and historical biblical events with precise astronomical calculations.">
-  <meta name="keywords" content="lunar sabbath, biblical calendar, hebrew calendar, feast days, sabbath calendar, moon phases, priestly divisions, biblical timeline, KJV Bible, appointed times, torah portions">
+  <meta name="keywords" content="lunar sabbath, biblical calendar, hebrew calendar, feast days, sabbath calendar, moon phases, priestly divisions, biblical timeline, Bible reader, appointed times, torah portions">
   <meta name="author" content="LunarSabbath.net">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://lunarsabbath.net/">
@@ -54,7 +54,7 @@ title: "Lunar Sabbath Calendar"
       "Biblical feast day tracking",
       "Priestly division (Mishmarot) calculator",
       "Historical biblical event timeline",
-      "KJV Bible reader with Hebrew annotations",
+      "Bible reader with multiple translations and Hebrew annotations",
       "Sabbath year and Jubilee cycle tracking",
       "Torah portion readings"
     ]
@@ -86,7 +86,7 @@ title: "Lunar Sabbath Calendar"
       <li><strong>Biblical Feast Days</strong> - Track Passover, Unleavened Bread, Pentecost, Trumpets, Atonement, Tabernacles, and more</li>
       <li><strong>Priestly Divisions</strong> - View the 24 priestly courses (Mishmarot) as established by King David</li>
       <li><strong>Historical Timeline</strong> - Explore biblical events from Creation through the destruction of the Temple</li>
-      <li><strong>KJV Bible Reader</strong> - Read Scripture with Hebrew word annotations</li>
+      <li><strong>Bible Reader</strong> - Read Scripture in KJV or ASV with Hebrew word annotations</li>
       <li><strong>Sabbath Year &amp; Jubilee</strong> - Track the 7-year and 49-year cycles</li>
       <li><strong>Torah Portions</strong> - Weekly and annual Torah reading schedules</li>
     </ul>
@@ -320,7 +320,7 @@ title: "Lunar Sabbath Calendar"
     </button>
     <button class="nav-menu-item" onclick="navigateTo('bible-explorer')">
       <span class="icon">📖</span>
-      <span>KJV Bible</span>
+      <span>Bible</span>
     </button>
     <div class="nav-menu-divider"></div>
     <button class="nav-menu-item" id="install-app-btn" style="display: none;" onclick="handleInstallClick()">
@@ -865,7 +865,7 @@ title: "Lunar Sabbath Calendar"
 <div id="bible-loading-dialog" class="bible-loading-dialog">
   <div class="bible-loading-content">
     <div class="bible-loading-spinner"></div>
-    <div class="bible-loading-text">Loading KJV Bible...</div>
+    <div class="bible-loading-text">Loading Bible...</div>
     <div class="bible-loading-subtext">This may take a moment on first load</div>
   </div>
 </div>
@@ -883,11 +883,16 @@ title: "Lunar Sabbath Calendar"
   </div>
 </div>
 
-<!-- KJV Bible Explorer Page -->
+<!-- Bible Explorer Page -->
 <div id="bible-explorer-page" class="bible-explorer-page" style="display: none;">
   <div class="bible-explorer-header">
     <div class="bible-explorer-header-inner">
-      <span class="bible-explorer-title"><span class="bible-title-icon">📖</span><span class="bible-title-text"> KJV Bible</span></span>
+      <a href="#" class="bible-home-link" onclick="goToBibleHome(); return false;" title="Bible Home">📖</a>
+      <select id="bible-translation-select" class="bible-explorer-select bible-translation-select" onchange="onTranslationChange(this.value)">
+        <option value="kjv">KJV</option>
+        <option value="asv">ASV</option>
+        <!-- Translations populated by JS -->
+      </select>
       <select id="bible-book-select" class="bible-explorer-select" onchange="onBookSelectChange(this.value)">
         <option value="">Select Book</option>
         <!-- Books populated by JS -->
@@ -922,8 +927,39 @@ title: "Lunar Sabbath Calendar"
       <div id="bible-explorer-text" class="bible-explorer-text">
         <div class="bible-explorer-welcome">
           <div class="bible-welcome-icon">📖</div>
-          <h3>Welcome to the KJV Bible</h3>
-          <p>Select a book and chapter from the dropdowns above, or use the search box to jump to any verse.</p>
+          <h3>Welcome to the Bible</h3>
+          <p>Choose a translation to begin reading, or select a book and chapter from the dropdowns above.</p>
+          
+          <div class="bible-translation-cards">
+            <div class="bible-translation-card" onclick="selectTranslationAndStart('kjv')">
+              <div class="translation-card-icon">👑</div>
+              <div class="translation-card-content">
+                <h4>King James Version</h4>
+                <span class="translation-card-year">1611</span>
+                <p>The classic English translation beloved for its majestic, poetic language. Features formal, archaic English ("thee," "thou," "hath") that has shaped English literature for over 400 years.</p>
+                <div class="translation-card-traits">
+                  <span class="trait">Traditional</span>
+                  <span class="trait">Literary</span>
+                  <span class="trait">Formal</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bible-translation-card" onclick="selectTranslationAndStart('asv')">
+              <div class="translation-card-icon">📜</div>
+              <div class="translation-card-content">
+                <h4>American Standard Version</h4>
+                <span class="translation-card-year">1901</span>
+                <p>A highly literal translation valued for accuracy and consistency. Uses "Jehovah" for God's name and modernizes some archaic KJV expressions while maintaining formal language.</p>
+                <div class="translation-card-traits">
+                  <span class="trait">Literal</span>
+                  <span class="trait">Accurate</span>
+                  <span class="trait">Study</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div class="bible-quick-links">
             <span class="bible-quick-label">Quick Start:</span>
             <button onclick="openBibleExplorerTo('Genesis', 1)">Genesis 1</button>
@@ -5051,9 +5087,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Load Torah portions data
   await loadTorahPortions();
   
-  // Load Bible text in background (don't block app initialization)
+  // Load Bible translations in background (KJV first, then ASV)
   // Bible will be available when user opens Bible Explorer or clicks a citation
-  loadBible().catch(err => console.log('Bible loading deferred:', err.message));
+  loadAllTranslations().catch(err => console.log('Bible loading deferred:', err.message));
   
   // Check if URL has path data or query params - if so, load from URL
   const path = window.location.pathname;

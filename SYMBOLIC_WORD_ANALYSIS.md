@@ -16,6 +16,114 @@ This algorithm helps decode what abstract concepts (light, salt, water, fire, le
 
 ---
 
+## CRITICAL: THE EXECUTABLE WORKFLOW
+
+**Warning**: This is not a document to "keep in mind." It is a **step-by-step process to execute**. Skipping steps leads to wrong conclusions. "Mental math" — keeping things in your head instead of showing work — causes failure.
+
+> "Lean not on your own understanding" applies to the analysis process itself.
+
+### Phase 1: Generate Multiple Candidates (NEVER STOP AT ONE)
+
+You MUST generate at least 3 candidate meanings before evaluating. Assume your first conclusion is wrong.
+
+| Step | Action | Checkpoint |
+|------|--------|------------|
+| 1.1 | Generate **Candidate #1** (first intuition) | Write it down explicitly |
+| 1.2 | **REJECT CHECK**: Is this a dictionary definition or synonym? | If YES → discard, generate another |
+| 1.3 | **Assume Candidate #1 is WRONG** → Generate **Candidate #2** | Must be meaningfully different |
+| 1.4 | **REJECT CHECK**: Is this a dictionary definition or synonym? | If YES → discard, generate another |
+| 1.5 | **Assume Candidate #2 is WRONG** → Generate **Candidate #3** | Must be meaningfully different |
+| 1.6 | **REJECT CHECK**: Is this a dictionary definition or synonym? | If YES → discard, generate another |
+
+**Rejection Examples:**
+
+| Symbol | Dictionary/Synonym (REJECT) | Symbolic (CONSIDER) |
+|--------|----------------------------|---------------------|
+| WATER | Liquid, H2O, fluid | People/Masses |
+| LIGHT | Brightness, illumination | Example |
+| TREE | Plant, wood, timber | Nation |
+| FIRE | Heat, flame, burning | Judgment |
+| OIL | Grease, lubricant, fat | Proven Works |
+
+> **Test**: Would a secular reader using only a dictionary arrive at this meaning? If YES → it's not the symbolic meaning.
+
+---
+
+### Phase 2: Test Each Candidate Systematically
+
+For **EACH** candidate, execute this checklist. **Show your work** — write out each step explicitly.
+
+| Step | Action | Write Out |
+|------|--------|-----------|
+| 2.1 | **LOOK UP** all related symbols from the Symbol Dictionary | List each symbol with IS/IS2/DOES/DOES2 |
+| 2.2 | **IDENTIFY** all other known symbols in Context A | List them with their meanings |
+| 2.3 | **SUBSTITUTE ALL** known symbols + candidate into Context A | Write the FULLY substituted sentence |
+| 2.4 | **IDENTIFY** all other known symbols in Context B | List them with their meanings |
+| 2.5 | **SUBSTITUTE ALL** known symbols + candidate into Context B | Write the FULLY substituted sentence |
+| 2.6 | **IDENTIFY** all other known symbols in Context C | List them with their meanings |
+| 2.7 | **SUBSTITUTE ALL** known symbols + candidate into Context C | Write the FULLY substituted sentence |
+| 2.8 | **CHECK**: Does the FULLY substituted sentence make coherent sense? | If not, candidate fails |
+| 2.9 | **CHECK**: Does it contradict Torah? | Explain why/why not |
+| 2.10 | **CHECK**: Does it create redundancy with another law? | Explain why/why not |
+| 2.11 | **CHECK**: Does it fit the production chain? (for physical symbols) | Trace the chain explicitly |
+| 2.12 | **CHECK**: Can it be bought/sold if Scripture says so? | Verify consistency |
+| 2.13 | **CHECK**: Does burning/consuming it produce expected result? | Verify consistency with related symbols |
+
+**CRITICAL**: At step 2.1, you MUST actually look up the symbols. Do NOT rely on memory. Memory fails. The documented definition is the source of truth.
+
+**CRITICAL**: When substituting, you must substitute ALL known symbols in the verse, not just the candidate. The new symbol must fit coherently with the entire symbolic sentence.
+
+**Example (Testing OIL = Proven Works):**
+
+| Step | Action |
+|------|--------|
+| Original verse | "Burning **oil** produces **light**" |
+| Identify known symbols | LIGHT = Example (IS), Visible Example (IS2) |
+| Substitute ALL | "Burning **[Proven Works]** produces **[Visible Example]**" |
+| Coherence check | ✓ Makes sense: expending proven works produces a visible example for others |
+
+---
+
+### Phase 3: Compare Candidates in a Table
+
+Create an explicit comparison table. Do not evaluate "in your head."
+
+| Criterion | Candidate #1: _____ | Candidate #2: _____ | Candidate #3: _____ |
+|-----------|---------------------|---------------------|---------------------|
+| Fits Context A | ✓ / ✗ + reason | ✓ / ✗ + reason | ✓ / ✗ + reason |
+| Fits Context B | ✓ / ✗ + reason | ✓ / ✗ + reason | ✓ / ✗ + reason |
+| Fits Context C | ✓ / ✗ + reason | ✓ / ✗ + reason | ✓ / ✗ + reason |
+| No Torah violation | ✓ / ✗ + reason | ✓ / ✗ + reason | ✓ / ✗ + reason |
+| No legal redundancy | ✓ / ✗ + reason | ✓ / ✗ + reason | ✓ / ✗ + reason |
+| Production chain fits | ✓ / ✗ + reason | ✓ / ✗ + reason | ✓ / ✗ + reason |
+| Coherent with existing symbols | ✓ / ✗ + reason | ✓ / ✗ + reason | ✓ / ✗ + reason |
+| **TOTAL SCORE** | ___ / 7 | ___ / 7 | ___ / 7 |
+
+---
+
+### Phase 4: Select Best Fit with Documented Reasoning
+
+1. **Winner**: State which candidate scored highest
+2. **Reasoning**: Explain why this candidate is superior
+3. **Weaknesses**: Note any remaining concerns
+4. **Confidence Level**: High / Medium / Low
+
+---
+
+### Why This Process Matters
+
+| Failure Mode | What Happens | This Process Prevents It By |
+|--------------|--------------|----------------------------|
+| First intuition bias | Accept wrong meaning because it "feels right" | Forcing 3 candidates minimum |
+| Dictionary trap | Propose synonym, not symbolic meaning | Explicit rejection filter |
+| Memory error | Use wrong definition for related symbol | Mandatory lookup step |
+| Mental math | Skip verification, miss contradictions | Written substitution requirement |
+| Confirmation bias | Only test contexts that support guess | Structured comparison table |
+
+> **The process IS the protection.** Skipping steps reintroduces the failure modes.
+
+---
+
 ## THE ALGORITHM
 
 ### Step 0: Early Focus Checklist (RUN FIRST)
@@ -42,6 +150,8 @@ Before deep analysis, quickly answer these questions to focus your approach:
 | 16 | **Is there a CONCENTRATED PASSAGE?** (word appears many times in one chapter) | Dense clusters reveal core meaning |
 | 17 | **Does the NT QUOTE the OT using this word?** | Trace back to original context |
 | 18 | **Does this word seem OUT OF PLACE or random in its context?** | Incongruity signals intentional symbolic meaning |
+| 19 | **Would proposed meaning create LEGAL REDUNDANCY with another law?** | If another law already handles it (e.g., death penalty), meaning must be different |
+| 20 | **HOW IS THIS THING MADE/PRODUCED?** What is it made FROM? | Trace the production chain to existing symbols |
 
 #### Category Types:
 
@@ -425,6 +535,64 @@ When a New Testament verse **quotes** the Old Testament, trace the quotation bac
 Paul's quotation chain reveals: "Call on the NAME" = Obey the WORD = Keep the COVENANT
 
 > **Principle**: When NT quotes OT, trace it back. The original context often completes the meaning that the NT assumes readers understand.
+
+---
+
+### Trace the Symbol's Origin (Production Chain Analysis)
+
+Ask: **"How is this thing physically made/produced? What is it made FROM?"**
+
+Then connect each step in the production chain to known symbols.
+
+#### Example: OIL
+
+**Production Chain:**
+1. **OLIVE TREES** produce **OLIVES** (fruit)
+2. Olives are **PRESSED/CRUSHED**
+3. **OIL** is extracted
+
+**Symbolic Chain:**
+- OLIVE TREE → TREE = Nation/Covenant Community (Israel per Romans 11)
+- OLIVES → FRUIT = Works
+- PRESSING → Trials/Testing
+- OIL → **Works that have been tested/proven**
+
+This method exposed why mainstream "OIL = Spirit" is wrong:
+- The Spirit is a **gift** that cannot be bought (Acts 8:20)
+- But Matthew 25:9 says "go **buy**" oil
+- Therefore OIL ≠ Spirit
+
+By tracing the production chain, we arrive at: **OIL = Proven Works**
+
+#### Action Step:
+
+For physical symbols (oil, wine, bread, water, etc.), always ask:
+1. What is the raw material?
+2. What process transforms it?
+3. What do those steps symbolize?
+
+---
+
+### The Redundancy Test (Would This Meaning Create Legal Redundancy?)
+
+If a proposed symbolic meaning would create **legal or logical redundancy** with an existing law or principle, the meaning must be wrong.
+
+#### Example: Fornication in Divorce Passages
+
+**Problem**: Jesus says divorce is permitted "except for fornication" (Matthew 5:32, 19:9). Many assume this means "sexual adultery."
+
+**Redundancy Check**: Under Torah, sexual adultery carries the **death penalty** (Leviticus 20:10, Deuteronomy 22:22).
+
+**The Logic**:
+- If adultery = death, you don't NEED a divorce provision for it
+- The marriage ends by execution, not paperwork
+- Therefore "fornication" must mean something WITHOUT a death penalty
+
+**Conclusion**: Fornication = **idolatry** (not sexual sin). This resolves the redundancy.
+
+#### Action Step:
+
+Ask: "If this word meant [proposed meaning], would it duplicate or conflict with another biblical law?" If yes, the meaning is likely wrong.
 
 ---
 

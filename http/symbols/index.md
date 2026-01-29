@@ -72,10 +72,13 @@ title: "Symbol Dictionary"
 <tr><td><a href="/symbols/tree/">TREE</a></td><td>Nation</td><td>People Group</td></tr>
 <tr><td><a href="/symbols/thorns/">BRIARS/THORNS</a></td><td>Worldly</td><td>Choking People</td></tr>
 <tr><td><a href="/symbols/animal/">ANIMAL</a></td><td>People</td><td>Tribe / Sub-state</td></tr>
-<tr><td><a href="/symbols/babylon/">BABYLON</a></td><td>Confusion</td><td>False System</td></tr>
+<tr><td><a href="/symbols/babylon/">BABYLON</a></td><td>Kingdom</td><td>Worldly Kingdom</td></tr>
 <tr><td><a href="/symbols/name/">NAME</a></td><td>Covenant</td><td>Covenant Relationship</td></tr>
 <tr><td><a href="/symbols/wings/">WINGS</a></td><td>Covenant</td><td>Covenant Covering</td></tr>
 <tr><td><a href="/symbols/eagle/">EAGLE</a></td><td>Messenger</td><td>Angel</td></tr>
+<tr><td><a href="/symbols/marriage/">MARRIAGE</a></td><td>Covenant</td><td>Covenant Picture</td></tr>
+<tr><td><a href="/symbols/fruit/">FRUIT</a></td><td>Works</td><td>Deeds</td></tr>
+<tr><td><a href="/symbols/oil/">OIL</a></td><td>Works</td><td>Proven Works</td></tr>
 </tbody>
 </table>
 

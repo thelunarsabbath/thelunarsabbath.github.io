@@ -86,14 +86,17 @@ Building on SAND = Building on shifting, unreliable foundations
 
 | Symbol | Meaning | Relationship to Rock |
 |--------|---------|---------------------|
-| **TRUTH** | God's Standard/Commandments | The content of the covenant |
-| **FAITH** | Obedience | Our response to the covenant |
-| **ROCK** | Covenant | The unchanging agreement binding word to action |
+| **[TRUTH](/symbols/truth/)** | God's Standard/Commandments | The content of the covenant |
+| **[FAITH](/symbols/faith/)** | Obedience | Our response to the covenant |
+| **ROCK/STONE** | Covenant | The unchanging agreement binding word to action |
+| **[NAME](/symbols/name/)** | Covenant | Another symbol for the same concept |
+| **[BABYLON](/symbols/babylon/)** | Worldly Kingdom | Used BRICK (man-made) instead of STONE (God-given) |
 
 The symbolic web:
-- **TRUTH** (God's Standard) defines the terms
+- **[TRUTH](/symbols/truth/)** (God's Standard) defines the terms
 - **ROCK** (Covenant) binds God to His word unchangingly
-- **FAITH** (Obedience) is our response to that covenant
+- **[FAITH](/symbols/faith/)** (Obedience) is our response to that covenant
+- **[BABYLON](/symbols/babylon/)** substitutes brick for stone — man's covenant for God's
 
 ---
 

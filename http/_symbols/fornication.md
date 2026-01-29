@@ -154,6 +154,57 @@ FORNICATION is the **action/act** of committing idolatry — turning from God to
 
 ---
 
+## The Redundancy Test: Why Fornication CANNOT Mean Sexual Sin
+
+**Critical Logical Proof:**
+
+Under Torah, the penalty for sexual adultery is **DEATH**:
+
+> "the adulterer and the adulteress shall surely be **put to death**" — Leviticus 20:10
+
+> "If a man be found lying with a woman married to an husband, then they shall **both of them die**" — Deuteronomy 22:22
+
+**The Logical Conclusion:**
+
+If sexual adultery = death penalty, then:
+1. You don't NEED a divorce provision for it
+2. The marriage ends by **execution**, not paperwork
+3. Therefore Jesus' "except for fornication" (Matthew 5:32, 19:9) **cannot mean sexual sin**
+
+This is the **Redundancy Test**: If a proposed meaning creates legal redundancy with an existing law, the meaning must be wrong.
+
+---
+
+## Practical Application: Grounds for Divorce
+
+Since FORNICATION = Idolatry (not sexual sin), Jesus is teaching:
+
+| Situation | Response |
+|-----------|----------|
+| Spouse commits sexual adultery | Death penalty under Torah (marriage ends) |
+| Spouse commits fornication (idolatry) | Divorce **permitted** (Matthew 5:32, 19:9) |
+| Unequally yoked to an idolater | Divorce **commanded** (Ezra 10:3) |
+
+**Ezra 10:3** — "let us make a covenant with our God to **put away all the wives**"
+
+Ezra didn't permit divorce from idolatrous wives — he **commanded** it. Remaining yoked to an idolater is itself covenant violation.
+
+**2 Corinthians 6:14** — "Be ye not **unequally yoked** together with unbelievers"
+
+---
+
+## Connection to Other Symbols
+
+| Symbol | Meaning | Relationship to FORNICATION |
+|--------|---------|----------------------------|
+| **[MARRIAGE](/symbols/marriage/)** | Covenant | Fornication = breaking the marriage covenant |
+| **[HARLOT](/symbols/harlot/)** | Idolater | One who commits fornication |
+| **[VIRGIN](/symbols/virgin/)** | Covenant Faithful | Opposite of harlot |
+| **[BABYLON](/symbols/babylon/)** | Worldly Kingdom | "Kings committed fornication with her" |
+| **[IDOLATRY](/symbols/idolatry/)** | Serving Other Gods | Fornication IS idolatry |
+
+---
+
 ## Summary
 
 **FORNICATION** in Scripture (especially prophetically) means **IDOLATRY** — the act of giving devotion, service, or allegiance to anyone or anything other than the true God.
@@ -161,3 +212,5 @@ FORNICATION is the **action/act** of committing idolatry — turning from God to
 The marriage metaphor (God as husband, Israel as wife) makes spiritual unfaithfulness = adultery/fornication.
 
 The constant pattern "go a whoring AFTER other gods" confirms that fornication = serving other masters = breaking the first commandment.
+
+The Redundancy Test proves this isn't about sexual sin — that already has its own penalty (death). Fornication as grounds for divorce must mean something else: **idolatry/covenant unfaithfulness to God**.

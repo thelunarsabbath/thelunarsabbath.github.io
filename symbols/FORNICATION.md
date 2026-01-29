@@ -150,6 +150,29 @@ FORNICATION is the **action/act** of committing idolatry — turning from God to
 
 ---
 
+## The Redundancy Test: Why Fornication CANNOT Mean Sexual Sin
+
+Under Torah, sexual adultery = **DEATH** (Leviticus 20:10, Deuteronomy 22:22).
+
+If adultery = death penalty:
+1. You don't need divorce provisions for it
+2. Marriage ends by execution, not paperwork
+3. Therefore "except for fornication" (Matthew 5:32, 19:9) must mean something else
+
+**Fornication = Idolatry** — resolves the redundancy.
+
+---
+
+## Practical Application: Grounds for Divorce
+
+| Situation | Response |
+|-----------|----------|
+| Sexual adultery | Death penalty (Torah) |
+| Fornication (idolatry) | Divorce **permitted** |
+| Unequally yoked | Divorce **commanded** (Ezra 10:3) |
+
+---
+
 ## Summary
 
 **FORNICATION** in Scripture (especially prophetically) means **IDOLATRY** — the act of giving devotion, service, or allegiance to anyone or anything other than the true God.
@@ -157,3 +180,5 @@ FORNICATION is the **action/act** of committing idolatry — turning from God to
 The marriage metaphor (God as husband, Israel as wife) makes spiritual unfaithfulness = adultery/fornication.
 
 The constant pattern "go a whoring AFTER other gods" confirms that fornication = serving other masters = breaking the first commandment.
+
+The Redundancy Test proves this isn't about sexual sin — that already has its own penalty (death).

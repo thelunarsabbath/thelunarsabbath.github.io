@@ -33,10 +33,13 @@ A reference of decoded symbolic meanings derived through systematic scriptural a
 | [TREE](#tree) | Nation | People Group |
 | [BRIARS/THORNS](#briars-and-thorns) | Worldly | Choking People |
 | [ANIMAL](#animal-cleanunclean-wilddomestic) | People | Tribe / Sub-state |
-| [BABYLON](#babylon) | Confusion | False System |
+| [BABYLON](#babylon) | Kingdom | Worldly Kingdom |
 | [NAME](#name) | Covenant | Covenant Relationship |
 | [WINGS](#wings) | Covenant | Covenant Covering |
 | [EAGLE](#eagle) | Messenger | Angel |
+| [MARRIAGE](#marriage) | Covenant | Covenant Picture |
+| [FRUIT](#fruit) | Works | Deeds |
+| [OIL](#oil) | Works | Proven Works |
 
 ---
 
@@ -561,6 +564,15 @@ A reference of decoded symbolic meanings derived through systematic scriptural a
 
 ### BABYLON
 
+**Symbolic Meaning**:
+| Form | Meaning |
+|------|---------|
+| **One Word** | Kingdom |
+| **Two Words** | Worldly Kingdom |
+| **Sentence** | The worldly kingdom system built on human authority and effort—man's substitute for God's covenant, using brick (man-made) instead of stone (God-given), the "mother of harlots" because all idolatry flows from rejecting God's Kingdom for man's |
+
+**Opposite**: Jerusalem/Zion (Heavenly Kingdom)
+
 | Dimension | Symbolic Meaning |
 |-----------|------------------|
 | **IS (One Word)** | Confusion |
@@ -587,14 +599,22 @@ A reference of decoded symbolic meanings derived through systematic scriptural a
 - The NAME means "confusion" — mixing God's truth with man's error
 
 **Relationship to Other Symbols**:
-- BABYLON = The SYSTEM (empire of confusion)
-- HARLOT = Those produced BY Babylon (idolaters)
-- TREE = Babylon AS an empire (Daniel 4 — the great tree = Nebuchadnezzar's Babylon)
-- TRUTH = God's Standard → BABYLON = Confusion of that standard
+- BABYLON = Worldly Kingdom (man's rule)
+- JERUSALEM/ZION = Heavenly Kingdom (God's rule)
+- HARLOT = Those produced BY Babylon (covenant breakers who follow worldly kingdom)
+- STONE = Covenant (God-given) vs. BRICK = Man-made substitute (Gen 11:3)
+- MOUNTAIN = Kingdom — Babylon sits on seven mountains (claims dominion over kingdoms)
+- NAME = Covenant — "let us make us a name" = man's self-covenant (Gen 11:4)
+
+**Key Insight (Brick vs. Stone)**:
+Genesis 11:3 — "they had **brick** for **stone**"
+- STONE = Covenant (God-given, enduring)
+- BRICK = Man-made substitute
+- Babylon uses human effort to replace what only God can provide
 
 **Hierarchical Position**:
-- BABYLON (the system/city) reigns over KINGS of the earth (Rev 17:18)
-- It is the MOTHER of harlots — the SOURCE from which idolatry flows
+- BABYLON (worldly kingdom) reigns over KINGS of the earth (Rev 17:18)
+- It is the MOTHER of harlots — all idolatry flows from choosing man's kingdom over God's
 
 **Full Study**: [`symbols/BABYLON.md`](symbols/BABYLON.md)
 
@@ -701,6 +721,52 @@ The cherubim (angels) have FOUR FACES: man, lion, ox, and **EAGLE**. The eagle f
 - An eagle HAS wings → A messenger operates UNDER covenant authority
 
 **Full Study**: [`symbols/EAGLE.md`](symbols/EAGLE.md)
+
+---
+
+### MARRIAGE
+
+| Dimension | Symbolic Meaning |
+|-----------|------------------|
+| **IS (One Word)** | Covenant |
+| **IS (Two Words)** | Covenant Picture |
+| **DOES (One Word)** | Binds |
+| **DOES (Two Words)** | Pictures |
+| **Sentence** | The covenant relationship between God and His people pictured in human marriage — husband represents God/Christ, wife represents Israel/Church, faithfulness represents covenant obedience |
+
+**Opposite**: Divorce / Covenant Breaking
+
+**Key Proof Texts**:
+- **Isaiah 54:5** — "thy Maker is thine **husband**"
+- **Jeremiah 3:14** — "I am **married** unto you"
+- **Hosea 2:19** — "I will **betroth** thee unto me for ever"
+- **2 Corinthians 11:2** — "espoused you to one **husband**... Christ"
+- **Revelation 19:7** — "the **marriage** of the Lamb is come"
+
+**Strong's**:
+- H802 (אִשָּׁה / ishshah): "woman, wife"
+- H376 (אִישׁ / ish): "man, husband"
+- G1062 (γάμος / gamos): "marriage, wedding"
+- G3565 (νύμφη / nymphe): "bride"
+- G3566 (νυμφίος / nymphios): "bridegroom"
+
+**Critical Insight — The Redundancy Test**:
+Jesus permits divorce "except for fornication" (Matthew 5:32, 19:9). This CANNOT mean sexual sin because adultery already has its own penalty: **death** (Leviticus 20:10). You don't need divorce provisions for a capital crime. Therefore "fornication" = **idolatry**.
+
+**Grounds for Divorce**:
+| Situation | Response |
+|-----------|----------|
+| Sexual adultery | Death penalty (Torah) |
+| Fornication (idolatry) | Divorce **permitted** |
+| Unequally yoked | Divorce **commanded** (Ezra 10:3) |
+
+**Relationship to Other Symbols**:
+- **FORNICATION** = Idolatry (breaking the marriage with God)
+- **VIRGIN** = Covenant Faithful (faithful wife)
+- **HARLOT** = Covenant Unfaithful (unfaithful wife)
+- **WINGS** = Covenant Covering (spread over bride to marry — Ruth 3:9, Ezekiel 16:8)
+
+**Full Study**: [`symbols/MARRIAGE.md`](symbols/MARRIAGE.md)
 
 ---
 

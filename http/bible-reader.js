@@ -3646,6 +3646,17 @@ function smartBibleSearch() {
   const searchText = input.value.trim();
   if (!searchText) return;
   
+  // Check if it's a Strong's number (H1234, G5678, H03068, etc.)
+  const strongsMatch = searchText.match(/^([HGhg])0*(\d+)$/);
+  if (strongsMatch) {
+    const prefix = strongsMatch[1].toUpperCase();
+    const num = strongsMatch[2];
+    const strongsNum = prefix + num;
+    showStrongsPanel(strongsNum, '', '', null);
+    input.value = '';
+    return;
+  }
+  
   // Try to parse as a verse citation first
   const parsed = parseSearchCitation(searchText);
   

@@ -80,6 +80,114 @@ We don't impose meanings onto biblical symbols from outside sources. Instead, we
 
 ---
 
+## CRITICAL: The Executable Workflow
+
+<div class="principle-box">
+<strong>Warning:</strong> This is not a document to "keep in mind." It is a <strong>step-by-step process to execute</strong>. Skipping steps leads to wrong conclusions. "Mental math" — keeping things in your head instead of showing work — causes failure.
+
+<em>"Lean not on your own understanding"</em> applies to the analysis process itself.
+</div>
+
+### Phase 1: Generate Multiple Candidates (NEVER STOP AT ONE)
+
+You MUST generate at least 3 candidate meanings before evaluating. **Assume your first conclusion is wrong.**
+
+| Step | Action |
+|------|--------|
+| 1.1 | Generate **Candidate #1** (first intuition) — write it down |
+| 1.2 | **REJECT CHECK**: Is this a dictionary definition or synonym? If YES → discard |
+| 1.3 | **Assume #1 is WRONG** → Generate **Candidate #2** (meaningfully different) |
+| 1.4 | **REJECT CHECK**: Dictionary/synonym? If YES → discard |
+| 1.5 | **Assume #2 is WRONG** → Generate **Candidate #3** (meaningfully different) |
+| 1.6 | **REJECT CHECK**: Dictionary/synonym? If YES → discard |
+
+<div class="example-block">
+<strong>Rejection Examples:</strong>
+
+| Symbol | REJECT (Dictionary) | CONSIDER (Symbolic) |
+|--------|---------------------|---------------------|
+| WATER | Liquid, H2O, fluid | People/Masses |
+| LIGHT | Brightness, illumination | Example |
+| TREE | Plant, wood, timber | Nation |
+| OIL | Grease, lubricant | Proven Works |
+
+<strong>Test:</strong> Would a secular reader using only a dictionary arrive at this meaning? If YES → not the symbolic meaning.
+</div>
+
+### Phase 2: Test Each Candidate Systematically
+
+For **EACH** candidate, execute this checklist. **Show your work** — write out each step.
+
+| Step | Action |
+|------|--------|
+| 2.1 | **LOOK UP** all related symbols from the Symbol Dictionary — write out IS/IS2/DOES |
+| 2.2 | **IDENTIFY** all other known symbols in Context A |
+| 2.3 | **SUBSTITUTE ALL** known symbols + candidate into Context A |
+| 2.4 | **IDENTIFY** all other known symbols in Context B |
+| 2.5 | **SUBSTITUTE ALL** known symbols + candidate into Context B |
+| 2.6 | **IDENTIFY** all other known symbols in Context C |
+| 2.7 | **SUBSTITUTE ALL** known symbols + candidate into Context C |
+| 2.8 | **CHECK**: Does the FULLY substituted sentence make coherent sense? |
+| 2.9 | **CHECK**: Does it contradict Torah? |
+| 2.10 | **CHECK**: Does it create redundancy with another law? |
+| 2.11 | **CHECK**: Does it fit the production chain? (for physical symbols) |
+| 2.12 | **CHECK**: Can it be bought/sold if Scripture says so? |
+
+<div class="principle-box">
+<strong>CRITICAL:</strong> At step 2.1, you MUST actually look up the symbols. Do NOT rely on memory. Memory fails. The documented definition is the source of truth.
+
+<strong>CRITICAL:</strong> When substituting, substitute ALL known symbols in the verse, not just the candidate. The new symbol must fit coherently with the entire symbolic sentence.
+</div>
+
+<div class="example-block">
+<strong>Example (Testing OIL = Proven Works):</strong>
+
+| Step | Action |
+|------|--------|
+| Original | "Burning **oil** produces **light**" |
+| Identify known | LIGHT = Example / Visible Example |
+| Substitute ALL | "Burning **[Proven Works]** produces **[Visible Example]**" |
+| Coherence | ✓ Expending proven works produces a visible example |
+</div>
+
+### Phase 3: Compare Candidates in a Table
+
+Create an **explicit** comparison table. Do not evaluate "in your head."
+
+| Criterion | Candidate #1 | Candidate #2 | Candidate #3 |
+|-----------|--------------|--------------|--------------|
+| Fits Context A | ✓ / ✗ + reason | | |
+| Fits Context B | | | |
+| Fits Context C | | | |
+| No Torah violation | | | |
+| No legal redundancy | | | |
+| Production chain fits | | | |
+| Coherent with existing symbols | | | |
+| **TOTAL** | ___ / 7 | ___ / 7 | ___ / 7 |
+
+### Phase 4: Select Best Fit with Documented Reasoning
+
+1. **Winner**: State which candidate scored highest
+2. **Reasoning**: Explain why
+3. **Weaknesses**: Note remaining concerns
+4. **Confidence**: High / Medium / Low
+
+<div class="method-section">
+<strong>Why This Process Matters:</strong>
+
+| Failure Mode | This Process Prevents It By |
+|--------------|----------------------------|
+| First intuition bias | Forcing 3 candidates minimum |
+| Dictionary trap | Explicit rejection filter |
+| Memory error | Mandatory lookup step |
+| Mental math | Written substitution requirement |
+| Confirmation bias | Structured comparison table |
+
+<strong>The process IS the protection.</strong> Skipping steps reintroduces the failure modes.
+</div>
+
+---
+
 ## How to Study a Symbol (Human Guide)
 
 ### Step 1: Gather Every Occurrence
@@ -351,6 +459,44 @@ Before deep analysis, quickly answer these questions:
 | 9 | Is this an INVOCATION symbol? (ask what RELATIONSHIP is invoked) |
 | 10 | Is there a CONCENTRATED PASSAGE? (word appears many times) |
 | 11 | Does this word seem OUT OF PLACE or random? (incongruity = intentional) |
+| 12 | Would proposed meaning create LEGAL REDUNDANCY? (if another law handles it, meaning must differ) |
+| 13 | HOW IS THIS THING MADE? What is it made FROM? (trace production chain) |
+
+---
+
+## Trace the Symbol's Origin (Production Chain)
+
+For physical symbols, ask: **"How is this made? What is it made FROM?"**
+
+Then connect each step to known symbols.
+
+**Example: OIL**
+
+| Stage | Physical | Symbolic |
+|-------|----------|----------|
+| Source | Olive Tree | Covenant Community (TREE) |
+| Fruit | Olives | Works (FRUIT) |
+| Process | Pressing | Trials/Testing |
+| Product | Oil | **Proven Works** |
+
+This exposed why "OIL = Spirit" is wrong:
+- Spirit is a **gift** that cannot be bought (Acts 8:20)
+- But Matthew 25:9 says "go **buy**" oil
+- Therefore OIL = something acquirable = **Proven Works**
+
+---
+
+## The Redundancy Test
+
+If a proposed meaning would create **legal redundancy** with an existing law, it must be wrong.
+
+**Example**: "Divorce except for fornication" (Matthew 5:32)
+
+- Sexual adultery = **death penalty** under Torah (Leviticus 20:10)
+- If adultery = death, you don't need divorce provisions for it
+- Therefore "fornication" must mean something else: **idolatry**
+
+This test resolved centuries of debate about divorce grounds.
 
 ---
 

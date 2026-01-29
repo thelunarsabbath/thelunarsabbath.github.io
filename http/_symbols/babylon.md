@@ -1,207 +1,193 @@
 ---
 title: "BABYLON"
+layout: symbol
 ---
 
 # BABYLON — Word Study
 
-## Summary
+## Symbolic Meaning
 
-| Dimension | Form | Symbolic Meaning |
-|-----------|------|------------------|
-| **IS** | One Word | Confusion |
-| **IS** | Two Words | False System |
-| **DOES** | One Word | Confounds |
-| **DOES** | Two Words | Produces Idolatry |
-| **Sentence** | | The counterfeit religious/political system that confuses truth with error — the "mother of harlots" from which all idolatry/false worship originates; opposes God's order with man's confusion |
+| Form | Meaning |
+|------|---------|
+| **One Word** | Kingdom |
+| **Two Words** | Worldly Kingdom |
+| **Sentence** | The worldly kingdom system built on human authority and effort—man's substitute for God's covenant, using brick (man-made) instead of stone (God-given), the "mother of harlots" because all idolatry flows from rejecting God's Kingdom for man's |
 
----
-
-## Step 0: Early Focus Checklist
-
-| # | Question | Answer |
-|---|----------|--------|
-| 1 | **What TYPE?** | System/Structure — religious/political |
-| 2 | **Explicit definition?** | YES — Genesis 11:9 (etymology), Revelation 17:5 |
-| 3 | **What is the OPPOSITE?** | Jerusalem / Zion = God's true order |
-| 4 | **What VERBS accompany it?** | CONFOUND, REIGN, PRODUCE HARLOTS |
-| 5 | **What does it DO?** | Confuses truth, produces idolatry |
+**Opposite**: Jerusalem/Zion ([Heavenly Kingdom](/symbols/mountain/))
 
 ---
 
-## Etymology: The Name Means "Confusion"
+## The Key Insight: Brick vs. Stone
 
-### Genesis 11:9
-> "Therefore is the name of it called **Babel**; because the LORD did there **CONFOUND** the language of all the earth"
+### Genesis 11:3
+> "And they said one to another, Go to, let us make **brick**, and burn them throughly. And they had **brick** for **stone**, and slime had they for morter."
 
-| Hebrew | Meaning |
-|--------|---------|
-| בָּבֶל (Babel, H894) | Babel/Babylon |
-| בָּלַל (balal, H1101) | To confound, confuse, MIX |
+| Material | Symbolic Meaning | Source |
+|----------|------------------|--------|
+| **STONE** | Covenant | God-given, natural, enduring |
+| **BRICK** | Man-made substitute | Human effort, manufactured |
 
-**THE NAME MEANS "CONFUSION"**
+**BABYLON uses man-made substitutes for what only God can provide.**
 
-Babylon = The system that CONFUSES — mixing God's truth with man's error.
-
----
-
-## Evidence: Origin of Organized Rebellion
-
-### Genesis 10:10
-> "the beginning of his **KINGDOM** was **Babel**"
-
-Babel was the beginning of NIMROD's kingdom — the first organized rebellion against God after the flood.
-
-### Genesis 11:4
-> "let us build us a city and a tower, whose top may reach unto heaven; and let us make us a **NAME**"
-
-The Tower of Babel = Man's attempt to:
-1. Reach heaven BY THEIR OWN EFFORT
-2. Make a name for THEMSELVES (not God's name)
-
-**BABYLON = Self-exaltation / Man's way instead of God's way**
+The builders of Babel used BRICK (man-made) instead of STONE (God-given covenant). This is the essence of Babylon: **human effort replacing divine provision**.
 
 ---
 
-## Evidence: Mother of Harlots (Revelation 17)
+## Genesis 11:4 — Making Their Own Covenant
 
-### Revelation 17:5
-> "upon her forehead was a name written, **MYSTERY, BABYLON THE GREAT, THE MOTHER OF HARLOTS AND ABOMINATIONS** OF THE EARTH"
+> "And they said, Go to, let us build us a **city** and a **tower**, whose top may reach unto **heaven**; and let us make us a **NAME**, lest we be scattered"
+
+| Element | Worldly Kingdom (Babylon) | Heavenly Kingdom (God's) |
+|---------|---------------------------|--------------------------|
+| **CITY** | Man-built covenant community | God-established Jerusalem |
+| **TOWER** | Human effort reaching to heaven | God descending to man |
+| **NAME** | Self-made covenant | God's NAME/Covenant given |
+| **HEAVEN** | Man ascending by works | God's dwelling, His gift |
+
+**"Let us make us a NAME"** = Let us establish our own covenant, our own authority, our own kingdom.
+
+This directly contrasts with God **giving** His NAME (covenant) to His people.
+
+---
+
+## Worldly Kingdom vs. Heavenly Kingdom
+
+| Worldly Kingdom (Babylon) | Heavenly Kingdom (Jerusalem/Zion) |
+|---------------------------|-----------------------------------|
+| Man's authority | God's authority |
+| Human effort (brick) | Divine provision (stone) |
+| Self-made covenant (our name) | God's covenant (His NAME) |
+| Man reaching up to heaven | God coming down to man |
+| Works salvation | Grace through covenant |
+| "I am, and none else" (Isa 47:8) | "I AM that I AM" (true God) |
+| Temporary, falls | Eternal, endures |
+
+---
+
+## Isaiah 47:8,10 — Babylon Claims to Be God
+
+> "thou that sayest in thine heart, **I am, and none else beside me**"
+> "Thy **wisdom** and thy **knowledge**, it hath **perverted** thee"
+
+Babylon claims divine authority: "I am, and none else beside me" — the language of deity.
+
+This is the essence of the worldly kingdom: **man claiming God's place**.
+
+---
+
+## Daniel 4:30 — Human Glory
+
+> "The king spake, and said, Is not this great Babylon, that **I** have built for the house of the kingdom **by the might of MY power**, and for the honour of **MY majesty**?"
+
+Note the I/MY/MY:
+- **I** have built
+- **MY** power
+- **MY** majesty
+
+This is worldly kingdom thinking: human achievement, human glory, human authority.
+
+**God's response** (v.31-32): The kingdom was taken from Nebuchadnezzar until he acknowledged "that the most High **ruleth in the kingdom of men**."
+
+---
+
+## Revelation 17:5 — Mother of Harlots
+
+> "upon her forehead was a name written, MYSTERY, **BABYLON THE GREAT**, THE **MOTHER OF HARLOTS** AND ABOMINATIONS OF THE EARTH"
 
 | Title | Meaning |
 |-------|---------|
-| **MYSTERY** | Hidden/counterfeit system |
-| **BABYLON THE GREAT** | The ultimate system of confusion |
-| **MOTHER OF HARLOTS** | SOURCE of all idolatry |
-| **ABOMINATIONS** | Everything detestable to God |
+| **MOTHER** | Source, origin |
+| **OF HARLOTS** | Of idolaters/covenant-breakers |
 
-**BABYLON PRODUCES HARLOTS (IDOLATERS)**
+**All idolatry flows from choosing man's kingdom over God's.**
 
-### Revelation 17:18
-> "the **woman** which thou sawest is that great **CITY**, which **REIGNETH over the kings of the earth**"
-
-Babylon is a SYSTEM that:
-1. Reigns over kings (controlling influence)
-2. Is the SOURCE (mother) of all false worship
+When you reject the Heavenly Kingdom (God's covenant, God's authority), you enter the Worldly Kingdom — and from there flows all false worship.
 
 ---
 
-## Dimension 1: WHAT Babylon IS
+## Revelation 17:9,18 — Sits on Mountains
 
-| Evidence | Babylon = |
-|----------|-----------|
-| Genesis 11:9 | Confusion (etymology) |
-| Genesis 10:10 | First organized rebellion |
-| Revelation 17:5 | Mother of harlots — source of idolatry |
-| Revelation 17:18 | System that reigns over kings |
+> "The seven heads are **seven mountains**, on which the woman sitteth"
+> "the woman which thou sawest is that great **city**, which **reigneth over the kings of the earth**"
 
-**BABYLON = CONFUSION / FALSE SYSTEM**
-
-The counterfeit religious/political order that opposes God's truth with man's error.
+| Symbol | Meaning | Babylon's Claim |
+|--------|---------|-----------------|
+| **MOUNTAIN** | Kingdom | Babylon sits on/claims all kingdoms |
+| **CITY** | Covenant community | Babylon is the worldly covenant community |
+| **REIGNS** | Authority | Claims authority over all earthly kings |
 
 ---
 
-## Dimension 2: WHAT Babylon DOES
+## Why "Kingdom" Not "Confusion"
 
-### Confounds
-> "the LORD did there **CONFOUND** the language" (Genesis 11:9)
+The old definition focused on the etymology: Babel = "confound" (H1101, balal).
 
-Babylon CONFUSES — mixes truth with error, creating confusion.
+But "confusion" is a **result**, not the **essence**.
 
-### Produces Idolatry
-> "THE **MOTHER** OF HARLOTS" (Revelation 17:5)
+| Level | Insight |
+|-------|---------|
+| **Etymology** | The word means "confound/mix" |
+| **Result** | Confusion follows from rejecting God's order |
+| **ESSENCE** | Worldly Kingdom — man's authority replacing God's |
 
-Babylon is the SOURCE from which all idolatry/false worship flows.
+The confusion at Babel was **God's judgment** on the worldly kingdom, not the definition of what Babylon IS.
 
-### Reigns Over Kings
-> "**REIGNETH over the kings** of the earth" (Revelation 17:18)
-
-Babylon exercises controlling influence over earthly powers.
-
----
-
-## Two-Dimensional Summary
-
-| Dimension | Meaning | Evidence |
-|-----------|---------|----------|
-| **WHAT IT IS** | Confusion / False System | Gen 11:9, Rev 17:5 |
-| **WHAT IT DOES** | Confounds / Produces Idolatry | Gen 11:9, Rev 17:5 |
+**Babylon IS the Worldly Kingdom. Confusion is what happens when man rejects God's rule.**
 
 ---
 
-## Babylon as TREE (Daniel 4)
+## The Production Chain
 
-### Daniel 4:22
-> "The **tree** that thou sawest... **It is THOU, O king**"
-
-Nebuchadnezzar's Babylon is represented as a TREE — an empire that:
-- Grew great (v.11)
-- Provided shelter for beasts and fowls (v.12) — subordinate peoples
-- Was cut down in judgment (v.23)
-
-**BABYLON = An empire (tree) of confusion**
+| Stage | Worldly Kingdom | Heavenly Kingdom |
+|-------|-----------------|------------------|
+| **Foundation** | Brick (man-made) | Stone (God-given covenant) |
+| **Authority** | Man's name | God's NAME |
+| **Method** | Human effort | Divine grace |
+| **Result** | Produces harlots (idolaters) | Produces faithful bride |
+| **Destiny** | Falls, destroyed | Endures forever |
 
 ---
 
-## Babylon vs. Jerusalem/Zion
+## Connection to Other Symbols
 
-| Babylon | Jerusalem/Zion |
-|---------|----------------|
-| Confusion | Clarity |
-| Man's order | God's order |
-| Mother of harlots | Bride of Christ |
-| Reigns over kings | Kingdom of God |
-| Built by man (Gen 11:4) | Built by God |
-| "Make us a NAME" | God's NAME |
-
-**BABYLON is the COUNTERFEIT of God's true kingdom**
+| Symbol | Meaning | Relationship to BABYLON |
+|--------|---------|-------------------------|
+| **[STONE/ROCK](/symbols/rock/)** | Covenant | Babylon substitutes brick for stone |
+| **[NAME](/symbols/name/)** | Covenant | Babylon makes its own name |
+| **[MOUNTAIN](/symbols/mountain/)** | Kingdom | Babylon sits on/claims kingdoms |
+| **[HARLOT](/symbols/harlot/)** | Idolater | Babylon is the MOTHER (source) of harlots |
+| **[TREE](/symbols/tree/)** | Nation/Empire | Babylon pictured as the great tree (Dan 4) |
+| **[FORNICATION](/symbols/fornication/)** | Idolatry | Kings commit fornication with Babylon |
 
 ---
 
-## Relationship to Other Symbols
+## "Come Out of Her, My People" (Revelation 18:4)
 
-| Symbol | Meaning | Relationship to Babylon |
-|--------|---------|------------------------|
-| **HARLOT** | Idolater | Babylon PRODUCES harlots (mother of) |
-| **IDOLATRY** | Self-rule / Rejecting God's Word | Babylon IS the system of idolatry |
-| **TREE** | Empire | Babylon represented AS a tree (Dan 4) |
-| **SEA** | Chaotic peoples | Babylon reigns over the sea's chaos |
-| **TRUTH** | God's Standard | Babylon CONFUSES/MIXES truth |
+> "**Come out of her**, my people, that ye be not partakers of her sins, and that ye receive not of her plagues"
 
----
+The call to God's people: **Leave the Worldly Kingdom. Enter the Heavenly Kingdom.**
 
-## Characteristics of Babylon
-
-1. **CONFUSION** — Mixing truth with error
-2. **COUNTERFEIT** — False system imitating God's order
-3. **MOTHER** — Source/origin of idolatry
-4. **REIGNING** — Controlling influence over earthly powers
-5. **SELF-EXALTATION** — Man's way instead of God's way
-6. **DESTINED FOR JUDGMENT** — "Babylon is fallen, is fallen" (Rev 18:2)
+This is the same call throughout Scripture:
+- Abraham: Leave Ur (Chaldea/Babylon)
+- Israel: Leave Egypt (another worldly kingdom)
+- Church: Come out of Babylon
 
 ---
 
-## The Fall of Babylon
+## Summary
 
-### Revelation 18:2
-> "**Babylon the great is fallen, is fallen**, and is become the habitation of devils, and the hold of every foul spirit, and a cage of every unclean and hateful bird"
+**BABYLON = WORLDLY KINGDOM**
 
-### Revelation 18:21
-> "Thus with violence shall that great city **Babylon** be thrown down, and shall be found **no more at all**"
+The worldly kingdom is characterized by:
+1. **Human authority** replacing God's ("I am, and none else")
+2. **Human effort** replacing divine provision (brick for stone)
+3. **Self-made covenant** replacing God's covenant (make us a name)
+4. **Works salvation** — man reaching up to heaven
+5. **Source of all idolatry** — mother of harlots
 
-The system of confusion will be completely destroyed.
-
----
-
-## Conclusion
-
-BABYLON has **two dimensions**:
-
-1. **WHAT IT IS**: Confusion / False System — the counterfeit religious/political order that opposes God's truth with man's confusion; the SOURCE from which all idolatry flows
-
-2. **WHAT IT DOES**: Confounds / Produces Idolatry — mixes truth with error, "mothers" harlots, reigns over earthly powers
-
-Key insights:
-- **Etymology**: The name itself means "confusion" (from balal = to confound/mix)
-- **Origin**: First organized rebellion against God (Nimrod's kingdom)
-- **Function**: Mother of harlots — the SOURCE of all false worship
-- **Destiny**: Complete destruction ("found no more at all")
+The opposite is **JERUSALEM/ZION = HEAVENLY KINGDOM**:
+- God's authority
+- God's covenant (stone)
+- God's NAME given
+- Grace — God reaching down to man
+- Produces faithful bride

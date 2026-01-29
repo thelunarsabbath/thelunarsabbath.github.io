@@ -123,9 +123,12 @@ If NAME = mere word, there are many names. But if NAME = COVENANT, this makes se
 
 | Symbol | Meaning | Connection to NAME |
 |--------|---------|-------------------|
-| **ROCK** | Covenant (unchanging) | NAME invokes what ROCK represents |
-| **FAITH** | Trusting obedience (to covenant) | "Believing on the NAME" = trusting the covenant |
-| **FORNICATION** | Breaking covenant | "Profaning the NAME" = dishonoring the covenant |
+| **[ROCK](/symbols/rock/)** | Covenant (unchanging) | NAME invokes what ROCK represents |
+| **[FAITH](/symbols/faith/)** | Trusting obedience (to covenant) | "Believing on the NAME" = trusting the covenant |
+| **[FORNICATION](/symbols/fornication/)** | Breaking covenant | "Profaning the NAME" = dishonoring the covenant |
+| **[BABYLON](/symbols/babylon/)** | Worldly Kingdom | "Let us make us a NAME" — self-made covenant |
+| **[WINGS](/symbols/wings/)** | Covenant Covering | "Fear my NAME... healing in his WINGS" (Mal 4:2) |
+| **[MARRIAGE](/symbols/marriage/)** | Covenant Picture | Wife takes husband's NAME = enters covenant |
 
 #### The Relationship Test
 

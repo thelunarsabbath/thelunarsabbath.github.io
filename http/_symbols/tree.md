@@ -129,11 +129,13 @@ Nations face JUDGMENT — they can be cut down based on their fruit.
 
 | Symbol | Meaning | Relationship |
 |--------|---------|--------------|
-| **MOUNTAIN** | Kingdom (governmental authority) | Trees grow ON mountains — nations under kingdoms |
+| **[MOUNTAIN](/symbols/mountain/)** | Kingdom (governmental authority) | Trees grow ON mountains — nations under kingdoms |
 | **TREE** | Nation (the people/community) | The collective body |
-| **ANIMAL** | People group characterized by nature | Can dwell under/within tree |
-| **SEA** | Chaotic, unsanctified nations | Sea = disordered; Tree = cultivated |
-| **THORNS** | Cursed fruit | What bad "trees" produce |
+| **[ANIMAL](/symbols/animal/)** | People group characterized by nature | Can dwell under/within tree |
+| **[SEA](/symbols/sea/)** | Chaotic, unsanctified nations | Sea = disordered; Tree = cultivated |
+| **[THORNS](/symbols/thorns/)** | Cursed fruit | What bad "trees" produce |
+| **[FRUIT](/symbols/fruit/)** | Works | What trees produce |
+| **[BABYLON](/symbols/babylon/)** | Worldly Kingdom | Pictured as great tree in Daniel 4 |
 
 ---
 

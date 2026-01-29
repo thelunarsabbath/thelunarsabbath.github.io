@@ -258,12 +258,12 @@ const SYMBOL_DICTIONARY = {
     name: 'BABYLON',
     words: ['babylon', 'babel'],
     strongs: ['H894', 'G897'],
-    is: 'Confusion',
-    is2: 'False System',
-    does: 'Confounds',
-    does2: 'Produces Idolatry',
-    sentence: 'The counterfeit religious/political system that confuses truth with error—the "mother of harlots"',
-    opposite: 'Jerusalem/Zion',
+    is: 'Kingdom',
+    is2: 'Worldly Kingdom',
+    does: 'Opposes',
+    does2: 'Counterfeits',
+    sentence: 'The worldly kingdom system built on human authority and effort—man\'s substitute for God\'s covenant, using brick (man-made) instead of stone (God-given), the "mother of harlots" because all idolatry flows from rejecting God\'s Kingdom for man\'s',
+    opposite: 'Jerusalem/Zion (Heavenly Kingdom)',
     link: '/symbols/babylon/'
   },
   
@@ -304,6 +304,45 @@ const SYMBOL_DICTIONARY = {
     sentence: 'A messenger or agent sent under covenant authority—angels have wings, cherubim have eagle faces, and empires act as God\'s messengers of judgment',
     opposite: 'Unsent/Unauthorized',
     link: '/symbols/eagle/'
+  },
+  
+  'marriage': {
+    name: 'MARRIAGE',
+    words: ['marriage', 'marry', 'married', 'wife', 'husband', 'bride', 'bridegroom', 'wed', 'wedding', 'espouse', 'espoused', 'betroth', 'betrothed'],
+    strongs: ['H802', 'H376', 'G1062', 'G1060', 'G3565', 'G3566'],
+    is: 'Covenant',
+    is2: 'Covenant Picture',
+    does: 'Binds',
+    does2: 'Pictures',
+    sentence: 'The covenant relationship between God and His people pictured in human marriage—husband represents God/Christ, wife represents Israel/Church, faithfulness represents covenant obedience',
+    opposite: 'Divorce/Covenant Breaking',
+    link: '/symbols/marriage/'
+  },
+  
+  'fruit': {
+    name: 'FRUIT',
+    words: ['fruit', 'fruits', 'fruitful', 'unfruitful'],
+    strongs: ['H6529', 'G2590'],
+    is: 'Works',
+    is2: 'Deeds',
+    does: 'Reveals',
+    does2: 'Results From',
+    sentence: 'The visible works, deeds, and actions that result from and reveal the nature of their source—as a tree is known by its fruit, so people are known by their works',
+    opposite: 'Barren/Fruitless',
+    link: '/symbols/fruit/'
+  },
+  
+  'oil': {
+    name: 'OIL',
+    words: ['oil', 'ointment', 'anoint', 'anointed', 'anointing'],
+    strongs: ['H8081', 'H4888', 'G1637', 'G5548'],
+    is: 'Works',
+    is2: 'Proven Works',
+    does: 'Results From',
+    does2: 'Fuels',
+    sentence: 'Works that have been tested and proven through trials—as oil is produced by pressing/crushing olives (fruit of the covenant tree), so proven works result from tested faithfulness',
+    opposite: 'Untested/Unproven',
+    link: '/symbols/oil/'
   }
 };
 

@@ -122,14 +122,16 @@ Jesus offered to bring Jerusalem **under his wings** — into covenant protectio
 
 ---
 
-## Connection to NAME
+## Connection to Other Symbols
 
-Both NAME and WINGS relate to covenant:
+Both [NAME](/symbols/name/) and WINGS relate to covenant:
 
 | Symbol | Aspect of Covenant |
 |--------|-------------------|
-| **NAME** | The covenant relationship itself — invoking the name invokes the covenant |
+| **[NAME](/symbols/name/)** | The covenant relationship itself — invoking the name invokes the covenant |
 | **WINGS** | The covenant covering/protection — coming under wings is entering covenant protection |
+| **[EAGLE](/symbols/eagle/)** | Messenger/Angel — the one who bears on wings |
+| **[MARRIAGE](/symbols/marriage/)** | Covenant picture — spreading wings/skirt over bride |
 
 Malachi 4:2 connects them: "fear my **NAME**... healing in his **WINGS**"
 

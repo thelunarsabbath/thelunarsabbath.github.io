@@ -1,0 +1,177 @@
+/**
+ * DatelineMap Component Styles
+ */
+
+.dateline-container {
+  margin-top: 0;
+  padding: 12px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  width: 100%;
+}
+
+.dateline-label {
+  font-size: 0.75em;
+  color: #7ec8e3;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.dateline-map {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  background: #1a3a5c;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+.dateline-map.disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.dateline-map-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Fallback gradient if image fails */
+  background: linear-gradient(to bottom, 
+    #1a4a6e 0%, 
+    #2d6a4f 20%, 
+    #2d6a4f 40%,
+    #1a4a6e 50%,
+    #2d6a4f 60%,
+    #1a4a6e 100%);
+}
+
+.dateline-map-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  opacity: 0.85;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Location marker container */
+.dateline-location-marker {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Vertical dashed line through location */
+.dateline-location-marker::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 0;
+  height: 100vh;
+  border-left: 1px dashed rgba(255, 100, 100, 0.8);
+  transform: translateX(-50%) translateY(-50vh);
+}
+
+/* Horizontal dashed line through location */
+.dateline-location-marker::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100vw;
+  height: 0;
+  border-top: 1px dashed rgba(255, 100, 100, 0.8);
+  transform: translateY(-50%) translateX(-50vw);
+}
+
+/* Central red dot at location */
+.dateline-location-pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background: #ff3333;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 0, 0, 0.8), 0 0 12px rgba(255, 50, 50, 0.5);
+}
+
+/* Day start line marker */
+.dateline-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, #ffcc00, #ff6b6b);
+  box-shadow: 0 0 15px rgba(255,107,107,0.8), 0 0 30px rgba(255,204,0,0.5);
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dateline-marker-icon {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ffcc00;
+  font-size: 18px;
+  text-shadow: 0 0 10px rgba(255,204,0,0.8);
+}
+
+.dateline-marker-label {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ffcc00;
+  font-size: 8px;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(0,0,0,0.8);
+  white-space: nowrap;
+}
+
+/* Longitude labels */
+.dateline-cities {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7em;
+  color: #7ec8e3;
+  margin-top: 5px;
+  padding: 0 5px;
+}
+
+/* Info lines below map */
+.dateline-info {
+  font-size: 0.7em;
+  color: #d4a017;
+  margin-top: 5px;
+}
+
+.dateline-info.dateline-location {
+  color: #7ec8e3;
+}
+
+/* Click hint */
+.dateline-click-hint {
+  font-size: 0.65em;
+  color: #7ec8e3;
+  text-align: center;
+  margin-top: 5px;
+  font-style: italic;
+}

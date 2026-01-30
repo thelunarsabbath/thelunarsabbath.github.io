@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lunar Sabbath - A Time Tested Tradition</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#1a3a5c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lunar Sabbath">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Lunar Sabbath Calendar">
+  <meta property="og:description" content="A time tested tradition - Explore the Biblical lunar calendar">
+  <meta property="og:type" content="website">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="/assets/img/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/styles.css?v=64">
+  <link rel="stylesheet" href="/components/world-map.css?v=1">
+  <link rel="stylesheet" href="/components/dateline-map.css?v=2">
+  <link rel="stylesheet" href="/assets/css/bible-styles.css?v=64">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- TOP NAVIGATION -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <header id="top-nav" class="top-nav">
+    <div class="top-nav-left">
+      <!-- Logo / Brand -->
+      <div class="brand" onclick="AppStore.dispatch({type:'SET_VIEW',view:'tutorial'})">
+        <span class="brand-icon">🌕</span>
+        <div class="brand-text">
+          <div class="brand-title">Lunar Sabbath</div>
+          <div class="brand-subtitle">a time tested tradition</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="top-nav-center">
+      <!-- PWA Navigation Buttons (hidden by default) -->
+      <div id="pwa-nav-buttons" class="pwa-nav-buttons" style="display: none;">
+        <button id="pwa-back-btn" class="pwa-nav-btn" title="Go back">◀</button>
+        <button id="pwa-forward-btn" class="pwa-nav-btn" title="Go forward">▶</button>
+      </div>
+    </div>
+    
+    <div class="top-nav-right">
+      <!-- Today Button (calendar icon = changes calendar focus time) -->
+      <button id="today-btn" class="today-btn" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},AppStore.getTodayEvent(),{type:'SET_VIEW',view:'calendar'}])">
+        <span class="today-icon">📅</span> Today
+      </button>
+      
+      <!-- Hamburger Menu Button (mobile only, iOS style - right side) -->
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Open menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- MAIN LAYOUT -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div id="app-container" class="app-container">
+    
+    <!-- Menu Overlay (mobile) -->
+    <div id="menu-overlay" class="menu-overlay"></div>
+    
+    <!-- ─────────────────────────────────────────────────────────────────── -->
+    <!-- CONTENT AREA -->
+    <!-- ─────────────────────────────────────────────────────────────────── -->
+    <main id="content-area" class="content-area">
+      <!-- Content rendered by ContentManager -->
+      <div class="loading">Loading...</div>
+    </main>
+    
+    <!-- ─────────────────────────────────────────────────────────────────── -->
+    <!-- SIDEBAR MENU (Desktop: fixed right, Mobile: slide-in) -->
+    <!-- ─────────────────────────────────────────────────────────────────── -->
+    <aside id="sidebar-menu" class="sidebar-menu">
+      <div class="sidebar-header">
+        <button class="sidebar-close-btn" onclick="AppStore.dispatch({type:'CLOSE_MENU'})">✕</button>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <button class="menu-item" onclick="console.log('clicked!'); AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'bible'}])">
+          <span class="menu-icon">📖</span>
+          <span class="menu-label">Bible</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'timeline'}])">
+          <span class="menu-icon">⏱️</span>
+          <span class="menu-label">Timeline</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'book'}])">
+          <span class="menu-icon">📚</span>
+          <span class="menu-label">Book</span>
+        </button>
+        
+        <div class="menu-divider"></div>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'events'}])">
+          <span class="menu-icon">📜</span>
+          <span class="menu-label">Events</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'priestly'}])">
+          <span class="menu-icon">👨‍🦳</span>
+          <span class="menu-label">Priestly</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'sabbath-tester'}])">
+          <span class="menu-icon">🔬</span>
+          <span class="menu-label">Sabbath Tester</span>
+        </button>
+        
+        <div class="menu-divider"></div>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'settings'}])">
+          <span class="menu-icon">⚙️</span>
+          <span class="menu-label">Settings</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'tutorial'}])">
+          <span class="menu-icon">ℹ️</span>
+          <span class="menu-label">About</span>
+        </button>
+      </nav>
+      
+      </aside>
+  </div>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- MODALS / OVERLAYS -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  
+  <!-- Profile Picker Popup -->
+  <div id="profile-picker" class="profile-picker" style="display: none;">
+    <div class="profile-picker-header">
+      <h3>Select Profile</h3>
+      <button onclick="AppStore.dispatch({type:'SET_VIEW',view:'settings'}); AppStore.dispatch({type:'CLOSE_PROFILE_PICKER'});">⚙️</button>
+    </div>
+    <div id="profile-picker-list" class="profile-picker-list">
+      <!-- Populated by JavaScript -->
+    </div>
+  </div>
+  
+  <!-- Strongs Panel (slide-in from right) -->
+  <div id="strongs-panel" class="strongs-panel" style="display: none;">
+    <div class="strongs-header">
+      <button class="strongs-back" onclick="StrongsPanel.back()">◀</button>
+      <h3 id="strongs-title">Strong's</h3>
+      <button class="strongs-close" onclick="AppStore.dispatch({type:'CLOSE_STRONGS'})">✕</button>
+    </div>
+    <div id="strongs-content" class="strongs-content">
+      <!-- Populated by JavaScript -->
+    </div>
+  </div>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- SCRIPTS -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  
+  <!-- External Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+  
+  <!-- Astronomy Engine Abstraction (loads Swiss Ephemeris, NASA Eclipse data) -->
+  <script src="/astronomy-engine-abstraction.js?v=1"></script>
+  <script src="/astronomy-utils.js?v=2"></script>
+  <script src="/lunar-calendar-engine.js?v=1"></script>
+  <script src="/jubilee-cycle.js?v=1"></script>
+  
+  <!-- Year utilities (BC/AD conversion) -->
+  <script src="/year-utils.js?v=1"></script>
+  
+  <!-- Core (cache-bust with version) -->
+  <script src="/app-store.js?v=40"></script>
+  <script src="/url-router.js?v=38"></script>
+  <script src="/layout.js?v=2"></script>
+  <script src="/content-manager.js?v=2"></script>
+  
+  <!-- Components -->
+  <script src="/components/world-map.js?v=1"></script>
+  <script src="/components/dateline-map.js?v=2"></script>
+  
+  <!-- Views -->
+  <script src="/views/calendar-view.js?v=38"></script>
+  
+  <!-- Bible Reader and Strong's Dictionaries -->
+  <script src="/strongs-hebrew-dictionary.js"></script>
+  <script src="/strongs-greek-dictionary.js"></script>
+  <script src="/bible-reader.js?v=12"></script>
+  <script src="/views/bible-view.js?v=12"></script>
+  
+  <!-- Timeline and Historical Events -->
+  <script src="/historical-events.js?v=2"></script>
+  <script src="/event-resolver.js?v=1"></script>
+  <script src="/biblical-timeline.js?v=2"></script>
+  <script src="/views/timeline-view.js?v=5"></script>
+  
+  <!-- Day Detail and World Clock -->
+  <script src="/day-detail.js?v=2"></script>
+  <script src="/world-clock.js?v=1"></script>
+  <script src="/views/book-view.js?v=2"></script>
+  <script src="/views/tutorial-view.js?v=2"></script>
+  <script src="/views/events-view.js?v=38"></script>
+  <script src="/views/priestly-view.js?v=2"></script>
+  <script src="/views/sabbath-tester-view.js?v=2"></script>
+  <script src="/views/settings-view.js?v=2"></script>
+  
+  <!-- Initialize App -->
+  <script>
+    // FEASTS definition (for calendar visual indicators and feast table)
+    const SHOFAR_ICON = '🎺';
+    const FEASTS = [
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 1, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 2, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 3, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 4, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 5, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 6, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 7, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 8, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 9, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 10, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 11, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 12, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Renewed Moon', shortName: 'New Moon', icon: SHOFAR_ICON, month: 13, day: 1, description: 'First light after full moon', chapter: '/chapters/18-appointed-times/#new-moon' },
+      { name: 'Last Supper', shortName: 'Last Supper', icon: '🍞🍷', month: 1, day: 13, description: 'The Last Supper', chapter: '/chapters/18-appointed-times/#passover' },
+      { name: 'Passover', shortName: 'Passover', icon: '🐑†', month: 1, day: 14, description: 'Lamb slain at twilight', chapter: '/chapters/18-appointed-times/#passover' },
+      { name: 'Unleavened Bread', shortName: 'Unleavened', icon: '🫓', month: 1, day: 15, endDay: 21, description: 'High Sabbath', chapter: '/chapters/18-appointed-times/#unleavened-bread' },
+      { name: 'First Fruits', shortName: 'First Fruits', icon: '🌾', month: 1, day: 16, description: 'Wave sheaf offering', chapter: '/chapters/18-appointed-times/#first-fruits-of-barley' },
+      { name: 'Atzeret of Unleavened', shortName: 'Atzeret', icon: '🕍', month: 1, day: 21, description: 'Solemn assembly', chapter: '/chapters/18-appointed-times/#unleavened-bread' },
+      { name: 'Shavuot', shortName: 'Shavuot', icon: '🌾', month: 3, day: 16, description: 'Feast of Weeks', chapter: '/chapters/18-appointed-times/#shavuot' },
+      { name: 'First Fruits of Wine', shortName: 'New Wine', icon: '🍷', month: 5, day: 9, description: 'First Fruits of Wine', chapter: '/chapters/18-appointed-times/#first-fruits-of-wine' },
+      { name: 'Trumpets', shortName: 'Trumpets', icon: '🎺', month: 7, day: 1, description: 'Day of shouting', chapter: '/chapters/18-appointed-times/#trumpets' },
+      { name: 'Atonement', shortName: 'Atonement', icon: '🩸', month: 7, day: 10, description: 'Yom Kippur', chapter: '/chapters/18-appointed-times/#day-of-atonement' },
+      { name: 'Tabernacles', shortName: 'Tabernacles', icon: '⛺', month: 7, day: 15, endDay: 21, description: 'Feast of Booths', chapter: '/chapters/18-appointed-times/#tabernacles' },
+      { name: 'Atzeret', shortName: 'Atzeret', icon: '🕍', month: 7, day: 22, description: 'Last Great Day', chapter: '/chapters/18-appointed-times/#atzeret' },
+      { name: 'Hanukkah', shortName: 'Hanukkah', icon: '🕎', month: 9, day: 25, endDay: 30, description: 'Festival of Dedication', chapter: '/chapters/18-appointed-times/#hanukkah', continuesNextMonth: true },
+      { name: 'Hanukkah', shortName: 'Hanukkah', icon: '🕎', month: 10, day: 1, endDay: 2, description: 'Hanukkah continued', chapter: '/chapters/18-appointed-times/#hanukkah', startDayNum: 7 },
+      { name: 'Purim', shortName: 'Purim', icon: '📜', month: 12, day: 14, endDay: 15, description: 'Feast of Lots', chapter: '/chapters/18-appointed-times/#purim' }
+    ];
+    window.FEASTS = FEASTS;
+    
+    // Global state object - syncs with AppStore for compatibility with ported modules
+    window.state = {
+      lat: 31.7683,
+      lon: 35.2137,
+      year: new Date().getFullYear(),
+      moonPhase: 'full',
+      dayStartTime: 'morning',
+      dayStartAngle: 12,
+      yearStartRule: 'equinox',
+      crescentThreshold: 18,
+      sabbathMode: 'lunar',
+      selectedProfile: 'timeTested',
+      lunarMonths: [],
+      currentMonthIndex: 0,
+      highlightedLunarDay: 1
+    };
+    
+    // Sync global state from AppStore (for ported modules)
+    function syncGlobalState() {
+      if (typeof AppStore === 'undefined') return;
+      const s = AppStore.getState();
+      const d = AppStore.getDerived();
+      const profile = window.PROFILES?.[s.context.profileId] || {};
+      
+      window.state.lat = s.context.location.lat;
+      window.state.lon = s.context.location.lon;
+      window.state.year = d.year;
+      window.state.moonPhase = profile.moonPhase || 'full';
+      window.state.dayStartTime = profile.dayStartTime || 'morning';
+      window.state.dayStartAngle = profile.dayStartAngle || 12;
+      window.state.yearStartRule = profile.yearStartRule || 'equinox';
+      window.state.crescentThreshold = profile.crescentThreshold || 18;
+      window.state.sabbathMode = profile.sabbathMode || 'lunar';
+      window.state.selectedProfile = s.context.profileId;
+      window.state.lunarMonths = d.lunarMonths || [];
+      window.state.currentMonthIndex = d.currentMonthIndex || 0;
+      window.state.highlightedLunarDay = d.currentLunarDay || 1;
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log('[App] Starting initialization...');
+      
+      // Initialize astronomy engine first (loads Swiss Ephemeris WASM + NASA Eclipse data)
+      if (typeof initializeAstroEngine === 'function') {
+        console.log('[App] Initializing astronomy engine...');
+        await initializeAstroEngine();
+        console.log('[App] Astronomy engine ready:', getAstroEngine().name);
+      } else {
+        console.warn('[App] initializeAstroEngine not found');
+      }
+      
+      // Initialize URL router
+      URLRouter.init();
+      
+      // Profile definitions
+      const defaultProfiles = {
+        timeTested: {
+          name: 'Time-Tested',
+          icon: '🌕',
+          moonPhase: 'full',
+          dayStartTime: 'morning',
+          dayStartAngle: 12,
+          yearStartRule: 'equinox',
+          crescentThreshold: 18,
+          sabbathMode: 'lunar'
+        },
+        ancientTraditional: {
+          name: 'Ancient Traditional',
+          icon: '🌒',
+          moonPhase: 'crescent',
+          dayStartTime: 'evening',
+          dayStartAngle: 0,
+          yearStartRule: '13daysBefore',
+          crescentThreshold: 18,
+          sabbathMode: 'saturday'
+        },
+        ministries119: {
+          name: '119 Ministries',
+          icon: '🌑',
+          moonPhase: 'dark',
+          dayStartTime: 'evening',
+          dayStartAngle: 0,
+          yearStartRule: 'equinox',
+          crescentThreshold: 18,
+          sabbathMode: 'saturday'
+        },
+        creatorsCalendar: {
+          name: "Creator's Calendar",
+          icon: '🌕',
+          moonPhase: 'full',
+          dayStartTime: 'morning',
+          dayStartAngle: 0,
+          yearStartRule: 'virgoFeet',
+          crescentThreshold: 18,
+          sabbathMode: 'lunar'
+        },
+        traditionalLunar: {
+          name: 'Traditional Lunar',
+          icon: '🌒',
+          moonPhase: 'crescent',
+          dayStartTime: 'evening',
+          dayStartAngle: 0,
+          yearStartRule: 'equinox',
+          crescentThreshold: 18,
+          sabbathMode: 'lunar'
+        }
+      };
+      
+      window.PROFILES = defaultProfiles;
+      
+      // Get the astronomy engine for AppStore
+      const astroEngine = typeof getAstroEngine === 'function' ? getAstroEngine() : null;
+      
+      // Initialize AppStore with profiles and astronomy engine
+      AppStore.init({
+        profiles: defaultProfiles,
+        astroEngine: astroEngine
+      });
+      
+      // Initialize layout
+      Layout.init();
+      
+      // Initialize content manager
+      ContentManager.init();
+      
+      // Register views
+      if (typeof CalendarView !== 'undefined') ContentManager.registerView('calendar', CalendarView);
+      if (typeof BibleView !== 'undefined') ContentManager.registerView('bible', BibleView);
+      if (typeof TimelineView !== 'undefined') ContentManager.registerView('timeline', TimelineView);
+      if (typeof BookView !== 'undefined') ContentManager.registerView('book', BookView);
+      if (typeof TutorialView !== 'undefined') ContentManager.registerView('tutorial', TutorialView);
+      if (typeof EventsView !== 'undefined') ContentManager.registerView('events', EventsView);
+      if (typeof PriestlyView !== 'undefined') ContentManager.registerView('priestly', PriestlyView);
+      if (typeof SabbathTesterView !== 'undefined') ContentManager.registerView('sabbath-tester', SabbathTesterView);
+      if (typeof SettingsView !== 'undefined') ContentManager.registerView('settings', SettingsView);
+      
+      // Load initial state from URL
+      AppStore.dispatch({ type: 'INIT_FROM_URL', url: window.location });
+      
+      // Sync global state for ported modules
+      syncGlobalState();
+      AppStore.subscribe(syncGlobalState);
+      
+      console.log('[App] Initialized successfully');
+    });
+  </script>
+</body>
+</html>

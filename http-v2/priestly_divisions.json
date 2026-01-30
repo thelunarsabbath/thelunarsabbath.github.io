@@ -1,0 +1,234 @@
+[
+    {
+      "order": 1,
+      "course": "Jehoiarib",
+      "hebrew": "Yehoyariv",
+      "meaning": "Yahweh contends / Yahweh will contend / plead",
+      "lineage": "Eleazar",
+      "notes": "First in the rotation; mentioned in some post-Temple liturgical poems.",
+      "famous_people": [
+        {
+          "name": "Flavius Josephus",
+          "notes": "Jewish-Roman historian (c. 37–100 CE). Claimed descent from the Jehoiarib division. Also descended from the Hasmonean dynasty through his mother."
+        },
+        {
+          "name": "Mattathias",
+          "notes": "Priest who initiated the Maccabean Revolt against the Seleucid Empire (c. 167 BCE). Ancestor of the Hasmonean dynasty."
+        },
+        {
+          "name": "Judas Maccabeus",
+          "notes": "Son of Mattathias. Military leader of the Maccabean Revolt, known for rededicating the Temple (origin of Hanukkah)."
+        },
+        {
+          "name": "Jonathan Apphus",
+          "notes": "Son of Mattathias. Succeeded Judas as leader and high priest."
+        },
+        {
+          "name": "Simon Thassi",
+          "notes": "Son of Mattathias. First Hasmonean to be high priest and ethnarch, founder of the independent Hasmonean kingdom."
+        },
+        {
+          "name": "John Hyrcanus I",
+          "notes": "Son of Simon. Hasmonean high priest and ruler who expanded Judean territory."
+        },
+        {
+          "name": "Aristobulus I",
+          "notes": "Son of John Hyrcanus. First Hasmonean to take the title of king."
+        },
+        {
+          "name": "Alexander Jannaeus",
+          "notes": "Hasmonean king and high priest known for his conquests and conflicts with the Pharisees."
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "course": "Jedaiah",
+      "hebrew": "Yedayah",
+      "meaning": "Yahweh knows / praise / thank Yahweh",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 3,
+      "course": "Harim",
+      "hebrew": "Harim",
+      "meaning": "Dedicated / devoted / mountain-like / strong",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 4,
+      "course": "Seorim",
+      "hebrew": "Se'orim",
+      "meaning": "Barley (possibly symbolic of provision)",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 5,
+      "course": "Malchijah",
+      "hebrew": "Malkiyah",
+      "meaning": "My king is Yahweh",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 6,
+      "course": "Mijamin",
+      "hebrew": "Miyamin",
+      "meaning": "From the right hand / right-handed / favored",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 7,
+      "course": "Hakkoz",
+      "hebrew": "Hakotz",
+      "meaning": "The thorn / nimble / agile",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 8,
+      "course": "Abijah",
+      "hebrew": "Aviyah",
+      "meaning": "My father is Yahweh",
+      "lineage": "Eleazar",
+      "notes": "Famous due to Zechariah (father of John the Baptist) serving in this division (Luke 1:5,8); his week of service is linked to traditions about Jesus' birth timing.",
+      "famous_people": [
+        {
+          "name": "Zechariah",
+          "notes": "Father of John the Baptist. Priest who served in the Temple and received the annunciation of his son's birth (Luke 1:5)."
+        }
+      ]
+    },
+    {
+      "order": 9,
+      "course": "Jeshua",
+      "hebrew": "Yeshua",
+      "meaning": "Yahweh saves / salvation",
+      "lineage": "Eleazar",
+      "notes": "Name shares form with \"Joshua\"/Yeshua (Jesus in Greek)."
+    },
+    {
+      "order": 10,
+      "course": "Shecaniah",
+      "hebrew": "Shekanyahu",
+      "meaning": "Yahweh has dwelt / neighbor / dwelling of Yahweh",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 11,
+      "course": "Eliashib",
+      "hebrew": "Elyashiv",
+      "meaning": "God restores / God will restore / repay",
+      "lineage": "Eleazar",
+      "notes": "A high priest named Eliashib is mentioned in Nehemiah (post-exile), possibly connected to this family."
+    },
+    {
+      "order": 12,
+      "course": "Jakim",
+      "hebrew": "Yakim",
+      "meaning": "He will raise up / Yahweh establishes",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 13,
+      "course": "Huppah",
+      "hebrew": "Hupah",
+      "meaning": "Canopy / covering / chamber / protection",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 14,
+      "course": "Jeshebeab",
+      "hebrew": "Yeshebav",
+      "meaning": "The father dwells / dwelling of the father",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 15,
+      "course": "Bilgah",
+      "hebrew": "Bilgah",
+      "meaning": "Bright / cheerful / division / relief",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 16,
+      "course": "Immer",
+      "hebrew": "Immer",
+      "meaning": "Talkative / eloquent",
+      "lineage": "Eleazar",
+      "notes": ""
+    },
+    {
+      "order": 17,
+      "course": "Hezir",
+      "hebrew": "Hezir",
+      "meaning": "Swine / hog (possibly enclosed / protected)",
+      "lineage": "Ithamar",
+      "notes": "Shift to Ithamar's line here."
+    },
+    {
+      "order": 18,
+      "course": "Happizzez",
+      "hebrew": "Hapitzetz",
+      "meaning": "The dispenser / splendid / shining",
+      "lineage": "Ithamar",
+      "notes": ""
+    },
+    {
+      "order": 19,
+      "course": "Pethahiah",
+      "hebrew": "Petahyah",
+      "meaning": "Yahweh has opened",
+      "lineage": "Ithamar",
+      "notes": ""
+    },
+    {
+      "order": 20,
+      "course": "Jehezkel",
+      "hebrew": "Yehezkel",
+      "meaning": "God strengthens",
+      "lineage": "Ithamar",
+      "notes": "Shares name with the prophet Ezekiel."
+    },
+    {
+      "order": 21,
+      "course": "Jachin",
+      "hebrew": "Yakhin",
+      "meaning": "He establishes / Yahweh establishes",
+      "lineage": "Ithamar",
+      "notes": ""
+    },
+    {
+      "order": 22,
+      "course": "Gamul",
+      "hebrew": "Gamul",
+      "meaning": "Weaned / dealt fully / rewarded",
+      "lineage": "Ithamar",
+      "notes": ""
+    },
+    {
+      "order": 23,
+      "course": "Delaiah",
+      "hebrew": "Delayahu",
+      "meaning": "Yahweh has drawn / delivered",
+      "lineage": "Ithamar",
+      "notes": ""
+    },
+    {
+      "order": 24,
+      "course": "Maaziah",
+      "hebrew": "Ma'azyahu",
+      "meaning": "Yahweh is a refuge / counsel of Yahweh",
+      "lineage": "Ithamar",
+      "notes": "Last in the rotation."
+    }
+  ]

@@ -1,6 +1,55 @@
 // Astronomy Utility Functions
+
+// Gregorian calendar reform date: October 15, 1582
+// Before this date, use Julian calendar (following NASA/Stellarium convention)
+const GREGORIAN_REFORM_DATE = new Date(1582, 9, 15); // Oct 15, 1582
+
+// Check if a date is before the Gregorian reform
+function isBeforeGregorianReform(date) {
+  return date < GREGORIAN_REFORM_DATE;
+}
+
+// Calculate Julian Day Number from Julian calendar date (year, month 0-indexed, day)
+function julianCalendarToJDN(year, month, day) {
+  // Convert 0-indexed month to 1-indexed
+  const m = month + 1;
+  const a = Math.floor((14 - m) / 12);
+  const y = year + 4800 - a;
+  const mm = m + 12 * a - 3;
+  // Julian calendar formula
+  return day + Math.floor((153 * mm + 2) / 5) + 365 * y + Math.floor(y / 4) - 32083;
+}
+
+// Calculate day of week from Julian Day Number (0 = Sunday, 6 = Saturday)
+function jdnToWeekday(jdn) {
+  return (jdn + 1) % 7;
+}
+
+// Get the current location name from state or URLRouter
+function getCurrentLocationName() {
+  try {
+    const lat = state?.lat ?? 31.7683;
+    const lon = state?.lon ?? 35.2137;
+    
+    // Try URLRouter's city lookup if available
+    if (typeof URLRouter !== 'undefined' && URLRouter._getLocationSlug) {
+      const slug = URLRouter._getLocationSlug({ lat, lon });
+      if (slug) {
+        // Convert "new-york" to "New York"
+        return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      }
+    }
+    // Fallback to coordinates
+    return `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`;
+  } catch (e) {
+    return 'Jerusalem';
+  }
+}
+
 function getSunriseTimestamp(date) {
+  if (typeof getAstroEngine !== 'function') return null;
   const engine = getAstroEngine();
+  if (!engine) return null;
   const observer = engine.createObserver(state.lat, state.lon, 0);
   // Search for sunrise starting from midnight of that day (use UTC for ancient dates)
   const midnightUTC = new Date(Date.UTC(2000, date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));
@@ -15,7 +64,9 @@ function getSunriseTimestamp(date) {
 
 // Calculate sunset timestamp for a given date at the selected location
 function getSunsetTimestamp(date) {
+  if (typeof getAstroEngine !== 'function') return null;
   const engine = getAstroEngine();
+  if (!engine) return null;
   const observer = engine.createObserver(state.lat, state.lon, 0);
   // Use noon UTC as search start to find THIS day's sunset (not previous day's)
   const noonUTC = new Date(Date.UTC(2000, date.getUTCMonth(), date.getUTCDate(), 12, 0, 0));
@@ -25,7 +76,7 @@ function getSunsetTimestamp(date) {
     return sunset.date.getTime();
   }
   // Fallback to 6pm if no sunset found (polar regions)
-  return midnightUTC.getTime() + 18 * 60 * 60 * 1000;
+  return noonUTC.getTime() + 6 * 60 * 60 * 1000;
 }
 
 // Format a UTC time in the observer's local timezone based on longitude
@@ -59,10 +110,34 @@ function formatTimeInObserverTimezone(utcDate) {
 }
 
 // Get all astronomical times for a given date (first light, sunrise, sunset, nautical twilight)
-function getAstronomicalTimes(date) {
+// @param date - Date object for the day
+// @param location - Optional {lat, lon} object. If not provided, uses AppStore state or falls back to global state
+function getAstronomicalTimes(date, location) {
   try {
+    if (typeof getAstroEngine !== 'function') {
+      console.warn('[getAstronomicalTimes] Astro engine not yet available');
+      return null;
+    }
     const engine = getAstroEngine();
-    const observer = engine.createObserver(state.lat, state.lon, 0);
+    
+    // Get location from parameter, AppStore, or global state
+    let lat, lon;
+    if (location && typeof location.lat === 'number') {
+      lat = location.lat;
+      lon = location.lon;
+    } else if (typeof AppStore !== 'undefined') {
+      const appState = AppStore.getState();
+      lat = appState.context?.location?.lat ?? 31.77;
+      lon = appState.context?.location?.lon ?? 35.21;
+    } else if (typeof state !== 'undefined') {
+      lat = state.lat;
+      lon = state.lon;
+    } else {
+      lat = 31.77;  // Jerusalem default
+      lon = 35.21;
+    }
+    
+    const observer = engine.createObserver(lat, lon, 0);
     
     // Use UTC for dates
     const midnightUTC = new Date(Date.UTC(2000, date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));
@@ -87,8 +162,27 @@ function getAstronomicalTimes(date) {
       }
     }
     
+    // Morning nautical twilight (dark ends) - sun is 12° below horizon in the morning
+    // This is when it stops being truly dark in the morning
+    let morningDarkTs = null;
+    if (sunriseTs) {
+      const beforeSunrise = new Date(sunriseTs - 2 * 60 * 60 * 1000); // 2 hours before sunrise
+      const nauticalDawn = engine.searchAltitude('sun', observer, +1, beforeSunrise, 1, -12);
+      if (nauticalDawn) {
+        morningDarkTs = nauticalDawn.date.getTime();
+      }
+    }
+    
+    // Civil twilight (end) - sun is 6° below horizon after sunset
+    let civilTwilightTs = null;
+    if (sunsetTs) {
+      const civilDusk = engine.searchAltitude('sun', observer, -1, new Date(sunsetTs), 1, -6);
+      if (civilDusk) {
+        civilTwilightTs = civilDusk.date.getTime();
+      }
+    }
+    
     // Nautical twilight (end) - sun is 12° below horizon after sunset
-    // Search for sun reaching -12° altitude after sunset
     let nauticalTwilightTs = null;
     if (sunsetTs) {
       const nauticalDusk = engine.searchAltitude('sun', observer, -1, new Date(sunsetTs), 1, -12);
@@ -100,7 +194,7 @@ function getAstronomicalTimes(date) {
     // Format times in observer's local time
     const formatTime = (ts) => {
       if (!ts) return '--:--';
-      const localTime = utcToLocalTime(ts, state.lon);
+      const localTime = utcToLocalTime(ts, lon);
       const hours = localTime.getUTCHours();
       const mins = String(localTime.getUTCMinutes()).padStart(2, '0');
       const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -109,10 +203,19 @@ function getAstronomicalTimes(date) {
     };
     
     return {
+      morningDark: formatTime(morningDarkTs),
       firstLight: formatTime(firstLightTs),
       sunrise: formatTime(sunriseTs),
       sunset: formatTime(sunsetTs),
-      nauticalTwilight: formatTime(nauticalTwilightTs)
+      civilTwilight: formatTime(civilTwilightTs),
+      nauticalTwilight: formatTime(nauticalTwilightTs),
+      // Also return raw timestamps for further calculations
+      morningDarkTs,
+      sunriseTs,
+      sunsetTs,
+      firstLightTs,
+      civilTwilightTs,
+      nauticalTwilightTs
     };
   } catch (err) {
     console.warn('Error calculating astronomical times:', err);
@@ -124,7 +227,9 @@ function getAstronomicalTimes(date) {
 // Returns an object with sunset time, moon altitude, and elongation
 function getMoonAltitudeAtSunset(date) {
   try {
+    if (typeof getAstroEngine !== 'function') return null;
     const engine = getAstroEngine();
+    if (!engine) return null;
     const observer = engine.createObserver(state.lat, state.lon, 0);
     
     // Create midnight date with proper handling for ancient years
@@ -190,7 +295,9 @@ function getMoonAltitudeAtSunset(date) {
 // Get the day start time for a given date based on current settings
 // Returns a UTC timestamp for when the day starts
 function getDayStartTime(date) {
+  if (typeof getAstroEngine !== 'function') return null;
   const engine = getAstroEngine();
+  if (!engine) return null;
   const observer = engine.createObserver(state.lat, state.lon, 0);
   
   // Use UTC methods to avoid timezone issues with ancient dates
@@ -231,8 +338,10 @@ function getDayStartTime(date) {
 }
 
 // Get the year start point based on yearStartRule setting
-function getYearStartPoint(year) {
+function getYearStartPoint(year, location = null) {
+  if (typeof getAstroEngine !== 'function') return null;
   const engine = getAstroEngine();
+  if (!engine) return null;
   const springEquinox = engine.getSeasons(year).mar_equinox.date;
   
   if (state.yearStartRule === '13daysBefore') {
@@ -244,7 +353,7 @@ function getYearStartPoint(year) {
     // Creator's Calendar: First full moon after equinox where moon is "under Virgo's feet"
     // Moon ecliptic longitude must be > Spica longitude (~204°)
     // This returns the date of that specific full moon, not just the equinox
-    const virgoFullMoon = findVirgoFeetFullMoon(year);
+    const virgoFullMoon = findVirgoFeetFullMoon(year, location);
     if (virgoFullMoon) {
       // Return a point just before the full moon so it gets selected
       return new Date(virgoFullMoon.getTime() - 1000);
@@ -268,53 +377,110 @@ function getSpicaLongitudeForYear(year) {
   return SPICA_ECLIPTIC_LON_J2000 + (yearsFromJ2000 * PRECESSION_RATE_DEG_PER_YEAR);
 }
 
-// Virgo calculation cache is stored in AstroEngines.virgoCache
+// ============================================================================
+// VIRGO RULE FUNCTIONS
+// ============================================================================
+// NOTE: The Virgo cache is now owned by LunarCalendarEngine instances.
+// These global functions are DEPRECATED - use engine.getVirgoCalculation() instead.
+// They are kept for backward compatibility and delegate to AppStore's engine.
+// ============================================================================
 
-// Find the first full moon after spring equinox where Spica sets before the Moon
-// This is the Creator's Calendar rule: at moonset (morning after full moon night),
-// Spica must set before the Moon sets. When Spica sets first, the Moon is "under 
-// Virgo's feet" - behind/below Spica in the sky.
-// 
-// The Creator's Calendar day starts at sunrise, so we check at sunrise on the full moon date.
-// We compare Right Ascensions: if Moon RA > Spica RA, Spica sets before Moon.
-// (Objects with lower RA cross the horizon earlier)
-function findVirgoFeetFullMoon(year) {
-  const engine = getAstroEngine();
-  const springEquinox = engine.getSeasons(year).mar_equinox.date;
+/**
+ * @deprecated Use LunarCalendarEngine._findVirgoFeetFullMoon() instead
+ * This global function delegates to AppStore's engine if available.
+ * 
+ * Find the first full moon where Moon is "under Virgo's feet" (Moon RA > Spica RA at sunrise)
+ * @param {number} year - Gregorian year
+ * @param {Object} location - { lat, lon } - REQUIRED
+ * @returns {Date|null} The qualifying full moon date
+ */
+function findVirgoFeetFullMoon(year, location) {
+  if (!location || typeof location.lat !== 'number' || typeof location.lon !== 'number') {
+    console.warn('[findVirgoFeetFullMoon] DEPRECATED: location is now required. Use engine._findVirgoFeetFullMoon() instead.');
+    // Try to get location from AppStore
+    if (typeof AppStore !== 'undefined') {
+      const appState = AppStore.getState();
+      location = appState?.context?.location;
+    }
+    if (!location) {
+      console.error('[findVirgoFeetFullMoon] No location available');
+      return null;
+    }
+  }
   
-  // Spica's coordinates (J2000, with precession adjustment)
-  // RA: 13h 25m 11.6s = 201.298° at J2000
-  // The RA increases slightly due to precession (~0.0139°/year)
-  const yearsFromJ2000 = year - 2000;
-  const spicaRA_J2000 = 201.298;  // degrees
-  const spicaRA = spicaRA_J2000 + (yearsFromJ2000 * PRECESSION_RATE_DEG_PER_YEAR);
+  // Delegate to AppStore's engine
+  if (typeof AppStore !== 'undefined') {
+    const engine = AppStore.getEngine();
+    if (engine && typeof engine._findVirgoFeetFullMoon === 'function') {
+      return engine._findVirgoFeetFullMoon(year, location);
+    }
+  }
   
-  // Use observer's configured location for sunrise calculation
-  const obsLat = state.lat ?? 31.7683;
-  const obsLon = state.lon ?? 35.2137;
-  const observer = engine.createObserver(obsLat, obsLon, 0);
+  console.error('[findVirgoFeetFullMoon] AppStore engine not available');
+  return null;
+}
+
+/**
+ * @deprecated Use LunarCalendarEngine.getVirgoCalculation() instead
+ * This global function delegates to AppStore's engine if available.
+ * 
+ * Get Virgo calculation details for a specific year and location
+ * @param {number} year - Gregorian year
+ * @param {Object} location - { lat, lon } - REQUIRED
+ * @returns {Object|null} Cached Virgo calculation details
+ */
+function getVirgoCalculation(year, location) {
+  if (!location || typeof location.lat !== 'number' || typeof location.lon !== 'number') {
+    console.warn('[getVirgoCalculation] DEPRECATED: location is now required. Use engine.getVirgoCalculation() instead.');
+    // Try to get location from AppStore
+    if (typeof AppStore !== 'undefined') {
+      const appState = AppStore.getState();
+      location = appState?.context?.location;
+    }
+    if (!location) {
+      console.error('[getVirgoCalculation] No location available');
+      return null;
+    }
+  }
   
-  // Start search 29 days before equinox to catch the prior full moon
-  // The Virgo rule is purely about Spica/Moon position, not the equinox
-  const searchStart = new Date(springEquinox.getTime() - 29 * 24 * 60 * 60 * 1000);
+  // Delegate to AppStore's engine
+  if (typeof AppStore !== 'undefined') {
+    const engine = AppStore.getEngine();
+    if (engine && typeof engine.getVirgoCalculation === 'function') {
+      return engine.getVirgoCalculation(year, location);
+    }
+  }
   
-  const locationName = getCurrentLocationName();
-  console.log(`[Virgo Rule] Year ${year}: Spring equinox = ${springEquinox.toISOString()}`);
-  console.log(`[Virgo Rule] Location: ${locationName} (${obsLat.toFixed(4)}, ${obsLon.toFixed(4)})`);
-  console.log(`[Virgo Rule] Search starts: ${searchStart.toISOString()} (29 days before equinox)`);
-  console.log(`[Virgo Rule] Spica RA (precession-adjusted) = ${spicaRA.toFixed(3)}°`);
-  
-  // Find full moons from 29 days before equinox
-  let searchDate = new Date(searchStart.getTime());
-  const attempts_log = [];
-  
-  for (let attempts = 0; attempts < 4; attempts++) {
-    const result = engine.searchMoonPhase(180, searchDate, 40);  // 180 = full moon
-    if (!result) break;
+  console.error('[getVirgoCalculation] AppStore engine not available');
+  return null;
+}
+
+/**
+ * Check if a full moon date passes the Virgo rule criterion
+ * (Moon RA > Spica RA at sunrise = Spica sets before Moon = Moon under Virgo's feet)
+ * @param {Date} fullMoonDate - The date of the full moon
+ * @param {Object} location - { lat, lon } of the observer
+ * @returns {boolean} true if this full moon qualifies as a year start
+ */
+function checkFullMoonPassesVirgoRule(fullMoonDate, location) {
+  try {
+    if (typeof getAstroEngine !== 'function') return false;
+    const engine = getAstroEngine();
+    if (!engine) return false;
     
-    const fullMoonDate = result.date;
+    const year = fullMoonDate.getUTCFullYear();
     
-    // Find sunrise on the full moon date (Creator's Calendar day start)
+    // Calculate Spica's RA with precession adjustment
+    const PRECESSION_RATE_DEG_PER_YEAR = 0.0139;
+    const yearsFromJ2000 = year - 2000;
+    const spicaRA_J2000 = 201.298;  // degrees
+    const spicaRA = spicaRA_J2000 + (yearsFromJ2000 * PRECESSION_RATE_DEG_PER_YEAR);
+    
+    // Find sunrise on the full moon date
+    const obsLat = location?.lat ?? 31.7683;
+    const obsLon = location?.lon ?? 35.2137;
+    const observer = engine.createObserver(obsLat, obsLon, 0);
+    
     const midnightUTC = new Date(Date.UTC(
       fullMoonDate.getUTCFullYear(),
       fullMoonDate.getUTCMonth(),
@@ -324,89 +490,44 @@ function findVirgoFeetFullMoon(year) {
     const sunriseResult = engine.searchRiseSet('sun', observer, +1, midnightUTC, 1);
     const sunriseTime = sunriseResult ? sunriseResult.date : midnightUTC;
     
-    // Get Moon's Right Ascension at sunrise (when checking moonset)
+    // Get Moon's Right Ascension at sunrise
     const moonRA = getMoonRightAscension(sunriseTime);
     
-    const diff = moonRA - spicaRA;
-    const spicaSetsFirst = diff > 0;  // Moon RA > Spica RA means Spica sets first
-    const attemptInfo = {
-      fullMoon: fullMoonDate.toISOString(),
-      sunrise: sunriseTime.toISOString(),
-      moonRA: moonRA.toFixed(3),
-      spicaRA: spicaRA.toFixed(3),
-      spicaSetsFirst: spicaSetsFirst,
-      diff: diff.toFixed(3)
-    };
-    attempts_log.push(attemptInfo);
-    
-    console.log(`[Virgo Rule] Full Moon #${attempts + 1}: ${fullMoonDate.toISOString()}`);
-    console.log(`[Virgo Rule]   Sunrise: ${sunriseTime.toISOString()}`);
-    console.log(`[Virgo Rule]   Moon RA: ${moonRA.toFixed(3)}°, Spica RA: ${spicaRA.toFixed(3)}°`);
-    console.log(`[Virgo Rule]   Difference: ${(moonRA - spicaRA).toFixed(3)}° (positive = Spica sets first)`);
-    console.log(`[Virgo Rule]   Spica sets before Moon: ${moonRA > spicaRA}`);
-    
-    // Check if Spica sets before the Moon (Moon RA > Spica RA means Spica sets first)
-    // For spring full moons, both Spica (~201°) and Moon (~180-220°) are in similar range
-    // With correct location-based calculation, no tolerance should be needed
-    if (moonRA > spicaRA) {
-      // Spica sets before Moon - Moon is under Virgo's feet
-      console.log(`[Virgo Rule] ✓ SELECTED: Full Moon on ${fullMoonDate.toISOString()}`);
-      const cacheKey = `${year}_${obsLat.toFixed(4)}_${obsLon.toFixed(4)}`;
-      AstroEngines.virgoCache[cacheKey] = {
-        year,
-        springEquinox: springEquinox.toISOString(),
-        spicaRA: spicaRA.toFixed(3),
-        selectedFullMoon: fullMoonDate.toISOString(),
-        sunriseCheck: sunriseTime.toISOString(),
-        moonRA: moonRA.toFixed(3),
-        difference: (moonRA - spicaRA).toFixed(3),
-        attempts: attempts_log,
-        locationName: locationName,
-        locationLat: obsLat,
-        locationLon: obsLon
-      };
-      return fullMoonDate;
-    }
-    
-    // Move search to after this full moon
-    searchDate = new Date(fullMoonDate.getTime() + 24 * 60 * 60 * 1000);
+    // Check if Spica sets before Moon (Moon RA > Spica RA)
+    return moonRA > spicaRA;
+  } catch (err) {
+    console.error('[Virgo Check] Error:', err);
+    return false;
   }
-  
-  // Fallback: return first full moon after equinox
-  console.log(`[Virgo Rule] No qualifying full moon found, using fallback`);
-  const firstResult = engine.searchMoonPhase(180, springEquinox, 40);
-  const fallbackCacheKey = `${year}_${obsLat.toFixed(4)}_${obsLon.toFixed(4)}`;
-  AstroEngines.virgoCache[fallbackCacheKey] = {
-    year,
-    springEquinox: springEquinox.toISOString(),
-    spicaRA: spicaRA.toFixed(3),
-    fallback: true,
-    selectedFullMoon: firstResult ? firstResult.date.toISOString() : springEquinox.toISOString(),
-    attempts: attempts_log,
-    locationName: locationName,
-    locationLat: obsLat,
-    locationLon: obsLon
-  };
-  return firstResult ? firstResult.date : springEquinox;
-}
-
-// Get Virgo calculation details for a specific year and current location
-function getVirgoCalculation(year) {
-  const cacheKey = `${year}_${(state.lat ?? 31.7683).toFixed(4)}_${(state.lon ?? 35.2137).toFixed(4)}`;
-  return AstroEngines.virgoCache[cacheKey] || null;
 }
 
 // Get Moon's Right Ascension in degrees at a given date
-function getMoonRightAscension(date) {
+function getMoonRightAscension(date, debug = false) {
   try {
+    if (typeof getAstroEngine !== 'function') return null;
     const engine = getAstroEngine();
+    if (!engine) return null;
     // Use observer's configured location
     const obsLat = state.lat ?? 31.7683;
     const obsLon = state.lon ?? 35.2137;
     const observer = engine.createObserver(obsLat, obsLon, 0);
     const eq = engine.getEquator('moon', date, observer);
+    
     // RA is returned in hours (0-24), convert to degrees (0-360)
-    return eq.ra * 15;
+    const raDegrees = eq.ra * 15;
+    
+    if (debug) {
+      console.log(`[Moon RA Debug] Date: ${date.toISOString()}`);
+      console.log(`[Moon RA Debug] Observer: ${obsLat.toFixed(4)}°, ${obsLon.toFixed(4)}°`);
+      console.log(`[Moon RA Debug] Raw eq.ra: ${eq.ra} (hours), eq.dec: ${eq.dec}°`);
+      console.log(`[Moon RA Debug] RA in degrees: ${raDegrees.toFixed(3)}°`);
+      
+      // Also get ecliptic longitude for comparison
+      const eclLon = getMoonEclipticLongitude(date);
+      console.log(`[Moon RA Debug] Ecliptic longitude: ${eclLon.toFixed(3)}°`);
+    }
+    
+    return raDegrees;
   } catch (err) {
     console.error('Error getting Moon RA:', err);
     // Fallback: estimate from ecliptic longitude (rough approximation)
@@ -424,7 +545,9 @@ function getMoonEclipticLongitude(date) {
     
     // Fallback: approximate from moon's position
     // This is less accurate but works if EclipticLongitude isn't available
+    if (typeof getAstroEngine !== 'function') return null;
     const engine = getAstroEngine();
+    if (!engine) return null;
     const observer = engine.createObserver(0, 0, 0);
     const eq = engine.getEquator('moon', date, observer);
     
@@ -551,80 +674,117 @@ function getPassoverMethodologyHtml(options = {}) {
 function getVirgoMethodologyHtml(options = {}) {
   const { showCalculation = false, virgoCalc = null } = options;
   
-  let html = `
-    <p><strong>♍ Moon Under Virgo's Feet</strong></p>
-    <p>The year begins with the first spring full moon where <em>Spica sets before the Moon</em>, placing the Moon "under the feet of Virgo" (Bethulah), as described in Revelation 12:1.</p>
-    <ul style="margin: 10px 0; padding-left: 20px; color: rgba(255,255,255,0.9);">
-      <li><strong>Stellar witness</strong> — uses the stars as signs (Genesis 1:14)</li>
-      <li><strong>Revelation 12:1 alignment</strong> — "moon under her feet"</li>
-      <li><strong>Spica marks Wave Sheaf</strong> — the star aligns with Day 16 (First Fruits)</li>
-      <li><strong>Passover in Aries</strong> — sun typically at 0°-15° Aries on Day 14</li>
-    </ul>`;
+  let html = `<p><strong>♍ Moon Under Virgo's Feet (Revelation 12:1)</strong></p>
+    <p>The year begins with the first full moon where the Moon's leading edge RA &gt; Spica RA. When this is true, Spica sets before the Moon, placing the Moon "under" Virgo's feet.</p>`;
   
-  // Add calculation details if provided
+  // Add detailed calculation with human-readable explanations
   if (showCalculation && virgoCalc) {
     const virgoDate = new Date(virgoCalc.selectedFullMoon);
     const virgoParts = getFormattedDateParts(virgoDate);
     const virgoDateStr = `${virgoParts.weekdayName}, ${virgoParts.shortMonthName} ${virgoParts.day}${getOrdinalSuffix(virgoParts.day)}, ${virgoParts.yearStr}`;
-    const equinoxDate = new Date(virgoCalc.springEquinox);
-    const eqParts = getFormattedDateParts(equinoxDate);
-    const equinoxDateStr = `${eqParts.weekdayName}, ${eqParts.shortMonthName} ${eqParts.day}${getOrdinalSuffix(eqParts.day)}, ${eqParts.yearStr}`;
+    const daystartDate = new Date(virgoCalc.daystart || virgoCalc.selectedFullMoon);
+    const daystartTimeStr = daystartDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     const diff = parseFloat(virgoCalc.difference);
-    const statusIcon = diff >= 0 ? '✓ Spica sets first' : '✗ Spica sets after';
+    const moonLeadingEdgeRA = parseFloat(virgoCalc.moonRA);
+    const moonCenterRA = parseFloat(virgoCalc.moonCenterRA || (moonLeadingEdgeRA - 0.25));
+    const spicaRA = parseFloat(virgoCalc.spicaRA);
+    
+    // Determine if the selection is valid
+    const isValid = diff > 0;
+    const validityIcon = isValid ? '✓' : '✗';
+    const validityStyle = isValid ? 'color: #4ade80;' : 'color: #f87171;';
     
     html += `
-    <div style="margin: 12px 0; padding: 10px; background: rgba(138, 43, 226, 0.15); border: 1px solid rgba(138, 43, 226, 0.3); border-radius: 6px;">
-      <strong>This Year's Calculation:</strong><br>
-      • Location: ${virgoCalc.locationName || 'Jerusalem'}<br>
-      • Spring Equinox: ${equinoxDateStr}<br>
-      • Selected Full Moon: ${virgoDateStr}<br>
-      • Check at Sunrise: ${new Date(virgoCalc.sunriseCheck).toLocaleTimeString()} (${virgoCalc.locationName || 'Jerusalem'})<br>
-      • Moon RA: ${virgoCalc.moonRA}° | Spica RA: ${virgoCalc.spicaRA}°<br>
-      • Difference: ${virgoCalc.difference}° ${statusIcon}`;
-    
-    if (virgoCalc.attempts && virgoCalc.attempts.length > 1) {
-      html += `<br><br><strong>Previous Full Moon(s) Rejected:</strong>`;
-      for (let i = 0; i < virgoCalc.attempts.length - 1; i++) {
-        const attempt = virgoCalc.attempts[i];
-        if (attempt && !attempt.spicaSetsFirst) {
-          const attemptDate = new Date(attempt.fullMoon);
-          const attParts = getFormattedDateParts(attemptDate);
-          html += `<br>• ${attParts.shortMonthName} ${attParts.day}: Moon RA ${attempt.moonRA}°, Diff ${attempt.diff}° — Spica sets after Moon`;
+    <div style="margin: 12px 0; padding: 12px; background: rgba(138, 43, 226, 0.15); border: 1px solid rgba(138, 43, 226, 0.3); border-radius: 8px;">
+      <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px; ${validityStyle}">${validityIcon} Selected Full Moon: ${virgoDateStr}</div>
+      
+      <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+        <strong>The Test (at daystart ${daystartTimeStr} in ${virgoCalc.locationName || 'Jerusalem'}):</strong>
+        <table style="width: 100%; margin-top: 8px; font-size: 0.95em;">
+          <tr><td style="padding: 4px 0;"><strong>Moon Center RA:</strong></td><td style="padding: 4px 0; text-align: right;">${moonCenterRA.toFixed(2)}°</td></tr>
+          <tr><td style="padding: 4px 0;"><strong>Moon Leading Edge RA:</strong></td><td style="padding: 4px 0; text-align: right;">${moonLeadingEdgeRA.toFixed(2)}° <span style="font-size: 0.8em; color: rgba(255,255,255,0.6);">(+0.25° radius)</span></td></tr>
+          <tr><td style="padding: 4px 0;"><strong>Spica RA:</strong></td><td style="padding: 4px 0; text-align: right;">${spicaRA.toFixed(2)}°</td></tr>
+          <tr style="border-top: 1px solid rgba(255,255,255,0.2);"><td style="padding: 4px 0;"><strong>Difference (Leading Edge − Spica):</strong></td><td style="padding: 4px 0; text-align: right; ${validityStyle}"><strong>${diff >= 0 ? '+' : ''}${diff.toFixed(2)}°</strong></td></tr>
+        </table>
+      </div>
+      
+      <div style="padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-bottom: 10px;">
+        <strong>Interpretation:</strong><br>
+        ${isValid 
+          ? `Moon leading edge (${moonLeadingEdgeRA.toFixed(1)}°) &gt; Spica RA (${spicaRA.toFixed(1)}°). The front of the Moon has passed Spica. As they set in the west, <strong style="color: #4ade80;">Spica sets first</strong>, then the Moon follows — the Moon is under Virgo's feet. ✓`
+          : `Moon leading edge (${moonLeadingEdgeRA.toFixed(1)}°) &lt; Spica RA (${spicaRA.toFixed(1)}°). The front of the Moon has not yet passed Spica. As they set in the west, <strong style="color: #f87171;">the Moon sets first</strong>, then Spica follows — the Moon is NOT under Virgo's feet.`
         }
+      </div>`;
+    
+    // Show all full moons that were evaluated
+    if (virgoCalc.attempts && virgoCalc.attempts.length > 0) {
+      const stellariumLat = virgoCalc.locationLat ?? 31.7683;
+      const stellariumLon = virgoCalc.locationLon ?? 35.2137;
+      
+      html += `<details style="margin-top: 10px;"><summary style="cursor: pointer; color: #7ec8e3;">View All ${virgoCalc.attempts.length} Full Moons Evaluated</summary>
+        <div style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+          <p style="font-size: 0.85em; color: rgba(255,255,255,0.7); margin: 0 0 8px 0;">Moon RA shown is the leading edge (center + 0.25° radius)</p>
+          <table style="width: 100%; font-size: 0.9em; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);"><th style="text-align: left; padding: 4px;">Full Moon Date</th><th style="text-align: right; padding: 4px;">Moon RA</th><th style="text-align: right; padding: 4px;">Spica RA</th><th style="text-align: right; padding: 4px;">Diff</th><th style="text-align: center; padding: 4px;">Result</th><th style="text-align: center; padding: 4px;">Verify</th></tr>`;
+      
+      for (let i = 0; i < virgoCalc.attempts.length; i++) {
+        const attempt = virgoCalc.attempts[i];
+        if (!attempt) continue;
+        const attemptDate = new Date(attempt.fullMoon);
+        const attParts = getFormattedDateParts(attemptDate);
+        const attDiff = parseFloat(attempt.diff);
+        const attPassed = attempt.qualifies || attempt.spicaSetsFirst;  // Support both property names
+        const rowBg = attPassed ? 'background: rgba(74, 222, 128, 0.1);' : '';
+        const resultIcon = attPassed ? '✓ SELECTED' : '✗ Rejected';
+        const resultStyle = attPassed ? 'color: #4ade80;' : 'color: #f87171;';
+        
+        // Generate Stellarium link for this attempt's daystart time
+        const attDaystartDate = new Date(attempt.daystart || attempt.fullMoon);
+        const attStellariumDateStr = attDaystartDate.toISOString().split('.')[0] + 'Z';
+        const stellariumLink = `https://stellarium-web.org/?date=${attStellariumDateStr}&lat=${stellariumLat}&lng=${stellariumLon}`;
+        
+        html += `<tr style="${rowBg}"><td style="padding: 4px;">${attParts.shortMonthName} ${attParts.day}, ${attParts.yearStr}</td><td style="text-align: right; padding: 4px;">${parseFloat(attempt.moonRA).toFixed(1)}°</td><td style="text-align: right; padding: 4px;">${parseFloat(attempt.spicaRA).toFixed(1)}°</td><td style="text-align: right; padding: 4px; ${resultStyle}">${attDiff >= 0 ? '+' : ''}${attDiff.toFixed(1)}°</td><td style="text-align: center; padding: 4px; ${resultStyle}">${resultIcon}</td><td style="text-align: center; padding: 4px;"><a href="${stellariumLink}" target="_blank" rel="noopener" title="View in Stellarium at daystart">🔭</a></td></tr>`;
       }
+      
+      html += `</table>
+          <p style="margin-top: 8px; font-size: 0.85em; color: rgba(255,255,255,0.7);"><strong>Rule:</strong> Select the first full moon where Moon RA &gt; Spica RA (positive difference). Objects with lower RA set earlier.</p>
+        </div></details>`;
     }
     
-    // Add Stellarium link with the location used in the calculation
-    const stellariumCheckDate = new Date(virgoCalc.sunriseCheck);
+    // Stellarium verification link - use daystart time for verification
+    const stellariumCheckDate = new Date(virgoCalc.daystart || virgoCalc.selectedFullMoon);
     const stellariumDateStr = stellariumCheckDate.toISOString().split('.')[0] + 'Z';
     const stellariumLat = virgoCalc.locationLat ?? 31.7683;
     const stellariumLon = virgoCalc.locationLon ?? 35.2137;
-    const stellariumLocationName = virgoCalc.locationName || 'Jerusalem';
-    html += `<br><br><a href="https://stellarium-web.org/?date=${stellariumDateStr}&lat=${stellariumLat}&lng=${stellariumLon}" target="_blank" rel="noopener" class="stellarium-link"><img src="https://stellarium-web.org/favicon.ico" alt="" onerror="this.style.display='none'">Verify in Stellarium (${stellariumLocationName} at sunrise)</a>`;
     
-    html += `</div>`;
+    html += `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <a href="https://stellarium-web.org/?date=${stellariumDateStr}&lat=${stellariumLat}&lng=${stellariumLon}" target="_blank" rel="noopener" style="display: inline-block; padding: 6px 12px; background: rgba(126, 200, 227, 0.2); border-radius: 4px; text-decoration: none; color: #7ec8e3;">🔭 Verify in Stellarium (${virgoCalc.locationName || 'Jerusalem'} at daystart on ${virgoParts.shortMonthName} ${virgoParts.day})</a>
+        <p style="margin-top: 6px; font-size: 0.85em; color: rgba(255,255,255,0.6);">Check Moon and Spica RA in Stellarium at sunrise. Moon RA must exceed Spica RA for the rule to be satisfied.</p>
+      </div></div>`;
   }
   
   // Add methodology accordion
-  html += `
-    <details class="settings-accordion">
-      <summary>View Methodology</summary>
+  html += `<details class="settings-accordion" style="margin-top: 12px;"><summary>View Methodology Explanation</summary>
       <div class="accordion-content">
-        <p><strong>The Algorithm</strong></p>
-        <p>Starting 29 days before the spring equinox, find each full moon and compare Right Ascensions at sunrise in your location. Select the first full moon where Spica's RA is less than the Moon's RA, meaning Spica sets before the Moon.</p>
+        <p><strong>What is Right Ascension (RA)?</strong></p>
+        <p>Right Ascension measures how far east an object is on the celestial sphere (0° to 360°). Objects with lower RA rise and set earlier.</p>
+        
+        <p><strong>The Logic</strong></p>
+        <p>When Moon RA &gt; Spica RA, the Moon is "behind" Spica. As they move west, Spica (at Virgo's feet) sets first while the Moon is still visible—the Moon is "under" where Virgo's feet were.</p>
+        
+        <p><strong>Why Full Moon?</strong></p>
+        <p>At full moon, the Moon is opposite the Sun. In spring (Sun in Pisces/Aries, RA ~0-30°), the full Moon is in Virgo/Libra (RA ~180-210°). The first full moon where Moon RA exceeds Spica RA (~201°) marks the year.</p>
         
         <p><strong>Biblical Basis</strong></p>
-        <blockquote>"And there appeared a great wonder in heaven; a woman clothed with the sun, and the moon under her feet, and upon her head a crown of twelve stars."<br>— Revelation 12:1</blockquote>
-        <p>This method interprets the sign as an annual astronomical configuration marking the new year.</p>
+        <blockquote>"And there appeared a great wonder in heaven; a woman clothed with the sun, and the moon under her feet..."<br>— Revelation 12:1</blockquote>
         
         <p><strong>Sources</strong></p>
-        <p>This methodology is taught by <a href="https://thecreatorscalendar.com" target="_blank" style="color: #7ec8e3;">TheCreatorsCalendar.com</a> and the <a href="https://www.youtube.com/@MikalShabbat" target="_blank" style="color: #7ec8e3;">Mikal Shabbat Scriptural Studies</a> YouTube channel.</p>
-      </div>
-    </details>
+        <p>Taught by <a href="https://thecreatorscalendar.com" target="_blank" style="color: #7ec8e3;">TheCreatorsCalendar.com</a> and <a href="https://www.youtube.com/@MikalShabbat" target="_blank" style="color: #7ec8e3;">Mikal Shabbat Scriptural Studies</a>.</p>
+      </div></details>
     
     <div class="settings-warning" style="margin-top: 12px; padding: 10px; background: rgba(255, 180, 0, 0.15); border: 1px solid rgba(255, 180, 0, 0.3); border-radius: 6px;">
-      <p style="margin: 0; color: #ffb400;"><strong>⚠️ Precession &amp; Barley Warning</strong></p>
-      <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.85);">While this implementation adjusts Spica's position for precession (~1° per 72 years), the constellations drift relative to the seasons over millennia. Barley must be ripe for Wave Sheaf on Day 16 (Lev 23:10-11). Around 2000 BC, the Virgo alignment occurs ~1 month earlier in spring; around 4000 AD, ~1 month later. This could place Passover too early (before barley ripens) in ancient dates, or too late in future dates.</p>
+      <p style="margin: 0; color: #ffb400;"><strong>⚠️ Precession Warning</strong></p>
+      <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.85);">Spica's position is adjusted for precession (~1° per 72 years). In ancient/future dates, the Virgo alignment may occur earlier or later in spring, potentially affecting barley ripeness for Wave Sheaf (Day 16).</p>
     </div>`;
   
   return html;
@@ -784,3 +944,8 @@ function getLocalDateFromUTC(utcDate, longitude) {
   result.setUTCFullYear(year);
   return result;
 }
+
+// Explicitly expose key functions on window for cross-file access
+window.isBeforeGregorianReform = isBeforeGregorianReform;
+window.julianCalendarToJDN = julianCalendarToJDN;
+window.jdnToWeekday = jdnToWeekday;

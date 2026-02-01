@@ -28,9 +28,14 @@ class LunarCalendarEngine {
       moonPhase: 'dark',        // 'dark', 'full', 'crescent'
       dayStartTime: 'evening',  // 'evening', 'morning'
       dayStartAngle: 0,         // Degrees below horizon (0=horizon, 6=civil, 12=nautical, 18=astronomical)
-      yearStartRule: 'equinox', // 'equinox' or '13daysBefore' (Day 15 Unleavened after equinox)
+      yearStartRule: 'equinox', // 'equinox', '13daysBefore', or 'virgoFeet' (Spica/Creator's Calendar)
       crescentThreshold: 18,    // Hours after conjunction for crescent visibility
     };
+    
+    // Instance-owned caches (no global state pollution)
+    this._virgoCache = {};      // Keyed by "year_lat_lon"
+    this._moonEventsCache = {}; // Keyed by year
+    this._calendarCache = {};   // Keyed by "year_lat_lon_config"
   }
 
   /**
@@ -56,10 +61,20 @@ class LunarCalendarEngine {
 
   /**
    * Find moon events (new moons, full moons, or conjunctions for crescent)
+   * Uses instance-owned cache - moon events don't depend on location
    * @param {number} year - Year to search
    * @returns {Date[]} Array of moon event dates
    */
   findMoonEvents(year) {
+    // Cache key includes year, moon phase, and crescent threshold (if applicable)
+    const cacheKey = `${year}_${this.config.moonPhase}_${this.config.crescentThreshold || 0}`;
+    
+    // Check cache first - moon events are location-independent
+    if (this._moonEventsCache[cacheKey]) {
+      // Return copies of cached dates to prevent mutation
+      return this._moonEventsCache[cacheKey].map(d => new Date(d));
+    }
+    
     const events = [];
     
     // Start searching from December of previous year
@@ -103,6 +118,9 @@ class LunarCalendarEngine {
       searchDate = new Date(eventDate.getTime() + 20 * 24 * 60 * 60 * 1000);
     }
     
+    // Cache the results (store as ISO strings for safe cloning)
+    this._moonEventsCache[cacheKey] = events.map(d => d.toISOString());
+    
     return events;
   }
 
@@ -128,9 +146,14 @@ class LunarCalendarEngine {
   /**
    * Get year start point based on yearStartRule
    * @param {number} year 
+   * @param {Object} location - { lat, lon } - REQUIRED for location-dependent rules
    * @returns {Date}
    */
-  getYearStartPoint(year) {
+  getYearStartPoint(year, location) {
+    if (!location || typeof location.lat !== 'number' || typeof location.lon !== 'number') {
+      throw new Error('getYearStartPoint requires explicit location { lat, lon }');
+    }
+    
     const equinox = this.getSpringEquinox(year);
     
     if (this.config.yearStartRule === '13daysBefore') {
@@ -138,7 +161,161 @@ class LunarCalendarEngine {
       return new Date(equinox.getTime() - 14 * 24 * 60 * 60 * 1000);
     }
     
+    if (this.config.yearStartRule === 'virgoFeet') {
+      // Creator's Calendar: First full moon where moon is "under Virgo's feet" (Spica)
+      const virgoFullMoon = this._findVirgoFeetFullMoon(year, location);
+      if (virgoFullMoon) {
+        // Return a point just before the full moon so it gets selected
+        return new Date(virgoFullMoon.getTime() - 1000);
+      }
+      console.warn(`[Engine] Virgo rule returned null for year ${year}, falling back to equinox`);
+    }
+    
     return equinox;
+  }
+  
+  /**
+   * Find the first full moon where Moon is "under Virgo's feet" (Moon RA > Spica RA at sunrise)
+   * Uses instance-owned cache - no global state pollution
+   * @param {number} year - Gregorian year
+   * @param {Object} location - { lat, lon } - REQUIRED
+   * @returns {Date|null} The qualifying full moon date, or null if not found
+   */
+  _findVirgoFeetFullMoon(year, location) {
+    const cacheKey = `${year}_${location.lat.toFixed(4)}_${location.lon.toFixed(4)}`;
+    
+    // Check instance cache first
+    if (this._virgoCache[cacheKey]) {
+      return new Date(this._virgoCache[cacheKey].selectedFullMoon);
+    }
+    
+    // Spica's RA with precession adjustment
+    const PRECESSION_RATE = 0.0139;  // degrees per year
+    const yearsFromJ2000 = year - 2000;
+    const spicaRA_J2000 = 201.298;  // degrees
+    const spicaRA = spicaRA_J2000 + (yearsFromJ2000 * PRECESSION_RATE);
+    
+    const observer = this.astro.createObserver(location.lat, location.lon, 0);
+    const searchStart = new Date(Date.UTC(year, 0, 20)); // January 20
+    
+    let searchDate = new Date(searchStart.getTime());
+    const attempts = [];
+    
+    // Search up to 7 full moons (Jan-Jul)
+    for (let attempt = 0; attempt < 7; attempt++) {
+      const result = this.astro.searchMoonPhase(180, searchDate, 40);
+      if (!result) break;
+      
+      const fullMoonDate = result.date;
+      
+      // Find the FIRST SUNRISE AFTER the full moon at this location
+      // This is the correct time to check Moon vs Spica position
+      // The rule is: "On the morning after the full moon, has Moon passed Spica?"
+      
+      // Search for sunrise starting from the full moon time
+      // This finds the next sunrise after the full moon occurs
+      const sunriseResult = this.astro.searchRiseSet('sun', observer, +1, fullMoonDate, 1);
+      const sunriseTime = sunriseResult ? sunriseResult.date : fullMoonDate;
+      
+      // Calculate local date for logging
+      const offsetHours = location.lon / 15;  // Each 15° = 1 hour
+      const localSunriseTime = new Date(sunriseTime.getTime() + offsetHours * 60 * 60 * 1000);
+      const localYear = localSunriseTime.getUTCFullYear();
+      const localMonth = localSunriseTime.getUTCMonth();
+      const localDay = localSunriseTime.getUTCDate();
+      
+      // Get Moon's RA at sunrise
+      const moonEquator = this.astro.getEquator('moon', sunriseTime, observer);
+      const moonCenterRA = moonEquator ? moonEquator.ra * 15 : 0;  // Convert hours to degrees
+      const MOON_ANGULAR_RADIUS = 0.25;
+      const moonLeadingEdgeRA = moonCenterRA + MOON_ANGULAR_RADIUS;
+      
+      const diff = moonLeadingEdgeRA - spicaRA;
+      const spicaSetsFirst = diff > 0;
+      
+      // Virgo logging removed for cleaner console
+      
+      attempts.push({
+        fullMoon: fullMoonDate.toISOString(),
+        moonRA: moonLeadingEdgeRA.toFixed(3),
+        spicaRA: spicaRA.toFixed(3),
+        diff: diff.toFixed(3),
+        qualifies: spicaSetsFirst
+      });
+      
+      if (spicaSetsFirst) {
+        // Found qualifying moon - cache and return
+        this._virgoCache[cacheKey] = {
+          year,
+          selectedFullMoon: fullMoonDate.toISOString(),
+          daystart: sunriseTime.toISOString(),
+          moonRA: moonLeadingEdgeRA.toFixed(3),
+          spicaRA: spicaRA.toFixed(3),
+          difference: diff.toFixed(3),
+          attempts,
+          location: { lat: location.lat, lon: location.lon }
+        };
+        return fullMoonDate;
+      }
+      
+      // Move to after this full moon
+      searchDate = new Date(fullMoonDate.getTime() + 24 * 60 * 60 * 1000);
+    }
+    
+    // Fallback: use last checked moon
+    console.warn(`[Engine] No qualifying Virgo full moon found in 7 attempts for year ${year}`);
+    const lastAttempt = attempts[attempts.length - 1];
+    if (lastAttempt) {
+      const fallbackDate = new Date(lastAttempt.fullMoon);
+      this._virgoCache[cacheKey] = {
+        year,
+        selectedFullMoon: fallbackDate.toISOString(),
+        fallback: true,
+        attempts,
+        location: { lat: location.lat, lon: location.lon }
+      };
+      return fallbackDate;
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Debug method: Check Moon and Spica RA at specific times
+   * Call from console: AppStore._engine.debugMoonSpica(new Date('2025-04-12T17:00:00Z'), 35)
+   */
+  debugMoonSpica(date, lon = 0) {
+    const observer = this.astro.createObserver(31.77, lon, 0);
+    const moonEq = this.astro.getEquator('moon', date, observer);
+    const moonRA = (moonEq?.ra || 0) * 15;  // Convert hours to degrees
+    
+    // Spica RA with precession
+    const year = date.getUTCFullYear();
+    const yearsFromJ2000 = year - 2000;
+    const spicaRA = 201.298 + (yearsFromJ2000 * 0.0139);
+    
+    // Return data instead of logging - caller can log if needed
+    return {
+      date: date.toISOString(),
+      lon,
+      moonCenterRA: moonRA,
+      moonLeadingEdgeRA: moonRA + 0.25,
+      spicaRA,
+      diff: moonRA + 0.25 - spicaRA
+    };
+    
+    return { moonRA, spicaRA, diff: moonRA + 0.25 - spicaRA };
+  }
+  
+  /**
+   * Get Virgo calculation details for a specific year and location (for UI display)
+   * @param {number} year
+   * @param {Object} location - { lat, lon }
+   * @returns {Object|null} Cached Virgo calculation details
+   */
+  getVirgoCalculation(year, location) {
+    const cacheKey = `${year}_${location.lat.toFixed(4)}_${location.lon.toFixed(4)}`;
+    return this._virgoCache[cacheKey] || null;
   }
 
   /**
@@ -289,15 +466,31 @@ class LunarCalendarEngine {
   /**
    * Generate a full lunar calendar year
    * @param {number} year - Gregorian year (negative for BC)
-   * @param {Object} location - { lat, lon }
+   * @param {Object} location - { lat, lon } - REQUIRED
    * @param {Object} options - { includeUncertainty: boolean, debug: boolean }
    * @returns {LunarYear} Complete lunar year with all months and days
    */
   generateYear(year, location, options = {}) {
+    if (!location || typeof location.lat !== 'number' || typeof location.lon !== 'number') {
+      throw new Error('generateYear requires explicit location { lat, lon }');
+    }
+    
     const { includeUncertainty = true, debug = false } = options;
     
+    // Build cache key from year, location, and all config that affects calendar
+    const configKey = `${this.config.moonPhase}_${this.config.yearStartRule}_${this.config.dayStartTime}_${this.config.dayStartAngle}_${this.config.crescentThreshold || 0}`;
+    const cacheKey = `${year}_${location.lat.toFixed(4)}_${location.lon.toFixed(4)}_${configKey}`;
+    
+    // Check cache first - calendars are expensive to compute
+    if (this._calendarCache[cacheKey]) {
+      if (debug) {
+        console.log(`[Engine Debug] Using cached calendar for key: ${cacheKey}`);
+      }
+      return this._calendarCache[cacheKey];
+    }
+    
     const moonEvents = this.findMoonEvents(year);
-    const yearStartPoint = this.getYearStartPoint(year);
+    const yearStartPoint = this.getYearStartPoint(year, location);
     
     if (debug) {
       console.log(`[Engine Debug] Year: ${year}, MoonPhase: ${this.config.moonPhase}, YearStartRule: ${this.config.yearStartRule}`);
@@ -360,12 +553,22 @@ class LunarCalendarEngine {
     
     const months = [];
     
-    // Generate 13 months (some years have 13 lunar months)
-    for (let m = 0; m < 13; m++) {
+    // Get the next year's start point once - this is the boundary
+    // A month belongs to this year if its full moon is BEFORE the next year's start point
+    const nextYearStartPoint = this.getYearStartPoint(year + 1, location);
+    
+    // Generate months until we hit one that belongs to the next year
+    for (let m = 0; m < 14; m++) {  // Max 14 to prevent infinite loop
       const moonIdx = nissanMoonIdx + m;
       if (moonIdx >= moonEvents.length - 1) break;
       
       const moonEvent = moonEvents[moonIdx];
+      
+      // A month belongs to the next year if its full moon is ON or AFTER the next year's start point
+      if (moonEvent >= nextYearStartPoint) {
+        break;
+      }
+      
       const nextMoonEvent = moonEvents[moonIdx + 1];
       
       const monthStart = this.calculateMonthStart(moonEvent, location);
@@ -385,6 +588,24 @@ class LunarCalendarEngine {
         const dayDate = new Date(monthStart.getTime());
         dayDate.setUTCDate(dayDate.getUTCDate() + d - 1);
         
+        // Calculate the actual sunrise JD (day boundary) for this day at this location
+        let dayStartJD = null;
+        if (this.config.dayStartTime === 'morning') {
+          const sunriseTs = this.getSunriseTime(dayDate, location);
+          if (sunriseTs != null) {
+            dayStartJD = (sunriseTs / 86400000) + 2440587.5;
+          }
+        } else if (this.config.dayStartTime === 'evening') {
+          const sunsetTs = this.getSunsetTime(dayDate, location);
+          if (sunsetTs != null) {
+            dayStartJD = (sunsetTs / 86400000) + 2440587.5;
+          }
+        }
+        // Fallback to midnight if sunrise/sunset not available
+        if (dayStartJD == null) {
+          dayStartJD = (dayDate.getTime() / 86400000) + 2440587.5;
+        }
+        
         // Determine if this specific day is uncertain
         // Day 30 with '+' direction is impossible (can't add days past 30)
         // All days with '-' direction could shift earlier
@@ -400,6 +621,7 @@ class LunarCalendarEngine {
         days.push({
           lunarDay: d,
           gregorianDate: dayDate,
+          jd: dayStartJD,  // JD of day start (sunrise/sunset based on config)
           weekday: this.getWeekday(dayDate),
           weekdayName: this.getWeekdayName(dayDate),
           isUncertain: isUncertain,
@@ -418,7 +640,9 @@ class LunarCalendarEngine {
       });
     }
     
-    return {
+    // Engine logging removed for cleaner console
+    
+    const result = {
       year: year,
       location: location,
       config: { ...this.config },
@@ -427,6 +651,17 @@ class LunarCalendarEngine {
       yearStartUncertainty: yearStartUncertainty,
       months: months,
     };
+    
+    // Cache the result - limit cache size to prevent memory bloat
+    // Size 50 allows caching ~2 years of timezone bands (24 per year)
+    const cacheKeys = Object.keys(this._calendarCache);
+    if (cacheKeys.length > 50) {
+      // Remove oldest entry (first key)
+      delete this._calendarCache[cacheKeys[0]];
+    }
+    this._calendarCache[cacheKey] = result;
+    
+    return result;
   }
 
   // ==========================================================================

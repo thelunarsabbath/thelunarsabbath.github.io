@@ -80,6 +80,22 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--spacing-md);
+  width: 100%;
+}
+
+/* Desktop: Extend header background over sidebar header area */
+@media (min-width: 1200px) {
+  body.desktop-layout .top-nav::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: var(--sidebar-width);
+    height: var(--top-nav-height);
+    background: linear-gradient(180deg, var(--color-bg-dark) 0%, var(--color-bg) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: -1;
+  }
 }
 
 .top-nav-left {
@@ -153,6 +169,33 @@ button {
   border-color: rgba(126, 200, 227, 0.6);
 }
 
+/* Navigation History Buttons */
+.nav-history-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.nav-btn {
+  background: rgba(42, 90, 122, 0.5);
+  border: 1px solid rgba(126, 200, 227, 0.3);
+  color: var(--color-accent);
+  font-size: 0.9em;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: rgba(58, 106, 138, 0.7);
+  border-color: rgba(126, 200, 227, 0.5);
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .hamburger-btn {
   display: flex;
   flex-direction: column;
@@ -182,24 +225,131 @@ button {
   min-height: calc(100vh - var(--top-nav-height));
 }
 
-/* Content Area */
+/* 3-Column Main Layout */
+.main-layout {
+  display: flex;
+  min-height: calc(100vh - var(--top-nav-height));
+  width: 100%;
+}
+
+/* Left Panel */
+.left-panel {
+  width: 260px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #0d2840 0%, #1a3a5c 100%);
+  border-right: 2px solid var(--color-accent-gold);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease, margin-left 0.3s ease;
+  overflow: hidden;
+}
+
+.left-panel.collapsed {
+  width: 0;
+  border-right: none;
+  margin-left: 0;
+}
+
+.left-panel.open {
+  width: 260px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(212, 160, 23, 0.1);
+  border-bottom: 1px solid rgba(212, 160, 23, 0.3);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.panel-title {
+  font-weight: bold;
+  color: var(--color-accent-gold);
+  font-size: 1.1em;
+}
+
+.panel-close {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.panel-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+/* Content Area (center column - expands to fill) */
 .content-area {
   flex: 1;
   padding: var(--spacing-md);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.content-area > .calendar-app {
   max-width: var(--content-max-width);
-  margin: 0 auto;
   width: 100%;
+}
+
+/* Full-width views (Bible, Events, etc.) */
+.content-area > .bible-container,
+.content-area > .events-container,
+.content-area > .timeline-container {
+  max-width: none;
+  width: 100%;
+}
+
+/* Mobile: left panel overlays */
+@media (max-width: 899px) {
+  .left-panel {
+    position: fixed;
+    top: var(--top-nav-height);
+    left: 0;
+    height: calc(100vh - var(--top-nav-height));
+    z-index: 1000;
+    width: 280px;
+    max-width: 85vw;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .left-panel.collapsed {
+    width: 280px;
+    transform: translateX(-100%);
+  }
+  
+  .left-panel.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
+  }
 }
 
 /* Sidebar Menu */
 .sidebar-menu {
   position: fixed;
-  top: 0;
+  top: var(--top-nav-height);
   right: -280px; /* Use fixed value since CSS var in calc doesn't work for negative */
   width: var(--sidebar-width);
-  height: 100%;
+  height: calc(100% - var(--top-nav-height));
   background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-dark) 100%);
-  z-index: 1001;
+  z-index: 1001;  /* Must be higher than menu-overlay (1000) to receive clicks */
   transition: right 0.3s ease;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -221,6 +371,7 @@ button {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: flex-end;
+  background: var(--color-bg);
 }
 
 .sidebar-close-btn {
@@ -282,6 +433,12 @@ body.menu-open {
   overflow: hidden;
 }
 
+/* Disable transitions during resize to prevent "pop open then close" effect */
+body.resizing .sidebar-menu,
+body.resizing .left-panel {
+  transition: none !important;
+}
+
 /* Desktop Layout (>= 1200px) */
 body.desktop-layout .sidebar-menu {
   position: fixed;
@@ -295,8 +452,8 @@ body.desktop-layout .sidebar-menu.visible {
 }
 
 body.desktop-layout .content-area {
-  /* Fill space left of sidebar, then center calendar within */
-  margin-right: var(--sidebar-width);
+  /* Sidebar overlays, no margin needed */
+  margin-right: 0;
   margin-left: 0;
   max-width: none;
   display: flex;
@@ -331,37 +488,34 @@ body.desktop-layout .sidebar-header {
   overflow: hidden;
 }
 
-/* Calendar Header - 2-row grid layout */
+/* Calendar Header - grid layout with Day 1 box */
 .calendar-header {
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
   padding: 0;
   background: linear-gradient(180deg, var(--color-bg-dark) 0%, var(--color-bg) 100%);
 }
 
-/* Row 1: Jubilee Indicator */
-.header-row-1 {
+/* Header content: Jubilee label + Datetime/Location controls */
+.header-row-2 {
   grid-column: 1;
-  grid-row: 1;
-  padding: 6px 12px 2px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  gap: 4px;
 }
 
-.header-row-1 .jubilee-text {
-  font-size: 0.85em;
+.header-row-2 .jubilee-text {
+  font-size: 1.5em;
   color: var(--color-text-secondary);
   font-weight: normal;
   white-space: nowrap;
 }
 
-/* Row 2: Year | Month | Time | Location */
-.header-row-2 {
-  grid-column: 1;
-  grid-row: 2;
+.header-controls {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 12px 6px;
   flex-wrap: wrap;
 }
 
@@ -369,11 +523,8 @@ body.desktop-layout .sidebar-header {
 .new-moon-box {
   grid-column: 2;
   grid-row: 1 / 3;
-  /* Match calendar cell width, no aspect-ratio */
-  width: calc((min(100vw, 900px) - 16px) / 7);
-  min-height: 80px;
-  aspect-ratio: unset;
-  padding: 5px;
+  aspect-ratio: 1;
+  padding: 4px;
   background: #3a6a9c;
   border: 1px solid #2a5a8c;
   display: flex;
@@ -385,7 +536,6 @@ body.desktop-layout .sidebar-header {
   cursor: pointer;
   box-sizing: border-box;
   overflow: hidden;
-  flex-shrink: 0;
 }
 
 .new-moon-box:hover {
@@ -426,7 +576,7 @@ body.desktop-layout .sidebar-header {
   font-size: 1.2em;
 }
 
-.header-dropdown.time,
+.header-dropdown.datetime,
 .header-dropdown.location {
   color: var(--color-accent);
   font-size: 1.1em;
@@ -519,6 +669,37 @@ body.desktop-layout .sidebar-header {
   box-shadow: inset 0 0 0 2px var(--color-accent);
 }
 
+/* Time indicator lines for calendar cells */
+.time-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* NOW indicator - current real time (gold/yellow) */
+.time-indicator-now {
+  background: rgba(255, 215, 0, 0.7);
+  box-shadow: 0 0 4px rgba(255, 215, 0, 0.5);
+}
+
+/* Selected time indicator (cyan/blue) */
+.time-indicator-selected {
+  background: rgba(100, 200, 255, 0.6);
+  box-shadow: 0 0 4px rgba(100, 200, 255, 0.4);
+}
+
+/* Ensure day cell content is above the time indicators */
+.day-cell .gregorian,
+.day-cell .moon-phase,
+.day-cell .lunar-day,
+.day-cell .day-icons-left,
+.day-cell .day-icons-right {
+  z-index: 1;
+}
+
 .day-cell.sabbath {
   background: linear-gradient(135deg, #4a5a6a 0%, #3a4a5a 100%);
   border: 1px solid #d4a01755;
@@ -558,6 +739,48 @@ body.desktop-layout .sidebar-header {
   color: #ffd700;
   text-shadow: 0 0 8px rgba(212, 160, 23, 0.6), 1px 1px 2px rgba(0,0,0,0.5);
 }
+
+/* Feast day indicator */
+.day-cell.feast {
+  background: linear-gradient(135deg, #4a7a5c 0%, #3a6a4c 100%);
+  border: 1px solid rgba(100, 200, 150, 0.3);
+}
+
+.day-cell.feast.sabbath {
+  background: linear-gradient(135deg, #4a6a5a 0%, #3a5a4a 100%);
+  border: 1px solid rgba(212, 160, 23, 0.3);
+}
+
+/* Day icons - events bottom left, feasts bottom right */
+.day-cell .day-icons-left {
+  position: absolute;
+  bottom: 2px;
+  left: 3px;
+  font-size: 0.7em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.day-cell .day-icons-right {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  font-size: 0.7em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Legacy combined icons (deprecated) */
+.day-cell .day-icons {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  font-size: 0.7em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Event indicator - removed, now using day-icons-left for event icons */
 
 /* Day 1 Box specific */
 .new-moon-box .gregorian {
@@ -673,8 +896,9 @@ body.desktop-layout .sidebar-header {
 }
 
 .day-detail-header h2 {
-  margin: 0 0 var(--spacing-sm);
+  margin: 0 0 2px;
   color: var(--color-accent);
+  font-size: 1.3em;
 }
 
 .day-detail-date {
@@ -754,7 +978,7 @@ body.desktop-layout .sidebar-header {
   border-radius: 4px;
 }
 
-.year-input {
+.year-picker .year-input {
   display: none;
   font-size: 2em;
   font-weight: bold;
@@ -798,22 +1022,21 @@ body.desktop-layout .sidebar-header {
   color: var(--color-bg);
 }
 
-/* Time Picker */
+/* Time Picker - Stellarium style */
 .time-picker {
   position: fixed;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   z-index: 5001;
 }
 
-.time-picker-row {
+.time-picker-spinners {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--spacing-xs);
+  gap: 4px;
 }
 
 .time-spinner {
@@ -822,55 +1045,76 @@ body.desktop-layout .sidebar-header {
   align-items: center;
 }
 
-.spinner-btn {
-  padding: 4px 16px;
+.time-spinner .spinner-up,
+.time-spinner .spinner-down {
   background: var(--color-bg-light);
   border: 1px solid var(--color-border);
   border-radius: 4px;
   color: var(--color-text);
+  font-size: 0.7em;
   cursor: pointer;
-  font-size: 0.9em;
+  padding: 2px 12px;
+  opacity: 0.6;
+  transition: all 0.15s;
 }
 
-.spinner-btn:hover {
+.time-spinner .spinner-up:hover,
+.time-spinner .spinner-down:hover {
+  opacity: 1;
   background: var(--color-accent);
   color: var(--color-bg);
 }
 
-.time-input {
-  width: 50px;
+.time-spinner .spinner-input {
+  width: 36px;
   text-align: center;
-  font-size: 1.5em;
-  font-weight: bold;
-  padding: var(--spacing-sm);
-  background: var(--color-bg-light);
+  font-size: 1.1em;
+  font-weight: 600;
+  padding: 4px 2px;
+  margin: 2px 0;
   border: 1px solid var(--color-border);
   border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-text);
-  margin: var(--spacing-xs) 0;
 }
 
-.time-separator {
-  font-size: 1.5em;
+.time-spinner .spinner-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.time-sep {
+  font-size: 1.1em;
   font-weight: bold;
   color: var(--color-text);
+  opacity: 0.5;
+  margin: 0 2px;
+  align-self: center;
 }
 
-.time-apply-btn {
-  display: block;
-  width: 100%;
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-sm);
-  background: var(--color-accent);
-  border: none;
+.time-picker .ampm-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 6px 10px;
   border-radius: 4px;
-  color: var(--color-bg);
-  font-weight: bold;
   cursor: pointer;
+  font-weight: 600;
+  min-width: 36px;
+  margin-left: 8px;
+  transition: all 0.2s;
+  align-self: center;
 }
 
-.time-apply-btn:hover {
-  background: var(--color-accent-gold);
+.time-picker .ampm-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--color-accent);
+}
+
+.time-picker .ampm-toggle[data-pm="true"] {
+  background: rgba(255, 180, 100, 0.2);
+  border-color: rgba(255, 180, 100, 0.5);
 }
 
 /* Location Picker */
@@ -1035,24 +1279,20 @@ body.desktop-layout .sidebar-header {
     gap: 0;
   }
   
-  .header-row-1 {
-    padding: 2px 6px;
-  }
-  
-  .header-row-1 .jubilee-text {
-    font-size: 0.75em;
-  }
-  
   .header-row-2 {
-    padding: 2px 10px 6px;
+    padding: 4px 6px;
+  }
+  
+  .header-row-2 .jubilee-text {
+    font-size: 1.2em;
+  }
+  
+  .header-controls {
     gap: 4px;
   }
   
   .new-moon-box {
-    min-height: 60px;
     padding: 3px;
-    width: calc(100vw / 7);
-    min-width: 55px;
   }
   
   .new-moon-box .gregorian {
@@ -1073,8 +1313,8 @@ body.desktop-layout .sidebar-header {
     font-size: 1.1em;
   }
   
-  .header-row-1 .jubilee-text {
-    font-size: 0.65em;
+  .header-row-2 .jubilee-text {
+    font-size: 1.1em;
   }
   
   .day-cell {
@@ -1101,15 +1341,12 @@ body.desktop-layout .sidebar-header {
     font-size: 0.8em;
   }
   
-  .header-row-2 {
-    padding: 2px 8px 4px;
+  .header-controls {
     gap: 2px;
   }
   
   .new-moon-box {
-    min-height: 50px;
     padding: 2px;
-    width: calc(100vw / 7);
   }
   
   .new-moon-box .gregorian {
@@ -1138,8 +1375,8 @@ body.desktop-layout .sidebar-header {
     font-size: 0.7em;
   }
   
-  .header-row-1 .jubilee-text {
-    font-size: 0.55em;
+  .header-row-2 .jubilee-text {
+    font-size: 1em;
   }
   
   .day-cell {
@@ -1170,8 +1407,11 @@ body.desktop-layout .sidebar-header {
     font-size: 0.75em;
   }
   
-  .header-row-2 {
+  .header-controls {
     gap: 1px;
+  }
+  
+  .header-row-2 {
     padding: 2px 4px;
   }
   
@@ -1189,8 +1429,8 @@ body.desktop-layout .sidebar-header {
     font-size: 0.95em;
   }
   
-  .header-row-1 .jubilee-text {
-    font-size: 0.5em;
+  .header-row-2 .jubilee-text {
+    font-size: 0.9em;
   }
   
   .day-cell .lunar-day,
@@ -1235,12 +1475,14 @@ body.desktop-layout .sidebar-header {
 
 /* Make sure it's visible in v2 */
 .view-bible .bible-explorer-page,
+.view-reader .bible-explorer-page,
 #bible-explorer-page {
   display: flex !important;
 }
 
-/* Ensure Bible content fills available space - no page scroll */
-.view-bible .content-area {
+/* Ensure Bible/Reader content fills available space - no page scroll */
+.view-bible .content-area,
+.view-reader .content-area {
   padding: 0 !important;
   max-width: none !important;
   width: 100% !important;
@@ -1250,29 +1492,36 @@ body.desktop-layout .sidebar-header {
   overflow: hidden !important;
 }
 
-/* Prevent body scroll when viewing Bible */
-body.view-bible {
+/* Prevent body scroll when viewing Bible/Reader */
+body.view-bible,
+body.view-reader {
   overflow: hidden !important;
 }
 
 /* Override old fixed positioning */
-.view-bible .bible-explorer-page {
+.view-bible .bible-explorer-page,
+.view-reader .bible-explorer-page {
   position: relative !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
   bottom: auto !important;
+  z-index: auto !important;
+  margin-top: 0 !important;
 }
 
-/* Remove all max-width restrictions from Bible */
+/* Remove all max-width restrictions from Bible/Reader */
 .view-bible .bible-explorer-header-inner,
-.view-bible .bible-chapter-nav-inner {
+.view-bible .bible-chapter-nav-inner,
+.view-reader .bible-explorer-header-inner,
+.view-reader .bible-chapter-nav-inner {
   max-width: none !important;
 }
 
 /* Override desktop sidebar offset from old CSS */
 @media (min-width: 1024px) {
-  .view-bible .bible-explorer-page {
+  .view-bible .bible-explorer-page,
+  .view-reader .bible-explorer-page {
     right: 0 !important;
   }
 }
@@ -1297,8 +1546,9 @@ body.view-bible {
   overflow: hidden;
 }
 
-/* Override calendar-app max-width for Bible view */
-.view-bible .calendar-app {
+/* Override calendar-app max-width for Bible/Reader view */
+.view-bible .calendar-app,
+.view-reader .calendar-app {
   max-width: none !important;
   width: 100% !important;
 }
@@ -1320,16 +1570,15 @@ body.view-bible {
   margin-top: auto;
 }
 
-/* Minimal nav buttons */
+/* Nav buttons for prev/next chapter */
 .bible-nav-btn {
   background: transparent;
   border: 1px solid rgba(126, 200, 227, 0.3);
   color: #7ec8e3;
-  width: 36px;
-  height: 36px;
+  padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1483,9 +1732,8 @@ body.view-bible {
   }
   
   .bible-nav-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
+    padding: 6px 12px;
+    font-size: 13px;
   }
 }
 
@@ -2616,15 +2864,318 @@ body.view-bible {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
 }
 
-.day-detail-date {
+/* Day detail date as dropdown style */
+.day-detail-date.header-dropdown {
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.2s;
+  font-size: 0.95em;
+}
+
+.day-detail-date.header-dropdown:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.day-detail-date.header-dropdown .dropdown-arrow {
+  font-size: 0.7em;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.day-detail-date.header-dropdown:hover .dropdown-arrow {
+  opacity: 1;
+}
+
+/* Datetime Picker - Combined Year/Month/Time */
+.datetime-picker {
+  position: fixed;
+  background: #1a1a2e;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 5001;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-md);
+}
+
+.datetime-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Year section */
+.datetime-picker .year-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.datetime-picker .year-display-container {
+  position: relative;
+}
+
+.datetime-picker .year-display {
+  font-size: 2em;
+  font-weight: bold;
+  color: var(--color-accent);
+  cursor: pointer;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  min-width: 80px;
+  text-align: center;
+}
+
+.datetime-picker .year-display:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.datetime-picker .year-input {
+  display: none;
+  font-size: 2em;
+  font-weight: bold;
+  width: 100px;
+  text-align: center;
+  background: #2a2a4e;
+  border: 2px solid var(--color-accent);
+  border-radius: 4px;
+  color: var(--color-text);
+  padding: var(--spacing-xs);
+}
+
+.datetime-picker .year-arrow-btn {
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.datetime-picker .year-arrow-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.datetime-picker .era-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.datetime-picker .era-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--color-accent);
+}
+
+.datetime-picker .era-toggle[data-bc="true"] {
+  background: rgba(100, 150, 255, 0.2);
+  border-color: rgba(100, 150, 255, 0.5);
+}
+
+/* Month grid */
+.datetime-picker .month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.datetime-picker .month-btn {
+  padding: 8px 12px;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.95em;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.datetime-picker .month-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.datetime-picker .month-btn.active {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-weight: bold;
+}
+
+/* Time section */
+.datetime-picker .time-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.datetime-picker .time-arrow-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: 1em;
+  cursor: pointer;
+  padding: 4px 8px;
+  opacity: 0.7;
+}
+
+.datetime-picker .time-arrow-btn:hover {
+  opacity: 1;
+  color: var(--color-accent);
+}
+
+.datetime-picker .time-display {
+  font-size: 1.3em;
+  font-weight: 600;
+  min-width: 30px;
+  text-align: center;
+}
+
+.datetime-picker .time-sep {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: var(--color-text);
+  opacity: 0.5;
+}
+
+.datetime-picker .ampm-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: var(--spacing-sm);
+}
+
+.datetime-picker .ampm-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--color-accent);
+}
+
+.datetime-picker .ampm-toggle[data-pm="true"] {
+  background: rgba(255, 180, 100, 0.2);
+  border-color: rgba(255, 180, 100, 0.5);
+}
+
+/* Date Picker - Stellarium style */
+.date-picker {
+  position: fixed;
+  background: #1a1a2e;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 5001;
+}
+
+.date-picker-spinners {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.date-spinner .spinner-up,
+.date-spinner .spinner-down {
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  font-size: 0.7em;
+  cursor: pointer;
+  padding: 2px 12px;
+  opacity: 0.6;
+  transition: all 0.15s;
+}
+
+.date-spinner .spinner-up:hover,
+.date-spinner .spinner-down:hover {
+  opacity: 1;
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.date-spinner .spinner-input {
+  display: block !important;
+  width: 45px;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: 600;
+  padding: 4px 2px;
+  margin: 2px 0;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: #2a2a4e;
+  color: var(--color-text);
+}
+
+.date-spinner .spinner-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.date-picker .date-spinner .spinner-input.year-input {
+  display: block !important;
+  width: 70px;
+}
+
+.date-sep {
+  font-size: 1.1em;
+  color: var(--color-text);
+  opacity: 0.5;
+  margin: 0 2px;
+  align-self: center;
+}
+
+.date-picker .era-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  min-width: 36px;
+  margin-left: 8px;
+  transition: all 0.2s;
+  align-self: center;
+}
+
+.date-picker .era-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--color-accent);
+}
+
+.date-picker .era-toggle[data-bc="true"] {
+  background: rgba(100, 150, 255, 0.2);
+  border-color: rgba(100, 150, 255, 0.5);
 }
 
 .day-detail-header .day-detail-astro-times {
@@ -2720,6 +3271,600 @@ body.view-bible {
   background: #e5b328;
   transform: scale(1.1);
 }
+
+/* Day Detail Body - Feasts and Events */
+.day-detail-body {
+  margin-top: 12px;
+}
+
+.day-detail-section {
+  margin-bottom: 16px;
+}
+
+.day-detail-section .section-title {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #d4a017;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(212, 160, 23, 0.3);
+}
+
+.day-detail-no-items {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Year Start Info */
+.day-detail-year-info {
+  background: rgba(90, 120, 180, 0.15);
+  border-radius: 8px;
+  padding: 12px;
+  border-left: 3px solid #6b9bd1;
+}
+
+.year-info-content {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+.year-info-content p {
+  margin: 8px 0;
+}
+
+.year-info-content ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.year-info-content details {
+  margin-top: 10px;
+}
+
+/* Feast Basis Explanation */
+.feast-basis {
+  margin-top: 8px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  font-size: 0.9em;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+}
+
+/* Feast Item */
+.day-detail-feast-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  background: rgba(74, 122, 92, 0.2);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border-left: 3px solid #4a7a5c;
+}
+
+.day-detail-feast-item .feast-icon {
+  font-size: 1.5em;
+  flex-shrink: 0;
+}
+
+.day-detail-feast-item .feast-info {
+  flex: 1;
+}
+
+.day-detail-feast-item .feast-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.day-detail-feast-item .feast-header .stellarium-link {
+  padding: 4px 8px;
+  font-size: 0.8em;
+  margin: 0;
+}
+
+.day-detail-feast-item .feast-name {
+  font-weight: bold;
+  color: #7ec8e3;
+}
+
+.day-detail-feast-item .feast-desc {
+  font-size: 0.9em;
+  color: #aaa;
+  margin-bottom: 6px;
+}
+
+.day-detail-feast-item .feast-link {
+  font-size: 0.85em;
+  color: #d4a017;
+  text-decoration: none;
+}
+
+.day-detail-feast-item .feast-link:hover {
+  text-decoration: underline;
+}
+
+/* Bible Events - warm brown/tan styling (v1 port) */
+.bible-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bible-event-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(139, 90, 43, 0.25);
+  border-radius: 8px;
+  border-left: 3px solid #d4a574;
+}
+
+.bible-event-item .event-icon {
+  font-size: 1.5em;
+  flex-shrink: 0;
+}
+
+.bible-event-item .event-info {
+  flex: 1;
+}
+
+.bible-event-item .event-title {
+  font-weight: 600;
+  color: #f0e6d3;
+  margin-bottom: 6px;
+  font-size: 1em;
+}
+
+.bible-event-item .event-verse {
+  display: block;
+  font-size: 0.85em;
+  color: #d4a574;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.bible-event-item .event-verse-link {
+  display: inline-block;
+  font-size: 0.85em;
+  color: #d4a574;
+  margin-bottom: 8px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bible-event-item .event-verse-link:hover {
+  color: #a8dcf0;
+  text-decoration: underline;
+}
+
+.bible-event-item .event-desc {
+  color: #ccc;
+  font-size: 0.9em;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.bible-event-item .event-quote {
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: rgba(212, 165, 116, 0.15);
+  border-left: 3px solid #d4a574;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: #e8dcc8;
+  line-height: 1.6;
+  font-size: 0.95em;
+}
+
+.bible-event-item .event-details {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: rgba(212, 165, 116, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(212, 165, 116, 0.2);
+}
+
+.bible-event-item .event-details-title {
+  font-weight: 600;
+  color: #d4a574;
+  margin-bottom: 10px;
+  font-size: 0.95em;
+}
+
+.bible-event-item .event-details-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bible-event-item .event-details-list li {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ccc;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.bible-event-item .event-details-list li:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.bible-event-item .event-details-list li strong {
+  display: block;
+  color: #d4a017;
+  font-size: 0.95em;
+  margin-bottom: 4px;
+}
+
+.bible-event-item .event-image {
+  margin: 12px 0;
+  text-align: center;
+}
+
+.bible-event-item .event-image img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  border: 1px solid rgba(212, 165, 116, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.bible-event-item .event-image img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(212, 165, 116, 0.3);
+}
+
+/* Historical event info */
+.bible-event-item .event-historical-info {
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: rgba(126, 200, 227, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid #7ec8e3;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bible-event-item .event-historical-date {
+  display: block;
+  color: #7ec8e3;
+  font-size: 0.9em;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.bible-event-item a.event-historical-date:hover {
+  color: #a8dcf0;
+  text-decoration: underline;
+}
+
+.bible-event-item .event-historical-location {
+  display: block;
+  color: #a8dcf0;
+  font-size: 0.85em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.bible-event-item a.event-historical-location:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.bible-event-item .event-stellarium-link {
+  margin: 0;
+}
+
+.bible-event-item .event-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bible-event-item .event-anniversary-link {
+  font-size: 0.9em;
+  color: #c9a0dc;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bible-event-item .event-anniversary-link:hover {
+  color: #e0c0f0;
+  text-decoration: underline;
+}
+
+.bible-event-item .event-link {
+  font-size: 0.9em;
+  color: #7ec8e3;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bible-event-item .event-link:hover {
+  color: #a8dcf0;
+  text-decoration: underline;
+}
+
+/* Scripture citation links within event text */
+.bible-event-item .bible-citation-link {
+  color: #7ec8e3;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.bible-event-item .bible-citation-link:hover {
+  color: #a8dcf0;
+  text-decoration: underline;
+}
+
+/* Event year badge */
+.bible-event-item .event-year-badge {
+  font-weight: normal;
+  font-size: 0.85em;
+  color: #c9a0dc;
+  margin-left: 8px;
+}
+
+/* Priestly Course Display */
+.day-detail-priestly {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: rgba(139, 90, 43, 0.2);
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.day-detail-priestly .priestly-icon {
+  font-size: 1.1em;
+}
+
+.day-detail-priestly .priestly-course {
+  font-weight: 600;
+  color: #d4a574;
+}
+
+.day-detail-priestly .priestly-order {
+  color: #888;
+  font-size: 0.9em;
+}
+
+.day-detail-priestly .priestly-meaning {
+  color: #aaa;
+  font-style: italic;
+}
+
+.day-detail-priestly.before-dedication {
+  background: rgba(100, 100, 100, 0.2);
+}
+
+.day-detail-priestly.before-dedication .priestly-note {
+  color: #888;
+  font-style: italic;
+}
+
+/* Torah Portion Display */
+.day-detail-torah .torah-portion-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  background: rgba(212, 160, 23, 0.15);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border-left: 3px solid #d4a017;
+}
+
+.day-detail-torah .torah-icon {
+  font-size: 1.5em;
+  flex-shrink: 0;
+}
+
+.day-detail-torah .torah-info {
+  flex: 1;
+}
+
+.day-detail-torah .torah-name {
+  font-weight: bold;
+  color: #d4a017;
+  margin-bottom: 4px;
+}
+
+.day-detail-torah .torah-hebrew {
+  font-size: 1.1em;
+}
+
+.day-detail-torah .torah-meaning {
+  font-weight: normal;
+  color: #888;
+  margin-left: 6px;
+}
+
+.day-detail-torah .torah-citation {
+  font-size: 0.9em;
+  color: #7ec8e3;
+  margin-bottom: 4px;
+}
+
+.day-detail-torah .torah-citation-link {
+  font-size: 0.9em;
+  color: #7ec8e3;
+  margin-bottom: 4px;
+  display: block;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.day-detail-torah .torah-citation-link:hover {
+  color: #d4a017;
+  text-decoration: underline;
+}
+
+.day-detail-torah .torah-summary {
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+.day-detail-torah .torah-note {
+  font-size: 0.85em;
+  color: #888;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.day-detail-torah .torah-maftir-addition {
+  background: rgba(100, 140, 180, 0.15);
+  border-left-color: #7ec8e3;
+}
+
+.day-detail-torah .maftir-label {
+  font-size: 0.85em;
+  color: #7ec8e3;
+  font-weight: normal;
+}
+
+/* Feast Toggle Button & Profile Nav Cell */
+.profile-nav-cell {
+  grid-column: span 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #2a5a8c;
+  padding: 8px;
+}
+
+.profile-nav-cell .profile-display {
+  grid-column: unset; /* Override the span 4 since parent has it */
+}
+
+.feast-toggle-btn {
+  background: rgba(212, 160, 23, 0.2);
+  border: 1px solid rgba(212, 160, 23, 0.4);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #d4a017;
+}
+
+.feast-toggle-btn:hover {
+  background: rgba(212, 160, 23, 0.3);
+}
+
+.feast-btn-label {
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+@media (max-width: 500px) {
+  .feast-btn-label {
+    display: none;
+  }
+  .priestly-btn-label {
+    display: none;
+  }
+}
+
+/* Priestly Toggle Button */
+.priestly-toggle-btn {
+  background: rgba(139, 90, 43, 0.2);
+  border: 1px solid rgba(139, 90, 43, 0.4);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #d4a574;
+}
+
+.priestly-toggle-btn:hover {
+  background: rgba(139, 90, 43, 0.3);
+}
+
+.priestly-btn-label {
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+/* Feast list styles (used in left panel) */
+
+/* Feast List Items */
+.feast-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.feast-list-item:hover {
+  background: rgba(126, 200, 227, 0.15);
+  transform: translateX(4px);
+}
+
+.feast-list-item .feast-icon {
+  font-size: 1.3em;
+  flex-shrink: 0;
+}
+
+.feast-list-item .feast-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.feast-list-item .feast-name {
+  font-weight: 600;
+  color: #e8e8e8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.feast-list-item .feast-date {
+  font-size: 0.85em;
+  color: #7ec8e3;
+}
+
+.feast-list-empty {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+  font-style: italic;
+}
+
 
 .day-detail-content {
   color: #fff;
@@ -2847,6 +3992,9 @@ body.view-bible {
   margin-top: 16px;
   padding-top: 12px;
   border-top: 1px solid rgba(126, 200, 227, 0.3);
+  /* Prevent any transitions that could cause blur */
+  transition: none !important;
+  filter: none !important;
 }
 
 .day-detail-dateline .dateline-container {
@@ -3518,6 +4666,13 @@ body.view-bible {
   overflow-x: hidden;
 }
 
+/* Desktop: Account for right sidebar when visible */
+@media (min-width: 1200px) {
+  body.desktop-layout .view-events .events-page {
+    right: var(--sidebar-width);
+  }
+}
+
 .view-events .content-area {
   overflow: hidden;
 }
@@ -3579,10 +4734,11 @@ body.view-bible {
   margin: 0 auto;
 }
 
+/* Desktop: Ensure events content doesn't go under right sidebar when open */
 @media (min-width: 1200px) {
-  .events-page-content {
-    margin-left: calc((100% - var(--sidebar-width) - 800px) / 2);
-    margin-right: auto;
+  body.desktop-layout .events-page-content {
+    max-width: calc(100% - var(--sidebar-width) - 40px);
+    margin-right: calc(var(--sidebar-width) + 20px);
   }
 }
 
@@ -4003,5 +5159,530 @@ body.view-bible {
   text-align: center;
   padding: 40px;
   color: #888;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SYMBOLS VIEW
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.symbols-view {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+.symbols-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.symbols-header .header-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.symbols-header h1 {
+  font-size: 1.8rem;
+  margin: 0 0 var(--spacing-sm);
+  color: var(--color-text);
+}
+
+.symbols-header .header-subtitle {
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+}
+
+.symbols-intro {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto var(--spacing-xl);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.symbols-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.symbol-card {
+  background: linear-gradient(135deg, rgba(42, 90, 140, 0.6) 0%, rgba(26, 58, 92, 0.8) 100%);
+  border: 1px solid rgba(126, 200, 227, 0.3);
+  border-radius: 12px;
+  padding: var(--spacing-md);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--color-text);
+}
+
+.symbol-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-accent);
+  box-shadow: 0 4px 20px rgba(126, 200, 227, 0.2);
+}
+
+.symbol-card-icon {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.symbol-card-name {
+  font-size: 1.2rem;
+  margin: 0 0 var(--spacing-sm);
+  color: var(--color-accent);
+}
+
+.symbol-card-meaning {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+  font-size: 0.9rem;
+}
+
+.symbol-is-label,
+.symbol-does-label {
+  color: var(--color-accent-gold);
+  font-weight: 600;
+  min-width: 45px;
+}
+
+.symbol-is-value,
+.symbol-does-value {
+  color: var(--color-text);
+}
+
+.symbols-footer {
+  text-align: center;
+  padding: var(--spacing-xl) 0;
+  color: var(--color-text-muted);
+  font-style: italic;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Single Symbol Detail View */
+.single-symbol-view {
+  max-width: 800px;
+}
+
+.symbol-breadcrumb {
+  margin-bottom: var(--spacing-lg);
+}
+
+.symbol-breadcrumb button {
+  background: transparent;
+  border: none;
+  color: var(--color-accent);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: var(--spacing-sm) 0;
+}
+
+.symbol-breadcrumb button:hover {
+  text-decoration: underline;
+}
+
+.symbol-detail {
+  background: linear-gradient(135deg, rgba(42, 90, 140, 0.4) 0%, rgba(26, 58, 92, 0.6) 100%);
+  border: 1px solid rgba(126, 200, 227, 0.3);
+  border-radius: 16px;
+  padding: var(--spacing-xl);
+}
+
+.symbol-detail-header {
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.symbol-detail-header h1 {
+  font-size: 2rem;
+  margin: 0 0 var(--spacing-sm);
+  color: var(--color-accent);
+}
+
+.symbol-words,
+.symbol-strongs {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.symbol-meanings {
+  margin-bottom: var(--spacing-lg);
+}
+
+.meaning-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.meaning-label {
+  color: var(--color-accent-gold);
+  font-weight: 600;
+  min-width: 200px;
+}
+
+.meaning-value {
+  color: var(--color-text);
+  font-size: 1.1rem;
+}
+
+.meaning-sentence {
+  margin-bottom: var(--spacing-md);
+}
+
+.meaning-sentence p {
+  color: var(--color-text);
+  line-height: 1.6;
+  margin: var(--spacing-sm) 0 0;
+  font-size: 1.05rem;
+}
+
+.meaning-opposite {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.symbol-study-link {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.study-link-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #2a5a7a 0%, #1a3a5c 100%);
+  border: 1px solid rgba(126, 200, 227, 0.4);
+  color: var(--color-accent);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.study-link-btn:hover {
+  background: linear-gradient(135deg, #3a6a8a 0%, #2a4a6c 100%);
+  border-color: var(--color-accent);
+}
+
+/* Feast Symbol Link Button */
+.feast-symbol-link,
+.day-detail-symbol-link {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid rgba(126, 200, 227, 0.4);
+  color: var(--color-accent);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: all var(--transition-fast);
+}
+
+.feast-symbol-link:hover,
+.day-detail-symbol-link:hover {
+  background: rgba(126, 200, 227, 0.1);
+  border-color: var(--color-accent);
+}
+
+/* Responsive Symbols View */
+@media (max-width: 600px) {
+  .symbols-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .symbol-detail {
+    padding: var(--spacing-md);
+  }
+  
+  .meaning-row {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+  
+  .meaning-label {
+    min-width: auto;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   READER VIEW - Unified Reader Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Reader Symbol View */
+.reader-symbol-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.reader-symbol-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-bg-dark);
+  border-bottom: 1px solid rgba(126, 200, 227, 0.2);
+  flex-shrink: 0;
+}
+
+.symbol-nav-btn {
+  background: transparent;
+  border: 1px solid rgba(126, 200, 227, 0.3);
+  color: var(--color-accent);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all var(--transition-fast);
+}
+
+.symbol-nav-btn:hover {
+  background: rgba(126, 200, 227, 0.1);
+  border-color: var(--color-accent);
+}
+
+.symbol-nav-title {
+  font-weight: 600;
+  color: var(--color-accent);
+  font-size: 1.1rem;
+}
+
+.symbol-nav-spacer {
+  width: 100px;
+}
+
+.reader-symbol-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-lg);
+}
+
+.reader-symbol-content .symbol-header {
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reader-symbol-content .symbol-header h1 {
+  font-size: 1.8rem;
+  margin: 0 0 var(--spacing-sm);
+  color: var(--color-accent);
+}
+
+.reader-symbol-content .symbol-words,
+.reader-symbol-content .symbol-strongs-list {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.symbol-strongs-btn {
+  background: rgba(212, 160, 23, 0.15);
+  border: 1px solid rgba(212, 160, 23, 0.4);
+  color: #d4a017;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-left: 4px;
+  transition: all var(--transition-fast);
+}
+
+.symbol-strongs-btn:hover {
+  background: rgba(212, 160, 23, 0.25);
+  border-color: #d4a017;
+}
+
+.symbol-meanings {
+  margin-bottom: var(--spacing-lg);
+}
+
+.meaning-block {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(42, 90, 140, 0.3);
+  border-radius: 8px;
+  border-left: 3px solid var(--color-accent);
+}
+
+.meaning-block.meaning-is {
+  border-left-color: var(--color-accent-gold);
+}
+
+.meaning-block.meaning-does {
+  border-left-color: #90c090;
+}
+
+.meaning-block.meaning-opposite {
+  border-left-color: #c09090;
+  background: rgba(140, 60, 60, 0.2);
+}
+
+.meaning-block .meaning-label {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.meaning-block .meaning-value {
+  color: var(--color-text);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.meaning-paragraph {
+  color: var(--color-text);
+  line-height: 1.6;
+  margin: var(--spacing-xs) 0 0;
+}
+
+.symbol-full-study {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.full-study-link {
+  display: inline-block;
+  background: linear-gradient(135deg, #2a5a7a 0%, #1a3a5c 100%);
+  border: 1px solid rgba(126, 200, 227, 0.4);
+  color: var(--color-accent);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.full-study-link:hover {
+  background: linear-gradient(135deg, #3a6a8a 0%, #2a4a6c 100%);
+  border-color: var(--color-accent);
+}
+
+/* Reader Symbol Index */
+.reader-symbol-index {
+  padding: var(--spacing-lg);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.symbol-index-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.symbol-index-header h1 {
+  font-size: 1.8rem;
+  color: var(--color-accent);
+  margin: 0 0 var(--spacing-sm);
+}
+
+.symbol-index-header p {
+  color: var(--color-text-muted);
+}
+
+.symbol-index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.symbol-index-item {
+  background: linear-gradient(135deg, rgba(42, 90, 140, 0.5) 0%, rgba(26, 58, 92, 0.7) 100%);
+  border: 1px solid rgba(126, 200, 227, 0.3);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--color-text);
+}
+
+.symbol-index-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-accent);
+  box-shadow: 0 4px 15px rgba(126, 200, 227, 0.15);
+}
+
+.symbol-index-name {
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-xs);
+}
+
+.symbol-index-meaning {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+/* Symbol References (inline links to other symbols) */
+.symbol-ref {
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--color-accent);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.symbol-ref:hover {
+  color: var(--color-accent-hover, #e6b82e);
+  border-bottom-style: solid;
+}
+
+.symbol-ref-inline {
+  font-weight: 500;
+}
+
+/* Symbol Tooltip (mouseover) */
+.symbol-tooltip {
+  position: fixed;
+  z-index: 10000;
+  max-width: 350px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-surface, #1a1a2e);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md, 8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.symbol-tooltip-header {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-xs);
+}
+
+.symbol-tooltip-meaning {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-xs);
+}
+
+.symbol-tooltip-sentence {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* Reader Error */
+.reader-error {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-muted);
 }
 

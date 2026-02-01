@@ -15,9 +15,16 @@
  *   container.appendChild(map);
  */
 
+// Preload the map image immediately to prevent blur on re-render
+const _mapImagePreload = new Image();
+_mapImagePreload.src = '/assets/img/earth.png';
+
 const DatelineMap = {
   // Earth map image path
   IMAGE_PATH: '/assets/img/earth.png',
+  
+  // Cached preloaded image
+  _preloadedImage: _mapImagePreload,
   
   /**
    * Create a dateline map element
@@ -296,9 +303,6 @@ if (typeof module !== 'undefined' && module.exports) {
 // Make available globally
 window.DatelineMap = DatelineMap;
 
-// Expose cache for debugging/clearing
-window.tzGuideCache = tzGuideCache;
-
 /**
  * Get the biblical date (year, month, day) for a given timestamp and location
  * Uses ACTUAL astronomical calculations for sunrise/sunset at that location
@@ -548,6 +552,9 @@ const tzGuideCache = {
   }
 };
 
+// Expose cache for debugging/clearing
+window.tzGuideCache = tzGuideCache;
+
 /**
  * Render the timezone guide showing biblical dates across the globe
  * Returns a placeholder immediately, then populates asynchronously
@@ -565,10 +572,35 @@ function renderTimezoneGuide(params) {
   // Generate unique ID for this guide
   const guideId = `tz-guide-${++tzGuideCounter}`;
   
-  // Return placeholder immediately, compute async
-  setTimeout(() => {
-    computeTimezoneGuideAsync(guideId, params);
-  }, 0);
+  // Wait for image to load before starting calculations
+  // This prevents blur during the calculation phase
+  requestAnimationFrame(() => {
+    const guideEl = document.getElementById(guideId);
+    if (!guideEl) return;
+    
+    // Find the map image in the same container
+    const container = guideEl.closest('.dateline-container');
+    const mapImg = container?.querySelector('.dateline-map-bg img');
+    
+    if (mapImg && !mapImg.complete) {
+      // Image not loaded yet - wait for it
+      mapImg.onload = () => {
+        // Small delay to ensure paint is complete
+        requestAnimationFrame(() => {
+          computeTimezoneGuideAsync(guideId, params);
+        });
+      };
+      // Fallback in case onload doesn't fire (image already cached)
+      setTimeout(() => {
+        if (document.getElementById(guideId)?.querySelector('.tz-band-loading')) {
+          computeTimezoneGuideAsync(guideId, params);
+        }
+      }, 100);
+    } else {
+      // Image already loaded or no image found - compute immediately
+      computeTimezoneGuideAsync(guideId, params);
+    }
+  });
   
   return `
     <div class="dateline-tz-guide" id="${guideId}">
@@ -608,8 +640,32 @@ function createIsolatedCalendarEngine(profile) {
   return engine;
 }
 
+// Shared calendar engine for timezone calculations (reuses calendar cache)
+let _sharedTzEngine = null;
+let _sharedTzEngineConfig = null;
+
+function getSharedTzEngine(config) {
+  const configKey = JSON.stringify(config);
+  
+  // Reuse existing engine if config matches
+  if (_sharedTzEngine && _sharedTzEngineConfig === configKey) {
+    return _sharedTzEngine;
+  }
+  
+  // Create new engine with this config
+  const astroEngine = typeof getAstroEngine === 'function' ? getAstroEngine() : null;
+  if (!astroEngine) return null;
+  
+  _sharedTzEngine = new LunarCalendarEngine(astroEngine);
+  _sharedTzEngine.configure(config);
+  _sharedTzEngineConfig = configKey;
+  
+  return _sharedTzEngine;
+}
+
 /**
  * Pure function: Calculate lunar date for a JD at a specific location
+ * Uses shared engine to benefit from calendar cache across timezone bands
  * @param {number} jd - Julian Day
  * @param {Object} location - { lat, lon }
  * @param {Object} config - Calendar config (moonPhase, dayStartTime, etc.)
@@ -617,13 +673,9 @@ function createIsolatedCalendarEngine(profile) {
  */
 function calcLunarDate(jd, location, config) {
   try {
-    // Get astronomy engine
-    const astroEngine = typeof getAstroEngine === 'function' ? getAstroEngine() : null;
-    if (!astroEngine) return null;
-    
-    // Create isolated engine instance
-    const engine = new LunarCalendarEngine(astroEngine);
-    engine.configure(config);
+    // Use shared engine to benefit from calendar caching
+    const engine = getSharedTzEngine(config);
+    if (!engine) return null;
     
     // Convert JD to Gregorian year
     const timestamp = (jd - 2440587.5) * 86400000;

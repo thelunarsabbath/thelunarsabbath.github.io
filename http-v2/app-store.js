@@ -55,6 +55,13 @@ const AppStore = {
     bibleHistory: {
       entries: [],              // Array of {book, chapter, verse} entries
       index: -1                 // Current position in history
+    },
+    
+    // App navigation history (for back/forward buttons)
+    navHistory: {
+      entries: [],              // Array of URL strings
+      index: -1,                // Current position in history
+      isNavigating: false       // True when navigating via back/forward (prevents adding to history)
     }
   },
   
@@ -90,6 +97,13 @@ const AppStore = {
   },
   
   /**
+   * Get the calendar engine instance (for generating calendars at different locations)
+   */
+  getEngine() {
+    return this._engine;
+  },
+  
+  /**
    * Get a read-only copy of derived state
    */
   getDerived() {
@@ -97,18 +111,148 @@ const AppStore = {
   },
   
   /**
+   * Silently update state without notifying subscribers
+   * Used for syncing state with direct DOM updates (like Bible navigation)
+   */
+  silentUpdate(updates) {
+    if (updates.view !== undefined) {
+      this._state.content.view = updates.view;
+    }
+    if (updates.params !== undefined) {
+      this._state.content.params = updates.params;
+    }
+    if (updates.ui !== undefined) {
+      Object.assign(this._state.ui, updates.ui);
+    }
+  },
+  
+  /**
+   * Get the current date/time at a specific location
+   * Uses longitude to calculate local solar time
+   * Accounts for biblical day boundaries (first light for morning, sunset for evening)
+   * @param {Object} location - { lat, lon } coordinates
+   * @returns {{ year, month, day, hours, minutes, biblicalDay }} - Local date/time at location
+   */
+  _getDateAtLocation(location) {
+    const now = new Date();
+    
+    // Calculate local time at the selected location
+    // Longitude determines the UTC offset: 15° = 1 hour (solar time)
+    const utcHours = now.getUTCHours() + now.getUTCMinutes() / 60;
+    const locationOffsetHours = location.lon / 15;
+    let localHours = utcHours + locationOffsetHours;
+    
+    // Start with UTC date
+    let year = now.getUTCFullYear();
+    let month = now.getUTCMonth() + 1;  // 1-based
+    let day = now.getUTCDate();
+    
+    // Adjust date if local time crosses midnight (Gregorian)
+    if (localHours >= 24) {
+      localHours -= 24;
+      // Advance to next day
+      const nextDay = new Date(Date.UTC(year, month - 1, day + 1));
+      year = nextDay.getUTCFullYear();
+      month = nextDay.getUTCMonth() + 1;
+      day = nextDay.getUTCDate();
+    } else if (localHours < 0) {
+      localHours += 24;
+      // Go back to previous day
+      const prevDay = new Date(Date.UTC(year, month - 1, day - 1));
+      year = prevDay.getUTCFullYear();
+      month = prevDay.getUTCMonth() + 1;
+      day = prevDay.getUTCDate();
+    }
+    
+    const hours = Math.floor(localHours);
+    const minutes = Math.round((localHours - hours) * 60);
+    
+    // Biblical day adjustment based on profile settings
+    // The Gregorian day (year, month, day) represents the calendar day
+    // But the biblical day may not have started yet (before first light)
+    // or may have already ended (after sunset for evening mode)
+    let biblicalYear = year;
+    let biblicalMonth = month;
+    let biblicalDay = day;
+    
+    // Get the current profile's day start setting
+    const profile = this._profiles[this._state.context.profileId] || this._profiles.timeTested || {};
+    const dayStartTime = profile.dayStartTime || 'morning';
+    
+    // Use astronomy functions if available
+    if (typeof getAstronomicalTimes === 'function') {
+      const currentDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+      const astroTimes = getAstronomicalTimes(currentDate, location);
+      
+      if (astroTimes) {
+        const nowMs = now.getTime();
+        
+        if (dayStartTime === 'morning') {
+          // Day starts at first light (civil dawn)
+          // If current time is before first light, we're still in the previous biblical day
+          if (astroTimes.firstLightTs && nowMs < astroTimes.firstLightTs) {
+            // Still in the previous biblical day
+            const prevDay = new Date(Date.UTC(year, month - 1, day - 1));
+            biblicalYear = prevDay.getUTCFullYear();
+            biblicalMonth = prevDay.getUTCMonth() + 1;
+            biblicalDay = prevDay.getUTCDate();
+          }
+        } else if (dayStartTime === 'evening') {
+          // Day starts at sunset
+          // If current time is after sunset, we're in the next biblical day
+          if (astroTimes.sunsetTs && nowMs >= astroTimes.sunsetTs) {
+            // Already in the next biblical day
+            const nextDay = new Date(Date.UTC(year, month - 1, day + 1));
+            biblicalYear = nextDay.getUTCFullYear();
+            biblicalMonth = nextDay.getUTCMonth() + 1;
+            biblicalDay = nextDay.getUTCDate();
+          }
+        }
+      }
+    }
+    
+    return { 
+      year, month, day, hours, minutes,
+      // Biblical day (accounting for dawn/sunset boundary)
+      biblicalYear, biblicalMonth, biblicalDay
+    };
+  },
+  
+  /**
+   * Get Julian Day for "today" at the configured location
+   * This is the source of truth for calendar "today" highlighting
+   * Uses biblical day boundary (first light for morning, sunset for evening)
+   */
+  _getTodayJD() {
+    const location = this._state.context.location;
+    const dateAtLoc = this._getDateAtLocation(location);
+    
+    // Use biblical day (accounts for dawn/sunset boundary) instead of Gregorian day
+    const date = new Date(Date.UTC(
+      dateAtLoc.biblicalYear, 
+      dateAtLoc.biblicalMonth - 1, 
+      dateAtLoc.biblicalDay, 
+      12, 0, 0
+    ));
+    return this._dateToJulian(date);
+  },
+  
+  /**
    * Get today's date/time as a SET_GREGORIAN_DATETIME event
-   * Uses LOCAL date (not UTC) since user cares about their local "today"
+   * Uses LOCAL time at the SELECTED LOCATION (not browser's local time)
+   * Uses biblical day boundary (first light for morning, sunset for evening)
    */
   getTodayEvent() {
-    const now = new Date();
+    const dateAtLoc = this._getDateAtLocation(this._state.context.location);
+    
     return {
       type: 'SET_GREGORIAN_DATETIME',
-      year: now.getFullYear(),
-      month: now.getMonth() + 1,  // 1-based
-      day: now.getDate(),
-      hours: now.getHours(),
-      minutes: now.getMinutes()
+      // Use biblical day (accounts for dawn/sunset boundary)
+      year: dateAtLoc.biblicalYear,
+      month: dateAtLoc.biblicalMonth,
+      day: dateAtLoc.biblicalDay,
+      hours: dateAtLoc.hours,
+      minutes: dateAtLoc.minutes
     };
   },
   
@@ -116,11 +260,19 @@ const AppStore = {
    * Dispatch an event to update state
    * @param {Object} event - Event with type and payload
    */
+  // Track if we're in a dispatch cycle (to prevent duplicate history entries)
+  _isDispatching: false,
+  
+  isDispatching() {
+    return this._isDispatching;
+  },
+  
   dispatch(event) {
     if (window.DEBUG_STORE) {
       console.log('[AppStore] dispatch:', event.type, event);
     }
     
+    this._isDispatching = true;
     const changed = this._reduce(event);
     
     if (changed) {
@@ -132,6 +284,7 @@ const AppStore = {
       
       this._notify();
     }
+    this._isDispatching = false;
   },
   
   /**
@@ -140,6 +293,7 @@ const AppStore = {
    */
   dispatchBatch(events) {
     console.log('[AppStore] dispatchBatch:', events.map(e => e.type));
+    this._isDispatching = true;
     let anyChanged = false;
     
     for (const event of events) {
@@ -159,6 +313,7 @@ const AppStore = {
       }
       this._notify();
     }
+    this._isDispatching = false;
   },
   
   /**
@@ -181,22 +336,61 @@ const AppStore = {
     this._astroEngine = options.astroEngine || window.astroEngine;
     this._profiles = options.profiles || window.PROFILES || {};
     
-    // Set today using UTC (calendar data is in UTC)
-    this._state.context.today = this._dateToJulian(new Date());
-    this._state.context.selectedDate = this._state.context.today;
+    // STEP 1: Parse URL FIRST - before generating any calendar
+    // This tells us what location, profile, and date we actually need
+    const parsed = window.URLRouter?.parseURL(window.location);
+    if (parsed) {
+      console.log('[AppStore] init: Parsed URL before generating calendar:', {
+        view: parsed.content.view,
+        location: parsed.context.location,
+        lunarDate: parsed.context.selectedLunarDate
+      });
+      
+      // Apply URL context (location, profile, etc.)
+      Object.assign(this._state.context, parsed.context);
+      this._state.content.view = parsed.content.view;
+      this._state.content.params = parsed.content.params;
+      Object.assign(this._state.ui, parsed.ui);
+    }
+    
+    // STEP 2: Now set "today" based on the actual location (from URL or default)
+    this._state.context.today = this._getTodayJD();
+    
+    // STEP 3: If URL specified a lunar date, convert it to JD
+    // Otherwise use today as the selected date
+    if (this._state.context.selectedLunarDate) {
+      const { year, month, day } = this._state.context.selectedLunarDate;
+      console.log('[AppStore] init: URL has lunar date, computing JD for:', { year, month, day });
+      const jd = this._lunarDateToJD(year, month, day, this._state.context);
+      if (jd !== null) {
+        console.log('[AppStore] init: Computed JD:', jd);
+        this._state.context.selectedDate = jd;
+        this._state.context.selectedLunarDate = null;  // JD is now source of truth
+      } else {
+        // Fallback to today if can't resolve lunar date
+        console.log('[AppStore] init: Could not compute JD, falling back to today');
+        this._state.context.selectedDate = this._state.context.today;
+      }
+    } else if (this._state.context.selectedDate === null) {
+      // No lunar date and no selectedDate - use today
+      this._state.context.selectedDate = this._state.context.today;
+    }
     
     // Start clock tick (update "today" every minute)
     setInterval(() => {
-      this.dispatch({ type: 'SET_TODAY', jd: this._dateToJulian(new Date()) });
+      this.dispatch({ type: 'SET_TODAY', jd: this._getTodayJD() });
     }, 60000);
     
     this._initialized = true;
     
-    // Initial computation
+    // STEP 4: Now generate calendar with correct location/date
     this._recomputeDerived();
     
     // Auto-detect user location (GPS > localStorage > IP) for empty URL
     this._initUserLocation();
+    
+    // URL sync will be enabled after INIT_FROM_URL dispatch in index.html
+    console.log('[AppStore] init complete');
   },
   
   /**
@@ -243,14 +437,14 @@ const AppStore = {
       return;
     }
     
-    // 2. Check localStorage for saved location (only if it was from GPS)
+    // 2. Check localStorage for saved location (from GPS or user selection)
     const savedSource = localStorage.getItem('userLocationSource');
     const savedLocation = localStorage.getItem('userLocation');
-    if (savedLocation && savedSource === 'gps') {
+    if (savedLocation && (savedSource === 'gps' || savedSource === 'user')) {
       try {
         const loc = JSON.parse(savedLocation);
         if (loc.lat && loc.lon) {
-          console.log('[AppStore] Location from localStorage (GPS):', loc.lat, loc.lon);
+          console.log('[AppStore] Location from localStorage:', savedSource, loc.lat, loc.lon);
           setLocationAndSync(loc.lat, loc.lon);
           return;
         }
@@ -438,6 +632,13 @@ const AppStore = {
         if (s.context.location.lat === newLoc.lat && 
             s.context.location.lon === newLoc.lon) return false;
         s.context.location = newLoc;
+        // Recalculate "today" for the new location (different timezone = different day)
+        s.context.today = this._getTodayJD();
+        // Save to localStorage so it persists across sessions/navigations
+        try {
+          localStorage.setItem('userLocation', JSON.stringify(newLoc));
+          localStorage.setItem('userLocationSource', 'user');
+        } catch (e) {}
         return true;
       }
         
@@ -446,13 +647,46 @@ const AppStore = {
         s.context.profileId = event.profileId;
         return true;
         
+      case 'REFRESH':
+        // Force recomputation of derived state (e.g., after data loads)
+        return true;
+        
+      case 'SET_ASTRO_ENGINE':
+        // Update astronomy engine after async load completes
+        if (event.payload) {
+          const profile = this._profiles[s.context.profileId] || this._profiles.timeTested || {};
+          _engine = new LunarCalendarEngine(event.payload);
+          _engine.configure({
+            moonPhase: profile.moonPhase || 'full',
+            dayStartTime: profile.dayStartTime || 'morning',
+            dayStartAngle: profile.dayStartAngle ?? 12,
+            yearStartRule: profile.yearStartRule || 'virgoFeet'
+          });
+          console.log('[AppStore] Astronomy engine updated');
+        }
+        return true;
+        
       case 'GO_TO_TODAY': {
-        // Set date to today and time to current moment
+        // Set date to today and time to current moment at the selected location
         // Clear selectedLunarDate so the calendar uses today's JD
         const now = new Date();
         s.context.selectedDate = s.context.today;
         s.context.selectedLunarDate = null;  // Clear so JD-based lookup is used
-        s.context.time = { hours: now.getHours(), minutes: now.getMinutes() };
+        
+        // Calculate local time at the selected location (solar time based on longitude)
+        const location = s.context.location;
+        const utcHours = now.getUTCHours() + now.getUTCMinutes() / 60;
+        const locationOffsetHours = location.lon / 15;
+        let localHours = utcHours + locationOffsetHours;
+        
+        // Handle day wraparound
+        if (localHours >= 24) localHours -= 24;
+        if (localHours < 0) localHours += 24;
+        
+        const hours = Math.floor(localHours);
+        const minutes = Math.round((localHours - hours) * 60);
+        
+        s.context.time = { hours, minutes };
         return true;
       }
       
@@ -461,6 +695,10 @@ const AppStore = {
         s.content.view = event.view;
         // Replace params entirely when switching views (don't merge old params)
         s.content.params = event.params || {};
+        // Clear Strong's panel unless explicitly preserved
+        if (!event.preserveStrongs) {
+          s.ui.strongsId = null;
+        }
         return true;
         
       case 'UPDATE_VIEW_PARAMS':
@@ -632,6 +870,58 @@ const AppStore = {
         s.ui.eventsEra = 'all';
         s.ui.eventsViewMode = 'list';
         return true;
+      
+      // ─── Navigation History ───
+      case 'NAV_PUSH': {
+        // Add current URL to history (called when navigating normally)
+        if (s.navHistory.isNavigating) {
+          s.navHistory.isNavigating = false;
+          return false; // Don't add to history when navigating via back/forward
+        }
+        const url = event.url || window.location.pathname + window.location.search;
+        // Don't add duplicate consecutive entries
+        if (s.navHistory.entries[s.navHistory.index] === url) return false;
+        // Truncate forward history when adding new entry
+        s.navHistory.entries = s.navHistory.entries.slice(0, s.navHistory.index + 1);
+        s.navHistory.entries.push(url);
+        s.navHistory.index = s.navHistory.entries.length - 1;
+        // Limit history size
+        if (s.navHistory.entries.length > 50) {
+          s.navHistory.entries.shift();
+          s.navHistory.index--;
+        }
+        return true;
+      }
+      
+      case 'NAV_BACK': {
+        if (s.navHistory.index <= 0) return false;
+        s.navHistory.index--;
+        s.navHistory.isNavigating = true;
+        // Navigate to the URL using setTimeout to avoid recursion
+        const backUrl = s.navHistory.entries[s.navHistory.index];
+        if (backUrl) {
+          setTimeout(() => {
+            window.history.pushState({}, '', backUrl);
+            AppStore.dispatch({ type: 'INIT_FROM_URL', url: new URL(backUrl, window.location.origin) });
+          }, 0);
+        }
+        return true;
+      }
+      
+      case 'NAV_FORWARD': {
+        if (s.navHistory.index >= s.navHistory.entries.length - 1) return false;
+        s.navHistory.index++;
+        s.navHistory.isNavigating = true;
+        // Navigate to the URL using setTimeout to avoid recursion
+        const fwdUrl = s.navHistory.entries[s.navHistory.index];
+        if (fwdUrl) {
+          setTimeout(() => {
+            window.history.pushState({}, '', fwdUrl);
+            AppStore.dispatch({ type: 'INIT_FROM_URL', url: new URL(fwdUrl, window.location.origin) });
+          }, 0);
+        }
+        return true;
+      }
         
       case 'OPEN_PERSON':
         s.ui.personId = event.personId;
@@ -675,36 +965,65 @@ const AppStore = {
       
       // ─── URL Events ───
       case 'INIT_FROM_URL':
-      case 'URL_CHANGED': {
-        console.log('[AppStore] INIT_FROM_URL: Starting, url =', event.url || window.location.href);
-        console.log('[AppStore] INIT_FROM_URL: Current state.content.view =', s.content.view);
-        
-        // Disable URL sync during URL parsing to avoid loops
-        this._urlSyncEnabled = false;
-        const parsed = window.URLRouter?.parseURL(event.url || window.location);
-        console.log('[AppStore] INIT_FROM_URL: Parsed result =', parsed ? { view: parsed.content.view, params: parsed.content.params } : 'null');
-        
-        if (parsed) {
-          // Preserve 'today' - it's not in the URL
-          const preservedToday = s.context.today;
-          Object.assign(s.context, parsed.context);
-          s.context.today = preservedToday;
-          
-          // Clear old params before assigning new view params
-          s.content.view = parsed.content.view;
-          s.content.params = parsed.content.params;
-          
-          Object.assign(s.ui, parsed.ui);
-          
-          // selectedLunarDate is now set directly by URLRouter - no pendingNavTarget needed
-          console.log('[AppStore] INIT_FROM_URL: selectedLunarDate =', s.context.selectedLunarDate);
-          console.log('[AppStore] INIT_FROM_URL: Set view to:', s.content.view);
-        }
-        // Enable URL sync now that we've loaded from URL
-        // Use a short delay to ensure the current dispatch cycle completes
+        // Initial URL was already parsed in init() - just enable URL sync
+        console.log('[AppStore] INIT_FROM_URL: URL was parsed in init(), enabling sync');
         setTimeout(() => { 
           this._urlSyncEnabled = true; 
           console.log('[AppStore] URL sync enabled');
+        }, 50);
+        return true;
+        
+      case 'URL_CHANGED': {
+        // Browser navigation (back/forward) or programmatic URL change
+        console.log('[AppStore] URL_CHANGED: url =', event.url || window.location.href);
+        
+        // Disable URL sync during parsing to avoid loops
+        this._urlSyncEnabled = false;
+        const parsed = window.URLRouter?.parseURL(event.url || window.location);
+        
+        if (parsed) {
+          // Check if location is changing
+          const locationChanged = parsed.context.location && (
+            s.context.location.lat !== parsed.context.location.lat ||
+            s.context.location.lon !== parsed.context.location.lon
+          );
+          
+          // If URL specifies a lunar date, convert to JD
+          if (parsed.context.selectedLunarDate && parsed.context.location) {
+            console.log('[AppStore] URL_CHANGED: URL has lunar date, computing JD');
+            s.context.location = parsed.context.location;
+            s.context.today = this._getTodayJD();
+            
+            const { year, month, day } = parsed.context.selectedLunarDate;
+            const jd = this._lunarDateToJD(year, month, day, s.context);
+            
+            if (jd !== null) {
+              s.context.selectedDate = jd;
+              s.context.selectedLunarDate = null;
+            } else {
+              s.context.selectedLunarDate = parsed.context.selectedLunarDate;
+            }
+          } else if (locationChanged) {
+            // Location changed but no lunar date - keep JD, clear lunar date
+            console.log('[AppStore] URL_CHANGED: Location changed, keeping JD:', s.context.selectedDate);
+            s.context.location = parsed.context.location;
+            s.context.today = this._getTodayJD();
+            s.context.selectedLunarDate = null;
+          } else {
+            // No lunar date, no location change - just apply parsed context
+            Object.assign(s.context, parsed.context);
+            s.context.today = this._getTodayJD();
+          }
+          
+          s.content.view = parsed.content.view;
+          s.content.params = parsed.content.params;
+          Object.assign(s.ui, parsed.ui);
+          
+          console.log('[AppStore] URL_CHANGED: view =', s.content.view, 'selectedDate =', s.context.selectedDate);
+        }
+        
+        setTimeout(() => { 
+          this._urlSyncEnabled = true; 
         }, 50);
         return true;
       }
@@ -744,6 +1063,7 @@ const AppStore = {
     
     // Get profile configuration
     const profile = this._profiles[context.profileId] || this._profiles.timeTested || {};
+    const oldConfig = this._derived.config;  // Save old config BEFORE updating
     this._derived.config = profile;
     
     // Only regenerate lunar months if we have an engine
@@ -762,17 +1082,56 @@ const AppStore = {
       });
       
       // Check if we need to regenerate the calendar
-      // Regenerate if: year changed, location changed, or no calendar yet
+      // Regenerate if: year changed, location changed, profile/config changed, or no calendar yet
       let needsRegenerate = true;
-      const locationChanged = this._derived.calendarLocation && 
-        (this._derived.calendarLocation.lat !== context.location.lat || 
-         this._derived.calendarLocation.lon !== context.location.lon);
       
+      // Detect location change - calendar depends on location for:
+      // - Virgo rule (sunrise time affects moon RA comparison)
+      // - Day boundaries (sunrise/sunset times)
+      // - Month boundaries (when day starts at different locations)
+      const locationChanged = this._derived.calendarLocation && (
+        Math.abs(this._derived.calendarLocation.lat - context.location.lat) > 0.001 ||
+        Math.abs(this._derived.calendarLocation.lon - context.location.lon) > 0.001
+      );
+      
+      // Check if profile settings affecting calendar have changed (compare old vs new)
+      const configChanged = oldConfig && (
+        oldConfig.moonPhase !== profile.moonPhase ||
+        oldConfig.yearStartRule !== profile.yearStartRule ||
+        oldConfig.dayStartTime !== profile.dayStartTime ||
+        oldConfig.dayStartAngle !== profile.dayStartAngle
+      );
+      
+      // Force regeneration if location or config changed
       if (locationChanged) {
-        console.log('[AppStore] Location changed, regenerating calendar. Old:', this._derived.calendarLocation, 'New:', context.location);
+        console.log('[AppStore] Location changed, FORCING calendar regeneration.');
+        console.log('[AppStore]   Old location:', this._derived.calendarLocation);
+        console.log('[AppStore]   New location:', context.location);
+        needsRegenerate = true;
+        
+        // When location changes, keep the JD (absolute moment in time).
+        // Clear selectedLunarDate so it gets re-resolved from JD in the new calendar.
+        // The same JD may be a different lunar date at a different location.
+        if (context.selectedLunarDate) {
+          console.log('[AppStore] Location changed - clearing selectedLunarDate, keeping JD:', context.selectedDate);
+          context.selectedLunarDate = null;
+        }
+      }
+      if (configChanged) {
+        console.log('[AppStore] Profile config changed, FORCING calendar regeneration.');
+        console.log('[AppStore]   Old config:', oldConfig);
+        console.log('[AppStore]   New yearStartRule:', profile.yearStartRule);
+        needsRegenerate = true;
+        
+        // Similarly, clear selectedLunarDate when config changes - re-resolve from JD
+        if (context.selectedLunarDate) {
+          console.log('[AppStore] Config changed - clearing selectedLunarDate, keeping JD:', context.selectedDate);
+          context.selectedLunarDate = null;
+        }
       }
       
-      if (this._derived.lunarMonths && this._derived.lunarMonths.length > 0 && this._derived.year !== null && !locationChanged) {
+      // Only skip regeneration if we have a valid calendar AND nothing changed
+      if (this._derived.lunarMonths && this._derived.lunarMonths.length > 0 && this._derived.year !== null && !locationChanged && !configChanged) {
         // If we have selectedLunarDate, check if year matches
         if (context.selectedLunarDate) {
           needsRegenerate = context.selectedLunarDate.year !== this._derived.year;
@@ -837,6 +1196,52 @@ const AppStore = {
           this._derived.springEquinox = calendar.springEquinox;
         }
         
+        // Always populate feasts and events on each day (may have been loaded after calendar generation)
+        this._populateDayData(this._derived.lunarMonths);
+        
+        // Handle month = -1 (sentinel for "last month of year")
+        // This is used when navigating backwards from month 1 to the previous year's last month
+        if (context.selectedLunarDate && context.selectedLunarDate.month === -1) {
+          const lastMonthNum = this._derived.lunarMonths.length;
+          console.log('[AppStore] Month -1 requested, resolving to last month:', lastMonthNum);
+          context.selectedLunarDate = {
+            year: context.selectedLunarDate.year,
+            month: lastMonthNum,
+            day: context.selectedLunarDate.day || 1
+          };
+        }
+        
+        // Handle month 13 redirect: if requested month exceeds actual month count,
+        // redirect to month 1 of the next year
+        if (context.selectedLunarDate && 
+            context.selectedLunarDate.month > this._derived.lunarMonths.length) {
+          console.log('[AppStore] Month', context.selectedLunarDate.month, 'exceeds available months', 
+                      this._derived.lunarMonths.length, '- redirecting to next year month 1');
+          // Update to next year, month 1
+          context.selectedLunarDate = {
+            year: context.selectedLunarDate.year + 1,
+            month: 1,
+            day: context.selectedLunarDate.day || 1
+          };
+          // Regenerate calendar for the new year
+          const newCalendar = this._engine.generateYear(context.selectedLunarDate.year, context.location);
+          this._derived.year = context.selectedLunarDate.year;
+          this._derived.lunarMonths = newCalendar.months || [];
+          this._derived.calendarLocation = { ...context.location };
+          this._derived.yearStartUncertainty = newCalendar.yearStartUncertainty;
+          this._derived.springEquinox = newCalendar.springEquinox;
+          // Re-populate day data for new calendar
+          this._populateDayData(this._derived.lunarMonths);
+          
+          // Update URL to reflect the corrected date (use replaceState, not push)
+          if (window.URLRouter) {
+            setTimeout(() => {
+              window.URLRouter.syncURL(this._state, this._derived, false);
+              console.log('[AppStore] URL updated after month overflow redirect');
+            }, 0);
+          }
+        }
+        
         // Find current month index and lunar day
         // Use selectedLunarDate directly if available (source of truth), else compute from JD
         if (context.selectedLunarDate) {
@@ -844,13 +1249,22 @@ const AppStore = {
           this._derived.currentMonthIndex = context.selectedLunarDate.month - 1;  // Convert 1-based to 0-based
           this._derived.currentLunarDay = context.selectedLunarDate.day;
         } else {
-          // Fall back to JD-based lookup (for "Today" button, etc.)
+          // Fall back to JD-based lookup (for "Today" button, location changes, etc.)
           const selectedResult = this._findMonthAndDay(
             context.selectedDate, 
             this._derived.lunarMonths
           );
           this._derived.currentMonthIndex = selectedResult.monthIndex;
           this._derived.currentLunarDay = selectedResult.lunarDay;
+          
+          // Sync selectedLunarDate to match the resolved position
+          // This ensures URL always has accurate lunar date
+          context.selectedLunarDate = {
+            year: this._derived.year,
+            month: selectedResult.monthIndex + 1,  // Convert 0-based to 1-based
+            day: selectedResult.lunarDay
+          };
+          console.log('[AppStore] Resolved lunar date from JD:', context.selectedLunarDate);
         }
         
         // Find today's lunar date (for highlighting "today" in the calendar)
@@ -1012,8 +1426,17 @@ const AppStore = {
     
     // Determine if this should be a push or replace
     // Bible navigation should push to enable browser back/forward
-    const pushEvents = ['SET_VIEW', 'SET_SELECTED_DATE', 'SET_PROFILE', 'SET_LOCATION', 'SELECT_DAY', 'SET_BIBLE_LOCATION'];
-    const shouldPush = pushEvents.includes(event.type);
+    // But respect explicit replace flag from event
+    let shouldPush;
+    if (event.replace === true) {
+      shouldPush = false;  // Explicit replace requested
+    } else if (event.replace === false) {
+      shouldPush = true;   // Explicit push requested
+    } else {
+      // Default behavior based on event type
+      const pushEvents = ['SET_VIEW', 'SET_SELECTED_DATE', 'SET_PROFILE', 'SET_LOCATION', 'SELECT_DAY', 'SET_BIBLE_LOCATION'];
+      shouldPush = pushEvents.includes(event.type);
+    }
     
     console.log('[AppStore] calling URLRouter.syncURL, shouldPush:', shouldPush);
     
@@ -1128,6 +1551,40 @@ const AppStore = {
     const minutes = Math.floor((fracDay * 24 - hours) * 60);
     
     return { year, month, day, hours, minutes };
+  },
+  
+  /**
+   * Populate feasts and events on each day object
+   * Called after calendar generation
+   * @param {Array} months - Array of lunar months from calendar engine
+   */
+  _populateDayData(months) {
+    if (!months || months.length === 0) return;
+    
+    // Check if feast functions are available
+    const hasFeastsModule = typeof getFeastsForDay === 'function';
+    const hasEventsModule = typeof getBibleEvents === 'function';
+    
+    for (const month of months) {
+      if (!month.days) continue;
+      
+      for (const day of month.days) {
+        // Populate feasts
+        if (hasFeastsModule) {
+          day.feasts = getFeastsForDay(month.monthNumber, day.lunarDay);
+        } else {
+          day.feasts = [];
+        }
+        
+        // Populate Bible events
+        if (hasEventsModule) {
+          const gregorianYear = day.gregorianDate?.getUTCFullYear();
+          day.events = getBibleEvents(month.monthNumber, day.lunarDay, gregorianYear);
+        } else {
+          day.events = [];
+        }
+      }
+    }
   }
 };
 

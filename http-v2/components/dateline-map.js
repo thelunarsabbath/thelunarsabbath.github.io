@@ -48,7 +48,7 @@ const DatelineMap = {
       dayStartTime = 'morning',
       dayStartAngle = -12,
       onLocationSelect = null,
-      showHint = true 
+      showHint = true
     } = options;
     
     // Calculate dateline position - where the day-start event is occurring right now
@@ -83,13 +83,14 @@ const DatelineMap = {
     const container = document.createElement('div');
     container.className = 'dateline-container';
     
-    // Calculate sun and moon positions for map overlay
-    const sunMoonPos = this.calculateSunMoonPositions(moonEventDate, moonPhase);
+    // Calculate sun and moon positions for map overlay using astronomy engine
+    const sunMoonPos = this.calculateSunMoonPositions(moonEventDate);
     const sunX = ((sunMoonPos.sunLon + 180) / 360) * 100;
     const sunY = ((90 - sunMoonPos.sunLat) / 180) * 100;
     const moonX = ((sunMoonPos.moonLon + 180) / 360) * 100;
     const moonY = ((90 - sunMoonPos.moonLat) / 180) * 100;
-    const moonEmoji = this.getMoonPhaseEmoji(moonPhase);
+    // Use actual phase based on day of month, not just the month start phase
+    const moonEmoji = this.getMoonPhaseEmoji(sunMoonPos.actualPhase);
     
     container.innerHTML = `
       <div class="dateline-label">${dayStartEvent} line at moment of ${moonLabel} — ${moonDateStr} — ${utcTimeStr}</div>
@@ -454,54 +455,88 @@ const DatelineMap = {
   },
   
   /**
-   * Calculate sun and moon positions on the map
+   * Calculate sun and moon positions on the map using astronomy engine
    * @param {Date} currentTime - Current time
-   * @param {string} moonPhase - Moon phase for offset calculation
-   * @returns {{ sunLon, sunLat, moonLon, moonLat }}
+   * @returns {{ sunLon, sunLat, moonLon, moonLat, actualPhase }}
    */
-  calculateSunMoonPositions(currentTime, moonPhase = 'full') {
+  calculateSunMoonPositions(currentTime) {
     const utcHours = currentTime.getUTCHours() + currentTime.getUTCMinutes() / 60 + 
                      currentTime.getUTCSeconds() / 3600;
     
-    // Sub-solar longitude: at 12:00 UTC, sun is at 0° longitude
+    // Get astronomy engine
+    const engine = typeof getAstroEngine === 'function' ? getAstroEngine() : null;
+    const observer = engine?.createObserver?.(0, 0, 0); // Observer at 0,0 for geocentric view
+    
+    // Sub-solar point: convert sun's RA to longitude
+    // At any moment, the sub-solar longitude is where local solar noon is occurring
+    // This is simply: longitude = (12 - UTC_hours) * 15
     let sunLon = (12 - utcHours) * 15;
     while (sunLon > 180) sunLon -= 360;
     while (sunLon < -180) sunLon += 360;
     
-    // Sun's latitude (declination) varies seasonally from -23.44° to +23.44°
-    // Approximate using day of year
-    const dayOfYear = Math.floor((currentTime - new Date(currentTime.getUTCFullYear(), 0, 0)) / 86400000);
-    // Summer solstice around day 172 (June 21), winter solstice around day 355 (Dec 21)
-    // sin wave: peaks at summer solstice
-    const sunLat = 23.44 * Math.sin((dayOfYear - 80) * 2 * Math.PI / 365);
-    
-    // Moon position relative to sun based on phase
-    let moonLonOffset = 0;
-    let moonLatOffset = 0;
-    
-    if (moonPhase === 'full') {
-      moonLonOffset = 180; // Opposite the sun
-    } else if (moonPhase === 'dark' || moonPhase === 'new') {
-      moonLonOffset = 0; // Same as sun (actually near it)
-    } else if (moonPhase === 'crescent') {
-      moonLonOffset = 45;
-    } else if (moonPhase === 'first_quarter') {
-      moonLonOffset = 90;
-    } else if (moonPhase === 'last_quarter') {
-      moonLonOffset = 270;
-    } else if (moonPhase === 'waning') {
-      moonLonOffset = 225;
+    // Sun's latitude = declination
+    let sunLat = 0;
+    if (engine && observer) {
+      const sunPos = engine.getEquator('sun', currentTime, observer);
+      if (sunPos) {
+        sunLat = sunPos.dec || 0;
+      }
+    } else {
+      // Fallback: approximate using day of year
+      const dayOfYear = Math.floor((currentTime - new Date(currentTime.getUTCFullYear(), 0, 0)) / 86400000);
+      sunLat = 23.44 * Math.sin((dayOfYear - 80) * 2 * Math.PI / 365);
     }
     
-    let moonLon = sunLon + moonLonOffset;
-    while (moonLon > 180) moonLon -= 360;
-    while (moonLon < -180) moonLon += 360;
+    // Moon position from astronomy engine
+    let moonLon = sunLon; // Default to sun position
+    let moonLat = 0;
+    let moonLonOffset = 0;
     
-    // Moon's latitude varies more than sun (up to ±28.5°) due to orbital inclination
-    // Approximate with slight offset from sun's declination
-    const moonLat = sunLat * 0.9 + (moonLonOffset / 180) * 5; // Rough approximation
+    if (engine && observer) {
+      const moonPos = engine.getEquator('moon', currentTime, observer);
+      if (moonPos) {
+        // Moon's RA (in hours) tells us its position relative to the sun
+        // Convert RA to longitude: subtract current sidereal time
+        // Simplified: moon longitude = sun longitude + (moon_RA - sun_RA) * 15
+        const sunPos = engine.getEquator('sun', currentTime, observer);
+        if (sunPos) {
+          // RA difference in hours, convert to degrees
+          const raDiff = (moonPos.ra - sunPos.ra) * 15;
+          moonLon = sunLon + raDiff;
+          while (moonLon > 180) moonLon -= 360;
+          while (moonLon < -180) moonLon += 360;
+          
+          moonLat = moonPos.dec || 0;
+          
+          // Calculate moon phase from elongation (angle from sun)
+          moonLonOffset = raDiff;
+          while (moonLonOffset < 0) moonLonOffset += 360;
+          while (moonLonOffset >= 360) moonLonOffset -= 360;
+        }
+      }
+    }
     
-    return { sunLon, sunLat, moonLon, moonLat: Math.max(-60, Math.min(60, moonLat)) };
+    // Determine actual phase name for emoji display based on elongation
+    let actualPhase;
+    if (moonLonOffset < 22.5 || moonLonOffset >= 337.5) {
+      actualPhase = 'new';
+    } else if (moonLonOffset < 67.5) {
+      actualPhase = 'waxing_crescent';
+    } else if (moonLonOffset < 112.5) {
+      actualPhase = 'first_quarter';
+    } else if (moonLonOffset < 157.5) {
+      actualPhase = 'waxing_gibbous';
+    } else if (moonLonOffset < 202.5) {
+      actualPhase = 'full';
+    } else if (moonLonOffset < 247.5) {
+      actualPhase = 'waning_gibbous';
+    } else if (moonLonOffset < 292.5) {
+      actualPhase = 'last_quarter';
+    } else {
+      actualPhase = 'waning_crescent';
+    }
+    
+    return { sunLon, sunLat, moonLon, moonLat: Math.max(-60, Math.min(60, moonLat)), actualPhase };
   },
   
   /**
@@ -1388,23 +1423,8 @@ function renderDatelineVisualization(moonEventDate, options = {}) {
   const lat = options.lat ?? currentLat;
   const lon = options.lon ?? currentLon;
   
-  // Create the DatelineMap element (passing all state)
-  const mapEl = DatelineMap.create({
-    moonEventDate: moonEventDate,
-    lat: lat,
-    lon: lon,
-    moonPhase: moonPhase,
-    dayStartTime: dayStartTime,
-    dayStartAngle: dayStartAngle,
-    showHint: false,  // Don't show click hint in day detail view
-    onLocationSelect: null  // No location selection in day detail view
-  });
-  
-  // Calculate dateline longitude - this is where day start is occurring right now
-  const datelineLon = DatelineMap.calculateDatelineLongitude(moonEventDate, moonPhase, Math.abs(dayStartAngle), dayStartTime, lat);
-  
   // Get current day from options (passed from calendar-view.js)
-  // or derive from AppStore derived state
+  // or derive from AppStore derived state - needed for moon position calculation
   let currentDay = options.currentDay || null;
   if (!currentDay && calendarData && calendarData.lunarMonths) {
     // Try to get current day from derived state
@@ -1434,6 +1454,21 @@ function renderDatelineVisualization(moonEventDate, options = {}) {
       };
     }
   }
+  
+  // Create the DatelineMap element (passing all state)
+  const mapEl = DatelineMap.create({
+    moonEventDate: moonEventDate,
+    lat: lat,
+    lon: lon,
+    moonPhase: moonPhase,
+    dayStartTime: dayStartTime,
+    dayStartAngle: dayStartAngle,
+    showHint: false,  // Don't show click hint in day detail view
+    onLocationSelect: null  // No location selection in day detail view
+  });
+  
+  // Calculate dateline longitude - this is where day start is occurring right now
+  const datelineLon = DatelineMap.calculateDatelineLongitude(moonEventDate, moonPhase, Math.abs(dayStartAngle), dayStartTime, lat);
   
   // Add timezone guide showing biblical dates across the globe
   // Pass all required state to the stateless function

@@ -1,21 +1,33 @@
 {
-  "name": "Lunar Sabbath Calendar",
-  "short_name": "Lunar Sabbath",
-  "description": "A time tested tradition - Biblical lunar calendar",
-  "start_url": "/",
+  "name": "Time Tested - Biblical Calendar",
+  "short_name": "Time Tested",
+  "description": "A time-tested lunar calendar for tracking Biblical Sabbaths and appointed times",
+  "start_url": "/time-tested/",
+  "scope": "/time-tested/",
   "display": "standalone",
   "background_color": "#0d2840",
   "theme_color": "#1a3a5c",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/assets/img/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "/assets/img/icon-512.png",
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["lifestyle", "utilities", "education"],
+  "lang": "en-US"
 }

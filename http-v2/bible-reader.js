@@ -1510,7 +1510,7 @@ function displayConceptSearchResults() {
   const searchWord = state.searchWord;
   
   let html = `<div class="concept-search-header">
-    <strong>Search: "${searchWord}"</strong>
+    <span class="concept-search-title">Search Results</span>
     <button class="concept-search-close" onclick="closeConceptSearch()">✕</button>
   </div>`;
   
@@ -2201,6 +2201,32 @@ function updateStrongsPanelContent(strongsNum, isNavigation = false) {
     html += renderPersonInfoHtml(allPersonInfo);
   }
   
+  // Add symbolic meaning if available for this Strong's number
+  const symbol = (typeof lookupSymbolByStrongs === 'function') ? lookupSymbolByStrongs(strongsNum) : null;
+  if (symbol) {
+    const symbolKey = Object.keys(SYMBOL_DICTIONARY || {}).find(k => SYMBOL_DICTIONARY[k] === symbol) || '';
+    html += `
+      <div class="strongs-symbol-info">
+        <div class="strongs-symbol-header">
+          <span class="strongs-symbol-icon">📖</span>
+          <span class="strongs-symbol-title">Symbolic Meaning</span>
+        </div>
+        <div class="strongs-symbol-meaning">
+          <span class="strongs-symbol-label">IS:</span>
+          <span class="strongs-symbol-value">${symbol.is}${symbol.is2 ? ' / ' + symbol.is2 : ''}</span>
+        </div>
+        ${symbol.does ? `
+        <div class="strongs-symbol-meaning">
+          <span class="strongs-symbol-label">DOES:</span>
+          <span class="strongs-symbol-value">${symbol.does}${symbol.does2 ? ' / ' + symbol.does2 : ''}</span>
+        </div>
+        ` : ''}
+        <div class="strongs-symbol-sentence">${symbol.sentence}</div>
+        <button class="strongs-symbol-link" onclick="openSymbolStudyInReader('${symbolKey}')">See Symbol Study →</button>
+      </div>
+    `;
+  }
+  
   // Add verse search section
   html += `
     <div class="strongs-verse-search">
@@ -2215,6 +2241,11 @@ function updateStrongsPanelContent(strongsNum, isNavigation = false) {
 // Show Strong's information slide-out for a word
 function showStrongsPanel(strongsNum, englishWord, gloss, event) {
   if (event) event.stopPropagation();
+  
+  // Update URL state (this will be reflected in the URL bar)
+  if (typeof AppStore !== 'undefined') {
+    AppStore.dispatch({ type: 'SET_STRONGS_ID', strongsId: strongsNum });
+  }
   
   // Use the sidebar element from HTML
   const sidebar = document.getElementById('strongs-sidebar');
@@ -2307,7 +2338,7 @@ function showStrongsPanel(strongsNum, englishWord, gloss, event) {
         </div>
         ` : ''}
         <div class="strongs-symbol-sentence">${symbol.sentence}</div>
-        <a href="${symbol.link}" class="strongs-symbol-link">Full Word Study →</a>
+        <button class="strongs-symbol-link" onclick="openSymbolStudyInReader('${symbol.key}')">See Symbol Study →</button>
       </div>
     `;
   }
@@ -2343,7 +2374,7 @@ function showStrongsPanel(strongsNum, englishWord, gloss, event) {
 }
 
 // Close Strong's sidebar
-function closeStrongsPanel() {
+function closeStrongsPanel(skipDispatch = false) {
   const sidebar = document.getElementById('strongs-sidebar');
   if (sidebar) {
     sidebar.classList.remove('open', 'collapsed');
@@ -2352,6 +2383,11 @@ function closeStrongsPanel() {
   // Reset history
   strongsHistory = [];
   strongsHistoryIndex = -1;
+  
+  // Update URL state (skip when syncing from URL to avoid loops)
+  if (!skipDispatch && typeof AppStore !== 'undefined') {
+    AppStore.dispatch({ type: 'CLOSE_STRONGS' });
+  }
 }
 
 // Resize functionality for Strong's sidebar
@@ -2516,7 +2552,7 @@ function showBookRefPopup(book, chapter, verse, event) {
   
   // Build popup content
   let html = `<div class="book-ref-popup-header">
-    <span>Referenced in:</span>
+    <span>📚 Time-Tested Tradition</span>
     <button class="book-ref-popup-close" onclick="closeBookRefPopup()">×</button>
   </div>
   <div class="book-ref-popup-content">`;
@@ -2529,7 +2565,7 @@ function showBookRefPopup(book, chapter, verse, event) {
     seen.add(key);
     
     const url = getChapterUrl(ref.chapter, ref.anchor);
-    html += `<a href="${url}" class="book-ref-link" onclick="closeBookRefPopup()">
+    html += `<a href="${url}" class="book-ref-link" onclick="navigateToBookChapter('${ref.chapter}', '${ref.anchor}'); closeBookRefPopup(); return false;">
       <span class="book-ref-chapter">Chapter ${parseInt(ref.chapter)}</span>
       <span class="book-ref-title">${ref.title}</span>
     </a>`;
@@ -2936,9 +2972,9 @@ function formatVersesForDisplay(verses, title = '') {
       currentChapter = verse.chapter;
       const bookEncoded = encodeURIComponent(verse.book);
       const trans = currentTranslation || 'kjv';
-      html += `<div class="bible-chapter-section">`;
-      html += `<div class="bible-chapter-header">
-        <a href="/bible/${trans}/${bookEncoded}/${verse.chapter}" 
+    html += `<div class="bible-chapter-section">`;
+    html += `<div class="bible-chapter-header">
+        <a href="/reader/bible/${trans}/${bookEncoded}/${verse.chapter}"
            onclick="openBibleExplorerFromModal('${verse.book}', ${verse.chapter}); return false;" 
            class="bible-chapter-link" title="Read full chapter in Bible Explorer">
           Chapter ${verse.chapter} →
@@ -2951,7 +2987,7 @@ function formatVersesForDisplay(verses, title = '') {
     const bookEncoded = encodeURIComponent(verse.book);
     const trans = currentTranslation || 'kjv';
     html += `<span class="bible-verse"><sup class="bible-verse-num">
-      <a href="/bible/${trans}/${bookEncoded}/${verse.chapter}?verse=${verse.verse}" 
+      <a href="/reader/bible/${trans}/${bookEncoded}/${verse.chapter}?verse=${verse.verse}" 
          onclick="openBibleExplorerFromModal('${verse.book}', ${verse.chapter}, ${verse.verse}); return false;"
          title="Open ${verse.book} ${verse.chapter}:${verse.verse} in Bible Explorer">${verse.verse}</a>
     </sup>${verse.text} </span>`;
@@ -3018,13 +3054,30 @@ function closeBibleReader() {
   }
 }
 
-// Handle click on citation link
+// Handle click on citation link - navigate to Bible view
 function handleCitationClick(event) {
   event.preventDefault();
   const citation = event.target.dataset.citation;
-  const title = event.target.dataset.title || '';
   if (citation) {
-    openBibleReader(citation, title);
+    // Build the Bible URL and navigate
+    const url = buildBibleUrl(citation);
+    if (url && typeof AppStore !== 'undefined') {
+      // Parse the URL to get book and chapter
+      const match = citation.match(/^(.+?)\s+(\d+)(?::(\d+))?/);
+      if (match) {
+        const book = match[1].trim();
+        const chapter = parseInt(match[2]);
+        const verse = match[3] ? parseInt(match[3]) : null;
+        const trans = localStorage.getItem('bible_translation_preference') || 'kjv';
+        
+        // Navigate to Reader view (Bible content)
+        AppStore.dispatch({ 
+          type: 'SET_VIEW', 
+          view: 'reader',
+          params: { contentType: 'bible', translation: trans, book, chapter, verse }
+        });
+      }
+    }
   }
 }
 
@@ -3032,7 +3085,7 @@ function handleCitationClick(event) {
 function buildBibleUrl(citation, translation = null) {
   // Parse citation: "Book Chapter:Verse" or "Book Chapter"
   const match = citation.match(/^(.+?)\s+(\d+)(?::(\d+))?/);
-  if (!match) return '/bible/kjv/';
+  if (!match) return '/reader/bible/kjv/';
   
   const book = match[1];
   const chapter = match[2];
@@ -3040,7 +3093,7 @@ function buildBibleUrl(citation, translation = null) {
   const trans = translation || currentTranslation || 'kjv';
   
   const bookEncoded = encodeURIComponent(book);
-  let url = `/bible/${trans}/${bookEncoded}/${chapter}`;
+  let url = `/reader/bible/${trans}/${bookEncoded}/${chapter}`;
   if (verse) {
     url += `?verse=${verse}`;
   }
@@ -3062,6 +3115,7 @@ function normalizeBookName(bookStr) {
 
 // Find and linkify scripture references in text
 // Handles patterns like: "Rev 18:21", "Ezek 26:4-5,14", "Revelation 17-18", "1 Kings 8:1-11", "v. 14"
+// Also handles semicolon-separated multiple references: "1 Kings 8:1-11; 2 Chronicles 5:2-14"
 // contextCitation should be like "Ezekiel 26" (book + chapter) for "v. X" style references
 function linkifyScriptureReferences(text, contextCitation = '') {
   if (!text) return text;
@@ -3094,12 +3148,19 @@ function linkifyScriptureReferences(text, contextCitation = '') {
   // Build regex pattern for book names (with optional numbers prefix)
   const bookPattern = bookPatterns.join('|');
   
-  // Main pattern: Book Chapter:Verse(s) or Book Chapter-Chapter
+  // Single reference pattern: Book Chapter:Verse(s) or Book Chapter-Chapter
   // Matches: "Rev 18:21", "Ezekiel 26:4-5,14", "Revelation 17-18", "1 Kings 8:1-11,65-66"
-  const mainPattern = new RegExp(
-    `((?:1|2|3|I{1,3})?\\s*(?:${bookPattern})\\.?)\\s*(\\d+)(?::(\\d+(?:[-–]\\d+)?(?:,\\s*\\d+(?:[-–]\\d+)?)*))?(?:[-–](\\d+)(?::(\\d+))?)?`,
+  const singleRefPattern = `((?:1|2|3|I{1,3})?\\s*(?:${bookPattern})\\.?)\\s*(\\d+)(?::(\\d+(?:[-–]\\d+)?(?:,\\s*\\d+(?:[-–]\\d+)?)*))?(?:[-–](\\d+)(?::(\\d+))?)?`;
+  
+  // Pattern that matches semicolon-separated references
+  // This captures the whole group like "1 Kings 8:1-11,65-66; 2 Chronicles 5:2-14; ..."
+  const multiRefPattern = new RegExp(
+    `(${singleRefPattern}(?:\\s*;\\s*${singleRefPattern})*)`,
     'gi'
   );
+  
+  // Single reference regex for splitting
+  const mainPattern = new RegExp(singleRefPattern, 'gi');
   
   // Pattern for "v. X" or "vv. X-Y" or "verse X" references (uses context book)
   const versePattern = /\b(vv?\.|verses?)\s*(\d+(?:[-–]\d+)?(?:,\s*\d+(?:[-–]\d+)?)*)/gi;
@@ -3107,16 +3168,14 @@ function linkifyScriptureReferences(text, contextCitation = '') {
   // Pattern for parenthetical references like "(cf. v. 21)" or "(v. 12-19)"
   const cfPattern = /\(cf\.\s*(v\.|vv\.)\s*(\d+(?:[-–]\d+)?)\)/gi;
   
-  // Replace main scripture references
-  let result = text.replace(mainPattern, (match, book, chapter, verses, endChapter, endVerse) => {
+  // Helper to linkify a single reference
+  function linkifySingleRef(match, book, chapter, verses, endChapter, endVerse) {
     // Normalize book name to KJV format
     const normalizedBook = normalizeBookName(book);
     
     // Build the citation string in format the parser expects
     let citation = normalizedBook + ' ' + chapter;
     if (verses) {
-      // Pass through the full verse spec (including commas)
-      // Parser now handles: "4-5,14", "4,5,6", etc.
       citation += ':' + verses.replace(/–/g, '-');
     }
     if (endChapter) {
@@ -3126,7 +3185,18 @@ function linkifyScriptureReferences(text, contextCitation = '') {
       }
     }
     const url = buildBibleUrl(citation);
-    return `<a href="${url}" class="bible-citation-link" data-citation="${citation}" onclick="handleCitationClick(event)">${match}</a>`;
+    return `<a href="${url}" class="bible-citation-link" data-citation="${citation}" onclick="handleCitationClick(event)">${match.trim()}</a>`;
+  }
+  
+  // First, find all multi-reference groups (semicolon-separated) and replace each reference within
+  let result = text.replace(multiRefPattern, (fullMatch) => {
+    // Split by semicolons and process each reference
+    const parts = fullMatch.split(/\s*;\s*/);
+    const linkedParts = parts.map(part => {
+      // Apply single reference pattern to each part
+      return part.replace(mainPattern, linkifySingleRef);
+    });
+    return linkedParts.join('; ');
   });
   
   // contextCitation should be like "Ezekiel 26" (book + chapter)
@@ -3217,39 +3287,40 @@ function navigateToBibleLocation(book, chapter, verse = null, addToHistory = tru
   
   // Navigate
   if (bibleExplorerState.bookChapterCounts[normalizedBook]) {
-    selectBibleBook(normalizedBook);
+    // Skip auto-chapter selection since we're navigating to a specific chapter
+    selectBibleBook(normalizedBook, true);
     populateBibleChapters(normalizedBook);
     bibleExplorerState.currentChapter = chapter;
     displayBibleChapter(normalizedBook, chapter, verse);
     updateChapterNavigation();
     updateBibleHistoryButtons();
+    
+    // Update chapter dropdown to match
+    const chapterSelect = document.getElementById('bible-chapter-select');
+    if (chapterSelect) {
+      chapterSelect.value = chapter;
+    }
   }
 }
 
-// Go back in Bible history
+// Go back in browser history (works across all content types)
 function bibleGoBack() {
-  if (bibleExplorerState.historyIndex > 0) {
-    bibleExplorerState.historyIndex--;
-    const loc = bibleExplorerState.history[bibleExplorerState.historyIndex];
-    navigateToBibleLocation(loc.book, loc.chapter, loc.verse, false);
-  }
+  history.back();
 }
 
-// Go forward in Bible history
+// Go forward in browser history (works across all content types)
 function bibleGoForward() {
-  if (bibleExplorerState.historyIndex < bibleExplorerState.history.length - 1) {
-    bibleExplorerState.historyIndex++;
-    const loc = bibleExplorerState.history[bibleExplorerState.historyIndex];
-    navigateToBibleLocation(loc.book, loc.chapter, loc.verse, false);
-  }
+  history.forward();
 }
 
 // Update back/forward button states
+// Note: With browser history, we can't easily check if there's history,
+// so we keep buttons enabled. The browser will handle no-op cases.
 function updateBibleHistoryButtons() {
   const backBtn = document.getElementById('bible-history-back');
   const fwdBtn = document.getElementById('bible-history-forward');
-  if (backBtn) backBtn.disabled = bibleExplorerState.historyIndex <= 0;
-  if (fwdBtn) fwdBtn.disabled = bibleExplorerState.historyIndex >= bibleExplorerState.history.length - 1;
+  if (backBtn) backBtn.disabled = false;
+  if (fwdBtn) fwdBtn.disabled = false;
 }
 
 // Handle scripture link click from Strong's sidebar
@@ -3312,6 +3383,211 @@ function onTranslationChange(translationId) {
   switchTranslation(translationId);
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// READER CONTENT TYPE SWITCHING (Bible / Symbols / Time Tested)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Update the UI for a content type change (no navigation)
+function updateReaderContentUI(contentType) {
+  // Hide all selector groups
+  const bibleSelectors = document.getElementById('bible-selectors');
+  const symbolSelectors = document.getElementById('symbol-selectors');
+  const tttSelectors = document.getElementById('timetested-selectors');
+  
+  if (bibleSelectors) bibleSelectors.style.display = 'none';
+  if (symbolSelectors) symbolSelectors.style.display = 'none';
+  if (tttSelectors) tttSelectors.style.display = 'none';
+  
+  // Show the appropriate selector group and populate if needed
+  switch (contentType) {
+    case 'bible':
+      if (bibleSelectors) bibleSelectors.style.display = '';
+      break;
+    case 'symbols':
+      if (symbolSelectors) {
+        symbolSelectors.style.display = '';
+        populateSymbolSelect();
+      }
+      break;
+    case 'timetested':
+      if (tttSelectors) {
+        tttSelectors.style.display = '';
+        populateTimeTestedSelect();
+      }
+      break;
+  }
+}
+
+// Track last visited chapter and scroll position for each content type
+let lastTimeTestedChapter = null;
+let lastTimeTestedScroll = 0;
+let lastSymbol = null;
+let lastSymbolScroll = 0;
+let lastBibleScroll = 0;
+
+// Handle content type change from dropdown (user action - includes navigation)
+function onReaderContentChange(contentType) {
+  // Save current position and scroll before switching
+  const currentState = AppStore.getState();
+  const currentParams = currentState.content?.params || {};
+  const textArea = document.getElementById('bible-explorer-text');
+  const scrollPos = textArea ? textArea.scrollTop : 0;
+  
+  if (currentParams.contentType === 'timetested') {
+    if (currentParams.chapterId) lastTimeTestedChapter = currentParams.chapterId;
+    lastTimeTestedScroll = scrollPos;
+  } else if (currentParams.contentType === 'symbols') {
+    if (currentParams.symbol) lastSymbol = currentParams.symbol;
+    lastSymbolScroll = scrollPos;
+  } else if (currentParams.contentType === 'bible') {
+    lastBibleScroll = scrollPos;
+  }
+  
+  // Update the UI
+  updateReaderContentUI(contentType);
+  
+  // Navigate to the new content type, restoring last position if available
+  let scrollToRestore = 0;
+  
+  if (contentType === 'symbols') {
+    const params = { contentType: 'symbols' };
+    if (lastSymbol) params.symbol = lastSymbol;
+    scrollToRestore = lastSymbolScroll;
+    AppStore.dispatch({ type: 'SET_VIEW', view: 'reader', params });
+  } else if (contentType === 'timetested') {
+    const params = { contentType: 'timetested' };
+    if (lastTimeTestedChapter) params.chapterId = lastTimeTestedChapter;
+    scrollToRestore = lastTimeTestedScroll;
+    AppStore.dispatch({ type: 'SET_VIEW', view: 'reader', params });
+  } else if (contentType === 'bible') {
+    // Navigate to Bible (restore last location or go to Bible home)
+    const params = { contentType: 'bible', translation: currentTranslation };
+    if (bibleExplorerState.currentBook && bibleExplorerState.currentChapter) {
+      params.book = bibleExplorerState.currentBook;
+      params.chapter = bibleExplorerState.currentChapter;
+    }
+    scrollToRestore = lastBibleScroll;
+    AppStore.dispatch({ type: 'SET_VIEW', view: 'reader', params: params });
+  }
+  
+  // Restore scroll position after content renders
+  // Bible takes longer (200ms in openBibleExplorerTo + rendering time)
+  if (scrollToRestore > 0) {
+    const delay = contentType === 'bible' ? 500 : 300;
+    setTimeout(() => {
+      const textArea = document.getElementById('bible-explorer-text');
+      if (textArea) {
+        textArea.scrollTop = scrollToRestore;
+      }
+    }, delay);
+  }
+}
+
+// Populate the symbol select dropdown
+function populateSymbolSelect() {
+  const select = document.getElementById('symbol-select');
+  if (!select || typeof SYMBOL_DICTIONARY === 'undefined') return;
+  
+  let html = '<option value="">Symbol...</option>';
+  // Sort alphabetically by symbol name
+  const sortedSymbols = Object.entries(SYMBOL_DICTIONARY).sort((a, b) => a[1].name.localeCompare(b[1].name));
+  for (const [key, symbol] of sortedSymbols) {
+    html += `<option value="${key}">${symbol.name}</option>`;
+  }
+  select.innerHTML = html;
+}
+
+// Handle symbol selection
+function onSymbolSelect(symbolKey) {
+  if (!symbolKey) return;
+  AppStore.dispatch({ 
+    type: 'SET_VIEW', 
+    view: 'reader', 
+    params: { contentType: 'symbols', symbol: symbolKey } 
+  });
+}
+
+// Open symbol study in reader from Strong's panel (keeps panel open)
+function openSymbolStudyInReader(symbolKey) {
+  if (!symbolKey) return;
+  
+  // Dispatch the navigation but the Strong's panel will stay open
+  // because we're not triggering a full view change cleanup
+  AppStore.dispatch({ 
+    type: 'SET_VIEW', 
+    view: 'reader', 
+    params: { contentType: 'symbols', symbol: symbolKey } 
+  });
+  
+  // Note: The Strong's panel stays open because ReaderView.renderSymbolInBibleFrame
+  // doesn't call BibleView.cleanup() - it just updates the content area
+}
+
+// Time Tested chapters list
+const TIME_TESTED_CHAPTERS = [
+  { id: '01_Introduction', title: '1. Introduction' },
+  { id: '02_Inherited_Lies', title: '2. Inherited Lies' },
+  { id: '03_Principles_of_Evaluation', title: '3. Principles of Evaluation' },
+  { id: '04_Alleged_Authority_of_Sanhedrin', title: '4. Authority of Sanhedrin' },
+  { id: '05_Where_Does_the_Day_Start', title: '5. Where Day Starts' },
+  { id: '06_When_Does_the_Day_Start', title: '6. When Day Starts' },
+  { id: '07_When_Does_the_Month_Start', title: '7. When Month Starts' },
+  { id: '08_When_does_the_Year_Start', title: '8. When Year Starts' },
+  { id: '09_How_to_Observe_the_Signs', title: '9. Observing Signs' },
+  { id: '10_When_is_the_Sabbath', title: '10. When is Sabbath' },
+  { id: '11_The_Day_of_Saturn', title: '11. Day of Saturn' },
+  { id: '12_32_AD_Resurrection', title: '12. 32 AD Resurrection' },
+  { id: '13_Herod_the_Great', title: '13. Herod the Great' },
+  { id: '14_Passion_Week_-_3_Days_&_3_Nights', title: '14. Passion Week' },
+  { id: '15_Solar_Only_Calendars', title: '15. Solar Calendars' },
+  { id: '16_The_Path_to_Salvation', title: '16. Path to Salvation' },
+  { id: '17_Commands_to_Follow', title: '17. Commands to Follow' },
+  { id: '18_Appointed_Times', title: '18. Appointed Times' },
+  { id: '19_Miscellaneous_Commands', title: '19. Misc. Commands' },
+  // Extra chapters (appendices)
+  { id: 'e01_Herod_Regal_vs_Defacto', title: 'A1. Herod: Regal vs De Facto', folder: 'extra' },
+  { id: 'e02_Battle_of_Actium', title: 'A2. Battle of Actium', folder: 'extra' },
+  { id: 'e03_Herods_Appointment', title: 'A3. Herod\'s Appointment', folder: 'extra' },
+  { id: 'e04_StabilityOfAustronomy', title: 'A4. Stability of Astronomy', folder: 'extra' },
+  { id: 'e05_FirstFruitsNewWine', title: 'A5. First Fruits & New Wine', folder: 'extra' }
+];
+
+// Export to window for use by other modules
+if (typeof window !== 'undefined') {
+  window.TIME_TESTED_CHAPTERS = TIME_TESTED_CHAPTERS;
+}
+
+// Populate the Time Tested chapter select dropdown
+function populateTimeTestedSelect() {
+  const select = document.getElementById('timetested-chapter-select');
+  if (!select) return;
+  
+  let html = '<option value="">Chapter...</option>';
+  for (const ch of TIME_TESTED_CHAPTERS) {
+    html += `<option value="${ch.id}">${ch.title}</option>`;
+  }
+  select.innerHTML = html;
+}
+
+// Handle Time Tested chapter selection
+function onTimeTestedSelect(chapterId) {
+  if (!chapterId) return;
+  AppStore.dispatch({ 
+    type: 'SET_VIEW', 
+    view: 'reader', 
+    params: { contentType: 'timetested', chapterId: chapterId } 
+  });
+}
+
+// Update the content type selector based on current state (no navigation)
+function updateReaderContentSelector(contentType) {
+  const select = document.getElementById('reader-content-select');
+  if (select && contentType) {
+    select.value = contentType;
+    updateReaderContentUI(contentType);
+  }
+}
+
 // Select a translation from the welcome screen and open Genesis 1
 async function selectTranslationAndStart(translationId) {
   if (!translationId) return;
@@ -3357,7 +3633,7 @@ function goToBibleHome() {
   if (nextBtn) nextBtn.disabled = true;
   
   // Update URL
-  window.history.replaceState({}, '', `/bible/${currentTranslation}/`);
+  window.history.replaceState({}, '', `/reader/bible/${currentTranslation}/`);
 }
 
 // Get the Bible welcome HTML
@@ -3505,7 +3781,8 @@ function switchBibleNavTab(tab) {
 }
 
 // Select a book
-function selectBibleBook(bookName) {
+// skipChapterSelect: if true, don't auto-select chapter 1 (used when navigating to specific chapter)
+function selectBibleBook(bookName, skipChapterSelect = false) {
   bibleExplorerState.currentBook = bookName;
   
   // Update book dropdown selection
@@ -3517,8 +3794,10 @@ function selectBibleBook(bookName) {
   // Update chapter dropdown
   updateChapterDropdown(bookName);
   
-  // Auto-select chapter 1 and display it
-  selectBibleChapter(1);
+  // Auto-select chapter 1 and display it (unless skipped)
+  if (!skipChapterSelect) {
+    selectBibleChapter(1);
+  }
 }
 
 // Populate chapter grid for selected book
@@ -3573,7 +3852,7 @@ function selectBibleChapter(chapter, addToHistory = true) {
   updateChapterNavigation();
   updateBibleHistoryButtons();
   
-  // Update URL
+  // Update URL - auto-detects push vs replace based on dispatch context
   updateBibleExplorerURL(bibleExplorerState.currentBook, chapter, null);
 }
 
@@ -3605,12 +3884,9 @@ async function displayBibleChapter(bookName, chapter, highlightVerse = null) {
     await loadInterlinear();
   }
   
-  // Build chapter HTML
+  // Build chapter HTML with inline title that scrolls with content
   let html = '<div class="bible-explorer-chapter">';
-  html += `<div class="bible-explorer-chapter-header">
-    <h2>${bookName}</h2>
-    <div class="chapter-subtitle">Chapter ${chapter}</div>
-  </div>`;
+  html += `<h2 class="bible-chapter-heading">${bookName} ${chapter}</h2>`;
   
   for (const verse of verses) {
     const highlighted = highlightVerse && verse.verse === highlightVerse ? ' highlighted' : '';
@@ -3633,11 +3909,17 @@ async function displayBibleChapter(bookName, chapter, highlightVerse = null) {
     // Check if this verse is referenced in the book
     const bookRefs = (typeof getBookReferences === 'function') ? getBookReferences(bookName, chapter, verse.verse) : null;
     const bookRefHtml = bookRefs && bookRefs.length > 0 
-      ? `<span class="verse-book-ref" onclick="showBookRefPopup('${bookName}', ${chapter}, ${verse.verse}, event)" title="Referenced in A Time Tested Tradition">📖</span>`
+      ? `<span class="verse-book-ref" onclick="showBookRefPopup('${bookName}', ${chapter}, ${verse.verse}, event)" title="Referenced in Time-Tested Tradition">📚</span>`
       : `<span class="verse-book-ref-spacer"></span>`;
     
+    // Cross-reference icon - only show if cross-references exist for this verse
+    const hasCrossRefs = (typeof hasCrossReferences === 'function') && hasCrossReferences(bookName, chapter, verse.verse);
+    const crossRefHtml = hasCrossRefs
+      ? `<span class="verse-cross-ref" onclick="showCrossRefPanel('${bookName}', ${chapter}, ${verse.verse}, event)" title="View cross-references">🔗</span>`
+      : `<span class="verse-cross-ref-spacer"></span>`;
+    
     html += `<div class="bible-explorer-verse${highlighted}${origLangClass}" id="verse-${verse.verse}">
-      ${bookRefHtml}<span class="bible-verse-number${hasOriginalLang ? ' clickable-hebrew' : ''}" onclick="${hasOriginalLang ? `showInterlinear('${bookName}', ${chapter}, ${verse.verse}, event)` : `copyVerseReference('${bookName}', ${chapter}, ${verse.verse})`}" title="${hasOriginalLang ? interlinearTitle : 'Click to copy reference'}">${verse.verse}</span>
+      ${bookRefHtml}${crossRefHtml}<span class="bible-verse-number${hasOriginalLang ? ' clickable-hebrew' : ''}" onclick="${hasOriginalLang ? `showInterlinear('${bookName}', ${chapter}, ${verse.verse}, event)` : `copyVerseReference('${bookName}', ${chapter}, ${verse.verse})`}" title="${hasOriginalLang ? interlinearTitle : 'Click to copy reference'}">${verse.verse}</span>
       <span class="bible-verse-text">${verseText}</span>
     </div>`;
   }
@@ -3722,30 +4004,34 @@ function smartBibleSearch() {
   }
   
   // Try to parse as a verse citation first
+  // Requires explicit chapter number to avoid confusion with names (Ruth, Job, Mark, etc.)
   const parsed = parseSearchCitation(searchText);
   
-  if (parsed.book) {
-    // It looks like a verse reference - try to navigate
+  if (parsed.book && parsed.hasExplicitChapter) {
+    // It looks like a verse reference with chapter - try to navigate
     const normalizedBook = normalizeBookName(parsed.book);
     
     // Verify book exists
     if (bibleExplorerState.bookChapterCounts[normalizedBook]) {
-      // Valid book - navigate to it
-      selectBibleBook(normalizedBook);
+      // Valid book with chapter - navigate to it
+      selectBibleBook(normalizedBook, true);
+      populateBibleChapters(normalizedBook);
+      bibleExplorerState.currentChapter = parsed.chapter;
+      displayBibleChapter(normalizedBook, parsed.chapter, parsed.verse);
+      updateChapterNavigation();
       
-      if (parsed.chapter) {
-        populateBibleChapters(normalizedBook);
-        bibleExplorerState.currentChapter = parsed.chapter;
-        displayBibleChapter(normalizedBook, parsed.chapter, parsed.verse);
-        updateChapterNavigation();
-        
-        document.querySelectorAll('.bible-chapter-btn').forEach(el => {
-          el.classList.remove('active');
-          if (parseInt(el.textContent) === parsed.chapter) {
-            el.classList.add('active');
-          }
-        });
+      // Update chapter dropdown
+      const chapterSelect = document.getElementById('bible-chapter-select');
+      if (chapterSelect) {
+        chapterSelect.value = parsed.chapter;
       }
+      
+      document.querySelectorAll('.bible-chapter-btn').forEach(el => {
+        el.classList.remove('active');
+        if (parseInt(el.textContent) === parsed.chapter) {
+          el.classList.add('active');
+        }
+      });
       
       input.value = '';
       return;
@@ -3766,32 +4052,27 @@ function jumpToVerse() {
 }
 
 // Parse a search citation string
+// Requires explicit chapter number to avoid confusion with names like Ruth, Job, Mark, etc.
 function parseSearchCitation(str) {
-  // Pattern: Book Chapter:Verse or Book Chapter
+  // Pattern: Book Chapter:Verse or Book Chapter (chapter is REQUIRED)
   const match = str.match(/^(.+?)\s+(\d+)(?::(\d+))?/);
   
   if (match) {
     return {
       book: match[1].trim(),
       chapter: parseInt(match[2]),
-      verse: match[3] ? parseInt(match[3]) : null
+      verse: match[3] ? parseInt(match[3]) : null,
+      hasExplicitChapter: true
     };
   }
   
-  // Just a book name
-  const bookOnly = str.match(/^([A-Za-z0-9\s]+)/);
-  if (bookOnly) {
-    return {
-      book: bookOnly[1].trim(),
-      chapter: 1,
-      verse: null
-    };
-  }
-  
-  return { book: null, chapter: null, verse: null };
+  // No chapter number - don't treat as a book reference
+  // This allows searching for names like "Ruth", "Job", "Mark", "Luke", "James"
+  return { book: null, chapter: null, verse: null, hasExplicitChapter: false };
 }
 
 // Open Bible Explorer to a specific location
+// Note: URL is managed by AppStore - this function just updates the UI/display
 function openBibleExplorerTo(book, chapter, verse = null) {
   const normalizedBook = normalizeBookName(book);
   
@@ -3803,13 +4084,20 @@ function openBibleExplorerTo(book, chapter, verse = null) {
   // Wait for initialization then navigate
   setTimeout(() => {
     if (bibleExplorerState.bookChapterCounts[normalizedBook]) {
-      selectBibleBook(normalizedBook);
+      // Skip auto-chapter selection since we're navigating to a specific chapter
+      selectBibleBook(normalizedBook, true);
       populateBibleChapters(normalizedBook);
       bibleExplorerState.currentChapter = chapter;
       displayBibleChapter(normalizedBook, chapter, verse);
       updateChapterNavigation();
       
-      // Update UI
+      // Update chapter dropdown to match current chapter
+      const chapterSelect = document.getElementById('bible-chapter-select');
+      if (chapterSelect) {
+        chapterSelect.value = chapter;
+      }
+      
+      // Update chapter grid buttons
       document.querySelectorAll('.bible-chapter-btn').forEach(el => {
         el.classList.remove('active');
         if (parseInt(el.textContent) === chapter) {
@@ -3817,20 +4105,69 @@ function openBibleExplorerTo(book, chapter, verse = null) {
         }
       });
       
-      // Update URL
-      updateBibleExplorerURL(normalizedBook, chapter, verse);
+      // Don't update URL here - AppStore already handles it via _syncURL
+      // Calling updateBibleExplorerURL here would create duplicate/conflicting history entries
     }
   }, 200);
 }
 
 // Update browser URL for Bible Explorer
-function updateBibleExplorerURL(book, chapter, verse = null) {
+// Automatically detects whether to push or replace based on dispatch context
+function updateBibleExplorerURL(book, chapter, verse = null, forcePush = null) {
+  // Build the URL
   const bookEncoded = encodeURIComponent(book);
-  let url = `/bible/${currentTranslation}/${bookEncoded}/${chapter}`;
+  let url = `/reader/bible/${currentTranslation}/${bookEncoded}/${chapter}`;
   if (verse) {
     url += `?verse=${verse}`;
   }
-  window.history.replaceState({}, '', url);
+  
+  // Check if URL is already the same - avoid duplicate history entries
+  const currentURL = window.location.pathname + window.location.search;
+  if (url === currentURL) {
+    return; // URL already matches, no update needed
+  }
+  
+  // Update AppStore state silently (without re-render) to keep in sync for back/forward
+  if (typeof AppStore !== 'undefined' && typeof AppStore.silentUpdate === 'function') {
+    AppStore.silentUpdate({
+      view: 'reader',
+      params: {
+        contentType: 'bible',
+        translation: currentTranslation,
+        book: book,
+        chapter: chapter,
+        verse: verse || null
+      }
+    });
+  }
+  
+  // Determine whether to push or replace:
+  // - If forcePush is explicitly set, use that
+  // - If AppStore is currently dispatching, it already pushed → use replace
+  // - Otherwise, this is direct user navigation → use push
+  let shouldPush;
+  if (forcePush !== null) {
+    shouldPush = forcePush;
+  } else if (typeof AppStore !== 'undefined' && typeof AppStore.isDispatching === 'function') {
+    shouldPush = !AppStore.isDispatching();
+  } else {
+    shouldPush = true; // Default to push if we can't determine
+  }
+  
+  // Get current scroll position to save in history
+  const textArea = document.getElementById('bible-explorer-text');
+  const scrollTop = textArea ? textArea.scrollTop : 0;
+  
+  if (shouldPush) {
+    // Save scroll position of current page before pushing new entry
+    if (typeof URLRouter !== 'undefined' && URLRouter.saveScrollPosition) {
+      URLRouter.saveScrollPosition();
+    }
+    window.history.pushState({}, '', url);
+  } else {
+    // For replace, preserve scroll in current state
+    window.history.replaceState({ scrollTop }, '', url);
+  }
 }
 
 // Copy verse reference to clipboard
@@ -3939,3 +4276,8 @@ function showHebrewInterlinear(verseEl, hebrewText, errorMessage) {
     interlinear.classList.add('expanded');
   });
 }
+
+// Expose functions globally for inline onclick handlers
+window.handleCitationClick = handleCitationClick;
+window.openBibleReader = openBibleReader;
+window.closeBibleReader = closeBibleReader;

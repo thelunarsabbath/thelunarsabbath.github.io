@@ -2,32 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lunar Sabbath - A Time Tested Tradition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Time Tested - Biblical Lunar Calendar</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Explore the biblical lunar calendar with Full Moon, Dark Moon, and Crescent Moon options. Track Sabbaths, feast days, priestly courses, and historical biblical events with precise astronomical calculations.">
+  <meta name="keywords" content="lunar sabbath, biblical calendar, hebrew calendar, feast days, sabbath calendar, moon phases, priestly divisions, biblical timeline, Bible reader, appointed times, torah portions">
+  <meta name="author" content="LunarSabbath.net">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lunarsabbath.net/time-tested/">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lunarsabbath.net/time-tested/">
+  <meta property="og:title" content="Time Tested - Biblical Lunar Calendar">
+  <meta property="og:description" content="Explore the biblical lunar calendar with Full Moon, Dark Moon, and Crescent Moon options. Track Sabbaths, feast days, priestly courses, and historical biblical events.">
+  <meta property="og:image" content="https://lunarsabbath.net/icons/icon-512.png">
+  <meta property="og:site_name" content="LunarSabbath.net">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://lunarsabbath.net/time-tested/">
+  <meta name="twitter:title" content="Time Tested - Biblical Lunar Calendar">
+  <meta name="twitter:description" content="Explore the biblical lunar calendar with Full Moon, Dark Moon, and Crescent Moon options. Track Sabbaths, feast days, and historical biblical events.">
+  <meta name="twitter:image" content="https://lunarsabbath.net/icons/icon-512.png">
+  
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Time Tested - Biblical Lunar Calendar",
+    "description": "A biblical lunar calendar application for tracking Sabbaths, feast days, priestly courses, and historical events based on moon phases.",
+    "url": "https://lunarsabbath.net/time-tested/",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
   
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#1a3a5c">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Lunar Sabbath">
+  <meta name="apple-mobile-web-app-title" content="Time Tested">
   
-  <!-- Open Graph -->
-  <meta property="og:title" content="Lunar Sabbath Calendar">
-  <meta property="og:description" content="A time tested tradition - Explore the Biblical lunar calendar">
-  <meta property="og:type" content="website">
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   
-  <!-- Favicon -->
-  <link rel="icon" href="/assets/img/favicon.png" type="image/png">
-  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
   
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/styles.css?v=122">
   <link rel="stylesheet" href="/components/world-map.css?v=1">
   <link rel="stylesheet" href="/components/dateline-map.css?v=5">
   <link rel="stylesheet" href="/assets/css/bible-styles.css?v=119">
-  
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="/manifest.json">
 </head>
 <body>
   <!-- ═══════════════════════════════════════════════════════════════════ -->
@@ -151,9 +189,65 @@
           <span class="menu-icon">ℹ️</span>
           <span class="menu-label">About</span>
         </button>
+        
+        <div class="menu-divider"></div>
+        
+        <button class="menu-item" id="install-app-btn" style="display: none;" onclick="handleInstallClick()">
+          <span class="menu-icon">📲</span>
+          <span class="menu-label">Install App</span>
+        </button>
+        
+        <div class="book-ad">
+          <div class="book-ad-top">
+            <div class="book-ad-title">TIME</div>
+            <div class="book-ad-subtitle">Tested Tradition</div>
+            <div class="book-ad-tagline">The Renewed Biblical Calendar</div>
+          </div>
+          <div class="book-ad-bottom">
+            <div class="book-ad-author">By Daniel Larimer</div>
+            <a class="book-ad-download" href="/media/time-tested-tradition.pdf" download>
+              <span class="icon">📥</span>
+              <span>Download PDF</span>
+            </a>
+          </div>
+        </div>
+        
       </nav>
       
       </aside>
+  </div>
+  
+  <!-- iOS Install Instructions Modal -->
+  <div id="ios-install-overlay" class="ios-install-overlay" onclick="closeIOSInstallModal(event)">
+    <div class="ios-install-modal" onclick="event.stopPropagation()">
+      <button class="ios-install-close" onclick="closeIOSInstallModal()">✕</button>
+      <div class="ios-install-header">
+        <span class="ios-install-icon">📲</span>
+        <h3>Install Time Tested</h3>
+      </div>
+      <p class="ios-install-intro">Add this app to your home screen for quick access and an app-like experience.</p>
+      <div class="ios-install-steps">
+        <div class="ios-install-step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <p>Tap the <strong>Share</strong> button <span class="ios-share-icon">⬆️</span> in Safari's toolbar</p>
+          </div>
+        </div>
+        <div class="ios-install-step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <p>Scroll down and tap <strong>"Add to Home Screen"</strong></p>
+          </div>
+        </div>
+        <div class="ios-install-step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <p>Tap <strong>"Add"</strong> in the top right corner</p>
+          </div>
+        </div>
+      </div>
+      <button class="ios-install-done-btn" onclick="closeIOSInstallModal()">Got it!</button>
+    </div>
   </div>
   
   <!-- ═══════════════════════════════════════════════════════════════════ -->
@@ -447,7 +541,90 @@
       AppStore.subscribe(updateNavButtons);
       
       console.log('[App] Initialized successfully');
+      
+      // Register service worker for PWA
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('[PWA] Service worker registered:', registration.scope);
+          })
+          .catch((error) => {
+            console.warn('[PWA] Service worker registration failed:', error);
+          });
+      }
+      
+      // PWA Install handling
+      setupInstallPrompt();
     });
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // PWA INSTALL FUNCTIONALITY
+    // ═══════════════════════════════════════════════════════════════════
+    
+    let deferredInstallPrompt = null;
+    
+    function setupInstallPrompt() {
+      const installBtn = document.getElementById('install-app-btn');
+      
+      // Check if already installed as PWA
+      if (window.matchMedia('(display-mode: standalone)').matches || 
+          window.navigator.standalone === true) {
+        // Already installed, hide install button
+        return;
+      }
+      
+      // Listen for beforeinstallprompt (Chrome, Edge, etc.)
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        if (installBtn) installBtn.style.display = 'flex';
+      });
+      
+      // On iOS, show the button with instructions
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+      if (isIOS && isSafari && installBtn) {
+        installBtn.style.display = 'flex';
+      }
+    }
+    
+    function handleInstallClick() {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      
+      if (isIOS) {
+        // Show iOS install instructions modal
+        showIOSInstallModal();
+      } else if (deferredInstallPrompt) {
+        // Use the native install prompt
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('[PWA] User accepted install prompt');
+          }
+          deferredInstallPrompt = null;
+          const installBtn = document.getElementById('install-app-btn');
+          if (installBtn) installBtn.style.display = 'none';
+        });
+      }
+      
+      // Close sidebar menu
+      AppStore.dispatch({type: 'CLOSE_MENU'});
+    }
+    
+    function showIOSInstallModal() {
+      const overlay = document.getElementById('ios-install-overlay');
+      if (overlay) {
+        overlay.classList.add('visible');
+      }
+    }
+    
+    function closeIOSInstallModal(event) {
+      if (event && event.target !== event.currentTarget) return;
+      const overlay = document.getElementById('ios-install-overlay');
+      if (overlay) {
+        overlay.classList.remove('visible');
+      }
+    }
   </script>
 </body>
 </html>

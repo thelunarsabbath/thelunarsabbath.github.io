@@ -40,14 +40,19 @@ const BibleView = {
     const paramsKey = `${book}-${chapter}-${verse}-${translation}`;
     const needsFullRender = !this.initialized || !container.querySelector('#bible-explorer-page');
     
+    // Check if the content area has non-Bible content (switching back from Time-Tested/Symbols)
+    const textArea = container.querySelector('#bible-explorer-text');
+    const hasBibleContent = textArea && textArea.querySelector('.bible-explorer-chapter');
+    const switchingBack = !hasBibleContent && book && chapter;
+    
     if (needsFullRender) {
       this.renderStructure(container);
     }
     
-    // Navigate if params changed
-    if (this.lastRenderedParams !== paramsKey) {
+    // Navigate if params changed OR if switching back to Bible from another content type
+    if (this.lastRenderedParams !== paramsKey || switchingBack) {
       this.lastRenderedParams = paramsKey;
-      console.log('[BibleView] Navigating to:', { translation, book, chapter, verse });
+      console.log('[BibleView] Navigating to:', { translation, book, chapter, verse, switchingBack });
       
       // Reset restoration flags on navigation change
       this._interlinearRestored = false;
@@ -60,53 +65,68 @@ const BibleView = {
     this.restoreUIState(ui);
   },
   
-  // Restore UI state from URL parameters
+  // Restore UI state from URL parameters (syncs panel state with URL)
   restoreUIState(ui) {
     if (!ui) return;
     
-    // Restore Strong's panel if specified in URL
-    if (ui.strongsId && !this._strongsRestored) {
-      this._strongsRestored = true;
+    // Sync Strong's panel with URL state
+    const currentStrongsOpen = document.getElementById('strongs-sidebar')?.classList.contains('open');
+    const currentStrongsId = this._currentStrongsId;
+    
+    if (ui.strongsId && ui.strongsId !== currentStrongsId) {
+      // URL has a Strong's ID different from what we're showing - open/update panel
+      this._currentStrongsId = ui.strongsId;
       setTimeout(() => {
         if (typeof showStrongsPanel === 'function') {
           showStrongsPanel(ui.strongsId, '', '', null);
         }
-      }, 500);
+      }, 100);
+    } else if (!ui.strongsId && currentStrongsOpen) {
+      // URL has no Strong's ID but panel is open - close it
+      // Pass true to skip dispatch since we're syncing from URL
+      this._currentStrongsId = null;
+      setTimeout(() => {
+        if (typeof closeStrongsPanel === 'function') {
+          closeStrongsPanel(true);
+        }
+      }, 100);
     }
     
-    // Restore search if specified in URL
-    if (ui.searchQuery && !this._searchRestored) {
-      this._searchRestored = true;
+    // Restore search if specified in URL (only once per unique query)
+    if (ui.searchQuery && ui.searchQuery !== this._lastSearchQuery) {
+      this._lastSearchQuery = ui.searchQuery;
       setTimeout(() => {
         if (typeof startConceptSearch === 'function') {
           startConceptSearch(ui.searchQuery);
         }
-      }, 600);
+      }, 200);
     }
     
-    // Restore interlinear if specified in URL
-    if (ui.interlinearVerse && !this._interlinearRestored) {
-      this._interlinearRestored = true;
+    // Restore interlinear if specified in URL (only once per unique verse)
+    if (ui.interlinearVerse && ui.interlinearVerse !== this._lastInterlinearVerse) {
+      this._lastInterlinearVerse = ui.interlinearVerse;
       setTimeout(() => {
         const state = AppStore.getState();
         const params = state.content?.params || {};
         if (typeof showInterlinear === 'function' && params.book && params.chapter) {
           showInterlinear(params.book, params.chapter, ui.interlinearVerse, null);
         }
-      }, 800);
+      }, 300);
     }
     
     // Update history button states
     this.updateHistoryButtons();
   },
   
-  // Update back/forward button states based on history
+  // Update back/forward button states
+  // With browser history, we can't easily check if there's history,
+  // so we keep buttons enabled. The browser handles no-op cases.
   updateHistoryButtons() {
     const backBtn = document.getElementById('bible-history-back');
     const fwdBtn = document.getElementById('bible-history-forward');
     
-    if (backBtn) backBtn.disabled = !canBibleGoBack();
-    if (fwdBtn) fwdBtn.disabled = !canBibleGoForward();
+    if (backBtn) backBtn.disabled = false;
+    if (fwdBtn) fwdBtn.disabled = false;
   },
   
   // Navigate to Bible location once data is loaded
@@ -154,28 +174,52 @@ const BibleView = {
         <div class="bible-explorer-header">
           <div class="bible-explorer-header-inner">
             <!-- Home button -->
-            <a href="/bible" class="bible-home-link" onclick="goToBibleHome(); return false;" title="Bible Home">
+            <a href="/reader/bible" class="bible-home-link" onclick="goToBibleHome(); return false;" title="Bible Home">
               📖
             </a>
             
-            <!-- Translation selector -->
-            <select id="bible-translation-select" class="bible-explorer-select bible-translation-select" 
-                    onchange="onTranslationChange(this.value)" title="Select translation">
-              <option value="kjv">KJV</option>
-              <option value="asv">ASV</option>
+            <!-- Content type selector -->
+            <select id="reader-content-select" class="bible-explorer-select reader-content-select" 
+                    onchange="onReaderContentChange(this.value)" title="Select content type">
+              <option value="bible">Bible</option>
+              <option value="symbols">SYM</option>
+              <option value="timetested">TTT</option>
             </select>
             
-            <!-- Book selector -->
-            <select id="bible-book-select" class="bible-explorer-select" 
-                    onchange="selectBibleBook(this.value)" title="Select book">
-              <option value="">Book</option>
-            </select>
+            <!-- Bible selectors (shown when content=bible) -->
+            <span id="bible-selectors" class="reader-selector-group">
+              <select id="bible-translation-select" class="bible-explorer-select bible-translation-select" 
+                      onchange="onTranslationChange(this.value)" title="Select translation">
+                <option value="kjv">KJV</option>
+                <option value="asv">ASV</option>
+              </select>
+              
+              <select id="bible-book-select" class="bible-explorer-select" 
+                      onchange="selectBibleBook(this.value)" title="Select book">
+                <option value="">Book</option>
+              </select>
+              
+              <select id="bible-chapter-select" class="bible-explorer-select" 
+                      onchange="selectBibleChapter(parseInt(this.value))" disabled title="Select chapter">
+                <option value="">Ch.</option>
+              </select>
+            </span>
             
-            <!-- Chapter selector -->
-            <select id="bible-chapter-select" class="bible-explorer-select" 
-                    onchange="selectBibleChapter(parseInt(this.value))" disabled title="Select chapter">
-              <option value="">Ch.</option>
-            </select>
+            <!-- Symbol selector (shown when content=symbols) -->
+            <span id="symbol-selectors" class="reader-selector-group" style="display:none;">
+              <select id="symbol-select" class="bible-explorer-select" 
+                      onchange="onSymbolSelect(this.value)" title="Select symbol">
+                <option value="">Symbol...</option>
+              </select>
+            </span>
+            
+            <!-- Time Tested selector (shown when content=timetested) -->
+            <span id="timetested-selectors" class="reader-selector-group" style="display:none;">
+              <select id="timetested-chapter-select" class="bible-explorer-select" 
+                      onchange="onTimeTestedSelect(this.value)" title="Select chapter">
+                <option value="">Chapter...</option>
+              </select>
+            </span>
             
             <!-- Search -->
             <div class="bible-explorer-search-inline">
@@ -196,25 +240,18 @@ const BibleView = {
               <div class="search-divider-handle"></div>
             </div>
             
-            <!-- Top Chapter Navigation - connected to text -->
-            <div class="bible-chapter-nav bible-chapter-nav-top">
-              <button id="bible-history-back" class="bible-nav-btn" onclick="bibleGoBack()" disabled title="Back">◀</button>
-              <button id="bible-history-forward" class="bible-nav-btn" onclick="bibleGoForward()" disabled title="Forward">▶</button>
-              <button id="bible-prev-chapter" class="bible-nav-btn" onclick="prevBibleChapter()" title="Previous chapter">◁</button>
-              <span id="bible-chapter-title" class="bible-chapter-title">Select a book and chapter</span>
-              <button id="bible-next-chapter" class="bible-nav-btn" onclick="nextBibleChapter()" title="Next chapter">▷</button>
-            </div>
+            <!-- Hidden element to track chapter title (for syncing with content) -->
+            <span id="bible-chapter-title" style="display:none;">Select a book and chapter</span>
             
             <!-- Main text area -->
             <div id="bible-explorer-text" class="bible-explorer-text">
               <!-- Welcome content or chapter content rendered here -->
             </div>
             
-            <!-- Bottom Chapter Navigation -->
+            <!-- Bottom Chapter Navigation (compact) -->
             <div class="bible-chapter-nav bible-chapter-nav-bottom">
-              <button class="bible-nav-btn" onclick="prevBibleChapter()" title="Previous chapter">◁</button>
-              <span class="bible-chapter-title-bottom" id="bible-chapter-title-bottom"></span>
-              <button class="bible-nav-btn" onclick="nextBibleChapter()" title="Next chapter">▷</button>
+              <button class="bible-nav-btn" onclick="prevBibleChapter()" title="Previous chapter">◁ Prev</button>
+              <button class="bible-nav-btn" onclick="nextBibleChapter()" title="Next chapter">Next ▷</button>
             </div>
           </div>
           
@@ -274,32 +311,7 @@ const BibleView = {
       loadAllTranslations();
     }
     
-    // Sync bottom chapter title with top
-    this.setupTitleSync();
-    
     this.initialized = true;
-  },
-  
-  // Keep bottom chapter title in sync with top
-  setupTitleSync() {
-    const topTitle = document.getElementById('bible-chapter-title');
-    const bottomTitle = document.getElementById('bible-chapter-title-bottom');
-    
-    if (topTitle && bottomTitle) {
-      // Initial sync
-      bottomTitle.textContent = topTitle.textContent;
-      
-      // Watch for changes using MutationObserver
-      const observer = new MutationObserver(() => {
-        bottomTitle.textContent = topTitle.textContent;
-      });
-      
-      observer.observe(topTitle, { 
-        childList: true, 
-        characterData: true, 
-        subtree: true 
-      });
-    }
   }
 };
 
@@ -326,10 +338,10 @@ function getBibleWelcomeHTML() {
       <div class="bible-quick-links">
         <h4>Quick Links</h4>
         <div class="bible-quick-link-grid">
-          <a href="/bible/kjv/Genesis/1" onclick="openBibleExplorerTo('Genesis', 1); return false;">Genesis 1</a>
-          <a href="/bible/kjv/Psalms/23" onclick="openBibleExplorerTo('Psalms', 23); return false;">Psalm 23</a>
-          <a href="/bible/kjv/John/1" onclick="openBibleExplorerTo('John', 1); return false;">John 1</a>
-          <a href="/bible/kjv/Revelation/1" onclick="openBibleExplorerTo('Revelation', 1); return false;">Revelation 1</a>
+          <a href="/reader/bible/kjv/Genesis/1" onclick="openBibleExplorerTo('Genesis', 1); return false;">Genesis 1</a>
+          <a href="/reader/bible/kjv/Psalms/23" onclick="openBibleExplorerTo('Psalms', 23); return false;">Psalm 23</a>
+          <a href="/reader/bible/kjv/John/1" onclick="openBibleExplorerTo('John', 1); return false;">John 1</a>
+          <a href="/reader/bible/kjv/Revelation/1" onclick="openBibleExplorerTo('Revelation', 1); return false;">Revelation 1</a>
         </div>
       </div>
     </div>
@@ -355,26 +367,16 @@ function nextBibleChapter() {
   }
 }
 
-// Use AppStore for back/forward (works in PWA/desktop)
-function bibleGoBack() {
-  if (typeof AppStore !== 'undefined') {
-    AppStore.dispatch({ type: 'BIBLE_GO_BACK' });
-  }
-}
-
-function bibleGoForward() {
-  if (typeof AppStore !== 'undefined') {
-    AppStore.dispatch({ type: 'BIBLE_GO_FORWARD' });
-  }
-}
+// Use browser history for back/forward - this works reliably across all content types
+// The popstate event handler in url-router.js will update app state when URL changes
+// NOTE: These functions are also defined in bible-reader.js - ensure only one is loaded
+// or they should be identical
 
 // Check if back/forward is available
 function canBibleGoBack() {
-  if (typeof AppStore !== 'undefined') {
-    const h = AppStore.getState().bibleHistory;
-    return h && h.index > 0;
-  }
-  return false;
+  // Browser history doesn't expose length reliably, so we always return true
+  // The browser will handle the no-op case
+  return true;
 }
 
 function canBibleGoForward() {

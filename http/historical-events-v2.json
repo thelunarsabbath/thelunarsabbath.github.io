@@ -44,7 +44,7 @@
       "name": "Herod the Great (Regal)",
       "start": {
         "lunar": {
-          "year": -36,
+          "year": -37,
           "month": 1,
           "day": 1
         }
@@ -89,15 +89,25 @@
       "name": "Artaxerxes I (Longimanus)",
       "start": {
         "lunar": {
-          "year": -464
+          "year": -463,
+          "month": 1,
+          "day": 1
+        },
+        "fixed": {
+          "source": "Artaxerxes acceded late 465 BC after Xerxes' assassination. Year 1 starts Nisan 464 BC. Confirmed by Elephantine Papyri and Cairo Stele.",
+          "gregorian": {
+            "year": -463,
+            "month": 3
+          }
         }
       },
       "reckoning": "accession-year",
+      "calendar": "nisan-to-nisan",
       "duration": {
         "value": 41,
         "unit": "regal_years"
       },
-      "notes": "Persian king 465-424 BC. His 7th year (458 BC) marks Ezra's decree."
+      "notes": "Persian king: accession late 465 BC, Year 1 = Nisan 464-463 BC, Year 7 (Ezra's decree) = 458 BC, Year 20 (Nehemiah) = 445 BC. Dies 424 BC."
     },
     "david": {
       "name": "King David",
@@ -179,13 +189,20 @@
       "claimed": {
         "years": 27
       },
-      "source": {
-        "ref": "Josephus, Antiquities 14.16.4",
-        "type": "historical",
-        "quote": "the Jews were taken by him **on the same day**, and this was after **twenty-seven years'** time"
-      },
+      "sources": [
+        {
+          "ref": "Josephus, Antiquities 14.16.4",
+          "type": "historical",
+          "quote": "This destruction befell the city of Jerusalem when Marcus Agrippa and Caninius Gallus were consuls of Rome, on the hundred eighty and fifth olympiad, on the third month, on the solemnity of the fast, as if a periodical revolution of calamities had returned since that which befell the Jews under Pompey; for the Jews were taken by him **on the same day**, and this was after **twenty-seven years'** time."
+        },
+        {
+          "ref": "Josephus, Wars 1.18.2",
+          "type": "historical",
+          "quote": "This happened the hundred eighty and fifth olympiad, on the third month, on the day of the fast, as if the misfortune of the Jews was a periodical one that must return at the same time; for after **twenty-seven years** time, **in the same month and on the same day**, were they taken by Pompey."
+        }
+      ],
       "doc": "_durations/pompey-to-herod-jerusalem.md",
-      "notes": "Josephus explicitly states 27 years between Pompey and Herod taking Jerusalem, on the same day of the year."
+      "notes": "Josephus explicitly states 27 years between Pompey and Herod taking Jerusalem, on the same day of the year (the Day of Atonement). Both Antiquities and Wars confirm this duration and the remarkable coincidence of timing."
     },
     {
       "id": "josephus-herod-3rd-year-jerusalem",
@@ -193,7 +210,8 @@
       "from_event": "herod-senate-appointment",
       "to_event": "herod-takes-jerusalem",
       "claimed": {
-        "years": 3
+        "years": 2,
+        "notes": "Inclusive '3rd year' = 2 years offset (Year 1 + 2 = Year 3)"
       },
       "source": {
         "ref": "Josephus, Antiquities 14.16.4",
@@ -201,6 +219,24 @@
         "quote": "**in the third year** from this [appointment]"
       },
       "doc": "_durations/herod-chain.md"
+    },
+    {
+      "id": "herod-journey-to-rome",
+      "title": "Herod's Journey to Rome: ~9 Months",
+      "from_event": "herod-flees-to-rome",
+      "to_event": "herod-senate-appointment",
+      "claimed": {
+        "months": 9,
+        "approximate": true,
+        "notes": "Fled at New Wine (month 5, ~Aug 40 BC), arrived in Rome spring 39 BC"
+      },
+      "source": {
+        "ref": "Josephus, Antiquities 14.13-14",
+        "type": "historical",
+        "quote": "Journey via Masada → Petra → Egypt → Rhodes (shipwreck, ship rebuild) → Rome"
+      },
+      "doc": "_durations/herod-chain.md",
+      "notes": "DERIVED FROM ANCHOR: Since Herod took Jerusalem in 36 BC (his 3rd year), Year 1 began Nisan 38 BC. For Year 1 to begin Nisan 38 BC, he must have been appointed AFTER Nisan 39 BC. Fleeing at New Wine (~Aug 40 BC) + ~9 months journey = arrival spring 39 BC (after Nisan 39 BC). This contradicts historians who assume a fall 40 BC arrival."
     },
     {
       "id": "josephus-herod-37-regal",
@@ -310,6 +346,134 @@
         "quote": "And it came to pass in the **four hundred and eightieth year** after the children of Israel were come out of the land of Egypt, **in the fourth year of Solomon's reign** over Israel, in the month Zif, which is the second month, that **he began to build the house of the LORD**"
       },
       "doc": "_durations/monarchy-temple.md"
+    },
+    {
+      "id": "moses-age-at-exodus",
+      "title": "Moses Age at Exodus: 80 Years",
+      "from_event": "moses-birth",
+      "to_event": "exodus-from-egypt",
+      "claimed": {
+        "years": 80
+      },
+      "source": {
+        "ref": "Exodus 7:7",
+        "type": "scripture",
+        "quote": "And Moses was **fourscore years old**, and Aaron fourscore and three years old, when they spake unto Pharaoh."
+      },
+      "doc": "_durations/moses-life.md",
+      "notes": "Moses' 80 years divide into two 40-year periods: 40 years in Egypt and 40 years in Midian (Acts 7:23, 30)."
+    },
+    {
+      "id": "moses-40-years-in-egypt",
+      "title": "Moses in Egypt: 40 Years",
+      "from_event": "moses-birth",
+      "to_event": "moses-flees-to-midian",
+      "claimed": {
+        "years": 40
+      },
+      "source": {
+        "ref": "Acts 7:23",
+        "type": "scripture",
+        "quote": "And when he was full **forty years old**, it came into his heart to visit his brethren the children of Israel."
+      },
+      "doc": "_durations/moses-life.md",
+      "notes": "Moses spent 40 years as a prince of Egypt before fleeing to Midian."
+    },
+    {
+      "id": "moses-40-years-in-midian",
+      "title": "Moses in Midian: 40 Years",
+      "from_event": "moses-flees-to-midian",
+      "to_event": "burning-bush",
+      "claimed": {
+        "years": 40
+      },
+      "source": {
+        "ref": "Acts 7:30",
+        "type": "scripture",
+        "quote": "And when **forty years were expired**, there appeared to him in the wilderness of mount Sinai an angel of the Lord in a flame of fire in a bush."
+      },
+      "doc": "_durations/moses-life.md",
+      "notes": "Moses spent 40 years as a shepherd in Midian. During this time, the Pharaoh of the oppression (Thutmose III) died (Exodus 2:23)."
+    },
+    {
+      "id": "moses-120-years-total",
+      "title": "Moses Total Lifespan: 120 Years",
+      "from_event": "moses-birth",
+      "to_event": "moses-death",
+      "claimed": {
+        "years": 120
+      },
+      "source": {
+        "ref": "Deuteronomy 34:7",
+        "type": "scripture",
+        "quote": "And Moses was **an hundred and twenty years old** when he died: his eye was not dim, nor his natural force abated."
+      },
+      "doc": "_durations/moses-life.md",
+      "notes": "Moses' 120 years divide into three perfect 40-year periods: 40 in Egypt (Acts 7:23), 40 in Midian (Acts 7:30), 40 leading Israel in the wilderness (Deuteronomy 8:2)."
+    },
+    {
+      "id": "moses-40-years-wilderness-leader",
+      "title": "Moses Leads Israel: 40 Years",
+      "from_event": "exodus-from-egypt",
+      "to_event": "moses-death",
+      "claimed": {
+        "years": 40
+      },
+      "source": {
+        "ref": "Deuteronomy 8:2",
+        "type": "scripture",
+        "quote": "And thou shalt remember all the way which the LORD thy God led thee these **forty years** in the wilderness."
+      },
+      "doc": "_durations/moses-life.md",
+      "notes": "The third 40-year period of Moses' life. He led Israel from Egypt to the edge of the Promised Land but died before crossing the Jordan."
+    },
+    {
+      "id": "thutmose-iii-reign-54-years",
+      "title": "Thutmose III Reigned: 54 Years",
+      "from_event": "thutmose-iii-reign",
+      "to_event": "thutmose-iii-death",
+      "claimed": {
+        "years": 54
+      },
+      "source": {
+        "ref": "Egyptian king lists, Turin Royal Canon",
+        "type": "historical",
+        "quote": "Thutmose III: 54 years - the longest reign in the 18th Dynasty"
+      },
+      "doc": "_durations/egyptian-18th-dynasty.md",
+      "notes": "The longest reign in the 18th Dynasty. This matches the biblical requirement that the Pharaoh of the oppression (from whom Moses fled) reigned more than 40 years (Acts 7:30)."
+    },
+    {
+      "id": "amenhotep-ii-reign-27-years",
+      "title": "Amenhotep II Reigned: 27 Years",
+      "from_event": "amenhotep-ii-reign",
+      "to_event": "thutmose-iv-reign",
+      "claimed": {
+        "years": 27
+      },
+      "source": {
+        "ref": "Egyptian king lists",
+        "type": "historical",
+        "quote": "Amenhotep II: 27 years (c. 1450-1423 BC)"
+      },
+      "doc": "_durations/egyptian-18th-dynasty.md",
+      "notes": "The Pharaoh of the Exodus. The biblical date of 1446 BC falls within his reign."
+    },
+    {
+      "id": "thutmose-iv-reign-10-years",
+      "title": "Thutmose IV Reigned: 10 Years",
+      "from_event": "thutmose-iv-reign",
+      "to_event": "amenhotep-iii-reign",
+      "claimed": {
+        "years": 10
+      },
+      "source": {
+        "ref": "Egyptian king lists",
+        "type": "historical",
+        "quote": "Thutmose IV: 10 years (c. 1423-1413 BC)"
+      },
+      "doc": "_durations/egyptian-18th-dynasty.md",
+      "notes": "Son of Amenhotep II but NOT his firstborn. The Dream Stele at the Sphinx claims divine legitimacy for his unexpected succession—his older brother (the Crown Prince) mysteriously died, consistent with the 10th plague."
     },
     {
       "id": "scripture-david-40-years",
@@ -454,6 +618,23 @@
       "notes": "First king of Judah after the division. Tishri-to-Tishri reckoning with accession-year system."
     },
     {
+      "id": "egyptian-synchronism-shishak",
+      "title": "Egyptian Synchronism: Shishak = Shoshenq I",
+      "from_event": "rehoboam-reign",
+      "to_event": "shishak-invasion",
+      "claimed": {
+        "years": 5,
+        "notes": "Shishak invaded in Rehoboam's 5th year"
+      },
+      "source": {
+        "ref": "1 Kings 14:25 + Bubastite Portal",
+        "type": "synchronism",
+        "quote": "In the **fifth year of king Rehoboam**, Shishak king of Egypt came up against Jerusalem. Karnak relief dates Shoshenq I's campaign to ~925 BC."
+      },
+      "doc": "_durations/egyptian-synchronism.md",
+      "notes": "CRITICAL EGYPTIAN SYNCHRONISM: Egyptian chronology independently dates Shoshenq I's Palestinian campaign to ~925 BC. This matches Rehoboam's 5th year calculated from Assyrian synchronisms (~926-925 BC). This provides INDEPENDENT VERIFICATION of biblical chronology from a completely separate ancient civilization's records."
+    },
+    {
       "id": "scripture-abijah-3-years",
       "title": "Abijah Reigned 3 Years",
       "from_event": "abijah-reign",
@@ -500,6 +681,264 @@
       },
       "doc": "_durations/divided-kingdom.md",
       "notes": "Critical synchronism linking Judah's chronology (Asa) to Israel's chronology (Ahab), which then connects to Assyrian records via Battle of Qarqar."
+    },
+    {
+      "id": "scripture-jehoshaphat-25-years",
+      "title": "Jehoshaphat Reigned 25 Years",
+      "from_event": "jehoshaphat-reign",
+      "to_event": "jehoram-judah-reign",
+      "claimed": {
+        "years": 25
+      },
+      "source": {
+        "ref": "1 Kings 22:42",
+        "type": "scripture",
+        "quote": "Jehoshaphat was thirty and five years old when he began to reign; and he reigned **twenty and five years** in Jerusalem"
+      }
+    },
+    {
+      "id": "scripture-jehoram-judah-8-years",
+      "title": "Jehoram of Judah Reigned 8 Years",
+      "from_event": "jehoram-judah-reign",
+      "to_event": "ahaziah-judah-reign",
+      "claimed": {
+        "years": 8
+      },
+      "source": {
+        "ref": "2 Kings 8:17",
+        "type": "scripture",
+        "quote": "Thirty and two years old was he when he began to reign; and he reigned **eight years** in Jerusalem"
+      }
+    },
+    {
+      "id": "scripture-ahaziah-judah-1-year",
+      "title": "Ahaziah of Judah Reigned 1 Year",
+      "from_event": "ahaziah-judah-reign",
+      "to_event": "athaliah-reign",
+      "claimed": {
+        "years": 1
+      },
+      "source": {
+        "ref": "2 Kings 8:26",
+        "type": "scripture",
+        "quote": "Two and twenty years old was Ahaziah when he began to reign; and he reigned **one year** in Jerusalem"
+      }
+    },
+    {
+      "id": "scripture-athaliah-6-years",
+      "title": "Athaliah Reigned 6 Years",
+      "from_event": "athaliah-reign",
+      "to_event": "joash-judah-reign",
+      "claimed": {
+        "years": 6
+      },
+      "source": {
+        "ref": "2 Kings 11:3",
+        "type": "scripture",
+        "quote": "And he was with her hid in the house of the LORD **six years**. And Athaliah did reign over the land."
+      }
+    },
+    {
+      "id": "scripture-joash-judah-40-years",
+      "title": "Joash of Judah Reigned 40 Years",
+      "from_event": "joash-judah-reign",
+      "to_event": "amaziah-reign",
+      "claimed": {
+        "years": 40
+      },
+      "source": {
+        "ref": "2 Kings 12:1",
+        "type": "scripture",
+        "quote": "In the seventh year of Jehu Jehoash began to reign; and **forty years** reigned he in Jerusalem"
+      }
+    },
+    {
+      "id": "scripture-amaziah-29-years",
+      "title": "Amaziah Reigned 29 Years",
+      "from_event": "amaziah-reign",
+      "to_event": "uzziah-reign",
+      "claimed": {
+        "years": 29
+      },
+      "source": {
+        "ref": "2 Kings 14:2",
+        "type": "scripture",
+        "quote": "He was twenty and five years old when he began to reign, and reigned **twenty and nine years** in Jerusalem"
+      }
+    },
+    {
+      "id": "scripture-uzziah-52-years",
+      "title": "Uzziah (Azariah) Reigned 52 Years",
+      "from_event": "uzziah-reign",
+      "to_event": "jotham-reign",
+      "claimed": {
+        "years": 52
+      },
+      "source": {
+        "ref": "2 Kings 15:2",
+        "type": "scripture",
+        "quote": "Sixteen years old was he when he began to reign, and he reigned **two and fifty years** in Jerusalem"
+      }
+    },
+    {
+      "id": "scripture-jotham-16-years",
+      "title": "Jotham Reigned 16 Years",
+      "from_event": "jotham-reign",
+      "to_event": "ahaz-reign",
+      "claimed": {
+        "years": 16
+      },
+      "source": {
+        "ref": "2 Kings 15:33",
+        "type": "scripture",
+        "quote": "Five and twenty years old was he when he began to reign, and he reigned **sixteen years** in Jerusalem"
+      }
+    },
+    {
+      "id": "scripture-ahaz-16-years",
+      "title": "Ahaz Reigned 16 Years",
+      "from_event": "ahaz-reign",
+      "to_event": "hezekiah-reign",
+      "claimed": {
+        "years": 16
+      },
+      "source": {
+        "ref": "2 Kings 16:2",
+        "type": "scripture",
+        "quote": "Twenty years old was Ahaz when he began to reign, and reigned **sixteen years** in Jerusalem"
+      }
+    },
+    {
+      "id": "scripture-hezekiah-29-years",
+      "title": "Hezekiah Reigned 29 Years",
+      "from_event": "hezekiah-reign",
+      "to_event": "manasseh-reign",
+      "claimed": {
+        "years": 29
+      },
+      "source": {
+        "ref": "2 Kings 18:2",
+        "type": "scripture",
+        "quote": "Twenty and five years old was he when he began to reign; and he reigned **twenty and nine years** in Jerusalem"
+      },
+      "notes": "Hezekiah: 728-700 BC (accession year counting). Dies at end of 29th year."
+    },
+    {
+      "id": "synchronism-samaria-hezekiah-6th",
+      "title": "Fall of Samaria = Hezekiah's 6th Year",
+      "from_event": "hezekiah-reign",
+      "to_event": "fall-of-samaria",
+      "claimed": {
+        "years": 6
+      },
+      "source": {
+        "ref": "2 Kings 18:10",
+        "type": "scripture",
+        "quote": "At the end of three years they took it: even in the **sixth year of Hezekiah**, that is the ninth year of Hoshea king of Israel, Samaria was taken."
+      },
+      "notes": "KEY SYNCHRONISM: Links Judean chronology to Assyrian records. Hezekiah accession 728 BC, 6th year = 722 BC = Fall of Samaria."
+    },
+    {
+      "id": "hezekiah-manasseh-coregency",
+      "title": "Hezekiah-Manasseh Co-Regency: 5 Years",
+      "from_event": "manasseh-coregency",
+      "to_event": "manasseh-reign",
+      "claimed": {
+        "years": 5
+      },
+      "notes": "5-year co-regency reconciles Assyrian anchor (Samaria 722 BC → Hezekiah ends 700 BC) with Babylonian anchor (Temple 587 BC → backward succession requires Manasseh to start 695 BC). Manasseh's 55 years includes this overlap."
+    },
+    {
+      "id": "scripture-manasseh-55-years",
+      "title": "Manasseh Reigned 55 Years (Total)",
+      "from_event": "manasseh-coregency",
+      "to_event": "amon-reign",
+      "claimed": {
+        "years": 55
+      },
+      "source": {
+        "ref": "2 Kings 21:1",
+        "type": "scripture",
+        "quote": "Manasseh was twelve years old when he began to reign, and reigned **fifty and five years** in Jerusalem"
+      },
+      "notes": "55 years total: 5 years co-regency (705-700 BC) + 50 years sole reign (700-650 BC) → ends 650 BC."
+    },
+    {
+      "id": "scripture-amon-2-years",
+      "title": "Amon Reigned 2 Years",
+      "from_event": "amon-reign",
+      "to_event": "josiah-reign",
+      "claimed": {
+        "years": 2
+      },
+      "source": {
+        "ref": "2 Kings 21:19",
+        "type": "scripture",
+        "quote": "Amon was twenty and two years old when he began to reign, and he reigned **two years** in Jerusalem"
+      }
+    },
+    {
+      "id": "scripture-josiah-31-years",
+      "title": "Josiah Reigned 31 Years",
+      "from_event": "josiah-reign",
+      "to_event": "jehoiakim-reign",
+      "claimed": {
+        "years": 31
+      },
+      "source": {
+        "ref": "2 Kings 22:1",
+        "type": "scripture",
+        "quote": "Josiah was eight years old when he began to reign, and he reigned **thirty and one years** in Jerusalem"
+      },
+      "notes": "Josiah: 639-608 BC. Jehoahaz reigned 3 months between Josiah and Jehoiakim."
+    },
+    {
+      "id": "jubilee-jordan-to-josiah-18th",
+      "title": "Jordan to Josiah's 18th: 16 Jubilee Cycles (784 Years)",
+      "from_event": "jordan-crossing",
+      "to_event": "josiah-18th-year",
+      "claimed": {
+        "years": 784
+      },
+      "notes": "1406 BC (Jordan) to 622 BC (Josiah's 18th) = 784 years = 16 × 49 years = 17th Jubilee. Josiah's reformation and great Passover fell on a Jubilee year."
+    },
+    {
+      "id": "jubilee-jordan-to-ezekiel-40",
+      "title": "Jordan to Ezekiel 40: 17 Jubilee Cycles (833 Years)",
+      "from_event": "jordan-crossing",
+      "to_event": "ezekiel-40-vision",
+      "claimed": {
+        "years": 833
+      },
+      "notes": "1406 BC (Jordan) to 573 BC (Ezekiel 40) = 833 years = 17 × 49 years = 18th Jubilee. Ezekiel's Temple vision given on 10th of Nisan - same day as Jordan crossing."
+    },
+    {
+      "id": "scripture-jehoiakim-11-years",
+      "title": "Jehoiakim Reigned 11 Years",
+      "from_event": "jehoiakim-reign",
+      "to_event": "jehoiachin-reign",
+      "claimed": {
+        "years": 11
+      },
+      "source": {
+        "ref": "2 Kings 23:36",
+        "type": "scripture",
+        "quote": "Jehoiakim was twenty and five years old when he began to reign; and he reigned **eleven years** in Jerusalem"
+      }
+    },
+    {
+      "id": "scripture-zedekiah-11-years",
+      "title": "Zedekiah Reigned 11 Years",
+      "from_event": "zedekiah-reign",
+      "claimed": {
+        "years": 11
+      },
+      "source": {
+        "ref": "2 Kings 24:18",
+        "type": "scripture",
+        "quote": "Zedekiah was twenty and one years old when he began to reign, and he reigned **eleven years** in Jerusalem"
+      },
+      "notes": "Last king of Judah before the destruction of Jerusalem"
     },
     {
       "id": "scripture-430-sojourning",
@@ -669,7 +1108,7 @@
       "source": {
         "ref": "Gospel sequence",
         "type": "scripture",
-        "quote": "Baptism \u2192 40 days wilderness \u2192 calling disciples \u2192 Cana wedding \u2192 first Passover"
+        "quote": "Baptism → 40 days wilderness → calling disciples → Cana wedding → first Passover"
       },
       "doc": "_durations/john-jesus-chain.md",
       "constraint": "Rules out 29 AD as first Passover; earliest possible is 30 AD"
@@ -682,7 +1121,7 @@
       "claimed": {
         "years": 490,
         "unit": "lunar_years",
-        "notes": "70 weeks \u00d7 7 = 490 years, Nisan-to-Nisan reckoning"
+        "notes": "70 weeks × 7 = 490 years, Nisan-to-Nisan reckoning"
       },
       "source": {
         "ref": "Daniel 9:24-26",
@@ -1343,18 +1782,43 @@
     },
     {
       "id": "herod-takes-jerusalem-to-herod-senate-appointment",
-      "title": "3 Years: Senate Appointment to Taking Jerusalem",
+      "title": "2 Years: Senate Appointment to Taking Jerusalem (Inclusive 3rd Year)",
       "from_event": "herod-takes-jerusalem",
       "to_event": "herod-senate-appointment",
       "claimed": {
-        "years": 3,
-        "direction": "before"
+        "years": 2,
+        "direction": "before",
+        "notes": "Inclusive counting: Year 3 (Jerusalem) - Year 1 (appointment) = 2 years difference"
       },
       "source": {
         "ref": "Josephus",
         "type": "historical",
         "quote": "Herod chronology"
       }
+    },
+    {
+      "id": "herod-takes-jerusalem-to-regal-year-1",
+      "title": "2 Years: Year 1 to Year 3 (Taking Jerusalem)",
+      "from_event": "herod-takes-jerusalem",
+      "to_event": "herod-regal-year-1",
+      "claimed": {
+        "years": 2,
+        "direction": "before",
+        "notes": "Inclusive counting derivation: Year 3 (36 BC, Jerusalem) → Year 2 (37 BC) → Year 1 (38 BC). This is the anchor calculation that determines Herod's chronology."
+      },
+      "sources": [
+        {
+          "ref": "Josephus, Antiquities 14.16.4",
+          "type": "historical",
+          "quote": "Herod took Jerusalem in his 3rd regal year"
+        },
+        {
+          "ref": "Primary Anchor Derivation",
+          "type": "chronological",
+          "quote": "36 BC (Year 3, Jerusalem capture) - 2 years (inclusive) = 38 BC (Year 1 begins Nisan 1)"
+        }
+      ],
+      "doc": "_durations/herod-chain.md"
     },
     {
       "id": "david-death-to-david-reign",
@@ -1448,13 +1912,13 @@
       "from_event": "john-baptist-birth-earliest",
       "to_event": "john-baptist-conception",
       "claimed": {
-        "days": 280,
+        "days": 266,
         "direction": "before"
       },
       "source": {
-        "ref": "Luke 1-3",
+        "ref": "Luke 1:57",
         "type": "scripture",
-        "quote": "John Baptist narrative"
+        "quote": "Now Elisabeth's full time came that she should be delivered; and she brought forth a son."
       }
     },
     {
@@ -1467,10 +1931,147 @@
         "direction": "before"
       },
       "source": {
-        "ref": "Luke 1-3",
+        "ref": "Luke 3:23",
         "type": "scripture",
-        "quote": "John Baptist narrative"
+        "quote": "And Jesus himself began to be about thirty years of age"
       }
+    },
+    {
+      "id": "john-baptist-conception-to-birth",
+      "title": "John the Baptist: Conception to Birth (280 days)",
+      "from_event": "john-baptist-conception",
+      "to_event": "john-baptist-birth",
+      "claimed": {
+        "days": 266
+      },
+      "source": {
+        "ref": "Luke 1:57",
+        "type": "scripture",
+        "quote": "Now Elisabeth's full time came that she should be delivered"
+      },
+      "notes": "Standard 40-week gestation period from conception to birth."
+    },
+    {
+      "id": "yeshua-conception-to-birth",
+      "title": "Yeshua: Conception to Birth (266 days)",
+      "from_event": "yeshua-conception",
+      "to_event": "yeshua-birth",
+      "claimed": {
+        "days": 266
+      },
+      "source": {
+        "ref": "Luke 2:6",
+        "type": "scripture",
+        "quote": "And so it was, that, while they were there, the days were accomplished that she should be delivered"
+      },
+      "notes": "Standard 40-week gestation period from conception to birth."
+    },
+    {
+      "id": "yeshua-birth-to-ministry",
+      "title": "Yeshua: Birth to Ministry (30 Lunar Years)",
+      "from_event": "yeshua-birth",
+      "to_event": "yeshua-ministry-begins",
+      "claimed": {
+        "years": 30,
+        "unit": "lunar"
+      },
+      "source": {
+        "ref": "Luke 3:23",
+        "type": "scripture",
+        "quote": "And Jesus himself began to be about thirty years of age"
+      },
+      "notes": "30 lunar years from birth. If birth was in a 13-month leap year and ministry start was in a 12-month year, the anniversary month may differ."
+    },
+    {
+      "id": "temple-destruction-to-cyrus-decree",
+      "title": "Temple Destruction to Cyrus Decree: 50 Years",
+      "from_event": "temple-destruction-first",
+      "to_event": "cyrus-decree",
+      "claimed": {
+        "years": 50
+      },
+      "source": {
+        "ref": "Calculated",
+        "type": "derived",
+        "quote": "587 BC (temple destruction) to 537 BC (Cyrus decree) = 50 years"
+      },
+      "notes": "The exile period from temple destruction to the decree allowing return."
+    },
+    {
+      "id": "cyrus-decree-to-second-temple",
+      "title": "Cyrus Decree to Second Temple Completed: 20 Years",
+      "from_event": "cyrus-decree",
+      "to_event": "second-temple-completed",
+      "claimed": {
+        "years": 20
+      },
+      "source": {
+        "ref": "Ezra 6:15",
+        "type": "scripture",
+        "quote": "This house was finished on the third day of the month Adar, which was in the sixth year of the reign of Darius the king."
+      },
+      "notes": "537 BC (Cyrus decree) to 517 BC (temple completed in Darius's 6th year) = 20 years"
+    },
+    {
+      "id": "temple-destruction-to-second-temple",
+      "title": "First Temple Destruction to Second Temple Completed: 70 Years",
+      "from_event": "temple-destruction-first",
+      "to_event": "second-temple-completed",
+      "claimed": {
+        "years": 70
+      },
+      "source": {
+        "ref": "Calculated",
+        "type": "derived",
+        "quote": "587 BC to 517 BC = exactly 70 years without a temple"
+      },
+      "notes": "Exactly 70 years of temple desolation, fulfilling Jeremiah's prophecy."
+    },
+    {
+      "id": "jeremiah-70-years-babylon",
+      "title": "Jeremiah's 70 Years: Babylon's Dominion",
+      "from_event": "first-captivity-daniel",
+      "to_event": "fall-of-babylon",
+      "claimed": {
+        "years": 70
+      },
+      "source": {
+        "ref": "Jeremiah 25:11-12",
+        "type": "scripture",
+        "quote": "And these nations shall serve the king of Babylon seventy years. And it shall come to pass, when seventy years are accomplished, that I will punish the king of Babylon"
+      },
+      "notes": "From first captivity (605 BC) to fall of Babylon (539 BC) = 66 years. Alternatively from 609 BC (Nebuchadnezzar's father Nabopolassar defeats Assyria) to 539 BC = 70 years. The prophecy may count from Babylon's rise to dominance."
+    },
+    {
+      "id": "jeremiah-70-years-desolation",
+      "title": "Jeremiah's 70 Years: Temple Desolation to Completion",
+      "from_event": "temple-destruction-first",
+      "to_event": "second-temple-completed",
+      "claimed": {
+        "years": 70
+      },
+      "source": {
+        "ref": "Zechariah 1:12",
+        "type": "scripture",
+        "quote": "O LORD of hosts, how long wilt thou not have mercy on Jerusalem and on the cities of Judah, against which thou hast had indignation these threescore and ten years?"
+      },
+      "notes": "587 BC (temple destruction) to 517 BC (temple completed) = exactly 70 years. Zechariah asks in Darius's 2nd year (520 BC), 67 years in. Temple completed 3 years later = 70 years exactly."
+    },
+    {
+      "id": "regnal-year-evidence",
+      "title": "Proof of Regnal Year Counting: Neb 7th vs 8th",
+      "from_event": "first-captivity-daniel",
+      "to_event": "jehoiachin-reign",
+      "claimed": {
+        "years": 0,
+        "note": "Same event counted differently"
+      },
+      "source": {
+        "ref": "Jeremiah 52:28 vs 2 Kings 24:12",
+        "type": "scripture",
+        "quote": "Jeremiah: 'in the seventh year' vs Kings: 'in the eighth year of his reign'"
+      },
+      "notes": "The same captivity event is dated to Nebuchadnezzar's 7th year (Jeremiah, regnal) and 8th year (Kings, accession-year). This 1-year difference proves Jeremiah uses regnal (non-accession) counting, which applies to all prophetic books including Haggai, Zechariah, and Ezra."
     }
   ],
   "events": [
@@ -2106,7 +2707,7 @@
     },
     {
       "id": "flood-begins",
-      "title": "\ud83d\udea2 Great Flood Begins",
+      "title": "🚢 Great Flood Begins",
       "type": "catastrophe",
       "description": "In Noah's 600th year, on the 17th day of the 2nd month, the fountains of the deep burst forth and the windows of heaven opened. Rain falls for 40 days and nights.",
       "start": {
@@ -2141,7 +2742,7 @@
     },
     {
       "id": "noah-enters-ark",
-      "title": "\ud83d\udea2 Noah Enters the Ark",
+      "title": "🚢 Noah Enters the Ark",
       "type": "biblical-event",
       "description": "Noah enters the ark with his family and all the animals, 7 days before the flood begins. Noah was 600 years old when the flood waters came. God shut the door after 7 days of waiting.",
       "start": {
@@ -2180,7 +2781,7 @@
     },
     {
       "id": "rain-continues-40-days",
-      "title": "\ud83d\udea2 Rain Continues 40 Days",
+      "title": "🚢 Rain Continues 40 Days",
       "type": "catastrophe",
       "description": "Rain continues for 40 days and nights. Waters increase and lift the ark. Mountains are covered by 15 cubits as the floodwaters rise.",
       "start": {
@@ -2218,7 +2819,7 @@
     },
     {
       "id": "waters-prevail-150-days",
-      "title": "\ud83d\udea2 Waters Prevail 150 Days",
+      "title": "🚢 Waters Prevail 150 Days",
       "type": "catastrophe",
       "description": "The waters prevailed upon the earth for 150 days total from the start of the flood. This period includes the 40 days of rain plus the continued prevailing of the waters.",
       "start": {
@@ -2246,7 +2847,7 @@
     },
     {
       "id": "ark-rests-ararat",
-      "title": "\ud83d\udea2 Ark Rests on Mountains of Ararat",
+      "title": "🚢 Ark Rests on Mountains of Ararat",
       "type": "milestone",
       "description": "On the 17th day of the 7th month, after 150 days of prevailing waters (exactly 5 months later, assuming 30-day months), the ark comes to rest on the mountains of Ararat as floodwaters recede.",
       "start": {
@@ -2280,7 +2881,7 @@
     },
     {
       "id": "mountain-tops-seen",
-      "title": "\ud83d\udea2 Tops of Mountains Seen",
+      "title": "🚢 Tops of Mountains Seen",
       "type": "milestone",
       "description": "On the 1st day of the 10th month, the tops of the mountains are seen. Waters continue to decrease.",
       "start": {
@@ -2314,7 +2915,7 @@
     },
     {
       "id": "noah-sends-raven",
-      "title": "\ud83d\udea2 Noah Sends Out the Raven",
+      "title": "🚢 Noah Sends Out the Raven",
       "type": "biblical-event",
       "description": "At the end of forty days after the mountain tops were seen, Noah opens the window of the ark and sends forth a raven. The raven went forth to and fro, until the waters were dried up, and did not return.",
       "start": {
@@ -2382,7 +2983,7 @@
     },
     {
       "id": "waters-dried-up",
-      "title": "\ud83d\udea2 Waters Dried Up - Noah Removes Ark Covering",
+      "title": "🚢 Waters Dried Up - Noah Removes Ark Covering",
       "type": "milestone",
       "description": "In the 601st year, on the 1st day of the 1st month, the waters were dried up from off the earth. Noah removes the covering of the ark and sees that the face of the ground was dry.",
       "start": {
@@ -2416,7 +3017,7 @@
     },
     {
       "id": "earth-dried",
-      "title": "\ud83d\udea2 Earth Completely Dry - Exit from Ark",
+      "title": "🚢 Earth Completely Dry - Exit from Ark",
       "type": "milestone",
       "description": "In the 601st year, on the 27th day of the 2nd month, the earth was completely dried. God commands Noah, his family, and all the animals to exit the ark.",
       "start": {
@@ -2688,15 +3289,14 @@
       "id": "covenant-with-abraham",
       "title": "Covenant with Abraham - Dark Night",
       "type": "biblical-event",
-      "description": "PRIMARY CHRONOLOGICAL ANCHOR. On the 15th day of the 1st month, 1876 BC, exactly 430 years to the day before the Exodus from Egypt, God makes a covenant with Abraham in a dark night. The emphasis on total darkness\u2014'horror of great darkness' and 'it was dark'\u2014suggests a dark moon, which aligns with the 15th being naturally dark if the month starts at full moon.",
+      "description": "On the 15th day of the 1st month, exactly 430 years to the day before the Exodus from Egypt, God makes a covenant with Abraham in a dark night. The emphasis on total darkness—'horror of great darkness' and 'it was dark'—suggests a dark moon, which aligns with the 15th being naturally dark if the month starts at full moon.",
       "start": {
-        "fixed": {
-          "gregorian": {
-            "year": -1875,
-            "month": 3,
-            "day": 20
+        "relative": {
+          "event": "exodus-from-egypt",
+          "offset": {
+            "solar_years": 430
           },
-          "source": "430 years to the day before Exodus (Nisan 15, 1446 BC)"
+          "direction": "before"
         },
         "lunar": {
           "month": 1,
@@ -2786,7 +3386,7 @@
         "oppression",
         "egyptian-chronology"
       ],
-      "article": "/extra/e06_Pharaoh_of_the_Exodus/"
+      "article": "/chapters/extra/e06_Pharaoh_of_the_Exodus/"
     },
     {
       "id": "amenhotep-ii-reign",
@@ -2827,7 +3427,7 @@
         "exodus-pharaoh",
         "egyptian-chronology"
       ],
-      "article": "/extra/e06_Pharaoh_of_the_Exodus/"
+      "article": "/chapters/extra/e06_Pharaoh_of_the_Exodus/"
     },
     {
       "id": "thutmose-iv-reign",
@@ -2868,7 +3468,41 @@
         "dream-stele",
         "egyptian-chronology"
       ],
-      "article": "/extra/e06_Pharaoh_of_the_Exodus/"
+      "article": "/chapters/extra/e06_Pharaoh_of_the_Exodus/"
+    },
+    {
+      "id": "amenhotep-iii-reign",
+      "title": "👑 Amenhotep III - The Magnificent",
+      "type": "reign",
+      "description": "Amenhotep III becomes Pharaoh of Egypt, succeeding his father Thutmose IV. His 38-year reign is considered the zenith of Egyptian power and prosperity. He is the grandson of Amenhotep II (the Exodus Pharaoh).",
+      "start": {
+        "relative": {
+          "event": "thutmose-iv-reign",
+          "direction": "after",
+          "offset": {
+            "years": 10
+          }
+        },
+        "notes": "Succeeds Thutmose IV after his 10-year reign (c. 1413 BC)"
+      },
+      "duration": {
+        "value": 38,
+        "unit": "solar_years"
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "Egyptian king lists",
+          "type": "historical",
+          "quote": "Amenhotep III: 38 years (c. 1413-1375 BC)"
+        }
+      ],
+      "tags": [
+        "egypt",
+        "pharaoh",
+        "18th-dynasty",
+        "egyptian-chronology"
+      ]
     },
     {
       "id": "avaris-palace-abandonment",
@@ -2900,13 +3534,170 @@
         "18th-dynasty",
         "exodus-evidence"
       ],
-      "article": "/extra/e06_Pharaoh_of_the_Exodus/"
+      "article": "/chapters/extra/e06_Pharaoh_of_the_Exodus/"
+    },
+    {
+      "id": "moses-birth",
+      "title": "👶 Moses Born",
+      "type": "birth",
+      "description": "Moses is born in Egypt during the period of Israelite oppression. He would live 120 years total: 40 years in Egypt, 40 years in Midian, and 40 years leading Israel through the wilderness. His birth occurs during the reign of a pharaoh who ordered Hebrew male infants to be killed.",
+      "start": {
+        "relative": {
+          "event": "exodus-from-egypt",
+          "direction": "before",
+          "offset": {
+            "years": 80
+          }
+        },
+        "notes": "Moses was 80 years old at the Exodus (Exodus 7:7)"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Exodus 2:1-2",
+          "type": "scripture",
+          "quote": "And there went a man of the house of Levi, and took to wife a daughter of Levi. And the woman conceived, and bare a son: and when she saw him that he was a goodly child, she hid him three months."
+        },
+        {
+          "ref": "Exodus 7:7",
+          "type": "scripture",
+          "quote": "And Moses was fourscore years old, and Aaron fourscore and three years old, when they spake unto Pharaoh."
+        },
+        {
+          "ref": "Acts 7:20",
+          "type": "scripture",
+          "quote": "In which time Moses was born, and was exceeding fair, and nourished up in his father's house three months."
+        }
+      ],
+      "tags": [
+        "moses",
+        "birth",
+        "egypt",
+        "oppression"
+      ],
+      "article": "/chapters/extra/e06_Pharaoh_of_the_Exodus/"
+    },
+    {
+      "id": "moses-flees-to-midian",
+      "title": "🏃 Moses Flees to Midian",
+      "type": "milestone",
+      "description": "At age 40, Moses kills an Egyptian who was beating a Hebrew slave. When Pharaoh (Thutmose III) hears of it, Moses flees to Midian where he will spend the next 40 years as a shepherd. The Pharaoh he fled from must reign more than 40 years—Thutmose III reigned 54 years, the longest reign in the 18th Dynasty.",
+      "start": {
+        "relative": {
+          "event": "exodus-from-egypt",
+          "direction": "before",
+          "offset": {
+            "years": 40
+          }
+        },
+        "notes": "Moses was 40 when he fled (Acts 7:23), and 80 at the Exodus"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Exodus 2:11-15",
+          "type": "scripture",
+          "quote": "And it came to pass in those days, when Moses was grown, that he went out unto his brethren, and looked on their burdens: and he spied an Egyptian smiting an Hebrew... And when Pharaoh heard this thing, he sought to slay Moses. But Moses fled from the face of Pharaoh, and dwelt in the land of Midian."
+        },
+        {
+          "ref": "Acts 7:23-29",
+          "type": "scripture",
+          "quote": "And when he was full forty years old, it came into his heart to visit his brethren the children of Israel... But when it was known, he fled, and was a stranger in the land of Midian."
+        }
+      ],
+      "tags": [
+        "moses",
+        "midian",
+        "egypt",
+        "thutmose-iii",
+        "flight"
+      ],
+      "article": "/chapters/extra/e06_Pharaoh_of_the_Exodus/"
+    },
+    {
+      "id": "thutmose-iii-death",
+      "title": "⚰️ Thutmose III Dies - Pharaoh of Oppression",
+      "type": "death",
+      "description": "Thutmose III, the Pharaoh from whom Moses fled, dies after a 54-year reign. Scripture records that Moses remained in Midian until this pharaoh's death: 'all the men are dead which sought thy life.' His son Amenhotep II succeeds him as the new Pharaoh of Egypt.",
+      "start": {
+        "relative": {
+          "event": "thutmose-iii-reign",
+          "direction": "after",
+          "offset": {
+            "years": 54
+          }
+        },
+        "notes": "Thutmose III reigned 54 years (c. 1479-1425 BC)"
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "Exodus 2:23",
+          "type": "scripture",
+          "quote": "And it came to pass in process of time, that the king of Egypt died: and the children of Israel sighed by reason of the bondage."
+        },
+        {
+          "ref": "Exodus 4:19",
+          "type": "scripture",
+          "quote": "And the LORD said unto Moses in Midian, Go, return into Egypt: for all the men are dead which sought thy life."
+        }
+      ],
+      "tags": [
+        "egypt",
+        "pharaoh",
+        "death",
+        "thutmose-iii",
+        "18th-dynasty"
+      ],
+      "article": "/chapters/extra/e06_Pharaoh_of_the_Exodus/"
+    },
+    {
+      "id": "burning-bush",
+      "title": "🔥 Burning Bush - God Calls Moses",
+      "type": "theophany",
+      "description": "After 40 years in Midian, God appears to Moses in a burning bush at Mount Horeb (Sinai) and commissions him to return to Egypt to deliver Israel. This occurs after the death of Thutmose III (the pharaoh who sought Moses' life), with Amenhotep II now on the throne.",
+      "start": {
+        "relative": {
+          "event": "exodus-from-egypt",
+          "direction": "before",
+          "offset": {
+            "months": 1
+          }
+        },
+        "notes": "Shortly before the Exodus - Moses returns, confronts Pharaoh, 10 plagues occur"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Exodus 3:1-10",
+          "type": "scripture",
+          "quote": "And the angel of the LORD appeared unto him in a flame of fire out of the midst of a bush: and he looked, and, behold, the bush burned with fire, and the bush was not consumed... Come now therefore, and I will send thee unto Pharaoh, that thou mayest bring forth my people the children of Israel out of Egypt."
+        },
+        {
+          "ref": "Acts 7:30",
+          "type": "scripture",
+          "quote": "And when forty years were expired, there appeared to him in the wilderness of mount Sinai an angel of the Lord in a flame of fire in a bush."
+        },
+        {
+          "ref": "Exodus 4:19",
+          "type": "scripture",
+          "quote": "And the LORD said unto Moses in Midian, Go, return into Egypt: for all the men are dead which sought thy life."
+        }
+      ],
+      "tags": [
+        "moses",
+        "theophany",
+        "burning-bush",
+        "sinai",
+        "calling"
+      ],
+      "article": "/chapters/extra/e06_Pharaoh_of_the_Exodus/"
     },
     {
       "id": "exodus-from-egypt",
-      "title": "\ud83c\udfc3 Exodus from Egypt",
+      "title": "🏃 Exodus from Egypt",
       "type": "milestone",
-      "description": "Israel departs Egypt on the 15th of Nisan, the day after the Passover lamb was slain. The Pharaoh of the Exodus was Amenhotep II (c. 1450–1423 BC), as identified by the Egyptian historian Manetho (via Josephus) and confirmed by 1 Kings 6:1 which places the Exodus 480 years before Solomon's Temple (966 BC) = 1446 BC.",
+      "description": "Israel departs Egypt on the 15th of Nisan, the day after the Passover lamb was slain. The Pharaoh of the Exodus was Amenhotep II (c. 1450–1423 BC), as identified by the Egyptian historian Manetho (via Josephus) and confirmed by 1 Kings 6:1 which places the Exodus 480 years before Solomon's Temple foundation (Spring 966 BC) = 1446 BC.",
       "pharaoh": "amenhotep-ii",
       "start": {
         "relative": {
@@ -3170,12 +3961,26 @@
       "id": "golden-calf-incident",
       "title": "Golden Calf Incident - New Wine Feast",
       "type": "biblical-event",
-      "description": "While Moses is on Mount Sinai receiving the Ten Commandments, the Israelites create a golden calf. Aaron proclaims 'Tomorrow is a feast to the LORD.' The Septuagint records Moses saying: 'It is not the voice of them that begin the battle... but the voice of them that begin of wine do I hear.' This 'beginning with wine' marks the appointed time for accessing and celebrating the fresh produce of the vine\u2014the First Fruits of Wine. About 3000 men die as judgment.",
+      "description": "While Moses is on Mount Sinai receiving the Ten Commandments, the Israelites create a golden calf. Aaron proclaims 'Tomorrow is a feast to the LORD.' The Septuagint records Moses saying: 'It is not the voice of them that begin the battle... but the voice of them that begin of wine do I hear.' This 'beginning with wine' marks the appointed time for accessing and celebrating the fresh produce of the vine—the First Fruits of Wine. About 3000 men die as judgment.",
       "start": {
         "lunar": {
           "month": 5,
           "day": 9,
           "year": -1445
+        },
+        "relative": {
+          "event": "exodus-from-egypt",
+          "offset": {
+            "years": 1
+          },
+          "direction": "after"
+        },
+        "fixed": {
+          "source": "Exodus 1446 BC. Feast of New Wine = 1st year wilderness = 1446 BC.",
+          "gregorian": {
+            "year": -1445,
+            "month": 7
+          }
         }
       },
       "certainty": "high",
@@ -3203,9 +4008,50 @@
         "9th-of-av",
         "appointed-time",
         "moed",
-        "judgment"
+        "judgment",
+        "chronology-anchor"
       ],
       "article": "/chapters/18-appointed-times/#first-fruits-of-wine-pentecost"
+    },
+    {
+      "id": "moses-death",
+      "title": "⚰️ Moses Dies on Mount Nebo",
+      "type": "death",
+      "description": "Moses dies at 120 years old on Mount Nebo in Moab, within sight of the Promised Land but not permitted to enter because he struck the rock at Meribah. His life divides perfectly into three 40-year periods: 40 years in Egypt as a prince, 40 years in Midian as a shepherd, and 40 years in the wilderness as Israel's leader. God buried him in an unknown location.",
+      "start": {
+        "relative": {
+          "event": "exodus-from-egypt",
+          "direction": "after",
+          "offset": {
+            "years": 40
+          }
+        },
+        "lunar": {
+          "month": 12,
+          "day": 1
+        },
+        "notes": "Died in year 40 after the Exodus, shortly before the Jordan crossing on Nisan 10"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Deuteronomy 34:5-7",
+          "type": "scripture",
+          "quote": "So Moses the servant of the LORD died there in the land of Moab, according to the word of the LORD. And he buried him in a valley in the land of Moab... And Moses was an hundred and twenty years old when he died: his eye was not dim, nor his natural force abated."
+        },
+        {
+          "ref": "Deuteronomy 32:48-52",
+          "type": "scripture",
+          "quote": "Get thee up into this mountain Abarim, unto mount Nebo... and behold the land of Canaan... and die in the mount... Because ye trespassed against me... at the waters of Meribah."
+        }
+      ],
+      "tags": [
+        "moses",
+        "death",
+        "mount-nebo",
+        "wilderness"
+      ],
+      "article": "/chapters/extra/e06_Pharaoh_of_the_Exodus/"
     },
     {
       "id": "jordan-crossing",
@@ -3244,7 +4090,7 @@
       "id": "joshua-long-day",
       "title": "Joshua's Long Day - Sun and Moon Stand Still",
       "type": "battle",
-      "description": "Joshua defeats the five Amorite kings at Gibeon in a battle marked by extraordinary celestial signs. Joshua prayed: 'Sun, stand still at Gibeon, and you, moon, over the Valley of Aijalon.' This was a natural celestial alignment where the sun and moon appeared in opposition (full moon phase), both visible simultaneously\u2014interpreted in ANE omen practices as celestial bodies 'standing still.' More Amorites died from hailstones than from Israel's swords.",
+      "description": "Joshua defeats the five Amorite kings at Gibeon in a battle marked by extraordinary celestial signs. Joshua prayed: 'Sun, stand still at Gibeon, and you, moon, over the Valley of Aijalon.' This was a natural celestial alignment where the sun and moon appeared in opposition (full moon phase), both visible simultaneously—interpreted in ANE omen practices as celestial bodies 'standing still.' More Amorites died from hailstones than from Israel's swords.",
       "start": {
         "fixed": {
           "gregorian": {
@@ -3431,15 +4277,16 @@
     },
     {
       "id": "parthian-invasion-shavuot",
-      "title": "Parthian Invasion at Shavuot",
+      "title": "Parthian Invasion at 'Pentecost' (New Wine)",
       "type": "invasion",
-      "description": "The Parthian invasion escalates around Shavuot (Pentecost), when the enemy exploited the large crowds gathering for the feast. Josephus records: 'But while there were daily skirmishes, the enemy waited for the coming of the multitude out of the country to Pentecost, a feast of ours so called.' This invasion prompts Herod's immediate overland escape.",
+      "description": "The Parthian invasion escalates around the feast Josephus calls 'Pentecost,' which we identify as the Feast of New Wine (5th month), not Shavuot (3rd month). The enemy exploited the large crowds gathering for the feast. This invasion prompts Herod's immediate overland escape to Rome. Josephus' consular reference (Calvinus/Pollio) in the appointment narrative marks this year as when the sequence BEGAN, not when Herod reached Rome.",
       "start": {
         "lunar": {
-          "month": 3,
+          "month": 5,
           "day": 16,
           "year": -39
-        }
+        },
+        "notes": "Month 5 (New Wine) rather than month 3 (Shavuot). Year -39 = 40 BC. The Greek 'Pentecost' simply means 'fiftieth' and was applied to multiple feasts."
       },
       "certainty": "medium",
       "sources": [
@@ -3447,22 +4294,78 @@
           "ref": "Josephus, Antiquities 14.13.3",
           "type": "historical",
           "quote": "But while there were daily skirmishes, the enemy waited for the coming of the multitude out of the country to Pentecost, a feast of ours so called"
+        },
+        {
+          "ref": "Josephus, Antiquities 14.14.5",
+          "type": "historical",
+          "quote": "Consular reference (Calvinus/Pollio) anchors start of this sequence"
         }
       ],
       "tags": [
         "parthian",
         "invasion",
-        "shavuot",
-        "herod"
+        "new-wine",
+        "pentecost",
+        "herod",
+        "chronology-contention"
       ],
-      "article": "/chapters/13_Herod_the_Great/",
+      "article": "/chapters/extra/e03_Herods_Appointment/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-flees-to-rome",
+      "title": "🏃 Herod Flees Jerusalem for Rome",
+      "type": "journey",
+      "description": "Herod flees Jerusalem during the Parthian invasion at the feast Josephus calls 'Pentecost' (identified as the Feast of New Wine, month 5). He escapes overland to Masada (leaving his family), then travels through Idumea to Petra (where King Malchus refused aid), Egypt (meeting Cleopatra), and Rhodes (surviving a shipwreck and rebuilding a ship). The journey took approximately 9 months. Historians commonly assume he reached Rome in fall 40 BC, dating his first regal year to 39 BC. However, anchoring on the well-established date of Jerusalem's capture (36 BC = Year 3) and working backwards places his arrival AFTER Nisan 39 BC, making Year 1 begin Nisan 38 BC.",
+      "start": {
+        "relative": {
+          "event": "parthian-invasion-shavuot",
+          "direction": "after",
+          "offset": {
+            "days": 0
+          }
+        },
+        "lunar": {
+          "month": 5,
+          "day": 16
+        },
+        "notes": "Fled during the feast 'Pentecost' - the Feast of New Wine (5th month), not Shavuot (3rd month). See chapter on Herod's Appointment for detailed journey analysis."
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "Josephus, Antiquities 14.13.3-9",
+          "type": "historical",
+          "quote": "But while there were daily skirmishes, the enemy waited for the coming of the multitude out of the country to Pentecost, a feast of ours so called... Herod... went off immediately to Idumea"
+        },
+        {
+          "ref": "Josephus, Wars 1.13.1-8",
+          "type": "historical",
+          "quote": "Herod... went away with what force he had... to Masada"
+        },
+        {
+          "ref": "Josephus, Antiquities 14.14.2-3",
+          "type": "historical",
+          "quote": "Storm, shipwreck at Rhodes, refitting ship - months of delays documented"
+        }
+      ],
+      "tags": [
+        "herod",
+        "flight",
+        "parthian",
+        "rome",
+        "pentecost",
+        "new-wine",
+        "chronology-contention"
+      ],
+      "article": "/chapters/extra/e03_Herods_Appointment/",
       "anniversary_display": false
     },
     {
       "id": "herod-takes-jerusalem",
       "title": "Herod Captures Jerusalem",
       "type": "milestone",
-      "description": "Herod captures Jerusalem from Antigonus on the Day of Atonement, exactly 27 years to the day after Pompey captured it. This begins his de facto reign (34 years according to Josephus).",
+      "description": "PRIMARY CHRONOLOGY ANCHOR: Herod captures Jerusalem from Antigonus on the Day of Atonement (Tishri 10), exactly 27 years to the day after Pompey captured it on the same day. This event is our primary anchor for Herod chronology because: (1) It is fixed by Pompey's capture (63 BC) + 27 years = 36 BC; (2) Josephus explicitly states 'on the same day' and '27 years'; (3) Independent verification from sabbatical cycle (36 BC = year 6); (4) Josephus says this was Herod's 3rd regal year, allowing us to derive Year 1 = 38 BC. This begins his de facto reign (34 years according to Josephus).",
       "start": {
         "relative": {
           "event": "pompey-takes-jerusalem",
@@ -3478,7 +4381,7 @@
           "epoch": "herod-regal",
           "year": 3
         },
-        "notes": "27 years after Pompey (Josephus Ant. 14.16.4). Independent verification: 36 BC = year 6 of sabbatical cycle; sabbath year began Tishri 36 BC (no spring harvest allowed)."
+        "notes": "27 years after Pompey (Josephus Ant. 14.16.4). This is our anchor: from here we derive Year 1 = 38 BC (not 39 BC as commonly assumed). Verified by sabbatical cycle."
       },
       "certainty": "high",
       "sources": [
@@ -3489,7 +4392,8 @@
         },
         {
           "ref": "Josephus, Wars 1.18.2",
-          "type": "historical"
+          "type": "historical",
+          "quote": "Same day, 27 years - confirms the pattern"
         },
         {
           "ref": "Josephus, Antiquities 14.16.2",
@@ -3508,9 +4412,10 @@
         "day-of-atonement",
         "chronology-anchor",
         "27-years",
-        "sabbatical-cycle"
+        "sabbatical-cycle",
+        "primary-anchor"
       ],
-      "article": "/chapters/13_Herod_the_Great/",
+      "article": "/chapters/extra/e03_Herods_Appointment/",
       "anniversary_display": false
     },
     {
@@ -3519,17 +4424,12 @@
       "type": "reign",
       "description": "Herod's de facto reign from capturing Jerusalem on the Day of Atonement to his death - 34 regal years (spring-to-spring reckoning). First de facto year begins spring 35 BC.",
       "start": {
-        "relative": {
+        "lunar_relative": {
           "event": "herod-takes-jerusalem",
-          "offset": {
-            "years": 0
-          }
+          "month": 1,
+          "day": 1
         },
-        "lunar": {
-          "month": 7,
-          "day": 10
-        },
-        "notes": "Day of Atonement when Herod took Jerusalem"
+        "notes": "First Nisan 1 after Herod took Jerusalem - start of regal year count (spring-to-spring)"
       },
       "end": {
         "event": "herod-death"
@@ -3565,7 +4465,7 @@
       "id": "battle-of-actium",
       "title": "Battle of Actium - Earthquake in Judea",
       "type": "battle",
-      "description": "The decisive naval battle between Octavian (Augustus) and Mark Antony occurs on September 2, 31 BC\u2014one of the most precisely dated events in ancient history. Josephus records a major earthquake in Judea during this battle.",
+      "description": "The decisive naval battle between Octavian (Augustus) and Mark Antony occurs on September 2, 31 BC—one of the most precisely dated events in ancient history. Josephus records a major earthquake in Judea during this battle.",
       "start": {
         "fixed": {
           "gregorian": {
@@ -3611,20 +4511,16 @@
       "id": "herod-senate-appointment",
       "title": "Roman Senate Appoints Herod King",
       "type": "reign",
-      "description": "The Roman Senate, at the urging of Mark Antony and Octavian, appoints Herod as King of Judea. This begins his regal reign (37 years according to Josephus). The date is derived from herod-takes-jerusalem minus 3 years, as Josephus states Herod took Jerusalem in his 3rd regal year.",
+      "description": "The Roman Senate, at the urging of Mark Antony and Octavian, appoints Herod as King of Judea. This begins his regal reign (37 years according to Josephus). SCHOLARLY CONTENTION: Historians commonly date this to late 40 BC, assuming Herod's rapid journey to Rome, and thus place his first regal year in 39 BC. However, Josephus documents significant delays: overland escape through hostile territory, a violent shipwreck, and months rebuilding a ship in war-damaged Rhodes. Anchoring on the well-established capture of Jerusalem (36 BC = Herod's 3rd year) and working backwards places the appointment AFTER Nisan 39 BC, making Year 1 begin Nisan 38 BC. The consular reference in Josephus marks the START of the journey sequence (Parthian invasion), not the appointment itself.",
       "start": {
         "relative": {
-          "event": "herod-takes-jerusalem",
-          "direction": "before",
+          "event": "herod-flees-to-rome",
+          "direction": "after",
           "offset": {
-            "years": 3
+            "months": 9
           }
         },
-        "lunar": {
-          "month": 1,
-          "day": 1
-        },
-        "notes": "3 regal years before taking Jerusalem (Josephus: took Jerusalem in his 3rd year). Travel/shipwreck narratives are ambiguous."
+        "notes": "~9 months after fleeing (New Wine, Aug 40 BC) = spring 39 BC. Arrived AFTER Nisan 39 BC, so Year 1 begins Nisan 38 BC. See chapter for detailed analysis of journey delays vs. common assumptions."
       },
       "end": {
         "event": "herod-death"
@@ -3635,18 +4531,21 @@
         "reckoning": "spring-to-spring"
       },
       "defines_epoch": "herod-regal",
-      "certainty": "high",
+      "certainty": "medium",
+      "certainty_notes": "Date is derived from Jerusalem capture anchor; scholarly contention exists over journey duration",
       "sources": [
         {
           "ref": "Josephus, Antiquities 14.14.4-5",
-          "type": "historical"
+          "type": "historical",
+          "quote": "And thus did this man receive the Kingdom; having obtained it on the hundred eighty fourth olympiad; when Caius Domitius Calvinus was consul the second time"
+        },
+        {
+          "ref": "Josephus, Antiquities 14.14.3",
+          "type": "historical",
+          "quote": "Journey delays: storm, shipwreck, months refitting ship in Rhodes"
         },
         {
           "ref": "Josephus, Wars 1.14.4",
-          "type": "historical"
-        },
-        {
-          "ref": "Appian, Civil Wars 5.75",
           "type": "historical"
         }
       ],
@@ -3655,9 +4554,62 @@
         "reign",
         "rome",
         "senate",
-        "chronology-anchor"
+        "chronology-contention"
       ],
-      "article": "/chapters/13_Herod_the_Great/",
+      "article": "/chapters/extra/e03_Herods_Appointment/",
+      "anniversary_display": false
+    },
+    {
+      "id": "herod-regal-year-1",
+      "title": "Herod's 1st Regal Year Begins",
+      "type": "reign",
+      "description": "DERIVED FROM ANCHOR: The start of Herod's first regal year (de jure reign). This date is derived by working backwards from the primary anchor: Herod took Jerusalem on the Day of Atonement in 36 BC, which Josephus says was his 3rd regal year. Using inclusive counting (Year 3 = 36 BC, Year 2 = 37 BC, Year 1 = 38 BC), the first regal year begins Nisan 1, 38 BC. SCHOLARLY CONTENTION: Historians who assume Herod arrived in Rome in fall 40 BC place Year 1 in 39 BC. Our approach anchors on the certain date of Jerusalem's capture and calculates backwards, placing Year 1 in 38 BC.",
+      "start": {
+        "relative": {
+          "event": "herod-takes-jerusalem",
+          "direction": "before",
+          "offset": {
+            "years": 2
+          }
+        },
+        "lunar": {
+          "month": 1,
+          "day": 1
+        },
+        "regal": {
+          "epoch": "herod-regal",
+          "year": 1
+        },
+        "notes": "Inclusive counting from anchor: Year 3 (36 BC) - 2 = Year 1 (38 BC). Nisan 1, 38 BC = start of Herod's 1st regal year."
+      },
+      "certainty": "high",
+      "certainty_notes": "Derived directly from the well-established 36 BC Jerusalem capture date",
+      "sources": [
+        {
+          "ref": "Josephus, Antiquities 14.16.4",
+          "type": "historical",
+          "quote": "This was Herod's 3rd year since being appointed king - working backwards gives Year 1"
+        },
+        {
+          "ref": "Josephus, Antiquities 17.8.1",
+          "type": "historical",
+          "quote": "37 years since he had been made king by the Romans - confirms the regal count"
+        },
+        {
+          "ref": "Derivation",
+          "type": "chronological",
+          "quote": "Anchor: Jerusalem capture = 36 BC = Year 3. Using inclusive counting: Year 3 (36 BC), Year 2 (37 BC), Year 1 (38 BC). Therefore: Nisan 1, 38 BC = start of Year 1."
+        }
+      ],
+      "tags": [
+        "herod",
+        "reign",
+        "regal-year",
+        "chronology-anchor",
+        "derived-date",
+        "chronology-contention"
+      ],
+      "article": "/chapters/extra/e03_Herods_Appointment/",
       "anniversary_display": false
     },
     {
@@ -3729,7 +4681,7 @@
       "id": "census-2bc",
       "title": "Empire-Wide Loyalty Oath - Census of Augustus",
       "type": "decree",
-      "description": "Augustus issues an empire-wide loyalty oath (apograph\u0113) to celebrate the 25th anniversary of his rule and the granting of the title Pater Patriae in February 2 BC. The OGIS 532 inscription from Paphlagonia dates the oath to March 4-5, 2 BC. This registration brings Joseph and Mary to Bethlehem, where Yeshua is born. Luke uses apograph\u0113\u2014the exact term for this registration.",
+      "description": "Augustus issues an empire-wide loyalty oath (apographē) to celebrate the 25th anniversary of his rule and the granting of the title Pater Patriae in February 2 BC. The OGIS 532 inscription from Paphlagonia dates the oath to March 4-5, 2 BC. This registration brings Joseph and Mary to Bethlehem, where Yeshua is born. Luke uses apographē—the exact term for this registration.",
       "start": {
         "fixed": {
           "gregorian": {
@@ -3745,7 +4697,7 @@
         {
           "ref": "Luke 2:1-2",
           "type": "scripture",
-          "quote": "And it came to pass in those days, that there went out a decree from Caesar Augustus, that a census (apograph\u0113) should be taken of the entire Roman world."
+          "quote": "And it came to pass in those days, that there went out a decree from Caesar Augustus, that a census (apographē) should be taken of the entire Roman world."
         },
         {
           "ref": "OGIS 532 (Paphlagonia Inscription)",
@@ -3904,10 +4856,10 @@
       "id": "david-reign",
       "title": "Reign of King David",
       "type": "reign",
-      "description": "David becomes king, first over Judah in Hebron for 7 years, then over all Israel in Jerusalem for 33 years\u201440 years total. His reign dates are derived from Solomon: since Solomon's 4th year is 966 BC (Temple anchor), Solomon's 1st year is 969 BC. David was 30 years old when he began to reign.",
+      "description": "David becomes king, first over Judah in Hebron for 7 years, then over all Israel in Jerusalem for 33 years—40 years total. His reign dates are derived from Solomon: since Solomon's 4th regal year is Fall 967 - Fall 966 BC (Temple foundation Spring 966 BC), Solomon's accession was ~970 BC. David was 30 years old when he began to reign.",
       "start": {
         "relative": {
-          "event": "david-death",
+          "event": "solomon-reign",
           "direction": "before",
           "offset": {
             "years": 40
@@ -3917,7 +4869,7 @@
           "month": 1,
           "day": 1
         },
-        "notes": "40 years before death, Nisan 1 start"
+        "notes": "40 years before Solomon's accession (David reigned 40 years), Nisan 1 start"
       },
       "end": {
         "event": "david-death"
@@ -3956,15 +4908,21 @@
       "type": "death",
       "description": "David dies on Shavuot (Pentecost), the 16th day of the 3rd month, in Solomon's 1st year at age 70. The Talmud states: 'David died on Shavuot'. This is exactly 1000 years before Pentecost 32 AD when the Holy Spirit was poured out.",
       "start": {
+        "relative": {
+          "event": "solomon-reign",
+          "offset": {
+            "years": 0
+          }
+        },
         "lunar": {
           "month": 3,
-          "day": 16,
-          "year": -969
+          "day": 16
         },
         "regal": {
           "epoch": "solomon",
           "year": 1
-        }
+        },
+        "notes": "David dies in Solomon's 1st year, on Shavuot (Sivan 16)"
       },
       "certainty": "medium",
       "sources": [
@@ -3995,19 +4953,20 @@
       "id": "solomon-reign",
       "title": "Reign of King Solomon",
       "type": "reign",
-      "description": "Solomon becomes king of Israel, succeeding his father David. His reign dates are derived from the Temple chronology: Scripture states the Temple foundation was laid in Solomon's 4th year, 480 years after the Exodus. With the Exodus in 1446 BC, this places Solomon's 4th year at 966 BC. Solomon reigned 40 years over all Israel.",
+      "description": "Solomon becomes king of Israel, succeeding his father David. His reign dates are derived from the Temple chronology: Scripture states the Temple foundation was laid in Solomon's 4th year (2 Chr 3:2: Iyyar 2), 480 years after the Exodus. With the Exodus in 1446 BC, this places Solomon's 4th regal year at Fall 967 - Fall 966 BC (foundation Spring 966 BC). Solomon reigned 40 years over all Israel.",
       "start": {
         "relative": {
-          "event": "david-death",
+          "event": "solomon-temple-construction",
+          "direction": "before",
           "offset": {
-            "years": 0
+            "years": 3
           }
         },
         "lunar": {
           "month": 1,
           "day": 1
         },
-        "notes": "Begins at David's death"
+        "notes": "Temple laid in 4th year = 3 years after accession (Nisan 1)"
       },
       "duration": {
         "value": 40,
@@ -4082,20 +5041,20 @@
     },
     {
       "id": "solomon-temple-construction",
-      "title": "Construction of Solomon's Temple",
+      "title": "Solomon's Temple Foundation Laid",
       "type": "construction",
-      "description": "In the 4th year of Solomon's reign, in the 2nd month (Zif/Iyyar), construction of the First Temple begins. The date (966 BC) is established through biblical chronology of Judah's kings synchronized with Assyrian records and Nebuchadnezzar's astronomically-verified reign. 1 Kings 6:1 states this is 480 years after the Exodus.",
+      "description": "In the 4th year of Solomon's reign (regal year Fall 967 to Fall 966 BC), on the 2nd day of the 2nd month (Iyyar 2, Spring 966 BC), construction of the First Temple begins. 2 Chronicles 3:2 gives the exact day. 1 Kings 6:1 states this is 480 years after the Exodus.",
       "start": {
         "lunar": {
           "year": -965,
           "month": 2,
-          "day": 1
+          "day": 2
         },
         "regal": {
           "epoch": "solomon",
           "year": 4
         },
-        "notes": "966 BC - anchored via biblical king chronology synchronized with Assyrian/Babylonian records"
+        "notes": "Solomon's 4th regal year (Fall 967 - Fall 966 BC), foundation laid Spring 966 BC (Iyyar 2)"
       },
       "end": {
         "gregorian": {
@@ -4116,13 +5075,19 @@
       "certainty": "high",
       "sources": [
         {
+          "ref": "2 Chronicles 3:2",
+          "type": "scripture",
+          "quote": "And he began to build in the second [day] of the second month, in the fourth year of his reign."
+        },
+        {
           "ref": "1 Kings 6:1",
           "type": "scripture",
           "quote": "And it came to pass in the four hundred and eightieth year after the children of Israel were come out of the land of Egypt, in the fourth year of Solomon's reign over Israel, in the month Zif, which is the second month, that he began to build the house of the LORD."
         },
         {
           "ref": "1 Kings 6:37-38",
-          "type": "scripture"
+          "type": "scripture",
+          "quote": "In the fourth year was the foundation of the house of the LORD laid, in the month Zif: And in the eleventh year, in the month Bul, which is the eighth month, was the house finished throughout all the parts thereof, and according to all the fashion of it. So was he seven years in building it."
         }
       ],
       "tags": [
@@ -4130,7 +5095,24 @@
         "temple",
         "construction",
         "chronology-anchor",
-        "480-years"
+        "480-years",
+        "multi-path-verified"
+      ],
+      "doc": "/docs/temple-chronology-verification.md",
+      "related_events": [
+        "bur-sagale-eclipse",
+        "battle-of-qarqar",
+        "jehu-tribute",
+        "ahab-reign",
+        "vat-4956-observation",
+        "nebuchadnezzar-reign",
+        "temple-destruction-first",
+        "shoshenq-i-reign",
+        "shishak-invasion",
+        "rehoboam-reign",
+        "exodus-from-egypt",
+        "solomon-reign",
+        "david-reign"
       ]
     },
     {
@@ -4165,7 +5147,13 @@
           "quote": "Total solar eclipse, June 15, 763 BCE (astronomical year -762)"
         }
       ],
-      "tags": ["assyrian", "eclipse", "astronomical", "chronology-anchor", "root-anchor"],
+      "tags": [
+        "assyrian",
+        "eclipse",
+        "astronomical",
+        "chronology-anchor",
+        "root-anchor"
+      ],
       "image": "/assets/img/Eclipse-762-06-15.gif",
       "links": [
         {
@@ -4203,7 +5191,14 @@
           "quote": "Ahab the Israelite [contributed] 2,000 chariots, 10,000 soldiers"
         }
       ],
-      "tags": ["assyrian", "ahab", "synchronism", "chronology-anchor", "shalmaneser", "divided-kingdom"]
+      "tags": [
+        "assyrian",
+        "ahab",
+        "synchronism",
+        "chronology-anchor",
+        "shalmaneser",
+        "divided-kingdom"
+      ]
     },
     {
       "id": "jehu-tribute",
@@ -4228,7 +5223,14 @@
           "quote": "The tribute of Jehu, son of Omri: silver, gold, a golden bowl, a golden vase, golden cups, golden buckets, tin, a staff for the king's hand, javelins"
         }
       ],
-      "tags": ["assyrian", "jehu", "synchronism", "chronology-anchor", "shalmaneser", "divided-kingdom"]
+      "tags": [
+        "assyrian",
+        "jehu",
+        "synchronism",
+        "chronology-anchor",
+        "shalmaneser",
+        "divided-kingdom"
+      ]
     },
     {
       "id": "rehoboam-reign",
@@ -4253,7 +5255,120 @@
           "quote": "And Rehoboam the son of Solomon reigned in Judah. Rehoboam was forty and one years old when he began to reign, and he reigned seventeen years in Jerusalem"
         }
       ],
-      "tags": ["rehoboam", "reign", "judah", "divided-kingdom", "chronology-anchor", "genealogy"]
+      "tags": [
+        "rehoboam",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor",
+        "genealogy"
+      ]
+    },
+    {
+      "id": "shishak-invasion",
+      "title": "🏛️ Shishak (Shoshenq I) Invades Judah",
+      "type": "conquest",
+      "description": "In the 5th year of Rehoboam, Pharaoh Shishak (Egyptian: Shoshenq I) invades Judah with 1,200 chariots, 60,000 horsemen, and innumerable troops. He takes the fortified cities and comes to Jerusalem, carrying away the treasures of the Temple and the king's house. This is the CRITICAL EGYPTIAN SYNCHRONISM: Shoshenq I's campaign is recorded on the Bubastite Portal at Karnak, listing over 150 conquered cities. Egyptian chronology dates Shoshenq I's campaign to ~925 BC, which aligns with Rehoboam's 5th year (~926-925 BC) calculated from Assyrian synchronisms—providing independent verification of biblical chronology.",
+      "start": {
+        "relative": {
+          "event": "rehoboam-reign",
+          "direction": "after",
+          "offset": {
+            "years": 5
+          }
+        },
+        "lunar": {
+          "month": 1,
+          "day": 1
+        },
+        "notes": "~925 BC - Rehoboam's 5th year. Egyptian chronology independently dates Shoshenq I's campaign to this period."
+      },
+      "certainty": "very-high",
+      "sources": [
+        {
+          "ref": "1 Kings 14:25-26",
+          "type": "scripture",
+          "quote": "And it came to pass in the fifth year of king Rehoboam, that Shishak king of Egypt came up against Jerusalem: And he took away the treasures of the house of the LORD, and the treasures of the king's house; he even took away all"
+        },
+        {
+          "ref": "2 Chronicles 12:2-9",
+          "type": "scripture",
+          "quote": "In the fifth year of king Rehoboam Shishak king of Egypt came up against Jerusalem... with twelve hundred chariots, and threescore thousand horsemen... So Shishak king of Egypt came up against Jerusalem, and took away the treasures of the house of the LORD"
+        },
+        {
+          "ref": "Bubastite Portal, Karnak Temple",
+          "type": "archaeological",
+          "quote": "Shoshenq I's campaign relief lists over 150 conquered cities including sites in Judah and Israel"
+        },
+        {
+          "ref": "Kenneth Kitchen, Third Intermediate Period in Egypt",
+          "type": "historical",
+          "quote": "Shoshenq I's campaign occurred in his 20th-21st regnal year, ~925 BC by Egyptian chronology"
+        }
+      ],
+      "tags": [
+        "egypt",
+        "shishak",
+        "shoshenq",
+        "rehoboam",
+        "temple",
+        "chronology-anchor",
+        "egyptian-synchronism",
+        "karnak"
+      ],
+      "links": [
+        {
+          "label": "Bubastite Portal at Karnak",
+          "url": "https://en.wikipedia.org/wiki/Bubastite_Portal",
+          "icon": "🏛️"
+        }
+      ]
+    },
+    {
+      "id": "shoshenq-i-reign",
+      "title": "👑 Shoshenq I - Founder of 22nd Dynasty",
+      "type": "reign",
+      "description": "Shoshenq I (biblical Shishak) becomes Pharaoh of Egypt, founding the 22nd (Libyan) Dynasty. His reign is anchored by his campaign against Judah in Rehoboam's 5th year and recorded on the Bubastite Portal at Karnak. Egyptian chronology places his reign at ~943-922 BC. This pharaoh provides the critical link between Egyptian and biblical chronology for the Divided Kingdom period.",
+      "start": {
+        "fixed": {
+          "gregorian": {
+            "year": -942,
+            "month": 1,
+            "day": 1
+          },
+          "source": "Egyptian chronology - Third Intermediate Period"
+        }
+      },
+      "duration": {
+        "value": 21,
+        "unit": "solar_years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Bubastite Portal, Karnak Temple",
+          "type": "archaeological",
+          "quote": "Campaign relief listing Palestinian conquests"
+        },
+        {
+          "ref": "1 Kings 14:25",
+          "type": "scripture",
+          "quote": "Shishak king of Egypt came up against Jerusalem"
+        },
+        {
+          "ref": "Kenneth Kitchen, Third Intermediate Period in Egypt",
+          "type": "historical"
+        }
+      ],
+      "tags": [
+        "egypt",
+        "pharaoh",
+        "shoshenq",
+        "shishak",
+        "22nd-dynasty",
+        "chronology-anchor",
+        "egyptian-chronology"
+      ]
     },
     {
       "id": "abijah-reign",
@@ -4278,7 +5393,13 @@
           "quote": "Now in the eighteenth year of king Jeroboam the son of Nebat reigned Abijam over Judah. Three years reigned he in Jerusalem."
         }
       ],
-      "tags": ["abijah", "reign", "judah", "divided-kingdom", "chronology-anchor"]
+      "tags": [
+        "abijah",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
     },
     {
       "id": "asa-reign",
@@ -4303,7 +5424,13 @@
           "quote": "And in the twentieth year of Jeroboam king of Israel reigned Asa over Judah. And forty and one years reigned he in Jerusalem."
         }
       ],
-      "tags": ["asa", "reign", "judah", "divided-kingdom", "chronology-anchor"]
+      "tags": [
+        "asa",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
     },
     {
       "id": "ahab-reign",
@@ -4328,7 +5455,14 @@
           "quote": "And in the thirty and eighth year of Asa king of Judah began Ahab the son of Omri to reign over Israel: and Ahab the son of Omri reigned over Israel in Samaria twenty and two years"
         }
       ],
-      "tags": ["ahab", "reign", "israel", "divided-kingdom", "chronology-anchor", "assyrian-synchronism"]
+      "tags": [
+        "ahab",
+        "reign",
+        "israel",
+        "divided-kingdom",
+        "chronology-anchor",
+        "assyrian-synchronism"
+      ]
     },
     {
       "id": "jehu-reign",
@@ -4353,17 +5487,780 @@
           "quote": "And the time that Jehu reigned over Israel in Samaria was twenty and eight years"
         }
       ],
-      "tags": ["jehu", "reign", "israel", "divided-kingdom", "chronology-anchor", "assyrian-synchronism"]
+      "tags": [
+        "jehu",
+        "reign",
+        "israel",
+        "divided-kingdom",
+        "chronology-anchor",
+        "assyrian-synchronism"
+      ]
+    },
+    {
+      "id": "jehoshaphat-reign",
+      "title": "👑 Jehoshaphat Begins to Reign",
+      "type": "reign",
+      "description": "Jehoshaphat, son of Asa, becomes king of Judah. He reigned 25 years in Jerusalem, beginning in the 4th year of Ahab king of Israel.",
+      "start": {
+        "relative": {
+          "event": "asa-reign",
+          "offset": {
+            "years": 41
+          },
+          "direction": "after"
+        },
+        "notes": "~870 BCE - After Asa's 41 years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "1 Kings 22:41-42",
+          "type": "scripture",
+          "quote": "Jehoshaphat the son of Asa began to reign over Judah in the fourth year of Ahab king of Israel. Jehoshaphat was thirty and five years old when he began to reign; and he reigned twenty and five years in Jerusalem."
+        }
+      ],
+      "tags": [
+        "jehoshaphat",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "jehoram-judah-reign",
+      "title": "👑 Jehoram of Judah Begins to Reign",
+      "type": "reign",
+      "description": "Jehoram (Joram), son of Jehoshaphat, becomes king of Judah. He reigned 8 years in Jerusalem.",
+      "start": {
+        "relative": {
+          "event": "jehoshaphat-reign",
+          "offset": {
+            "years": 25
+          },
+          "direction": "after"
+        },
+        "notes": "~848 BCE - After Jehoshaphat's 25 years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 8:16-17",
+          "type": "scripture",
+          "quote": "In the fifth year of Joram the son of Ahab king of Israel, Jehoshaphat being then king of Judah, Jehoram the son of Jehoshaphat king of Judah began to reign. Thirty and two years old was he when he began to reign; and he reigned eight years in Jerusalem."
+        }
+      ],
+      "tags": [
+        "jehoram",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "ahaziah-judah-reign",
+      "title": "👑 Ahaziah of Judah Begins to Reign",
+      "type": "reign",
+      "description": "Ahaziah, son of Jehoram, becomes king of Judah. He reigned only 1 year before being killed by Jehu.",
+      "start": {
+        "relative": {
+          "event": "jehoram-judah-reign",
+          "offset": {
+            "years": 8
+          },
+          "direction": "after"
+        },
+        "notes": "~841 BCE - After Jehoram's 8 years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 8:25-26",
+          "type": "scripture",
+          "quote": "In the twelfth year of Joram the son of Ahab king of Israel did Ahaziah the son of Jehoram king of Judah begin to reign. Two and twenty years old was Ahaziah when he began to reign; and he reigned one year in Jerusalem."
+        }
+      ],
+      "tags": [
+        "ahaziah",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "athaliah-reign",
+      "title": "👑 Athaliah Seizes the Throne",
+      "type": "reign",
+      "description": "Athaliah, mother of Ahaziah, seizes the throne of Judah after her son's death. She reigned 6 years until overthrown by the priest Jehoiada.",
+      "start": {
+        "relative": {
+          "event": "ahaziah-judah-reign",
+          "offset": {
+            "years": 1
+          },
+          "direction": "after"
+        },
+        "notes": "~840 BCE - After Ahaziah's 1 year"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 11:1-3",
+          "type": "scripture"
+        }
+      ],
+      "tags": [
+        "athaliah",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "joash-judah-reign",
+      "title": "👑 Joash of Judah Begins to Reign",
+      "type": "reign",
+      "description": "Joash (Jehoash), son of Ahaziah, becomes king of Judah at age 7 after Athaliah is overthrown. He reigned 40 years in Jerusalem.",
+      "start": {
+        "relative": {
+          "event": "athaliah-reign",
+          "offset": {
+            "years": 6
+          },
+          "direction": "after"
+        },
+        "notes": "~835 BCE - After Athaliah's 6 years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 12:1",
+          "type": "scripture",
+          "quote": "In the seventh year of Jehu Jehoash began to reign; and forty years reigned he in Jerusalem."
+        }
+      ],
+      "tags": [
+        "joash",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "amaziah-reign",
+      "title": "👑 Amaziah Begins to Reign",
+      "type": "reign",
+      "description": "Amaziah, son of Joash, becomes king of Judah. He reigned 29 years in Jerusalem.",
+      "start": {
+        "relative": {
+          "event": "joash-judah-reign",
+          "offset": {
+            "years": 40
+          },
+          "direction": "after"
+        },
+        "notes": "~796 BCE - After Joash's 40 years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 14:1-2",
+          "type": "scripture",
+          "quote": "In the second year of Joash son of Jehoahaz king of Israel reigned Amaziah the son of Joash king of Judah. He was twenty and five years old when he began to reign, and reigned twenty and nine years in Jerusalem."
+        }
+      ],
+      "tags": [
+        "amaziah",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "uzziah-reign",
+      "title": "👑 Uzziah (Azariah) Begins to Reign",
+      "type": "reign",
+      "description": "Uzziah (also called Azariah), son of Amaziah, becomes king of Judah at age 16. He reigned 52 years in Jerusalem. Isaiah's call came in the year he died.",
+      "start": {
+        "relative": {
+          "event": "amaziah-reign",
+          "offset": {
+            "years": 29
+          },
+          "direction": "after"
+        },
+        "notes": "~767 BCE - After Amaziah's 29 years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 15:1-2",
+          "type": "scripture",
+          "quote": "In the twenty and seventh year of Jeroboam king of Israel began Azariah son of Amaziah king of Judah to reign. Sixteen years old was he when he began to reign, and he reigned two and fifty years in Jerusalem."
+        },
+        {
+          "ref": "Isaiah 6:1",
+          "type": "scripture",
+          "quote": "In the year that king Uzziah died I saw also the Lord sitting upon a throne"
+        }
+      ],
+      "tags": [
+        "uzziah",
+        "azariah",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor",
+        "isaiah"
+      ]
+    },
+    {
+      "id": "jotham-reign",
+      "title": "👑 Jotham Begins to Reign",
+      "type": "reign",
+      "description": "Jotham, son of Uzziah, becomes king of Judah. He reigned 16 years in Jerusalem.",
+      "start": {
+        "relative": {
+          "event": "uzziah-reign",
+          "offset": {
+            "years": 52
+          },
+          "direction": "after"
+        },
+        "notes": "~740 BCE - After Uzziah's 52 years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 15:32-33",
+          "type": "scripture",
+          "quote": "In the second year of Pekah the son of Remaliah king of Israel began Jotham the son of Uzziah king of Judah to reign. Five and twenty years old was he when he began to reign, and he reigned sixteen years in Jerusalem."
+        }
+      ],
+      "tags": [
+        "jotham",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "ahaz-reign",
+      "title": "👑 Ahaz Begins to Reign",
+      "type": "reign",
+      "description": "Ahaz, son of Jotham, becomes king of Judah. He reigned 16 years in Jerusalem. During his reign, the Syro-Ephraimite War occurred and Isaiah prophesied the virgin birth.",
+      "start": {
+        "relative": {
+          "event": "jotham-reign",
+          "offset": {
+            "years": 16
+          },
+          "direction": "after"
+        },
+        "notes": "~735 BCE - After Jotham's 16 years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 16:1-2",
+          "type": "scripture",
+          "quote": "In the seventeenth year of Pekah the son of Remaliah Ahaz the son of Jotham king of Judah began to reign. Twenty years old was Ahaz when he began to reign, and reigned sixteen years in Jerusalem."
+        },
+        {
+          "ref": "Isaiah 7:14",
+          "type": "scripture"
+        }
+      ],
+      "tags": [
+        "ahaz",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor",
+        "isaiah"
+      ]
+    },
+    {
+      "id": "hezekiah-reign",
+      "title": "👑 Hezekiah Begins to Reign",
+      "type": "reign",
+      "description": "Hezekiah, son of Ahaz, becomes king of Judah. He reigned 29 years in Jerusalem. His 6th year = Fall of Samaria (722 BC), establishing his accession at 728 BC.",
+      "start": {
+        "fixed": {
+          "source": "Calculated from Fall of Samaria (722 BC) = Hezekiah's 6th year (2 Kings 18:10). Using accession-year counting: accession = 728 BC.",
+          "gregorian": {
+            "year": -727,
+            "month": 1,
+            "day": 1
+          }
+        },
+        "lunar": {
+          "year": -727,
+          "month": 1,
+          "day": 1
+        },
+        "notes": "728 BC accession, 727 BC 1st regnal year. Synchronized with Fall of Samaria 722 BC = Hezekiah's 6th."
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 18:1-2",
+          "type": "scripture",
+          "quote": "Now it came to pass in the third year of Hoshea son of Elah king of Israel, that Hezekiah the son of Ahaz king of Judah began to reign. Twenty and five years old was he when he began to reign; and he reigned twenty and nine years in Jerusalem."
+        },
+        {
+          "ref": "2 Kings 18:9-10",
+          "type": "scripture",
+          "quote": "And it came to pass in the fourth year of king Hezekiah, which was the seventh year of Hoshea son of Elah king of Israel, that Shalmaneser king of Assyria came up against Samaria... And at the end of three years they took it: even in the sixth year of Hezekiah, that is the ninth year of Hoshea."
+        }
+      ],
+      "tags": [
+        "hezekiah",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor",
+        "isaiah",
+        "assyria"
+      ]
+    },
+    {
+      "id": "fall-of-samaria",
+      "title": "🏛️ Fall of Samaria - Northern Kingdom Ends",
+      "type": "conquest",
+      "description": "The Assyrian siege of Samaria ends with the fall of the Northern Kingdom of Israel. This occurred in Hezekiah's 6th year = Hoshea's 9th year. Dated by Assyrian Eponym Lists anchored to the Bur-Sagale eclipse (763 BC).",
+      "start": {
+        "fixed": {
+          "source": "Assyrian Eponym Lists anchored to Bur-Sagale eclipse (763 BC). The eponym for 722 BC records the fall of Samaria.",
+          "gregorian": {
+            "year": -721,
+            "month": 1,
+            "day": 1
+          }
+        },
+        "lunar": {
+          "year": -721,
+          "month": 1,
+          "day": 1
+        },
+        "regal": {
+          "note": "Hezekiah's 6th year = Hoshea's 9th year"
+        },
+        "notes": "722 BC - Derived from Bur-Sagale eclipse (763 BC) via Assyrian Eponym Lists"
+      },
+      "certainty": "very-high",
+      "sources": [
+        {
+          "ref": "2 Kings 17:6",
+          "type": "scripture",
+          "quote": "In the ninth year of Hoshea the king of Assyria took Samaria, and carried Israel away into Assyria"
+        },
+        {
+          "ref": "2 Kings 18:10",
+          "type": "scripture",
+          "quote": "At the end of three years they took it: even in the sixth year of Hezekiah, that is the ninth year of Hoshea king of Israel, Samaria was taken."
+        },
+        {
+          "ref": "Assyrian Eponym Lists",
+          "type": "historical",
+          "quote": "Eclipse of Bur-Sagale (763 BC) anchors the eponym sequence. 41 years later (763 - 41 = 722 BC) the lists record Samaria's fall."
+        }
+      ],
+      "tags": [
+        "samaria",
+        "assyria",
+        "conquest",
+        "chronology-anchor",
+        "astronomical",
+        "divided-kingdom",
+        "hezekiah",
+        "hoshea"
+      ]
+    },
+    {
+      "id": "hezekiah-14th-year",
+      "title": "📅 Hezekiah's 14th Year - Sennacherib's Invasion",
+      "type": "milestone",
+      "description": "In Hezekiah's 14th year, Sennacherib king of Assyria invaded Judah. Hezekiah fell ill and was granted 15 more years. This date (715 BC) is 5 years into the 15th Jubilee cycle from Jordan crossing.",
+      "start": {
+        "fixed": {
+          "source": "Calculated from Hezekiah's accession (728 BC) - 13 years = 715 BC",
+          "gregorian": {
+            "year": -714,
+            "month": 1,
+            "day": 1
+          }
+        },
+        "lunar": {
+          "year": -714,
+          "month": 1,
+          "day": 1
+        },
+        "regal": {
+          "epoch": "hezekiah",
+          "year": 14
+        },
+        "notes": "715 BC - 5 years into 15th Jubilee (720 BC). Hezekiah granted 15 more years, living to 700 BC."
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 18:13",
+          "type": "scripture",
+          "quote": "Now in the fourteenth year of king Hezekiah did Sennacherib king of Assyria come up against all the fenced cities of Judah, and took them."
+        },
+        {
+          "ref": "2 Kings 20:6",
+          "type": "scripture",
+          "quote": "And I will add unto thy days fifteen years"
+        },
+        {
+          "ref": "Isaiah 36:1",
+          "type": "scripture"
+        },
+        {
+          "ref": "Isaiah 38:5",
+          "type": "scripture"
+        }
+      ],
+      "tags": [
+        "hezekiah",
+        "sennacherib",
+        "assyria",
+        "isaiah",
+        "miracle",
+        "chronology-anchor",
+        "jubilee"
+      ]
+    },
+    {
+      "id": "manasseh-coregency",
+      "title": "👑 Manasseh Begins Co-Regency",
+      "type": "coregency",
+      "description": "Manasseh begins co-regency with his father Hezekiah. This 5-year overlap reconciles the Assyrian anchor (Samaria 722 BC) with the Babylonian anchor (Temple 587 BC). Manasseh was 12 years old.",
+      "start": {
+        "fixed": {
+          "source": "Calculated: Hezekiah ends 700 BC, but succession chain from Temple (587 BC) requires Manasseh to start 695 BC. The 5-year gap = co-regency.",
+          "gregorian": {
+            "year": -704,
+            "month": 1,
+            "day": 1
+          }
+        },
+        "lunar": {
+          "year": -704,
+          "month": 1,
+          "day": 1
+        },
+        "notes": "705 BC - Co-regency begins (Hezekiah's 24th year). Reconciles Assyrian and Babylonian anchors."
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "2 Kings 21:1",
+          "type": "scripture",
+          "quote": "Manasseh was twelve years old when he began to reign, and reigned fifty and five years in Jerusalem."
+        }
+      ],
+      "tags": [
+        "manasseh",
+        "coregency",
+        "hezekiah",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "manasseh-reign",
+      "title": "👑 Manasseh Sole Reign Begins",
+      "type": "reign",
+      "description": "Manasseh becomes sole king of Judah after Hezekiah's death. His 55-year reign (including 5 years co-regency) is the longest of any Judean king.",
+      "start": {
+        "fixed": {
+          "source": "Hezekiah dies 700 BC after 29-year reign from 728 BC accession",
+          "gregorian": {
+            "year": -699,
+            "month": 1,
+            "day": 1
+          }
+        },
+        "lunar": {
+          "year": -699,
+          "month": 1,
+          "day": 1
+        },
+        "notes": "700 BC - Hezekiah dies, Manasseh's sole reign begins (50 years remaining of 55-year total)"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 21:1",
+          "type": "scripture",
+          "quote": "Manasseh was twelve years old when he began to reign, and reigned fifty and five years in Jerusalem."
+        }
+      ],
+      "tags": [
+        "manasseh",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "amon-reign",
+      "title": "👑 Amon Begins to Reign",
+      "type": "reign",
+      "description": "Amon, son of Manasseh, becomes king of Judah. He reigned only 2 years before being assassinated.",
+      "start": {
+        "relative": {
+          "event": "manasseh-reign",
+          "offset": {
+            "years": 55
+          },
+          "direction": "after"
+        },
+        "notes": "~642 BCE - After Manasseh's 55 years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 21:19",
+          "type": "scripture",
+          "quote": "Amon was twenty and two years old when he began to reign, and he reigned two years in Jerusalem."
+        }
+      ],
+      "tags": [
+        "amon",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "josiah-reign",
+      "title": "👑 Josiah Begins to Reign",
+      "type": "reign",
+      "description": "Josiah, son of Amon, becomes king of Judah at age 8. He reigned 31 years in Jerusalem (639-608 BC). His 18th year (622 BC) = 17th Jubilee, when the Book of the Law was found.",
+      "start": {
+        "fixed": {
+          "source": "Derived from Temple destruction (587 BC) backward through Babylonian-anchored succession",
+          "gregorian": {
+            "year": -638,
+            "month": 1,
+            "day": 1
+          }
+        },
+        "lunar": {
+          "year": -638,
+          "month": 1,
+          "day": 1
+        },
+        "notes": "639 BC - Calculated from Temple (587) + Zedekiah (11) + Jehoiakim (11) + Josiah (31)"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 22:1",
+          "type": "scripture",
+          "quote": "Josiah was eight years old when he began to reign, and he reigned thirty and one years in Jerusalem."
+        }
+      ],
+      "tags": [
+        "josiah",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor"
+      ]
+    },
+    {
+      "id": "josiah-18th-year",
+      "title": "📖 Josiah's 18th Year - Book of the Law Found (17th Jubilee)",
+      "type": "milestone",
+      "description": "In Josiah's 18th year, the Book of the Law was found during Temple repairs. Josiah led the greatest Passover reformation since Samuel. This year (622/621 BC) aligns with the 17th Jubilee from Jordan crossing (1406 BC).",
+      "start": {
+        "fixed": {
+          "source": "Josiah's 1st year (639 BC) - 17 years = 622 BC. This is exactly 16 × 49 = 784 years after Jordan crossing (1406 BC).",
+          "gregorian": {
+            "year": -621,
+            "month": 1,
+            "day": 1
+          }
+        },
+        "lunar": {
+          "year": -621,
+          "month": 1,
+          "day": 1
+        },
+        "regal": {
+          "note": "Josiah's 18th year"
+        },
+        "notes": "622 BC = 17th Jubilee. 784 years (16 × 49) after Jordan crossing 1406 BC."
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 22:3-8",
+          "type": "scripture",
+          "quote": "And it came to pass in the eighteenth year of king Josiah, that the king sent Shaphan... And Hilkiah the high priest said unto Shaphan the scribe, I have found the book of the law in the house of the LORD."
+        },
+        {
+          "ref": "2 Kings 23:21-23",
+          "type": "scripture",
+          "quote": "And the king commanded all the people, saying, Keep the passover unto the LORD your God... Surely there was not holden such a passover from the days of the judges that judged Israel"
+        },
+        {
+          "ref": "2 Chronicles 35:18",
+          "type": "scripture",
+          "quote": "And there was no passover like to that kept in Israel from the days of Samuel the prophet"
+        }
+      ],
+      "tags": [
+        "josiah",
+        "passover",
+        "reformation",
+        "book-of-law",
+        "jubilee",
+        "chronology-anchor",
+        "milestone"
+      ]
+    },
+    {
+      "id": "jehoiakim-reign",
+      "title": "👑 Jehoiakim Begins to Reign",
+      "type": "reign",
+      "description": "Jehoiakim (Eliakim), son of Josiah, is placed on the throne by Pharaoh Necho. He reigned 11 years in Jerusalem. Jeremiah prophesied during his reign.",
+      "start": {
+        "relative": {
+          "event": "josiah-reign",
+          "offset": {
+            "years": 31
+          },
+          "direction": "after"
+        },
+        "notes": "~609 BCE - After Josiah's death at Megiddo (Jehoahaz reigned 3 months between)"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 23:36",
+          "type": "scripture",
+          "quote": "Jehoiakim was twenty and five years old when he began to reign; and he reigned eleven years in Jerusalem."
+        },
+        {
+          "ref": "Jeremiah 36:1",
+          "type": "scripture"
+        }
+      ],
+      "tags": [
+        "jehoiakim",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor",
+        "jeremiah"
+      ]
+    },
+    {
+      "id": "jehoiachin-reign",
+      "title": "👑 Jehoiachin Begins to Reign",
+      "type": "reign",
+      "description": "Jehoiachin (Jeconiah/Coniah), son of Jehoiakim, becomes king of Judah. He reigned only 3 months before being taken captive to Babylon by Nebuchadnezzar.",
+      "start": {
+        "relative": {
+          "event": "jehoiakim-reign",
+          "offset": {
+            "years": 11
+          },
+          "direction": "after"
+        },
+        "notes": "~598 BCE - After Jehoiakim's 11 years"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 24:8",
+          "type": "scripture",
+          "quote": "Jehoiachin was eighteen years old when he began to reign, and he reigned in Jerusalem three months."
+        },
+        {
+          "ref": "Ezekiel 1:2",
+          "type": "scripture",
+          "quote": "In the fifth day of the month, which was the fifth year of king Jehoiachin's captivity"
+        }
+      ],
+      "tags": [
+        "jehoiachin",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor",
+        "captivity"
+      ]
+    },
+    {
+      "id": "zedekiah-reign",
+      "title": "👑 Zedekiah Begins to Reign",
+      "type": "reign",
+      "description": "Zedekiah (Mattaniah), son of Josiah, is placed on the throne by Nebuchadnezzar. He reigned 11 years as the last king of Judah before the destruction of Jerusalem.",
+      "start": {
+        "relative": {
+          "event": "jehoiachin-reign",
+          "offset": {
+            "years": 0
+          },
+          "direction": "after"
+        },
+        "notes": "~597 BCE - Immediately after Jehoiachin's captivity"
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 24:17-18",
+          "type": "scripture",
+          "quote": "And the king of Babylon made Mattaniah his father's brother king in his stead, and changed his name to Zedekiah. Zedekiah was twenty and one years old when he began to reign, and he reigned eleven years in Jerusalem."
+        },
+        {
+          "ref": "Jeremiah 52:1",
+          "type": "scripture"
+        }
+      ],
+      "tags": [
+        "zedekiah",
+        "reign",
+        "judah",
+        "divided-kingdom",
+        "chronology-anchor",
+        "captivity",
+        "jeremiah"
+      ]
     },
     {
       "id": "ezra-decree",
-      "title": "Ezra's Decree to Restore Jerusalem",
+      "title": "📜 Ezra's Decree to Restore Jerusalem",
       "type": "decree",
-      "description": "In the 7th year of Artaxerxes I, Ezra receives the decree to restore and rebuild Jerusalem. This begins Daniel's 70 weeks (490 years) prophecy.",
+      "description": "In the 7th year of Artaxerxes I (spring 458 BC), Ezra receives the decree to restore and rebuild Jerusalem. Ezra left Babylon on Nisan 1 and arrived in Jerusalem in the 5th month (Av). This begins Daniel's 70 weeks (490 years) prophecy, ending at Passover 32 AD.",
       "start": {
         "regal": {
           "epoch": "artaxerxes",
           "year": 7
+        },
+        "fixed": {
+          "source": "Artaxerxes I accession: late 465 BC. Year 1: Nisan 464-463 BC. Year 7: Nisan 458-457 BC. Confirmed by Elephantine Papyri (AP 6, AP 13, Kraeling 4) and Cairo Sandstone Stele (May-June 458 BC = Year 7).",
+          "gregorian": {
+            "year": -457,
+            "month": 3,
+            "day": 1
+          }
         },
         "lunar": {
           "year": -457,
@@ -4374,13 +6271,29 @@
       "certainty": "high",
       "sources": [
         {
-          "ref": "Ezra 7:7-26",
-          "type": "scripture"
+          "ref": "Ezra 7:7-9",
+          "type": "scripture",
+          "quote": "And the year seven to Artaxerxes king of Persia... and they came to Jerusalem in the month the fifth"
+        },
+        {
+          "ref": "Josephus, Antiquities 11.5.1",
+          "type": "historical",
+          "quote": "The seventh year of Artaxerxes was come... he set forward the twelfth day of the first month, and came to Jerusalem in the fifth month"
         },
         {
           "ref": "Daniel 9:25",
           "type": "scripture",
           "quote": "From the going forth of the commandment to restore and to build Jerusalem unto the Messiah the Prince shall be seven weeks, and threescore and two weeks"
+        },
+        {
+          "ref": "Cairo Sandstone Stele (Elephantine)",
+          "type": "historical",
+          "quote": "Dates explicitly to Year 7 in May-June 458 BC (month Sivan), confirming Persian spring-to-spring regnal reckoning"
+        },
+        {
+          "ref": "Elephantine Papyri AP 6",
+          "type": "historical",
+          "quote": "Fixes Artaxerxes accession to late 465 BC and Year 1 to Nisan 464 BC"
         }
       ],
       "tags": [
@@ -4389,8 +6302,10 @@
         "490-years",
         "70-weeks",
         "prophecy",
-        "chronology-anchor"
+        "chronology-anchor",
+        "artaxerxes"
       ],
+      "notes": "458 BC is preferred over 457 BC because Ezra's context—operating under Persian authority—uses the imperial spring (Nisan-to-Nisan) calendar. The Cairo Stele's May-June 458 BC dating as Year 7 creates a 6-month discrepancy for any fall-reckoning theory.",
       "article": "/chapters/12_32_AD_Resurrection/"
     },
     {
@@ -4476,7 +6391,7 @@
       "id": "nebuchadnezzar-reign",
       "title": "Reign of Nebuchadnezzar II",
       "type": "reign",
-      "description": "Nebuchadnezzar II reigns over Babylon for 43 years. Accession year: 605 BC, 1st regnal year: 604 BC. This dating is astronomically verified by the VAT 4956 tablet\u2014a Babylonian astronomical diary from his 37th year containing lunar positions and planetary observations that modern astronomy confirms to 568/567 BC.",
+      "description": "Nebuchadnezzar II reigns over Babylon for 43 years. Accession year: 605 BC, 1st regnal year: 604 BC. This dating is astronomically verified by the VAT 4956 tablet—a Babylonian astronomical diary from his 37th year containing lunar positions and planetary observations that modern astronomy confirms to 568/567 BC.",
       "start": {
         "relative": {
           "event": "vat-4956-observation",
@@ -4527,7 +6442,7 @@
       "id": "siege-jerusalem-begins",
       "title": "Siege of Jerusalem Begins",
       "type": "siege",
-      "description": "On the 10th day of the 10th month in Zedekiah's 9th year, Nebuchadnezzar begins the siege of Jerusalem. This is the most frequently dated event in Scripture\u2014recorded in four separate passages. God emphatically commands Ezekiel: 'Son of man, write thee the name of the day, even of this same day.'",
+      "description": "On the 10th day of the 10th month in Zedekiah's 9th year, Nebuchadnezzar begins the siege of Jerusalem. This is the most frequently dated event in Scripture—recorded in four separate passages. God emphatically commands Ezekiel: 'Son of man, write thee the name of the day, even of this same day.'",
       "start": {
         "lunar": {
           "month": 10,
@@ -4599,15 +6514,27 @@
       "id": "temple-destruction-first",
       "title": "Destruction of the First Temple",
       "type": "destruction",
-      "description": "The First Temple is destroyed by the Babylonians under Nebuchadnezzar on the 10th of Av (5th month). Josephus confirms both temples fell on the same day, and that Jehoiarib (Course 1) was serving\u2014the same course serving 657 years later.",
+      "description": "The First Temple is destroyed by the Babylonians under Nebuchadnezzar on the 10th of Av (5th month) in Zedekiah's 11th year = Nebuchadnezzar's 18th regnal year. Josephus confirms both temples fell on the same day.",
       "start": {
+        "fixed": {
+          "source": "Derived from VAT 4956 (Neb's 37th = 568 BC) → Neb's 18th = 587 BC. Confirmed by Babylonian Chronicle.",
+          "gregorian": {
+            "year": -586,
+            "month": 8,
+            "day": 1
+          }
+        },
         "lunar": {
           "month": 5,
           "day": 10,
-          "year": -585
-        }
+          "year": -586
+        },
+        "regal": {
+          "note": "Zedekiah's 11th year = Nebuchadnezzar's 18th regnal year"
+        },
+        "notes": "587 BC - Key Babylonian anchor. Zed 11 = Neb 18."
       },
-      "certainty": "high",
+      "certainty": "very-high",
       "sources": [
         {
           "ref": "Jeremiah 52:12-13",
@@ -4616,7 +6543,9 @@
         },
         {
           "ref": "2 Kings 25:8-9",
-          "type": "scripture"
+          "type": "scripture",
+          "quote": "And in the fifth month, on the seventh day of the month... came Nebuzaradan... and he burnt the house of the LORD",
+          "note": "2 Kings says '7th day' but Jeremiah 52:12 says '10th day'. Since Jeremiah 52 is otherwise word-for-word verbatim with 2 Kings 25, the '7th' is likely a scribal error. The 10th of Av is the traditional date of mourning."
         },
         {
           "ref": "Josephus, Wars 6.4.5",
@@ -4629,7 +6558,50 @@
         "destruction",
         "babylon",
         "10th-of-av",
-        "nebuchadnezzar"
+        "nebuchadnezzar",
+        "chronology-anchor"
+      ],
+      "notes": "Av 10 preferred over Av 7 (2 Kings 25:8) because Jeremiah 52:12 is otherwise verbatim with 2 Kings 25, suggesting '7th' is a scribal error. Jewish tradition commemorates Tisha B'Av (9th of Av) as the destruction began on the 9th and continued through the 10th."
+    },
+    {
+      "id": "ezekiel-40-vision",
+      "title": "📖 Ezekiel's Temple Vision (18th Jubilee)",
+      "type": "vision",
+      "description": "In the 25th year of captivity (14 years after the Temple's fall), Ezekiel receives the vision of the restored Temple (Ezekiel 40-48). This year (573 BC) is exactly the 18th Jubilee from Jordan crossing (1406 BC).",
+      "start": {
+        "fixed": {
+          "source": "25th year of captivity (597 BC - 24 = 573 BC). 14 years after Temple destruction (587 BC - 14 = 573 BC). = 17 × 49 = 833 years after Jordan (1406 BC).",
+          "gregorian": {
+            "year": -572,
+            "month": 1,
+            "day": 10
+          }
+        },
+        "lunar": {
+          "month": 1,
+          "day": 10,
+          "year": -572
+        },
+        "regal": {
+          "note": "25th year of captivity = 14th year after Temple fell"
+        },
+        "notes": "573 BC = 18th Jubilee. Given on the 10th of Nisan - same day as Jordan crossing and Passover lamb selection."
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Ezekiel 40:1",
+          "type": "scripture",
+          "quote": "In the five and twentieth year of our captivity, in the beginning of the year, in the tenth day of the month, in the fourteenth year after that the city was smitten... the hand of the LORD was upon me"
+        }
+      ],
+      "tags": [
+        "ezekiel",
+        "temple",
+        "vision",
+        "jubilee",
+        "chronology-anchor",
+        "prophecy"
       ]
     },
     {
@@ -4682,11 +6654,12 @@
       "id": "fall-of-babylon",
       "title": "Fall of Babylon - Writing on the Wall",
       "type": "conquest",
-      "description": "During Belshazzar's feast, a hand appears and writes on the wall: MENE, MENE, TEKEL, UPHARSIN. Daniel interprets: 'Thy kingdom is divided, and given to the Medes and Persians.' That very night Belshazzar is slain and Darius the Mede takes the kingdom. The Nabonidus Chronicle records that Babylon fell on the 16th of Tishri\u2014during the Feast of Tabernacles!",
+      "description": "During Belshazzar's feast, a hand appears and writes on the wall: MENE, MENE, TEKEL, UPHARSIN. Daniel interprets: 'Thy kingdom is divided, and given to the Medes and Persians.' That very night Belshazzar is slain and Darius the Mede takes the kingdom. The Nabonidus Chronicle records that Babylon fell on the 16th of Tishri—during the Feast of Tabernacles!",
       "start": {
         "lunar": {
           "month": 7,
-          "day": 16
+          "day": 16,
+          "year": -538
         },
         "fixed": {
           "gregorian": {
@@ -4727,29 +6700,134 @@
       ]
     },
     {
+      "id": "cyrus-decree",
+      "title": "📜 Cyrus's Decree - Jews Return from Exile",
+      "type": "decree",
+      "description": "Cyrus the Great issues a decree allowing Jews to return to Jerusalem and rebuild the Temple. This fulfills Isaiah's prophecy naming Cyrus 150 years before his birth.",
+      "start": {
+        "fixed": {
+          "source": "Cyrus conquered Babylon in 539 BC. The decree was issued in his first year as king of Babylon.",
+          "gregorian": {
+            "year": -537,
+            "month": 1,
+            "day": 1
+          }
+        },
+        "lunar": {
+          "year": -537,
+          "month": 1,
+          "day": 1
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Ezra 1:1-4",
+          "type": "scripture",
+          "quote": "Now in the first year of Cyrus king of Persia... he made a proclamation... The LORD God of heaven hath given me all the kingdoms of the earth; and he hath charged me to build him an house at Jerusalem"
+        },
+        {
+          "ref": "Isaiah 44:28",
+          "type": "scripture",
+          "quote": "That saith of Cyrus, He is my shepherd, and shall perform all my pleasure: even saying to Jerusalem, Thou shalt be built; and to the temple, Thy foundation shall be laid"
+        }
+      ],
+      "tags": [
+        "cyrus",
+        "persia",
+        "decree",
+        "exile",
+        "return",
+        "chronology-anchor",
+        "prophecy"
+      ]
+    },
+    {
+      "id": "darius-i-reign",
+      "title": "👑 Darius I (the Great) Begins to Reign",
+      "type": "reign",
+      "description": "Darius I becomes king of Persia. He authorizes the completion of the Second Temple. Haggai and Zechariah prophesy during his reign.",
+      "start": {
+        "fixed": {
+          "source": "Darius I acceded September 522 BC. Using REGNAL year counting (as evidenced by Jeremiah 52:28 vs 2 Kings 24:12 showing 7th vs 8th year for same event), Year 1 = 522 BC, Year 6 = 517 BC.",
+          "gregorian": {
+            "year": -521,
+            "month": 1,
+            "day": 1
+          }
+        },
+        "lunar": {
+          "year": -521,
+          "month": 1,
+          "day": 1
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Ezra 4:24",
+          "type": "scripture",
+          "quote": "Then ceased the work of the house of God which is at Jerusalem. So it ceased unto the second year of Darius king of Persia."
+        },
+        {
+          "ref": "Haggai 1:1",
+          "type": "scripture",
+          "quote": "In the second year of Darius the king"
+        }
+      ],
+      "tags": [
+        "darius",
+        "persia",
+        "reign",
+        "chronology-anchor",
+        "second-temple"
+      ],
+      "notes": "Haggai/Zechariah/Ezra use regnal (non-accession) year counting for foreign kings, as proven by comparing Jeremiah 52:28 (Neb's 7th year) with 2 Kings 24:12 (Neb's 8th year) for the same event."
+    },
+    {
       "id": "second-temple-completed",
-      "title": "Second Temple Completed",
+      "title": "🏛️ Second Temple Completed",
       "type": "construction",
-      "description": "The second temple is completed on the 3rd day of Adar in Darius's 6th year, restoring worship after the exile.",
+      "description": "The Second Temple was completed on the 3rd day of Adar in Darius's 6th year (517 BC). This is exactly 70 years after the First Temple was destroyed (587 BC), fulfilling Jeremiah's prophecy. The people celebrated the dedication with joy.",
       "start": {
         "lunar": {
           "month": 12,
           "day": 3,
-          "year": -515
+          "year": -516
+        },
+        "regal": {
+          "epoch": "darius-i",
+          "year": 6
+        },
+        "fixed": {
+          "source": "Darius I Year 1 = 522 BC. Year 6 = 517 BC. Exactly 70 years after temple destruction (587 BC).",
+          "gregorian": {
+            "year": -516,
+            "month": 2
+          }
         }
       },
       "certainty": "high",
       "sources": [
         {
           "ref": "Ezra 6:15",
-          "type": "scripture"
+          "type": "scripture",
+          "quote": "This house was finished on the third day of the month Adar, which was in the sixth year of the reign of Darius the king."
+        },
+        {
+          "ref": "Ezra 6:16",
+          "type": "scripture",
+          "quote": "And the children of Israel, the priests, and the Levites, and the rest of the children of the captivity, kept the dedication of this house of God with joy."
         }
       ],
       "tags": [
         "temple",
         "construction",
-        "darius"
-      ]
+        "darius",
+        "70-years",
+        "chronology-anchor"
+      ],
+      "notes": "587 BC - 517 BC = exactly 70 years of temple desolation, fulfilling Jeremiah 25:11-12. Verified using regnal year counting (Jeremiah 52:28 vs 2 Kings 24:12 proves this system)."
     },
     {
       "id": "nehemiah-walls-completed",
@@ -4945,7 +7023,7 @@
       "id": "temple-destruction-second",
       "title": "Destruction of the Second Temple",
       "type": "destruction",
-      "description": "The Second Temple is destroyed by the Romans under Titus on the 10th of Av, exactly 657 years after the First Temple's destruction on the same day. Josephus confirms Jehoiarib (Course 1) was serving\u2014the same course as at the First Temple's fall\u2014providing a critical anchor for reconstructing the priestly cycle.",
+      "description": "The Second Temple is destroyed by the Romans under Titus on the 10th of Av, exactly 657 years after the First Temple's destruction on the same day. Josephus confirms Jehoiarib (Course 1) was serving—the same course as at the First Temple's fall—providing a critical anchor for reconstructing the priestly cycle.",
       "start": {
         "lunar": {
           "year": 70,
@@ -5045,18 +7123,35 @@
       ]
     },
     {
+      "id": "tiberius-15th-year-start",
+      "title": "Start of Tiberius 15th Year",
+      "type": "chronology",
+      "description": "September 17, 28 AD - The start of the 15th year of Tiberius Caesar's reign. Luke 3:1-2 dates John the Baptist's ministry to this year. Tiberius became co-regent with Augustus on September 17, 14 AD.",
+      "start": {
+        "gregorian": {
+          "year": 28,
+          "month": 9,
+          "day": 17
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Luke 3:1",
+          "type": "scripture",
+          "quote": "Now in the fifteenth year of the reign of Tiberius Caesar"
+        }
+      ],
+      "tags": ["tiberius", "chronology", "anchor-point"]
+    },
+    {
       "id": "john-baptist-ministry",
       "title": "30 Years to John's Ministry",
       "type": "ministry",
       "description": "In the 15th year of Tiberius Caesar, John begins his ministry in the wilderness. Since priests could begin ministering at age 30 (Numbers 4:3), this establishes the earliest possible birth date for John by counting 30 lunar years backward from the start of Tiberius's 15th year.",
       "start": {
-        "fixed": {
-          "gregorian": {
-            "year": 28,
-            "month": 9,
-            "day": 17
-          },
-          "source": "Tiberius 15th year begins Sept 17, 28 AD (Luke 3:1)"
+        "relative": {
+          "event": "tiberius-15th-year-start"
         },
         "regal": {
           "epoch": "tiberius",
@@ -5443,7 +7538,7 @@
     },
     {
       "id": "crucifixion-32ad",
-      "title": "\u271d\ufe0f Crucifixion of Yeshua",
+      "title": "✝️ Crucifixion of Yeshua",
       "type": "death",
       "description": "Yeshua is crucified on Passover (Nisan 14), fulfilling the 70 weeks prophecy of Daniel 9.",
       "start": {
@@ -5476,7 +7571,7 @@
     },
     {
       "id": "resurrection-32ad",
-      "title": "\u271d\ufe0f Resurrection of Yeshua",
+      "title": "✝️ Resurrection of Yeshua",
       "type": "milestone",
       "description": "Yeshua rises from the dead on First Fruits (Nisan 16), three days and three nights after burial.",
       "start": {
@@ -5516,7 +7611,7 @@
       "id": "pentecost-32ad",
       "title": "Pentecost - Outpouring of the Holy Spirit",
       "type": "milestone",
-      "description": "On Shavuot (Pentecost), the 16th day of the 3rd month, the Holy Spirit is poured out on the disciples in Jerusalem. This is exactly 1000 years after King David died on Shavuot in 969 BC\u2014from the death of the shepherd-king to the birth of the Spirit-filled assembly. Peter quotes David's Psalms extensively in his sermon.",
+      "description": "On Shavuot (Pentecost), the 16th day of the 3rd month, the Holy Spirit is poured out on the disciples in Jerusalem. This is exactly 1000 years after King David died on Shavuot in 969 BC—from the death of the shepherd-king to the birth of the Spirit-filled assembly. Peter quotes David's Psalms extensively in his sermon.",
       "start": {
         "lunar": {
           "month": 3,
@@ -5595,7 +7690,7 @@
       "id": "triumphal-entry",
       "title": "Triumphal Entry into Jerusalem",
       "type": "milestone",
-      "description": "Jesus enters Jerusalem on the 10th day of Abib, the day the Passover lamb is selected. John records that 6 days before Passover (using inclusive counting), Jesus arrived in Bethany; the next day He went up to Jerusalem as crowds proclaimed 'Hosanna!' The timing is prophetically significant\u2014as Israel selected their lambs, God's Lamb was presented to the nation.",
+      "description": "Jesus enters Jerusalem on the 10th day of Abib, the day the Passover lamb is selected. John records that 6 days before Passover (using inclusive counting), Jesus arrived in Bethany; the next day He went up to Jerusalem as crowds proclaimed 'Hosanna!' The timing is prophetically significant—as Israel selected their lambs, God's Lamb was presented to the nation.",
       "start": {
         "lunar": {
           "month": 1,
@@ -5631,69 +7726,375 @@
     },
     {
       "id": "john-baptist-conception",
-      "title": "John the Baptist Conception (Earliest Possible)",
-      "type": "birth",
-      "description": "Earliest possible date for John the Baptist's conception, calculated as 40 weeks (280 days) before his earliest possible birth date. This is a duration event for timeline purposes only, establishing the earliest boundary for when John could have been conceived.",
+      "title": "🍼 John the Baptist Conception (Earliest by Service)",
+      "type": "conception",
+      "description": "EARLIEST possible conception based on priestly cycle. Zechariah served in the course of Abijah (Course 8). This is the first day he could return home after his service. Actual conception could have been later.",
       "start": {
-        "relative": {
-          "event": "john-baptist-birth-earliest",
-          "direction": "before",
-          "offset": {
-            "days": 280
-          }
+        "priestly_cycle": {
+          "course": "Abijah",
+          "after_event": "john-baptist-conception-earliest"
         },
-        "notes": "280 days (40 weeks / 7*40 days) before birth"
+        "notes": "First Abijah service (Course 8) after the earliest possible conception date. Zechariah served, then went home and conceived (Lev 15:18 - uncleanness during service)."
       },
-      "duration": {
-        "value": 40,
-        "unit": "weeks"
-      },
-      "end": {
-        "event": "john-baptist-birth-earliest"
-      },
-      "certainty": "low",
+      "certainty": "medium",
       "sources": [
         {
-          "ref": "Luke 1:5-25",
-          "type": "scripture"
+          "ref": "Luke 1:5",
+          "type": "scripture",
+          "quote": "There was in the days of Herod, the king of Judaea, a certain priest named Zacharias, of the course of Abia"
+        },
+        {
+          "ref": "Luke 1:8-9",
+          "type": "scripture",
+          "quote": "And it came to pass, that while he executed the priest's office before God in the order of his course, According to the custom of the priest's office, his lot was to burn incense"
+        },
+        {
+          "ref": "Luke 1:23-24",
+          "type": "scripture",
+          "quote": "And it came to pass, that, as soon as the days of his ministration were accomplished, he departed to his own house. And after those days his wife Elisabeth conceived"
+        },
+        {
+          "ref": "1 Chronicles 24:10",
+          "type": "scripture",
+          "quote": "The seventh to Hakkoz, the eighth to Abijah"
         }
       ],
       "tags": [
         "john-baptist",
         "conception",
-        "timeline-boundary"
+        "priestly-cycle",
+        "abijah",
+        "zechariah"
       ],
       "article": "/chapters/12_32_AD_Resurrection/",
-      "anniversary_display": false,
-      "timeline_only": true
+      "notes": "The priestly cycle calculation uses the earliest possible birth date (30 years before ministry start in Tiberius's 15th year) minus 280 days to find the earliest conception window, then finds the next Abijah service week."
+    },
+    {
+      "id": "john-baptist-birth",
+      "title": "🍼 John the Baptist Birth (Earliest by Service)",
+      "type": "birth",
+      "description": "EARLIEST possible birth of John the Baptist based on priestly cycle, calculated as 266 days after earliest conception. The actual birth could have been later if conception was delayed.",
+      "start": {
+        "relative": {
+          "event": "john-baptist-conception",
+          "direction": "after",
+          "offset": {
+            "days": 266
+          }
+        },
+        "notes": "266 days average gestation from conception (280 days/40 weeks is counted from last menstrual period, ~14 days before conception). The Passover birth theory assumes Zechariah served in the second Abijah course of the year - this timeline shows the EARLIEST possible date based on the first Abijah course."
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "Luke 1:57-58",
+          "type": "scripture",
+          "quote": "Now Elisabeth's full time came that she should be delivered; and she brought forth a son. And her neighbours and her cousins heard how the Lord had shewed great mercy upon her; and they rejoiced with her."
+        },
+        {
+          "ref": "Luke 1:13-17",
+          "type": "scripture",
+          "quote": "And he shall go before him in the spirit and power of Elias, to turn the hearts of the fathers to the children"
+        },
+        {
+          "ref": "Malachi 4:5",
+          "type": "scripture",
+          "quote": "Behold, I will send you Elijah the prophet before the coming of the great and dreadful day of the LORD"
+        }
+      ],
+      "tags": [
+        "john-baptist",
+        "birth",
+        "elijah",
+        "passover"
+      ],
+      "article": "/chapters/12_32_AD_Resurrection/",
+      "notes": "Jewish tradition holds that Elijah will return at Passover (an extra cup is set at the Seder). Jesus said John was the Elijah who was to come (Matthew 11:14). A birth around Passover aligns with this prophetic connection."
+    },
+    {
+      "id": "yeshua-conception",
+      "title": "🍼 Yeshua's Conception (Earliest)",
+      "type": "conception",
+      "description": "EARLIEST possible conception. Mary was visited by Gabriel in the 6th month of Elizabeth's pregnancy (Luke 1:26,36). Using 5 months minimum (6th month inclusive). Actual conception could have been later.",
+      "start": {
+        "relative": {
+          "event": "john-baptist-conception",
+          "direction": "after",
+          "offset": {
+            "months": 6
+          }
+        },
+        "notes": "Gabriel appeared to Mary 'in the sixth month' of Elizabeth's pregnancy (Luke 1:26, 36)"
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "Luke 1:26-27",
+          "type": "scripture",
+          "quote": "And in the sixth month the angel Gabriel was sent from God unto a city of Galilee, named Nazareth, To a virgin espoused to a man whose name was Joseph, of the house of David; and the virgin's name was Mary."
+        },
+        {
+          "ref": "Luke 1:30-31",
+          "type": "scripture",
+          "quote": "And the angel said unto her, Fear not, Mary: for thou hast found favour with God. And, behold, thou shalt conceive in thy womb, and bring forth a son, and shalt call his name JESUS."
+        },
+        {
+          "ref": "Luke 1:36",
+          "type": "scripture",
+          "quote": "And, behold, thy cousin Elisabeth, she hath also conceived a son in her old age: and this is the sixth month with her, who was called barren."
+        }
+      ],
+      "tags": [
+        "yeshua",
+        "jesus",
+        "conception",
+        "annunciation",
+        "mary",
+        "gabriel"
+      ],
+      "article": "/chapters/12_32_AD_Resurrection/",
+      "notes": "The 6-month gap between John and Yeshua's conceptions is explicitly stated in Luke 1:26, 36. This timing connects to Hanukkah traditions (Feast of Dedication, 25th of Kislev) as a possible date for the Annunciation."
+    },
+    {
+      "id": "yeshua-birth",
+      "title": "🍼 Yeshua's Birth (Earliest)",
+      "type": "birth",
+      "description": "EARLIEST possible birth, calculated as 266 days after earliest conception. Actual birth could have been later.",
+      "start": {
+        "relative": {
+          "event": "yeshua-conception",
+          "direction": "after",
+          "offset": {
+            "days": 266
+          }
+        },
+        "notes": "266 days average gestation from conception (280 days/40 weeks is counted from last menstrual period, which is ~14 days before conception). The Feast of Tabernacles birth theory assumes Zechariah served in the second Abijah course of the year and immediate conception - this timeline shows the EARLIEST possible date based on the first Abijah course."
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "Luke 2:6-7",
+          "type": "scripture",
+          "quote": "And so it was, that, while they were there, the days were accomplished that she should be delivered. And she brought forth her firstborn son, and wrapped him in swaddling clothes, and laid him in a manger."
+        },
+        {
+          "ref": "Matthew 2:1",
+          "type": "scripture",
+          "quote": "Now when Jesus was born in Bethlehem of Judaea in the days of Herod the king"
+        },
+        {
+          "ref": "John 1:14",
+          "type": "scripture",
+          "quote": "And the Word was made flesh, and dwelt [tabernacled] among us"
+        }
+      ],
+      "tags": [
+        "yeshua",
+        "jesus",
+        "birth",
+        "nativity",
+        "bethlehem",
+        "tabernacles"
+      ],
+      "article": "/chapters/12_32_AD_Resurrection/",
+      "notes": "John 1:14 uses the Greek word 'skenoo' (to tabernacle/dwell in a tent), which many scholars see as a reference to the Feast of Tabernacles (Sukkot) as the time of Yeshua's birth. This aligns with the 6-month gap from John's birth (likely around Passover)."
+    },
+    {
+      "id": "yeshua-ministry-begins",
+      "title": "📜 Yeshua's Ministry Begins (Earliest)",
+      "type": "ministry",
+      "description": "EARLIEST possible ministry start, calculated as 30 years from earliest birth. Actual ministry start could have been later. The 30-year calculation from birth is significant because priests began Temple service at age 30 (Numbers 4:3).",
+      "start": {
+        "relative": {
+          "event": "yeshua-birth",
+          "direction": "after",
+          "offset": {
+            "years": 30,
+            "unit": "lunar"
+          }
+        },
+        "notes": "30 lunar years after birth. If birth was in month 13 (Adar II) of a leap year, 30 lunar years later may land in a different calendar position."
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "Luke 3:23",
+          "type": "scripture",
+          "quote": "And Jesus himself began to be about thirty years of age, being (as was supposed) the son of Joseph"
+        },
+        {
+          "ref": "Luke 3:1",
+          "type": "scripture",
+          "quote": "Now in the fifteenth year of the reign of Tiberius Caesar"
+        },
+        {
+          "ref": "Numbers 4:3",
+          "type": "scripture",
+          "quote": "From thirty years old and upward even until fifty years old"
+        }
+      ],
+      "tags": [
+        "yeshua",
+        "jesus",
+        "ministry",
+        "baptism",
+        "tiberius"
+      ],
+      "article": "/chapters/12_32_AD_Resurrection/",
+      "notes": "The 30-year requirement for priestly service (Numbers 4:3) provides context for why Luke emphasizes Yeshua's age. Born in a 13-month leap year (Adar II), 30 lunar years later would still be 30 complete years but potentially in a different seasonal position."
+    },
+    {
+      "id": "zechariah-angel-visit-proposed",
+      "title": "🕎 Angel Appears to Zechariah (Proposed: Hanukkah)",
+      "type": "biblical-event",
+      "description": "PROPOSED: Angel Gabriel appears to Zechariah in the Temple during Hanukkah (around Kislev 23-24), during his Abijah service week. He is struck mute until John's birth.",
+      "start": {
+        "lunar": { "year": -3, "month": 10, "day": 23 }
+      },
+      "certainty": "proposed",
+      "sources": [
+        { "ref": "Luke 1:5-13", "type": "scripture", "quote": "There appeared unto him an angel of the Lord standing on the right side of the altar of incense" },
+        { "ref": "Luke 1:19-20", "type": "scripture", "quote": "I am Gabriel... thou shalt be dumb, and not able to speak, until the day that these things shall be performed" }
+      ],
+      "tags": ["john-baptist", "zechariah", "angel", "proposed", "hanukkah", "appointed-time"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "john-baptist-conception-proposed",
+      "title": "👶 John Conceived (Proposed: Spirit of Elijah)",
+      "type": "conception",
+      "description": "PROPOSED: John conceived on Tevet 1 (11/1), the day associated with the Spirit of Elijah, Joshua's Long Day, and the Day of the Lord. John came 'in the spirit and power of Elijah' (Luke 1:17). 266 days to Trumpets birth aligns with Tiberius 15th year.",
+      "start": {
+        "lunar": { "year": -3, "month": 11, "day": 1 }
+      },
+      "certainty": "proposed",
+      "sources": [
+        { "ref": "Luke 1:23-24", "type": "scripture", "quote": "As soon as the days of his ministration were accomplished, he departed to his own house. And after those days his wife Elisabeth conceived" },
+        { "ref": "Luke 1:17", "type": "scripture", "quote": "And he shall go before him in the spirit and power of Elias" },
+        { "ref": "Malachi 4:5", "type": "scripture", "quote": "Behold, I will send you Elijah the prophet before the coming of the great and dreadful day of the LORD" }
+      ],
+      "tags": ["john-baptist", "conception", "proposed", "elijah", "spirit-of-elijah"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "john-baptist-birth-proposed",
+      "title": "🎺 John Birth (Proposed: Trumpets)",
+      "type": "birth",
+      "description": "PROPOSED: John born on Tishri 1 (7/1), the Feast of Trumpets. Exactly 30 lunar years later = Tishri 1, 28 AD, which aligns with Tiberius 15th year (Sept 17, 28 AD). John turns 30 and becomes eligible for ministry precisely when Luke 3:1-2 says the word came to him.",
+      "start": {
+        "lunar": { "year": -2, "month": 7, "day": 1 }
+      },
+      "certainty": "proposed",
+      "sources": [
+        { "ref": "Luke 1:57-66", "type": "scripture", "quote": "Now Elisabeth's full time came that she should be delivered" },
+        { "ref": "Luke 3:1-2", "type": "scripture", "quote": "Now in the fifteenth year of the reign of Tiberius Caesar... the word of God came unto John" },
+        { "ref": "Leviticus 23:24", "type": "scripture", "quote": "In the seventh month, in the first day of the month, shall ye have a sabbath, a memorial of blowing of trumpets" }
+      ],
+      "tags": ["john-baptist", "birth", "proposed", "trumpets", "appointed-time"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "john-baptist-circumcision-proposed",
+      "title": "🎺 John Circumcision (Proposed: Day 8)",
+      "type": "milestone",
+      "description": "PROPOSED: John circumcised on Tishri 8 (7/8), the 8th day after Trumpets birth.",
+      "start": {
+        "lunar": { "year": -2, "month": 7, "day": 8 }
+      },
+      "certainty": "proposed",
+      "sources": [
+        { "ref": "Luke 1:59", "type": "scripture", "quote": "on the eighth day they came to circumcise the child" }
+      ],
+      "tags": ["john-baptist", "circumcision", "proposed"]
+    },
+    {
+      "id": "mary-angel-visit-proposed",
+      "title": "🕊️ Angel Visits Mary (Proposed: Shavuot)",
+      "type": "biblical-event",
+      "description": "PROPOSED: Gabriel visits Mary at Shavuot (Sivan 16), in the 6th month of Elizabeth's pregnancy. Mary then goes 'with haste' to visit Elizabeth.",
+      "start": {
+        "lunar": { "year": -2, "month": 3, "day": 16 }
+      },
+      "certainty": "proposed",
+      "sources": [
+        { "ref": "Luke 1:26-28", "type": "scripture", "quote": "And in the sixth month the angel Gabriel was sent from God unto a city of Galilee, named Nazareth, To a virgin espoused to a man whose name was Joseph" },
+        { "ref": "Luke 1:36", "type": "scripture", "quote": "this is the sixth month with her, who was called barren" }
+      ],
+      "tags": ["yeshua", "mary", "angel", "proposed", "shavuot", "appointed-time"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "yeshua-conception-proposed",
+      "title": "💫 Yeshua Conception (Proposed: 9th of Av)",
+      "type": "conception",
+      "description": "PROPOSED: Mary conceives on the 9th of Av while visiting Elizabeth. The day of mourning becomes the day of hope - the Light enters the world. ~266 days to Passover birth (requires leap year).",
+      "start": {
+        "lunar": { "year": -2, "month": 5, "day": 9 }
+      },
+      "certainty": "proposed",
+      "sources": [
+        { "ref": "Luke 1:39", "type": "scripture", "quote": "And Mary arose in those days, and went into the hill country with haste" },
+        { "ref": "Luke 1:56", "type": "scripture", "quote": "And Mary abode with her about three months" }
+      ],
+      "tags": ["yeshua", "conception", "proposed", "tisha-bav"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "yeshua-birth-proposed",
+      "title": "🐑 Yeshua Birth (Proposed: Passover)",
+      "type": "birth",
+      "description": "PROPOSED: Yeshua born on Nisan 14 (1/14), Passover - the Lamb of God born when lambs are selected. ~266 days after conception.",
+      "start": {
+        "lunar": { "year": -1, "month": 1, "day": 14 }
+      },
+      "certainty": "proposed",
+      "sources": [
+        { "ref": "Luke 2:6-7", "type": "scripture", "quote": "the days were accomplished that she should be delivered" },
+        { "ref": "John 1:29", "type": "scripture", "quote": "Behold the Lamb of God, which taketh away the sin of the world" },
+        { "ref": "Exodus 12:3-6", "type": "scripture", "quote": "In the tenth day of this month they shall take to them every man a lamb... keep it up until the fourteenth day" }
+      ],
+      "tags": ["yeshua", "birth", "proposed", "passover", "appointed-time", "lamb"],
+      "article": "/chapters/12_32_AD_Resurrection/"
+    },
+    {
+      "id": "yeshua-circumcision-proposed",
+      "title": "🐑 Yeshua Circumcision (Proposed: Atzeret of Passover)",
+      "type": "milestone",
+      "description": "PROPOSED: Yeshua circumcised on Nisan 21 (1/21), the 8th day after Passover birth. The Atzeret of Passover week.",
+      "start": {
+        "lunar": { "year": -1, "month": 1, "day": 21 }
+      },
+      "certainty": "proposed",
+      "sources": [
+        { "ref": "Luke 2:21", "type": "scripture", "quote": "when eight days were accomplished for the circumcising of the child" },
+        { "ref": "Exodus 12:18", "type": "scripture", "quote": "In the first month, on the fourteenth day... until the one and twentieth day" }
+      ],
+      "tags": ["yeshua", "circumcision", "proposed", "passover", "appointed-time"]
     },
     {
       "id": "john-baptist-birth-earliest",
-      "title": "John the Baptist Birth (Earliest Possible)",
+      "title": "🍼 John the Baptist Birth (Earliest Bound)",
       "type": "birth",
-      "description": "Earliest possible date for John the Baptist's birth, calculated as 30 years before September 17, AD 14 (when Tiberius's reign began and John would have turned 30). This is a duration event for timeline purposes only, establishing the earliest boundary.",
+      "description": "The earliest possible date for John the Baptist's birth, calculated as 30 lunar years before the start of Tiberius's 15th year (Sep 17, 28 AD). Priests began service at age 30 (Numbers 4:3). This provides the earliest boundary for the priestly cycle calculation of his conception.",
       "start": {
         "relative": {
-          "event": "john-baptist-ministry",
+          "event": "tiberius-15th-year-start",
           "direction": "before",
           "offset": {
-            "years": 30
+            "years": 30,
+            "unit": "lunar"
           }
         },
-        "lunar": {
-          "month": 1,
-          "day": 1
-        },
-        "notes": "30 lunar years before ministry (priests begin at age 30)"
+        "notes": "30 lunar years before Tiberius 15th year start (Sep 17, 28 AD). Priests began service at age 30 (Numbers 4:3)."
       },
       "duration": {
         "value": 30,
         "unit": "lunar_years"
       },
       "end": {
-        "event": "tiberius-reign"
+        "event": "john-baptist-ministry"
       },
-      "certainty": "low",
+      "certainty": "medium",
       "sources": [
         {
           "ref": "Luke 1:57-66",
@@ -5718,6 +8119,37 @@
       "timeline_only": true
     },
     {
+      "id": "john-baptist-conception-earliest",
+      "title": "John the Baptist Conception (Earliest Bound)",
+      "type": "conception",
+      "description": "The earliest possible date for John's conception, calculated as 280 days (40 weeks gestation) before the earliest birth date. This is the reference point for finding when Zechariah served in the course of Abijah.",
+      "start": {
+        "relative": {
+          "event": "john-baptist-birth-earliest",
+          "direction": "before",
+          "offset": {
+            "days": 266
+          }
+        },
+        "notes": "280 days before earliest birth. This is the starting point to search forward for Abijah service."
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "Luke 1:24",
+          "type": "scripture",
+          "quote": "And after those days his wife Elisabeth conceived"
+        }
+      ],
+      "tags": [
+        "john-baptist",
+        "conception",
+        "timeline-boundary"
+      ],
+      "anniversary_display": false,
+      "timeline_only": true
+    },
+    {
       "id": "john-baptist-ministry-begins",
       "title": "John the Baptist Begins Ministry",
       "type": "ministry",
@@ -5728,7 +8160,9 @@
           "year": 15
         },
         "gregorian": {
-          "year": 28
+          "year": 28,
+          "month": 9,
+          "day": 17
         }
       },
       "certainty": "high",
@@ -5816,6 +8250,1092 @@
         "end-times"
       ],
       "notes": "1335 lunar years from when the daily sacrifice was taken away"
+    },
+    {
+      "id": "bad-report-spies",
+      "title": "📅 Bad Report of the Spies",
+      "type": "biblical-date",
+      "description": "The twelve spies returned from 40 days of scouting Canaan, bringing back first fruits of grapes (including the famous cluster from Eshcol). Ten gave a bad report, the people wept, and God decreed 40 years of wandering. This occurred at the Feast of New Wine in the 1st year of the Exodus (1446 BC).",
+      "start": {
+        "lunar": {
+          "year": -1445,
+          "month": 5,
+          "day": 10
+        },
+        "relative": {
+          "event": "exodus-from-egypt",
+          "offset": {
+            "years": 1
+          },
+          "direction": "after"
+        },
+        "fixed": {
+          "source": "Exodus 1446 BC. Spies returned with grapes = Feast of New Wine/First Fruits of Vine.",
+          "gregorian": {
+            "year": -1445,
+            "month": 7
+          }
+        }
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "Numbers 13:20-27",
+          "type": "scripture",
+          "quote": "Now the time was the time of the firstripe grapes... they cut down from thence a branch with one cluster of grapes... and brought of the pomegranates, and of the figs"
+        },
+        {
+          "ref": "Numbers 14:1-4",
+          "type": "scripture",
+          "quote": "And all the congregation lifted up their voice, and cried; and the people wept that night... Would God that we had died in the land of Egypt!"
+        },
+        {
+          "ref": "Numbers 14:33-34",
+          "type": "scripture",
+          "quote": "Your children shall wander in the wilderness forty years... After the number of the days in which ye searched the land, even forty days, each day for a year"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "spies",
+        "feast-of-new-wine",
+        "wilderness",
+        "40-years"
+      ],
+      "notes": "The spies returned with first fruits of grapes, confirming it was the Feast of New Wine (~10th of 5th month). Jewish tradition associates the weeping that night with Tisha B'Av (9th of Av)."
+    },
+    {
+      "id": "date-ref-exodus-40-2",
+      "title": "📅 Tabernacle Erected",
+      "type": "biblical-date",
+      "description": "On Nisan 1 in the 2nd year after the Exodus (1444 BC), the Tabernacle was erected for the first time. This is the anniversary of the day Aaron was ordained as priest.",
+      "start": {
+        "lunar": {
+          "year": -1443,
+          "month": 1,
+          "day": 1
+        },
+        "relative": {
+          "event": "exodus-from-egypt",
+          "offset": {
+            "years": 2
+          },
+          "direction": "after"
+        },
+        "fixed": {
+          "source": "Exodus 1446 BC. 2nd year = 1444 BC.",
+          "gregorian": {
+            "year": -1443,
+            "month": 3
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Exodus 40:2",
+          "type": "scripture",
+          "quote": "On the first day of the first month shalt thou set up the tabernacle of the tent of the congregation"
+        },
+        {
+          "ref": "Exodus 40:17",
+          "type": "scripture",
+          "quote": "And it came to pass in the first month in the second year, on the first day of the month, that the tabernacle was reared up"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "tabernacle",
+        "nisan-1"
+      ]
+    },
+    {
+      "id": "date-ref-numbers-9-1",
+      "title": "📅 Passover Command in Wilderness",
+      "type": "biblical-date",
+      "description": "In the 1st month of the 2nd year after the Exodus (Nisan 1445 BC), the LORD commanded Moses concerning the Passover observance in the wilderness of Sinai.",
+      "start": {
+        "lunar": {
+          "year": -1444,
+          "month": 1
+        },
+        "relative": {
+          "event": "exodus-from-egypt",
+          "offset": {
+            "years": 2
+          },
+          "direction": "after"
+        },
+        "fixed": {
+          "source": "Exodus 1446 BC. 2nd year = 1445 BC.",
+          "gregorian": {
+            "year": -1444,
+            "month": 3
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Numbers 9:1-2",
+          "type": "scripture",
+          "quote": "And the LORD spake unto Moses in the wilderness of Sinai, in the first month of the second year after they were come out of the land of Egypt, saying, Let the children of Israel also keep the passover at his appointed season."
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "passover",
+        "wilderness"
+      ]
+    },
+    {
+      "id": "date-ref-numbers-9-11",
+      "title": "📅 Second Passover Institution",
+      "type": "biblical-date",
+      "description": "The LORD establishes the Second Passover (Pesach Sheni) on Iyyar 14 for those who were unclean or on a journey during the first Passover. This is the 2nd year after the Exodus (1445 BC).",
+      "start": {
+        "lunar": {
+          "year": -1444,
+          "month": 2,
+          "day": 14
+        },
+        "relative": {
+          "event": "exodus-from-egypt",
+          "offset": {
+            "years": 2
+          },
+          "direction": "after"
+        },
+        "fixed": {
+          "source": "Exodus 1446 BC. 2nd year = 1445 BC.",
+          "gregorian": {
+            "year": -1444,
+            "month": 4
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Numbers 9:10-11",
+          "type": "scripture",
+          "quote": "If any man of you or of your posterity shall be unclean... or be in a journey afar off, yet he shall keep the passover unto the LORD. The fourteenth day of the second month at even they shall keep it."
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "passover",
+        "second-passover",
+        "wilderness"
+      ]
+    },
+    {
+      "id": "date-ref-1-kings-12-32",
+      "title": "📅 Jeroboam's Counterfeit Feast",
+      "type": "biblical-date",
+      "description": "Jeroboam I ordained a feast in the 8th month on the 15th day (one month after Tabernacles) - a counterfeit of God's appointed time. He made this feast to prevent Israel from going to Jerusalem. ~931 BC, his 1st year.",
+      "start": {
+        "lunar": {
+          "year": -930,
+          "month": 8,
+          "day": 15
+        },
+        "regal": {
+          "epoch": "jeroboam-i",
+          "year": 1
+        },
+        "fixed": {
+          "source": "Jeroboam I began reign ~931 BC when kingdom divided.",
+          "gregorian": {
+            "year": -930,
+            "month": 10
+          }
+        }
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "1 Kings 12:32",
+          "type": "scripture",
+          "quote": "And Jeroboam ordained a feast in the eighth month, on the fifteenth day of the month, like unto the "
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "jeroboam",
+        "counterfeit-feast"
+      ]
+    },
+    {
+      "id": "date-ref-1-kings-12-33",
+      "title": "📅 Jeroboam Offers at Bethel",
+      "type": "biblical-date",
+      "description": "On the 15th day of the 8th month, Jeroboam offered upon the altar he made in Bethel, devising this feast 'of his own heart' rather than following God's appointed times.",
+      "start": {
+        "lunar": {
+          "year": -930,
+          "month": 8,
+          "day": 15
+        },
+        "regal": {
+          "epoch": "jeroboam-i",
+          "year": 1
+        },
+        "fixed": {
+          "source": "Same date as 1 Kings 12:32",
+          "gregorian": {
+            "year": -930,
+            "month": 10
+          }
+        }
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "1 Kings 12:33",
+          "type": "scripture",
+          "quote": "So he offered upon the altar which he had made in Bethel the fifteenth day of the eighth month, [eve"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "jeroboam",
+        "counterfeit-feast"
+      ]
+    },
+    {
+      "id": "date-ref-2-kings-25-27",
+      "title": "📅 Jehoiachin Released from Prison",
+      "type": "biblical-date",
+      "description": "In the 37th year of Jehoiachin's captivity (561 BC), on the 27th day of the 12th month (Adar 27), Evil-Merodach king of Babylon released Jehoiachin from prison and set his throne above the thrones of the other captive kings.",
+      "start": {
+        "lunar": {
+          "year": -560,
+          "month": 12,
+          "day": 27
+        },
+        "fixed": {
+          "source": "Jehoiachin's captivity began 597 BC. 37th year = 561 BC. Evil-Merodach's accession year = 562 BC.",
+          "gregorian": {
+            "year": -560,
+            "month": 3
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Kings 25:27",
+          "type": "scripture",
+          "quote": "And it came to pass in the seven and thirtieth year of the captivity of Jehoiachin king of Judah, in the twelfth month, on the seven and twentieth day of the month"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "jehoiachin",
+        "babylon",
+        "exile"
+      ]
+    },
+    {
+      "id": "date-ref-2-chronicles-7-10",
+      "title": "📅 Solomon Dismisses Assembly",
+      "type": "biblical-date",
+      "description": "On the 23rd day of the 7th month (Tishri 23), after the 7-day dedication of the Temple and the 7-day Feast of Tabernacles, Solomon dismissed the people. This was in Solomon's 11th year (~959 BC).",
+      "start": {
+        "lunar": {
+          "year": -958,
+          "month": 7,
+          "day": 23
+        },
+        "regal": {
+          "epoch": "solomon",
+          "year": 11
+        },
+        "fixed": {
+          "source": "Temple completed in Solomon's 11th year (1 Kings 6:38).",
+          "gregorian": {
+            "year": -958,
+            "month": 9
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Chronicles 7:10",
+          "type": "scripture",
+          "quote": "And on the three and twentieth day of the seventh month he sent the people away into their tents, gl"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "temple",
+        "solomon",
+        "tabernacles"
+      ]
+    },
+    {
+      "id": "date-ref-2-chronicles-15-10",
+      "title": "📅 Asa's Covenant Renewal",
+      "type": "biblical-date",
+      "description": "In the 3rd month of Asa's 15th year (~897 BC), the people gathered at Jerusalem and made a covenant to seek the LORD with all their heart.",
+      "start": {
+        "lunar": {
+          "year": -896,
+          "month": 3
+        },
+        "regal": {
+          "epoch": "asa",
+          "year": 15
+        },
+        "fixed": {
+          "source": "Asa Year 1 = ~911 BC. Year 15 = ~897 BC.",
+          "gregorian": {
+            "year": -896,
+            "month": 5
+          }
+        }
+      },
+      "certainty": "medium",
+      "sources": [
+        {
+          "ref": "2 Chronicles 15:10",
+          "type": "scripture",
+          "quote": "So they gathered themselves together at Jerusalem in the third month, in the fifteenth year of the r"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "asa",
+        "covenant"
+      ]
+    },
+    {
+      "id": "date-ref-2-chronicles-29-3",
+      "title": "📅 Hezekiah Opens Temple Doors",
+      "type": "biblical-date",
+      "description": "In the 1st month of Hezekiah's 1st year (728 BC), he opened the doors of the house of the LORD and repaired them, beginning his religious reforms.",
+      "start": {
+        "lunar": {
+          "year": -727,
+          "month": 1
+        },
+        "regal": {
+          "epoch": "hezekiah",
+          "year": 1
+        },
+        "fixed": {
+          "source": "Hezekiah Year 1 = 728 BC (from Samaria synchronism).",
+          "gregorian": {
+            "year": -727,
+            "month": 3
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Chronicles 29:3",
+          "type": "scripture",
+          "quote": "He in the first year of his reign, in the first month, opened the doors of the house of the LORD, an"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "hezekiah",
+        "temple"
+      ]
+    },
+    {
+      "id": "date-ref-2-chronicles-29-17",
+      "title": "📅 Temple Sanctification Complete",
+      "type": "biblical-date",
+      "description": "On the 16th day of the 1st month in Hezekiah's 1st year (728 BC), the priests finished sanctifying the Temple. They began on the 1st day and reached the porch on the 8th day.",
+      "start": {
+        "lunar": {
+          "year": -727,
+          "month": 1,
+          "day": 16
+        },
+        "regal": {
+          "epoch": "hezekiah",
+          "year": 1
+        },
+        "fixed": {
+          "source": "Same year as 2 Chron 29:3.",
+          "gregorian": {
+            "year": -727,
+            "month": 3
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "2 Chronicles 29:17",
+          "type": "scripture",
+          "quote": "Now they began on the first [day] of the first month to sanctify, and on the eighth day of the month"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "hezekiah",
+        "temple",
+        "sanctification"
+      ]
+    },
+    {
+      "id": "date-ref-ezra-3-6",
+      "title": "📅 Altar Rebuilt - Offerings Resume",
+      "type": "biblical-date",
+      "description": "On Tishri 1 (7th month, 1st day = Feast of Trumpets) in 536 BC, the returned exiles rebuilt the altar on its foundation and began offering burnt offerings to the LORD, though the Temple foundation was not yet laid.",
+      "start": {
+        "lunar": {
+          "year": -535,
+          "month": 7,
+          "day": 1
+        },
+        "fixed": {
+          "source": "Cyrus's decree was 537 BC. The following year (536 BC) the altar was rebuilt.",
+          "gregorian": {
+            "year": -535,
+            "month": 9
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Ezra 3:1-6",
+          "type": "scripture",
+          "quote": "From the first day of the seventh month began they to offer burnt offerings unto the LORD. But the foundation of the temple of the LORD was not yet laid."
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "altar",
+        "return",
+        "trumpets"
+      ]
+    },
+    {
+      "id": "date-ref-ezra-3-8",
+      "title": "📅 Temple Foundation Work Begins",
+      "type": "biblical-date",
+      "description": "In the 2nd year after returning from exile (536 BC), in the 2nd month (Iyyar), Zerubbabel and Joshua set the Levites to oversee the work of the Temple.",
+      "start": {
+        "lunar": {
+          "year": -535,
+          "month": 2
+        },
+        "fixed": {
+          "source": "Cyrus decree 537 BC. 2nd year of return = 536 BC.",
+          "gregorian": {
+            "year": -535,
+            "month": 4
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Ezra 3:8",
+          "type": "scripture",
+          "quote": "Now in the second year of their coming unto the house of God at Jerusalem, in the second month, bega"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "temple",
+        "zerubbabel",
+        "return"
+      ]
+    },
+    {
+      "id": "date-ref-ezra-7-8",
+      "title": "📅 Ezra Arrives in Jerusalem",
+      "type": "biblical-date",
+      "description": "In the 5th month (Av) of Artaxerxes' 7th year (458 BC), Ezra arrived in Jerusalem. He had departed from Babylon on Nisan 1.",
+      "start": {
+        "lunar": {
+          "year": -457,
+          "month": 5
+        },
+        "regal": {
+          "epoch": "artaxerxes",
+          "year": 7
+        },
+        "fixed": {
+          "source": "Artaxerxes Year 7 = 458 BC. Same as ezra-decree.",
+          "gregorian": {
+            "year": -457,
+            "month": 7
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Ezra 7:8",
+          "type": "scripture",
+          "quote": "And he came to Jerusalem in the fifth month, which [was] in the seventh year of the king."
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "ezra",
+        "return"
+      ]
+    },
+    {
+      "id": "date-ref-ezra-10-16",
+      "title": "📅 Investigation of Mixed Marriages Begins",
+      "type": "biblical-date",
+      "description": "On the 1st day of the 10th month (Tevet 1), Ezra and the chief fathers began investigating the matter of foreign wives, in the 7th year of Artaxerxes (458/457 BC).",
+      "start": {
+        "lunar": {
+          "year": -456,
+          "month": 10,
+          "day": 1
+        },
+        "fixed": {
+          "source": "Same year as Ezra's arrival (458 BC), winter months.",
+          "gregorian": {
+            "year": -456,
+            "month": 12
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Ezra 10:16",
+          "type": "scripture",
+          "quote": "And the children of the captivity did so. And Ezra the priest, [with] certain chief of the fathers, "
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "ezra",
+        "mixed-marriages"
+      ]
+    },
+    {
+      "id": "date-ref-ezra-10-17",
+      "title": "📅 Investigation of Mixed Marriages Complete",
+      "type": "biblical-date",
+      "description": "By the 1st day of the 1st month (Nisan 1), they had finished with all the men who had married foreign wives. This was the beginning of the next year after Ezra's arrival.",
+      "start": {
+        "lunar": {
+          "year": -456,
+          "month": 1,
+          "day": 1
+        },
+        "fixed": {
+          "source": "Following year after Ezra's arrival.",
+          "gregorian": {
+            "year": -456,
+            "month": 3
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Ezra 10:17",
+          "type": "scripture",
+          "quote": "And they made an end with all the men that had taken strange wives by the first day of the first mon"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "ezra",
+        "mixed-marriages"
+      ]
+    },
+    {
+      "id": "date-ref-nehemiah-2-1",
+      "title": "📅 Nehemiah Requests to Rebuild Jerusalem",
+      "type": "biblical-date",
+      "description": "In the month Nisan, in Artaxerxes' 20th year (445 BC), Nehemiah requested permission to rebuild Jerusalem's walls. He arrived and completed the walls in 52 days by Elul 25.",
+      "start": {
+        "lunar": {
+          "year": -444,
+          "month": 1
+        },
+        "regal": {
+          "epoch": "artaxerxes",
+          "year": 20
+        },
+        "fixed": {
+          "source": "Artaxerxes Year 1 = Nisan 464 BC. Year 20 = Nisan 445 BC.",
+          "gregorian": {
+            "year": -444,
+            "month": 3
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Nehemiah 2:1",
+          "type": "scripture",
+          "quote": "And it came to pass in the month Nisan, in the twentieth year of Artaxerxes the king, that wine was before him: and I took up the wine, and gave it unto the king."
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "nehemiah",
+        "jerusalem"
+      ]
+    },
+    {
+      "id": "date-ref-nehemiah-8-2",
+      "title": "📅 Ezra Reads the Law at Water Gate",
+      "type": "biblical-date",
+      "description": "On the 1st day of the 7th month (Tishri 1 = Feast of Trumpets), Ezra brought the law before the congregation, in Artaxerxes' 20th year (445 BC). The people wept when they heard the words of the law.",
+      "start": {
+        "lunar": {
+          "year": -444,
+          "month": 7,
+          "day": 1
+        },
+        "regal": {
+          "epoch": "artaxerxes",
+          "year": 20
+        },
+        "fixed": {
+          "source": "Same year as Nehemiah's arrival (445 BC).",
+          "gregorian": {
+            "year": -444,
+            "month": 9
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Nehemiah 8:2",
+          "type": "scripture",
+          "quote": "And Ezra the priest brought the law before the congregation both of men and women, and all that coul"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "nehemiah",
+        "ezra",
+        "trumpets",
+        "torah-reading"
+      ]
+    },
+    {
+      "id": "date-ref-jeremiah-1-3",
+      "title": "📅 Jerusalem Carried Captive",
+      "type": "biblical-date",
+      "description": "Jeremiah's ministry spanned from Josiah's 13th year to Zedekiah's 11th year, ending with the carrying away of Jerusalem captive in the 5th month (Av 587 BC). This verse marks the end of Judah's kingdom.",
+      "start": {
+        "lunar": {
+          "year": -586,
+          "month": 5
+        },
+        "regal": {
+          "epoch": "zedekiah",
+          "year": 11
+        },
+        "fixed": {
+          "source": "Zedekiah Year 1 = 597 BC. Year 11 = 587 BC. Same as temple destruction.",
+          "gregorian": {
+            "year": -586,
+            "month": 7
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Jeremiah 1:3",
+          "type": "scripture",
+          "quote": "It came also in the days of Jehoiakim the son of Josiah king of Judah, unto the end of the eleventh year of Zedekiah the son of Josiah king of Judah, unto the carrying away of Jerusalem captive in the fifth month."
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "jeremiah",
+        "captivity",
+        "zedekiah"
+      ]
+    },
+    {
+      "id": "date-ref-jeremiah-36-9",
+      "title": "📅 Scroll Read in Temple - Fast Proclaimed",
+      "type": "biblical-date",
+      "description": "In the 5th year of Jehoiakim (605 BC), in the 9th month (Chislev), a fast was proclaimed before the LORD. Baruch read Jeremiah's scroll in the temple. The king later burned the scroll piece by piece.",
+      "start": {
+        "lunar": {
+          "year": -604,
+          "month": 9
+        },
+        "regal": {
+          "epoch": "jehoiakim",
+          "year": 5
+        },
+        "fixed": {
+          "source": "Jehoiakim Year 1 = 609 BC. Year 5 = 605 BC. This is the year of the Battle of Carchemish.",
+          "gregorian": {
+            "year": -604,
+            "month": 11
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Jeremiah 36:9",
+          "type": "scripture",
+          "quote": "And it came to pass in the fifth year of Jehoiakim the son of Josiah king of Judah, in the ninth month, that they proclaimed a fast before the LORD to all the people in Jerusalem"
+        },
+        {
+          "ref": "Jeremiah 36:22-23",
+          "type": "scripture",
+          "quote": "Now the king sat in the winterhouse in the ninth month... when Jehudi had read three or four leaves, he cut it with the penknife, and cast it into the fire"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "jeremiah",
+        "scroll",
+        "jehoiakim"
+      ]
+    },
+    {
+      "id": "date-ref-jeremiah-39-2",
+      "title": "📅 Jerusalem Breached",
+      "type": "biblical-date",
+      "description": "In Zedekiah's 11th year (587 BC), on the 9th day of the 4th month (Tammuz 9), the city wall was breached after 18 months of siege. This is one month before the temple was burned.",
+      "start": {
+        "lunar": {
+          "year": -586,
+          "month": 4,
+          "day": 9
+        },
+        "regal": {
+          "epoch": "zedekiah",
+          "year": 11
+        },
+        "fixed": {
+          "source": "Zedekiah Year 1 = 597 BC. Year 11 = 587 BC. One month before temple destruction (Av 10).",
+          "gregorian": {
+            "year": -586,
+            "month": 6
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Jeremiah 39:2",
+          "type": "scripture",
+          "quote": "And in the eleventh year of Zedekiah, in the fourth month, the ninth day of the month, the city was broken up."
+        },
+        {
+          "ref": "Jeremiah 52:6-7",
+          "type": "scripture",
+          "quote": "And in the fourth month, in the ninth day of the month, the famine was sore in the city... Then the city was broken up"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "jeremiah",
+        "siege",
+        "zedekiah",
+        "17th-of-tammuz"
+      ],
+      "notes": "Jewish tradition commemorates this as the 17th of Tammuz fast, though the text says 9th. The breach led to Zedekiah's flight, capture, and the temple's destruction one month later."
+    },
+    {
+      "id": "date-ref-jeremiah-52-31",
+      "title": "📅 Jehoiachin Released (Jeremiah's Account)",
+      "type": "biblical-date",
+      "description": "Jeremiah's parallel account: In the 37th year of Jehoiachin's captivity (561 BC), on the 25th day of the 12th month (Adar 25), Evil-Merodach lifted up the head of Jehoiachin and brought him forth out of prison. (Note: 2 Kings says 27th day)",
+      "start": {
+        "lunar": {
+          "year": -560,
+          "month": 12,
+          "day": 25
+        },
+        "fixed": {
+          "source": "Jehoiachin's captivity began 597 BC. 37th year = 561 BC.",
+          "gregorian": {
+            "year": -560,
+            "month": 3
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Jeremiah 52:31",
+          "type": "scripture",
+          "quote": "And it came to pass in the seven and thirtieth year of the captivity of Jehoiachin king of Judah, in the twelfth month, in the five and twentieth day of the month"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "jehoiachin",
+        "babylon",
+        "exile"
+      ],
+      "notes": "Jeremiah 52:31 says 25th day, 2 Kings 25:27 says 27th day. Minor textual variance."
+    },
+    {
+      "id": "date-ref-daniel-10-4",
+      "title": "📅 Daniel's Vision by the Tigris",
+      "type": "biblical-date",
+      "description": "On the 24th day of the 1st month (Nisan 24), in the 3rd year of Cyrus king of Persia (536 BC), Daniel received his final vision by the river Hiddekel (Tigris).",
+      "start": {
+        "lunar": {
+          "year": -535,
+          "month": 1,
+          "day": 24
+        },
+        "regal": {
+          "note": "3rd year of Cyrus = 536 BC"
+        },
+        "fixed": {
+          "source": "Cyrus conquered Babylon 539 BC. 3rd year = 536 BC.",
+          "gregorian": {
+            "year": -535,
+            "month": 3
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Daniel 10:4",
+          "type": "scripture",
+          "quote": "And in the four and twentieth day of the first month, as I was by the side of the great river, which"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "daniel",
+        "vision",
+        "cyrus"
+      ]
+    },
+    {
+      "id": "date-ref-haggai-1-1",
+      "title": "📅 Haggai's First Prophecy",
+      "type": "biblical-date",
+      "description": "In the 6th month (Elul), 1st day, of Darius's 2nd year (521 BC), Haggai prophesied to Zerubbabel and Joshua about rebuilding the Temple.",
+      "start": {
+        "lunar": {
+          "year": -520,
+          "month": 6,
+          "day": 1
+        },
+        "regal": {
+          "epoch": "darius-i",
+          "year": 2
+        },
+        "fixed": {
+          "source": "Darius I Year 1 = 522 BC. Year 2 = 521 BC.",
+          "gregorian": {
+            "year": -520,
+            "month": 8
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Haggai 1:1",
+          "type": "scripture",
+          "quote": "In the second year of Darius the king, in the sixth month, in the first day of the month, came the word of the LORD by Haggai"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "haggai",
+        "prophecy"
+      ]
+    },
+    {
+      "id": "date-ref-haggai-1-15",
+      "title": "📅 Temple Work Resumes",
+      "type": "biblical-date",
+      "description": "On the 24th day of the 6th month (Elul 24), in Darius's 2nd year (521 BC), the people responded to Haggai and began work on the Temple.",
+      "start": {
+        "lunar": {
+          "year": -520,
+          "month": 6,
+          "day": 24
+        },
+        "regal": {
+          "epoch": "darius-i",
+          "year": 2
+        },
+        "fixed": {
+          "source": "Darius I Year 2 = 521 BC. 23 days after Haggai 1:1.",
+          "gregorian": {
+            "year": -520,
+            "month": 9
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Haggai 1:15",
+          "type": "scripture",
+          "quote": "In the four and twentieth day of the sixth month, in the second year of Darius the king."
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "haggai",
+        "temple"
+      ]
+    },
+    {
+      "id": "date-ref-zechariah-1-1",
+      "title": "📅 Zechariah's First Prophecy",
+      "type": "biblical-date",
+      "description": "In the 8th month (Cheshvan) of Darius's 2nd year (521 BC), Zechariah called the people to repentance, two months after Haggai's first prophecy.",
+      "start": {
+        "lunar": {
+          "year": -520,
+          "month": 8
+        },
+        "regal": {
+          "epoch": "darius-i",
+          "year": 2
+        },
+        "fixed": {
+          "source": "Darius I Year 2 = 521 BC.",
+          "gregorian": {
+            "year": -520,
+            "month": 10
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Zechariah 1:1",
+          "type": "scripture",
+          "quote": "In the eighth month, in the second year of Darius, came the word of the LORD unto Zechariah"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "zechariah",
+        "prophecy"
+      ]
+    },
+    {
+      "id": "date-ref-zechariah-1-7",
+      "title": "📅 Zechariah's Night Visions",
+      "type": "biblical-date",
+      "description": "On the 24th day of the 11th month (Shebat 24), in Darius's 2nd year (520 BC), Zechariah received his famous night visions.",
+      "start": {
+        "lunar": {
+          "year": -519,
+          "month": 11,
+          "day": 24
+        },
+        "regal": {
+          "epoch": "darius-i",
+          "year": 2
+        },
+        "fixed": {
+          "source": "Darius I Year 2 = 521/520 BC. Shebat (month 11) falls in early 520 BC.",
+          "gregorian": {
+            "year": -519,
+            "month": 1
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Zechariah 1:7",
+          "type": "scripture",
+          "quote": "Upon the four and twentieth day of the eleventh month, which is the month Sebat, in the second year of Darius"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "zechariah",
+        "vision"
+      ]
+    },
+    {
+      "id": "date-ref-zechariah-7-1",
+      "title": "📅 Question about Fasting",
+      "type": "biblical-date",
+      "description": "In the 4th year of Darius (519 BC), on the 4th day of the 9th month (Chislev 4), men from Bethel came to ask about fasting.",
+      "start": {
+        "lunar": {
+          "year": -518,
+          "month": 9,
+          "day": 4
+        },
+        "regal": {
+          "epoch": "darius-i",
+          "year": 4
+        },
+        "fixed": {
+          "source": "Darius I Year 4 = 519 BC.",
+          "gregorian": {
+            "year": -518,
+            "month": 11
+          }
+        }
+      },
+      "certainty": "high",
+      "sources": [
+        {
+          "ref": "Zechariah 7:1",
+          "type": "scripture",
+          "quote": "And it came to pass in the fourth year of king Darius, that the word of the LORD came unto Zechariah in the fourth day of the ninth month, even in Chisleu"
+        }
+      ],
+      "tags": [
+        "biblical-date",
+        "resolved",
+        "zechariah",
+        "fasting"
+      ]
     }
   ]
 }

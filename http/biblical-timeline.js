@@ -2,6 +2,13 @@
 // Renders timeline using EventResolver for profile-aware date calculations
 // Version: 11.0 - Uses EventResolver with v2 schema
 
+// ============================================================================
+// APP VERSION - Increment this when code changes require cache invalidation
+// This should match the version number in sw.js CACHE_NAME and historical-events.js
+// ============================================================================
+const TIMELINE_CACHE_VERSION = 'v768';
+const TIMELINE_RESOLVED_CACHE_KEY = 'timeline_resolved_events';
+
 let biblicalTimelineData = null;
 let biblicalTimelineDataV2 = null;
 let biblicalTimelineEventLookup = new Map();
@@ -15,6 +22,381 @@ let biblicalTimelineUseV2 = true; // Use v2 data format with resolver
 let biblicalTimelineResolvedCache = null;
 let biblicalTimelineCacheKey = null;
 
+// ============================================================================
+// LOCALSTORAGE CACHE UTILITIES FOR TIMELINE
+// ============================================================================
+
+/**
+ * Generate a localStorage key based on version and profile
+ */
+function getTimelineCacheStorageKey(profile) {
+  const profileKey = profile ? 
+    `${profile.moonPhase || 'full'}_${profile.yearStartRule || 'equinox'}_${profile.dayStartTime || 'morning'}` : 
+    'default';
+  return `${TIMELINE_RESOLVED_CACHE_KEY}_${TIMELINE_CACHE_VERSION}_${profileKey}`;
+}
+
+/**
+ * Load resolved timeline events from localStorage
+ */
+function loadTimelineResolvedFromStorage(profile) {
+  try {
+    const key = getTimelineCacheStorageKey(profile);
+    const stored = localStorage.getItem(key);
+    if (!stored) return null;
+    
+    const parsed = JSON.parse(stored);
+    
+    // Validate structure and version
+    if (!parsed.version || !parsed.events || parsed.version !== TIMELINE_CACHE_VERSION) {
+      console.log('[TimelineCache] Version mismatch or invalid, clearing');
+      localStorage.removeItem(key);
+      return null;
+    }
+    
+    console.log(`[TimelineCache] Loaded ${parsed.events.length} events from localStorage`);
+    return { events: parsed.events, cacheKey: parsed.cacheKey };
+    
+  } catch (e) {
+    console.warn('[TimelineCache] Failed to load from localStorage:', e);
+    return null;
+  }
+}
+
+/**
+ * Save resolved timeline events to localStorage
+ */
+function saveTimelineResolvedToStorage(events, profile, cacheKey) {
+  try {
+    const key = getTimelineCacheStorageKey(profile);
+    const data = {
+      version: TIMELINE_CACHE_VERSION,
+      timestamp: Date.now(),
+      cacheKey: cacheKey,
+      events: events
+    };
+    
+    const json = JSON.stringify(data);
+    localStorage.setItem(key, json);
+    console.log(`[TimelineCache] Saved ${events.length} events to localStorage (${(json.length / 1024).toFixed(1)} KB)`);
+    
+  } catch (e) {
+    console.warn('[TimelineCache] Failed to save to localStorage:', e);
+    // Try to clear old caches to make room
+    clearOldTimelineCaches();
+  }
+}
+
+/**
+ * Clear old timeline caches (different versions)
+ */
+function clearOldTimelineCaches() {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(TIMELINE_RESOLVED_CACHE_KEY) && !key.includes(TIMELINE_CACHE_VERSION)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => {
+      localStorage.removeItem(key);
+      console.log(`[TimelineCache] Cleared old cache: ${key}`);
+    });
+  } catch (e) {
+    console.warn('[TimelineCache] Failed to clear old caches:', e);
+  }
+}
+
+/**
+ * Clear all timeline resolved caches
+ */
+function clearTimelineResolvedCaches() {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(TIMELINE_RESOLVED_CACHE_KEY)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    console.log(`[TimelineCache] Cleared ${keysToRemove.length} resolved cache entries`);
+    biblicalTimelineResolvedCache = null;
+    biblicalTimelineCacheKey = null;
+  } catch (e) {
+    console.warn('[TimelineCache] Failed to clear caches:', e);
+  }
+}
+
+// Make cache clearing available globally
+window.clearTimelineResolvedCaches = clearTimelineResolvedCaches;
+window.TIMELINE_CACHE_VERSION = TIMELINE_CACHE_VERSION;
+
+// Background pre-resolution state
+let backgroundResolutionInProgress = false;
+let backgroundResolutionProgress = 0;
+
+/**
+ * Pre-resolve timeline events in the background after site loads.
+ * Uses requestIdleCallback to avoid impacting user experience.
+ * First checks localStorage cache for instant availability.
+ * @param {object} data - The events data object (optional, will load if not provided)
+ * @param {object} profile - The calendar profile (optional, will get current)
+ */
+async function preResolveTimelineInBackground(data, profile) {
+  // Don't run if already in progress or cache is valid
+  if (backgroundResolutionInProgress) {
+    console.log('[Timeline Background] Already in progress, skipping');
+    return;
+  }
+  
+  // Load data if not provided
+  if (!data && typeof loadBiblicalTimelineData === 'function') {
+    data = await loadBiblicalTimelineData();
+  }
+  
+  // Get profile if not provided
+  if (!profile && typeof getTimelineProfile === 'function') {
+    profile = getTimelineProfile();
+  }
+  
+  if (!data || !profile || typeof EventResolver === 'undefined') {
+    console.log('[Timeline Background] Missing dependencies, skipping pre-resolution');
+    return;
+  }
+  
+  // Check if cache is already valid (RAM)
+  const dataContentHash = JSON.stringify(data.events || []).length;
+  const cacheKey = JSON.stringify(profile) + ':' + dataContentHash;
+  
+  if (biblicalTimelineResolvedCache && biblicalTimelineCacheKey === cacheKey) {
+    console.log('[Timeline Background] RAM cache already valid, skipping');
+    return;
+  }
+  
+  // Check localStorage cache first (instant load)
+  const stored = loadTimelineResolvedFromStorage(profile);
+  if (stored && stored.cacheKey === cacheKey) {
+    console.log('[Timeline Background] Using localStorage cache (instant)');
+    biblicalTimelineResolvedCache = stored.events;
+    biblicalTimelineCacheKey = cacheKey;
+    backgroundResolutionProgress = 100;
+    return;
+  }
+  
+  // Clear old version caches
+  clearOldTimelineCaches();
+  
+  console.log('[Timeline Background] Starting pre-resolution...');
+  backgroundResolutionInProgress = true;
+  backgroundResolutionProgress = 0;
+  
+  // Use requestIdleCallback if available, otherwise setTimeout
+  const scheduleWork = window.requestIdleCallback 
+    ? (cb) => window.requestIdleCallback(cb, { timeout: 2000 })
+    : (cb) => setTimeout(cb, 50);
+  
+  try {
+    // Check if async resolver is available
+    if (typeof EventResolver.resolveAllEventsAsync === 'function') {
+      // Use async resolver with progress tracking
+      const resolved = await EventResolver.resolveAllEventsAsync(data, profile, (percent, message) => {
+        backgroundResolutionProgress = percent;
+        // Update progress bar if timeline is showing
+        const fill = document.querySelector('.timeline-progress-fill');
+        const text = document.querySelector('.timeline-loading-text');
+        if (fill) fill.style.width = percent + '%';
+        if (text) text.textContent = message || `Pre-resolving events... ${percent}%`;
+      });
+      
+      // Store in RAM cache
+      biblicalTimelineResolvedCache = resolved;
+      biblicalTimelineCacheKey = cacheKey;
+      
+      // Save to localStorage for future page loads
+      saveTimelineResolvedToStorage(resolved, profile, cacheKey);
+      
+      console.log('[Timeline Background] Pre-resolution complete:', resolved.length, 'events');
+    } else {
+      // Fall back to sync resolver in idle chunks
+      await new Promise((resolve) => {
+        scheduleWork(() => {
+          try {
+            const resolved = EventResolver.resolveAllEvents(data, profile);
+            biblicalTimelineResolvedCache = resolved;
+            biblicalTimelineCacheKey = cacheKey;
+            
+            // Save to localStorage
+            saveTimelineResolvedToStorage(resolved, profile, cacheKey);
+            
+            console.log('[Timeline Background] Pre-resolution complete (sync):', resolved.length, 'events');
+          } catch (e) {
+            console.warn('[Timeline Background] Error during pre-resolution:', e);
+          }
+          resolve();
+        });
+      });
+    }
+  } catch (e) {
+    console.warn('[Timeline Background] Pre-resolution failed:', e);
+  } finally {
+    backgroundResolutionInProgress = false;
+    backgroundResolutionProgress = 100;
+  }
+}
+
+/**
+ * Check if background resolution is in progress
+ * @returns {boolean} True if background resolution is running
+ */
+function isBackgroundResolutionInProgress() {
+  return backgroundResolutionInProgress;
+}
+
+/**
+ * Get background resolution progress (0-100)
+ * @returns {number} Progress percentage
+ */
+function getBackgroundResolutionProgress() {
+  return backgroundResolutionProgress;
+}
+
+// Make background functions globally available
+window.preResolveTimelineInBackground = preResolveTimelineInBackground;
+window.isBackgroundResolutionInProgress = isBackgroundResolutionInProgress;
+window.getBackgroundResolutionProgress = getBackgroundResolutionProgress;
+
+/**
+ * Check if timeline cache is valid for the current profile
+ * @param {object} data - The events data object
+ * @param {object} profile - The calendar profile
+ * @returns {boolean} True if cache is valid
+ */
+function isTimelineCacheValid(data, profile) {
+  if (!data || !profile || typeof EventResolver === 'undefined') {
+    return !!biblicalTimelineResolvedCache;
+  }
+  const dataContentHash = JSON.stringify(data.events || []).length;
+  const cacheKey = JSON.stringify(profile) + ':' + dataContentHash;
+  return biblicalTimelineResolvedCache && biblicalTimelineCacheKey === cacheKey;
+}
+
+/**
+ * Get resolved events, using cache if available (sync version for non-initial loads).
+ * Checks RAM cache first, then localStorage, then resolves fresh.
+ * @param {object} data - The events data object
+ * @param {object} profile - The calendar profile
+ * @returns {Array} Resolved events array
+ */
+function getResolvedEvents(data, profile) {
+  if (!data || !profile || typeof EventResolver === 'undefined') {
+    return biblicalTimelineResolvedCache || [];
+  }
+  
+  // Create cache key from profile and data content
+  const dataContentHash = JSON.stringify(data.events || []).length;
+  const cacheKey = JSON.stringify(profile) + ':' + dataContentHash;
+  
+  // Return RAM cached if valid
+  if (biblicalTimelineResolvedCache && biblicalTimelineCacheKey === cacheKey) {
+    return biblicalTimelineResolvedCache;
+  }
+  
+  // Try localStorage cache
+  const stored = loadTimelineResolvedFromStorage(profile);
+  if (stored && stored.cacheKey === cacheKey) {
+    biblicalTimelineResolvedCache = stored.events;
+    biblicalTimelineCacheKey = cacheKey;
+    return stored.events;
+  }
+  
+  // Clear old version caches
+  clearOldTimelineCaches();
+  
+  // Resolve and cache (sync fallback)
+  console.time('[TimelineCache] Resolution');
+  try {
+    const resolved = EventResolver.resolveAllEvents(data, profile);
+    biblicalTimelineResolvedCache = resolved;
+    biblicalTimelineCacheKey = cacheKey;
+    console.timeEnd('[TimelineCache] Resolution');
+    
+    // Save to localStorage for persistence
+    saveTimelineResolvedToStorage(resolved, profile, cacheKey);
+    
+    return resolved;
+  } catch (e) {
+    console.warn('Error resolving events:', e);
+    return biblicalTimelineResolvedCache || [];
+  }
+}
+
+/**
+ * Get resolved events with progress updates (async version).
+ * Shows progress bar during initial calculation.
+ * Checks localStorage first for fast startup.
+ * @param {object} data - The events data object
+ * @param {object} profile - The calendar profile
+ * @returns {Promise<Array>} Resolved events array
+ */
+async function getResolvedEventsWithProgress(data, profile) {
+  if (!data || !profile || typeof EventResolver === 'undefined') {
+    return biblicalTimelineResolvedCache || [];
+  }
+  
+  // Create cache key from profile and data content
+  const dataContentHash = JSON.stringify(data.events || []).length;
+  const cacheKey = JSON.stringify(profile) + ':' + dataContentHash;
+  
+  // Return RAM cached if valid
+  if (biblicalTimelineResolvedCache && biblicalTimelineCacheKey === cacheKey) {
+    return biblicalTimelineResolvedCache;
+  }
+  
+  // Try localStorage cache (instant load)
+  const stored = loadTimelineResolvedFromStorage(profile);
+  if (stored && stored.cacheKey === cacheKey) {
+    console.log('[TimelineCache] Using localStorage cache (instant load)');
+    biblicalTimelineResolvedCache = stored.events;
+    biblicalTimelineCacheKey = cacheKey;
+    return stored.events;
+  }
+  
+  // Clear old version caches
+  clearOldTimelineCaches();
+  
+  // Progress callback - updates the UI
+  const onProgress = (percent, message) => {
+    const fill = document.querySelector('.timeline-progress-fill');
+    const text = document.querySelector('.timeline-loading-subtext');
+    if (fill) {
+      fill.style.animation = 'none'; // Stop the shimmer animation
+      fill.style.width = percent + '%';
+    }
+    if (text) {
+      text.textContent = message;
+    }
+  };
+  
+  // Resolve and cache with progress updates
+  console.time('[TimelineCache] Async Resolution');
+  try {
+    const resolved = await EventResolver.resolveAllEventsAsync(data, profile, onProgress);
+    biblicalTimelineResolvedCache = resolved;
+    biblicalTimelineCacheKey = cacheKey;
+    console.timeEnd('[TimelineCache] Async Resolution');
+    
+    // Save to localStorage for persistence
+    saveTimelineResolvedToStorage(resolved, profile, cacheKey);
+    
+    return resolved;
+  } catch (e) {
+    console.warn('Error resolving events:', e);
+    return biblicalTimelineResolvedCache || [];
+  }
+}
+
 // LocalStorage keys for persisting state
 const TIMELINE_STORAGE_KEY = 'biblicalTimelineState';
 const TIMELINE_FILTERS_KEY = 'biblicalTimelineFilters';
@@ -25,7 +407,8 @@ let timelineFilters = {
   deaths: true,
   biblical: true,
   historical: true,
-  prophecy: true
+  prophecy: true,
+  dates: true  // Biblical-date events (specific verse date references)
 };
 
 // Simple markdown to HTML converter for descriptions and quotes
@@ -40,6 +423,304 @@ function renderMarkdown(text) {
     .replace(/_([^_]+)_/g, '<em>$1</em>')
     // Line breaks
     .replace(/\n/g, '<br>');
+}
+
+// Convert [[event-id]] references to clickable links
+function linkifyEventRefs(html) {
+  return html.replace(/\[\[([a-z0-9-]+)\]\]/g, (match, eventId) => {
+    return `<a href="#" onclick="openEventDetail('${eventId}'); return false;" class="event-ref-link" style="color: #d4a017; text-decoration: none; border-bottom: 1px dotted #d4a017;">${eventId}</a>`;
+  });
+}
+
+// Load and render markdown documentation for an event
+async function loadEventDocumentation(docPath, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  try {
+    const response = await fetch(docPath);
+    if (!response.ok) {
+      container.innerHTML = `<p style="color: #f44336;">Documentation not found: ${docPath}</p>`;
+      return;
+    }
+    
+    const markdown = await response.text();
+    
+    // Convert markdown to HTML (simple conversion)
+    let html = markdown
+      // Headers
+      .replace(/^### (.+)$/gm, '<h5 style="color: #7ec8e3; margin: 20px 0 10px 0;">$1</h5>')
+      .replace(/^## (.+)$/gm, '<h4 style="color: #7ec8e3; margin: 24px 0 12px 0; border-bottom: 1px solid rgba(126,200,227,0.2); padding-bottom: 8px;">$1</h4>')
+      .replace(/^# (.+)$/gm, '<h3 style="color: #7ec8e3; margin: 0 0 16px 0;">$1</h3>')
+      // Horizontal rules
+      .replace(/^---$/gm, '<hr style="border: none; border-top: 1px solid rgba(126,200,227,0.2); margin: 24px 0;">')
+      // Bold
+      .replace(/\*\*(.+?)\*\*/g, '<strong style="color: #fff;">$1</strong>')
+      // Italic
+      .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+      // Blockquotes
+      .replace(/^> (.+)$/gm, '<blockquote style="border-left: 3px solid #d4a017; margin: 12px 0; padding: 8px 16px; background: rgba(212,160,23,0.1); color: #ccc; font-style: italic;">$1</blockquote>')
+      // Event references [[event-id]]
+      .replace(/→ \[\[([a-z0-9-]+)\]\]/g, (match, eventId) => {
+        return `<div style="margin: 8px 0 8px 20px;"><a href="#" onclick="openEventDetail('${eventId}'); return false;" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(212, 160, 23, 0.1); border: 1px solid rgba(212, 160, 23, 0.3); border-radius: 4px; text-decoration: none; color: #d4a017; font-size: 0.9em;">→ ${eventId}</a></div>`;
+      })
+      // Inline event references
+      .replace(/\[\[([a-z0-9-]+)\]\]/g, (match, eventId) => {
+        return `<a href="#" onclick="openEventDetail('${eventId}'); return false;" style="color: #d4a017; text-decoration: none; border-bottom: 1px dotted #d4a017;">${eventId}</a>`;
+      })
+      // Tables (simple)
+      .replace(/\|(.+)\|/g, (match, content) => {
+        const cells = content.split('|').map(c => c.trim());
+        if (cells.every(c => c.match(/^-+$/))) {
+          return ''; // Skip separator row
+        }
+        const isHeader = content.includes('**');
+        const cellTag = isHeader ? 'th' : 'td';
+        const style = isHeader ? 'style="text-align: left; padding: 8px; border-bottom: 2px solid rgba(126,200,227,0.3); color: #7ec8e3;"' : 'style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);"';
+        return `<tr>${cells.map(c => `<${cellTag} ${style}>${c}</${cellTag}>`).join('')}</tr>`;
+      })
+      // Wrap tables
+      .replace(/(<tr>.*<\/tr>\n?)+/g, '<table style="width: 100%; border-collapse: collapse; margin: 16px 0;">$&</table>')
+      // Paragraphs (double newlines)
+      .replace(/\n\n/g, '</p><p style="margin: 12px 0;">')
+      // Single newlines in certain contexts
+      .replace(/\n(?!<)/g, '<br>');
+    
+    // Wrap in paragraph tags
+    html = `<p style="margin: 12px 0;">${html}</p>`;
+    
+    // Clean up empty paragraphs
+    html = html.replace(/<p[^>]*>\s*<\/p>/g, '');
+    
+    // Set initial collapsed state (show first section only)
+    container.innerHTML = html;
+    container.style.maxHeight = '400px';
+    container.style.overflow = 'hidden';
+    container.style.position = 'relative';
+    
+    // Add fade overlay
+    const fade = document.createElement('div');
+    fade.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(transparent, #1a3a5c); pointer-events: none;';
+    container.appendChild(fade);
+    container.dataset.expanded = 'false';
+    
+  } catch (err) {
+    container.innerHTML = `<p style="color: #f44336;">Error loading documentation: ${err.message}</p>`;
+  }
+}
+
+// Toggle documentation expand/collapse
+function toggleDocExpand(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  const btn = container.parentElement.querySelector('.doc-expand-btn');
+  
+  if (container.dataset.expanded === 'false') {
+    container.style.maxHeight = 'none';
+    container.style.overflow = 'visible';
+    // Remove fade overlay
+    const fade = container.querySelector('div[style*="linear-gradient"]');
+    if (fade) fade.remove();
+    container.dataset.expanded = 'true';
+    if (btn) btn.textContent = 'Collapse Document';
+  } else {
+    container.style.maxHeight = '400px';
+    container.style.overflow = 'hidden';
+    // Re-add fade overlay
+    const fade = document.createElement('div');
+    fade.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(transparent, #1a3a5c); pointer-events: none;';
+    container.appendChild(fade);
+    container.dataset.expanded = 'false';
+    if (btn) btn.textContent = 'Show Full Document';
+  }
+}
+
+// Make functions globally available
+window.loadEventDocumentation = loadEventDocumentation;
+window.toggleDocExpand = toggleDocExpand;
+
+/**
+ * Build full derivation chain for an event
+ * Follows relative references until reaching a "solid" anchor event
+ * Returns array of chain links from current event to anchor
+ * @param {object} event - The event to trace
+ * @param {object} data - Full events data
+ * @param {Array} resolved - Resolved events array
+ * @returns {Array} Chain of derivation links
+ */
+function buildDerivationChain(event, data, resolved) {
+  const chain = [];
+  const visited = new Set();
+  let currentEvent = event;
+  
+  while (currentEvent && !visited.has(currentEvent.id)) {
+    visited.add(currentEvent.id);
+    
+    const start = currentEvent.start || currentEvent.dates;
+    if (!start) break;
+    
+    // Check if this event has a solid/fixed date (anchor point)
+    const isSolid = checkIfSolidDate(start, currentEvent);
+    
+    // Get resolved date for display: use explicit source data when available, otherwise derive from JD
+    const resolvedEvent = resolved.find(e => e.id === currentEvent.id);
+    let dateStr = '—';
+    if (resolvedEvent?.startJD && typeof EventResolver !== 'undefined') {
+      const hebrewMonths = ['', 'Nisan', 'Iyar', 'Sivan', 'Tammuz', 'Av', 'Elul',
+                            'Tishri', 'Cheshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar', 'Adar II'];
+      
+      if (start.fixed?.gregorian) {
+        // Fixed Gregorian date - use it directly
+        const g = start.fixed.gregorian;
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const yearStr = g.year > 0 ? `${g.year} AD` : `${1 - g.year} BC`;
+        dateStr = `${monthNames[(g.month || 1) - 1]} ${g.day || 1}, ${yearStr}`;
+      } else if (start.lunar?.year !== undefined && start.lunar?.month !== undefined && start.lunar?.day !== undefined) {
+        // Explicit lunar date in source - use it directly (more accurate than reverse calculation)
+        const monthName = hebrewMonths[start.lunar.month] || `Month ${start.lunar.month}`;
+        const yearStr = start.lunar.year > 0 ? `${start.lunar.year} AD` : `${1 - start.lunar.year} BC`;
+        dateStr = `${monthName}(${start.lunar.month}) ${start.lunar.day}, ${yearStr}`;
+      } else if (resolvedEvent._lunarYear !== undefined && start.lunar?.month !== undefined) {
+        // Chain-calculated lunar year with explicit month/day from source
+        const lunarYear = resolvedEvent._lunarYear;
+        const lunarMonth = start.lunar.month;
+        const lunarDay = start.lunar.day || 1;
+        const monthName = hebrewMonths[lunarMonth] || `Month ${lunarMonth}`;
+        const yearStr = lunarYear > 0 ? `${lunarYear} AD` : `${1 - lunarYear} BC`;
+        dateStr = `${monthName}(${lunarMonth}) ${lunarDay}, ${yearStr}`;
+      } else {
+        // No explicit date - derive from resolved JD
+        const profile = (typeof getTimelineProfile === 'function') ? getTimelineProfile() : null;
+        const lunar = profile ? EventResolver.julianDayToLunar(resolvedEvent.startJD, profile) : null;
+        if (lunar) {
+          // Prefer _lunarYear from chain calculation if available (more accurate)
+          const displayYear = resolvedEvent._lunarYear !== undefined ? resolvedEvent._lunarYear : lunar.year;
+          const monthName = hebrewMonths[lunar.month] || `Month ${lunar.month}`;
+          const yearStr = displayYear > 0 ? `${displayYear} AD` : `${1 - displayYear} BC`;
+          dateStr = `${monthName}(${lunar.month}) ${lunar.day}, ${yearStr}`;
+        } else {
+          const greg = EventResolver.julianDayToGregorian(resolvedEvent.startJD);
+          const yearStr = greg.year > 0 ? `${greg.year} AD` : `${1 - greg.year} BC`;
+          dateStr = yearStr;
+        }
+      }
+    }
+    
+    // Determine what makes this event solid/anchor
+    let solidReason = '';
+    if (isSolid) {
+      if (start.fixed?.gregorian) {
+        solidReason = 'Fixed Gregorian date (astronomical/historical)';
+      } else if (start.fixed?.julian_day) {
+        solidReason = 'Fixed Julian Day number';
+      } else if (start.lunar?.year !== undefined && start.lunar?.month !== undefined && start.lunar?.day !== undefined && !start.relative) {
+        solidReason = 'Direct lunar date specification';
+      } else if (start.gregorian?.year !== undefined && !start.relative) {
+        solidReason = 'Direct Gregorian date';
+      } else if (start.regal && !start.relative) {
+        solidReason = 'Regal year (epoch-based)';
+      } else if (start.anno_mundi?.year !== undefined && !start.relative) {
+        solidReason = 'Anno Mundi (year from creation)';
+      }
+    }
+    
+    // Get offset info for next link
+    let offsetStr = '';
+    let offsetDirection = '';
+    let nextEventId = null;
+    
+    if (start.relative) {
+      nextEventId = start.relative.event;
+      const offset = start.relative.offset || {};
+      const parts = [];
+      if (offset.years) parts.push(`${Math.abs(offset.years)} year${Math.abs(offset.years) !== 1 ? 's' : ''}`);
+      if (offset.months) parts.push(`${Math.abs(offset.months)} month${Math.abs(offset.months) !== 1 ? 's' : ''}`);
+      if (offset.weeks) parts.push(`${Math.abs(offset.weeks)} week${Math.abs(offset.weeks) !== 1 ? 's' : ''}`);
+      if (offset.days) parts.push(`${Math.abs(offset.days)} day${Math.abs(offset.days) !== 1 ? 's' : ''}`);
+      offsetStr = parts.join(', ') || 'same time';
+      offsetDirection = (start.relative.direction === 'before' ? '↑ before' : '↓ after');
+    } else if (start.priestly_cycle) {
+      nextEventId = start.priestly_cycle.after_event;
+      const courseName = typeof start.priestly_cycle.course === 'string' 
+        ? start.priestly_cycle.course 
+        : `Course ${start.priestly_cycle.course}`;
+      offsetStr = `Next ${courseName} service`;
+      offsetDirection = '↓ after';
+    } else if (start.lunar_relative) {
+      nextEventId = start.lunar_relative.event;
+      const hebrewMonths = ['', 'Nisan', 'Iyar', 'Sivan', 'Tammuz', 'Av', 'Elul', 
+                            'Tishri', 'Cheshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar'];
+      const monthName = hebrewMonths[start.lunar_relative.month] || `Month ${start.lunar_relative.month}`;
+      offsetStr = `${monthName} ${start.lunar_relative.day}`;
+      offsetDirection = '→ same year';
+    }
+    
+    // Add this event to the chain
+    chain.push({
+      eventId: currentEvent.id,
+      title: currentEvent.title,
+      icon: getTypeIcon(currentEvent.type),
+      dateStr: dateStr,
+      isSolid: isSolid,
+      solidReason: solidReason,
+      offsetStr: offsetStr,
+      offsetDirection: offsetDirection,
+      nextEventId: nextEventId
+    });
+    
+    // If this is a solid anchor, stop
+    if (isSolid) break;
+    
+    // Move to the next event in the chain
+    if (nextEventId) {
+      currentEvent = data?.events?.find(e => e.id === nextEventId);
+    } else {
+      break;
+    }
+  }
+  
+  return chain;
+}
+
+/**
+ * Check if an event has a "solid" (fixed/absolute) date
+ * Solid dates are anchor points that don't derive from other events
+ */
+function checkIfSolidDate(start, event) {
+  if (!start) return false;
+  
+  // Fixed dates are always solid
+  if (start.fixed?.gregorian || start.fixed?.julian_day) {
+    return true;
+  }
+  
+  // Direct Gregorian date without relative reference
+  if (start.gregorian?.year !== undefined && !start.relative && !start.priestly_cycle && !start.lunar_relative) {
+    return true;
+  }
+  
+  // Direct lunar date with full year/month/day without relative reference
+  if (start.lunar?.year !== undefined && 
+      start.lunar?.month !== undefined && 
+      start.lunar?.day !== undefined && 
+      !start.relative && 
+      !start.priestly_cycle && 
+      !start.lunar_relative) {
+    return true;
+  }
+  
+  // Regal dates can be considered solid if they reference a known epoch
+  if (start.regal && !start.relative) {
+    return true;
+  }
+  
+  // Anno Mundi (year from creation) is a system anchor
+  if (start.anno_mundi?.year !== undefined && !start.relative && !start.lunar_relative) {
+    return true;
+  }
+  
+  return false;
 }
 
 // Load filter state from localStorage
@@ -85,19 +766,473 @@ function toggleTimelineFilter(filterName) {
 // Make filter functions globally available
 window.toggleTimelineFilter = toggleTimelineFilter;
 
-// Save timeline state to localStorage
-function saveTimelineState() {
+// User action - dispatch search to AppStore (unidirectional flow)
+// ONLY dispatches - no DOM manipulation. Render handles all UI updates.
+function timelineSearchAndZoom() {
+  const searchInput = document.getElementById('biblical-timeline-search');
+  const searchText = (searchInput?.value || '').toLowerCase().trim();
+  
+  if (!searchText) {
+    return;
+  }
+  
+  // ONLY dispatch - render will handle UI
+  if (typeof AppStore !== 'undefined') {
+    AppStore.dispatch({ type: 'SET_TIMELINE_SEARCH', search: searchText });
+  }
+}
+
+// Cache for search results to speed up back/forward navigation
+let searchResultsCache = {
+  searchText: null,
+  matchingEvents: null,
+  matchingDurations: null,
+  minYear: null,
+  maxYear: null,
+  centerYear: null,
+  targetZoom: null
+};
+
+// Active search filter - used by filterResolvedEvents to show only search results
+// These are Set objects containing event/duration IDs to show
+// When null, no search filter is active (show all based on toggle filters)
+let activeSearchResultIds = null;
+let activeSearchDurationIds = null;
+
+// State-driven render function (called by TimelineView.syncPanelFromState)
+// NOTE: Does NOT update search input - that's done by syncPanelFromState
+function showSearchResultsFromState(searchText) {
+  if (!searchText) return;
+  
+  searchText = searchText.toLowerCase().trim();
+  
+  // Check cache first - if same search, use cached results
+  console.log('[Search] Cache check:', {
+    cacheText: searchResultsCache.searchText,
+    inputText: searchText,
+    hasEvents: !!searchResultsCache.matchingEvents,
+    hasDurations: !!searchResultsCache.matchingDurations,
+    match: searchResultsCache.searchText === searchText
+  });
+  
+  if (searchResultsCache.searchText === searchText && 
+      searchResultsCache.matchingEvents && 
+      searchResultsCache.matchingDurations) {
+    console.log('[Search] CACHE HIT - using cached results for:', searchText);
+    showCachedSearchResults();
+    return;
+  }
+  
+  console.log('[Search] CACHE MISS - computing results for:', searchText);
+  
+  // Get all resolved events and raw durations
+  const data = biblicalTimelineDataV2;
+  const profile = (typeof getTimelineProfile === 'function') ? getTimelineProfile() : null;
+  const allEvents = getResolvedEvents(data, profile);
+  const allDurations = data?.durations || [];
+  
+  // Build event JD lookup map for duration year calculation
+  const eventJDMap = {};
+  (allEvents || []).forEach(e => {
+    if (e.id && e.startJD) eventJDMap[e.id] = e.startJD;
+  });
+  
+  // Filter events by search term (search in title, description, tags, id)
+  const matchingEvents = (allEvents || []).filter(event => {
+    if (event.startJD === null) return false;
+    
+    const searchableText = [
+      event.title || '',
+      event.description || '',
+      event.id || '',
+      ...(event.tags || [])
+    ].join(' ').toLowerCase();
+    
+    return searchableText.includes(searchText);
+  });
+  
+  // Filter durations by search term
+  const matchingDurations = allDurations.filter(duration => {
+    // Must have resolvable from/to events
+    if (!eventJDMap[duration.from_event] && !eventJDMap[duration.to_event]) return false;
+    
+    const searchableText = [
+      duration.title || '',
+      duration.description || '',
+      duration.id || '',
+      ...(duration.tags || [])
+    ].join(' ').toLowerCase();
+    
+    return searchableText.includes(searchText);
+  });
+  
+  const totalMatches = matchingEvents.length + matchingDurations.length;
+  
+  if (totalMatches === 0) {
+    alert(`No events or durations found matching "${searchText}"`);
+    return;
+  }
+  
+  // Find min and max years of matching events and durations
+  let minYear = Infinity;
+  let maxYear = -Infinity;
+  
+  matchingEvents.forEach(event => {
+    if (event.startJD && typeof EventResolver !== 'undefined') {
+      const greg = EventResolver.julianDayToGregorian(event.startJD);
+      if (greg.year < minYear) minYear = greg.year;
+      if (greg.year > maxYear) maxYear = greg.year;
+    }
+  });
+  
+  matchingDurations.forEach(duration => {
+    if (typeof EventResolver !== 'undefined') {
+      const fromJD = eventJDMap[duration.from_event];
+      const toJD = eventJDMap[duration.to_event];
+      if (fromJD) {
+        const greg = EventResolver.julianDayToGregorian(fromJD);
+        if (greg.year < minYear) minYear = greg.year;
+        if (greg.year > maxYear) maxYear = greg.year;
+      }
+      if (toJD) {
+        const greg = EventResolver.julianDayToGregorian(toJD);
+        if (greg.year < minYear) minYear = greg.year;
+        if (greg.year > maxYear) maxYear = greg.year;
+      }
+    }
+  });
+  
+  if (minYear === Infinity || maxYear === -Infinity) {
+    console.log('[Search] Could not determine year range');
+    return;
+  }
+  
+  // Add small margin (2% of range, minimum 1 year, maximum 5 years)
+  const range = maxYear - minYear;
+  const margin = Math.min(5, Math.max(1, Math.ceil(range * 0.02)));
+  minYear -= margin;
+  maxYear += margin;
+  
+  console.log('[Search] Zooming to year range:', minYear, 'to', maxYear, '(margin:', margin, ')');
+  
+  // Calculate zoom level to fit the year range
+  const scrollContainer = document.getElementById('timeline-scroll-container');
+  let targetZoom = biblicalTimelineZoom;
+  
+  if (minYear !== Infinity && maxYear !== -Infinity && scrollContainer) {
+    const viewportHeight = scrollContainer.clientHeight;
+    const yearRange = maxYear - minYear;
+    targetZoom = viewportHeight / yearRange;
+  }
+  
+  const centerYear = Math.round((minYear + maxYear) / 2);
+  
+  // Cache the results for fast back/forward
+  searchResultsCache = {
+    searchText,
+    matchingEvents,
+    matchingDurations,
+    minYear,
+    maxYear,
+    centerYear,
+    targetZoom
+  };
+  
+  // Display the results
+  displaySearchResults(false);
+}
+
+// Display search results from cache (called by showSearchResultsFromState or showCachedSearchResults)
+function displaySearchResults(fromCache) {
+  const { matchingEvents, matchingDurations, centerYear, targetZoom, searchText } = searchResultsCache;
+  
+  if (!matchingEvents || !matchingDurations) return;
+  
+  // Set the active search filter for renderBiblicalTimeline to use
+  // This ensures only search result events are rendered with correct slot positions
+  activeSearchResultIds = new Set(matchingEvents.map(e => e.id));
+  activeSearchDurationIds = new Set(matchingDurations.map(d => d.id));
+  
+  // Fresh search: apply zoom and re-render with search results only
+  if (!fromCache) {
+    if (targetZoom) {
+      biblicalTimelineZoom = targetZoom;
+    }
+    // Re-render to show only search results with correct slot positions
+    renderBiblicalTimeline();
+  }
+  // From cache (back navigation): just re-render with cached search filter
+  // The search IDs are already set above, so render will use them
+  else {
+    renderBiblicalTimeline();
+  }
+  
+  // Show results panel and scroll/highlight (use requestAnimationFrame for smooth transition)
+  requestAnimationFrame(() => {
+    // Show results in detail panel
+    renderSearchResultsInternal(searchText, matchingEvents, matchingDurations, true);
+    
+    // Scroll to center the range (smooth scroll) - only if not from cache
+    if (!fromCache && centerYear !== null) {
+      scrollTimelineToYear(centerYear);
+    }
+    
+    // Highlight matching events briefly (skip if from cache - already highlighted before)
+    if (!fromCache) {
+      matchingEvents.forEach(event => {
+        const eventEl = document.querySelector(`[data-event-id="${event.id}"]`);
+        if (eventEl) {
+          eventEl.classList.add('search-highlight');
+          setTimeout(() => eventEl.classList.remove('search-highlight'), 3000);
+        }
+      });
+      
+      matchingDurations.forEach(duration => {
+        const durationEl = document.querySelector(`[data-duration-id="${duration.id}"]`);
+        if (durationEl) {
+          durationEl.classList.add('search-highlight');
+          setTimeout(() => durationEl.classList.remove('search-highlight'), 3000);
+        }
+      });
+    }
+  });
+}
+
+// Show cached search results (fast path for back/forward navigation)
+function showCachedSearchResults() {
+  displaySearchResults(true);
+}
+
+// Render search results in the detail panel
+function renderSearchResultsInternal(searchText, matchingEvents, matchingDurations, addHistory = true) {
+  initDetailPanel();
+  
+  const totalMatches = matchingEvents.length + matchingDurations.length;
+  
+  // Build event JD lookup for duration year display
+  const data = biblicalTimelineDataV2;
+  const profile = (typeof getTimelineProfile === 'function') ? getTimelineProfile() : null;
+  const allEvents = getResolvedEvents(data, profile) || [];
+  const eventJDMap = {};
+  allEvents.forEach(e => {
+    if (e.id && e.startJD) eventJDMap[e.id] = e.startJD;
+  });
+  
+  // Sort events by year
+  matchingEvents.sort((a, b) => (a.startJD || 0) - (b.startJD || 0));
+  
+  let html = `
+    <div class="detail-section" style="padding: 10px 15px; margin-bottom: 10px;">
+      <div class="detail-label">Found ${totalMatches} result${totalMatches !== 1 ? 's' : ''}</div>
+    </div>
+  `;
+  
+  // Events list
+  if (matchingEvents.length > 0) {
+    html += `<div class="detail-section">
+      <div class="detail-label" style="margin-bottom: 10px;">📅 Events (${matchingEvents.length})</div>
+      <div class="search-results-list">`;
+    
+    matchingEvents.forEach(event => {
+      // Get icon from event or default based on type
+      const typeIcons = {
+        birth: '👶', death: '💀', 'biblical-event': '📖', feast: '🎉',
+        reign: '👑', battle: '⚔️', prophecy: '📜', astronomical: '🌟',
+        construction: '🏛️', catastrophe: '🌊', miracle: '✨'
+      };
+      const icon = event.icon || typeIcons[event.type] || '📅';
+      let yearDisplay = '';
+      if (event.startJD && typeof EventResolver !== 'undefined') {
+        const greg = EventResolver.julianDayToGregorian(event.startJD);
+        yearDisplay = greg.year <= 0 ? `${1 - greg.year} BC` : `${greg.year} AD`;
+      }
+      html += `
+        <div class="search-result-item" onclick="openEventDetail('${event.id}')">
+          <span class="search-result-icon">${icon}</span>
+          <span class="search-result-title">${event.title || event.id}</span>
+          <span class="search-result-year">${yearDisplay}</span>
+        </div>`;
+    });
+    
+    html += `</div></div>`;
+  }
+  
+  // Durations list
+  if (matchingDurations.length > 0) {
+    html += `<div class="detail-section">
+      <div class="detail-label" style="margin-bottom: 10px;">🔗 Durations (${matchingDurations.length})</div>
+      <div class="search-results-list">`;
+    
+    matchingDurations.forEach(duration => {
+      // Show end date (to_event) since that's when the duration was declared/significant
+      let yearDisplay = '';
+      const toJD = eventJDMap[duration.to_event];
+      if (toJD && typeof EventResolver !== 'undefined') {
+        const greg = EventResolver.julianDayToGregorian(toJD);
+        yearDisplay = greg.year <= 0 ? `${1 - greg.year} BC` : `${greg.year} AD`;
+      }
+      html += `
+        <div class="search-result-item" onclick="openDurationDetail('${duration.id}')">
+          <span class="search-result-icon">📏</span>
+          <span class="search-result-title">${duration.title || duration.id}</span>
+          <span class="search-result-year">${yearDisplay}</span>
+        </div>`;
+    });
+    
+    html += `</div></div>`;
+  }
+  
+  // Show in panel
+  showDetailPanel(html);
+}
+
+// User action - clear search and close panel (unidirectional flow)
+// ONLY dispatches - no DOM manipulation. Render handles all UI updates.
+function timelineClearSearch() {
+  if (typeof AppStore !== 'undefined') {
+    AppStore.dispatch({ type: 'SET_TIMELINE_SEARCH', search: null });
+  }
+}
+
+// State-driven close panel (called by TimelineView.syncPanelFromState)
+function closeDetailPanelFromState() {
+  const panel = document.getElementById('detail-slideout-panel');
+  if (panel) {
+    panel.classList.remove('open');
+  }
+  document.body.classList.remove('detail-panel-open');
+  highlightDurationBar(null);
+  
+  // Clear search filter and re-render to show all events with correct slots
+  if (activeSearchResultIds !== null) {
+    activeSearchResultIds = null;
+    activeSearchDurationIds = null;
+    renderBiblicalTimeline();
+  }
+}
+
+// Make search functions globally available
+window.timelineSearchAndZoom = timelineSearchAndZoom;
+window.timelineClearSearch = timelineClearSearch;
+
+// Calculate the center year from current scroll position
+function getTimelineCenterYear() {
+  const scrollContainer = document.getElementById('timeline-scroll-container');
+  const scrollContent = document.getElementById('biblical-timeline-scroll');
+  
+  if (!scrollContainer || !scrollContent || biblicalTimelineMinYear === null || biblicalTimelineMaxYear === null) {
+    return null;
+  }
+  
+  const scrollTop = scrollContainer.scrollTop;
+  const viewportHeight = scrollContainer.clientHeight;
+  const contentHeight = scrollContent.clientHeight;
+  
+  // Calculate center position as ratio
+  const centerOffset = scrollTop + (viewportHeight / 2);
+  const centerRatio = centerOffset / contentHeight;
+  
+  // Convert ratio to year
+  const yearRange = biblicalTimelineMaxYear - biblicalTimelineMinYear;
+  const centerYear = Math.round(biblicalTimelineMinYear + (centerRatio * yearRange));
+  
+  return centerYear;
+}
+
+// Calculate scroll position from center year
+function scrollToTimelineYear(year) {
+  const scrollContainer = document.getElementById('timeline-scroll-container');
+  const scrollContent = document.getElementById('biblical-timeline-scroll');
+  
+  if (!scrollContainer || !scrollContent || biblicalTimelineMinYear === null || biblicalTimelineMaxYear === null) {
+    return;
+  }
+  
+  const viewportHeight = scrollContainer.clientHeight;
+  const contentHeight = scrollContent.clientHeight;
+  const yearRange = biblicalTimelineMaxYear - biblicalTimelineMinYear;
+  
+  // Convert year to ratio
+  const yearRatio = (year - biblicalTimelineMinYear) / yearRange;
+  
+  // Calculate scroll position to center this year
+  const centerOffset = yearRatio * contentHeight;
+  const scrollTop = centerOffset - (viewportHeight / 2);
+  
+  scrollContainer.scrollTop = Math.max(0, Math.min(scrollTop, contentHeight - viewportHeight));
+}
+
+// Debounce timer for URL updates
+let timelineURLUpdateTimer = null;
+
+// Save timeline state to localStorage (synchronous, no URL update)
+function saveTimelineStateToLocalStorage() {
   const scrollContainer = document.getElementById('timeline-scroll-container');
   const scrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
-  const state = {
+  const centerYear = getTimelineCenterYear();
+  
+  const localState = {
     zoom: biblicalTimelineZoom,
-    scrollTop: scrollTop
+    scrollTop: scrollTop,
+    centerYear: centerYear
   };
   try {
-    localStorage.setItem(TIMELINE_STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(TIMELINE_STORAGE_KEY, JSON.stringify(localState));
   } catch (e) {
     // localStorage might be unavailable
   }
+  return { zoom: biblicalTimelineZoom, centerYear };
+}
+
+// Update URL with current timeline zoom/position state (debounced)
+// Uses replaceState directly to avoid triggering AppStore notifications
+function updateTimelinePositionURL() {
+  if (typeof URLRouter === 'undefined') return;
+  
+  const centerYear = getTimelineCenterYear();
+  
+  // Update URL directly using replaceState to avoid AppStore dispatch cycle
+  // This prevents the scroll jump that happens when dispatch triggers re-render
+  try {
+    const url = new URL(window.location.href);
+    
+    if (biblicalTimelineZoom !== null && biblicalTimelineZoom !== 1.0) {
+      url.searchParams.set('zoom', Math.round(biblicalTimelineZoom * 100) / 100);
+    } else {
+      url.searchParams.delete('zoom');
+    }
+    
+    if (centerYear !== null) {
+      url.searchParams.set('year', centerYear);
+    } else {
+      url.searchParams.delete('year');
+    }
+    
+    // Use replaceState to update URL without triggering navigation
+    window.history.replaceState(window.history.state, '', url.toString());
+    
+    // Also update AppStore state silently (without triggering notify)
+    if (typeof AppStore !== 'undefined' && AppStore._state) {
+      AppStore._state.ui.timelineZoom = biblicalTimelineZoom;
+      AppStore._state.ui.timelineCenterYear = centerYear;
+    }
+  } catch (e) {
+    console.warn('[Timeline] Error updating URL:', e);
+  }
+}
+
+// Save timeline state - immediate localStorage, debounced URL
+function saveTimelineState() {
+  // Save to localStorage immediately
+  saveTimelineStateToLocalStorage();
+  
+  // Debounce URL updates to avoid excessive dispatches during zoom/scroll
+  if (timelineURLUpdateTimer) {
+    clearTimeout(timelineURLUpdateTimer);
+  }
+  timelineURLUpdateTimer = setTimeout(() => {
+    updateTimelinePositionURL();
+  }, 500);
 }
 
 // Load timeline state from localStorage
@@ -353,32 +1488,39 @@ async function loadBiblicalTimelineData() {
 
 // Get current calendar profile for event resolution
 function getTimelineProfile() {
-  // Read from actual calendar state variables
-  if (typeof state !== 'undefined') {
-    // Map calendar state to resolver profile format
-    const moonPhaseToMonthStart = {
-      'dark': 'conjunction',
-      'crescent': 'crescent',
-      'full': 'full'
-    };
-    const dayStartTimeToResolver = {
-      'evening': 'sunset',
-      'morning': 'sunrise'
-    };
-    const yearStartRuleToResolver = {
-      'equinox': 'spring-equinox',
-      '13daysBefore': 'spring-equinox',
-      'virgoFeet': 'spring-equinox',
-      'barley': 'barley'
-    };
+  // Try AppStore first (preferred approach)
+  if (typeof AppStore !== 'undefined') {
+    const appState = AppStore.getState();
+    const profileId = appState.context?.profileId || 'timeTested';
+    const profile = window.PROFILES?.[profileId] || {};
     
+    // Return profile settings directly - event-resolver expects these field names
     return {
-      monthStart: moonPhaseToMonthStart[state.moonPhase] || 'conjunction',
-      dayStart: dayStartTimeToResolver[state.dayStartTime] || 'sunset',
-      yearStart: yearStartRuleToResolver[state.yearStartRule] || 'spring-equinox',
+      moonPhase: profile.moonPhase || 'full',
+      dayStartTime: profile.dayStartTime || 'morning',
+      dayStartAngle: profile.dayStartAngle ?? 12,
+      yearStartRule: profile.yearStartRule || 'equinox',
+      crescentThreshold: profile.crescentThreshold ?? 18,
+      lat: appState.context?.location?.lat || 31.7683,
+      lon: appState.context?.location?.lon || 35.2137,
       amEpoch: -4000
     };
   }
+  
+  // Fallback: read from global state variables
+  if (typeof state !== 'undefined') {
+    return {
+      moonPhase: state.moonPhase || 'full',
+      dayStartTime: state.dayStartTime || 'morning',
+      dayStartAngle: state.dayStartAngle ?? 12,
+      yearStartRule: state.yearStartRule || 'equinox',
+      crescentThreshold: state.crescentThreshold ?? 18,
+      lat: state.lat || 31.7683,
+      lon: state.lon || 35.2137,
+      amEpoch: -4000
+    };
+  }
+  
   return EventResolver.DEFAULT_PROFILE;
 }
 
@@ -386,7 +1528,8 @@ function getTimelineProfile() {
 function getFilteredTimelineEvents(events) {
   const typeFilter = document.getElementById('biblical-timeline-type-filter')?.value || 'all';
   const eraFilter = document.getElementById('biblical-timeline-era-filter')?.value || 'all';
-  const searchText = (document.getElementById('biblical-timeline-search')?.value || '').toLowerCase().trim();
+  // Get search from state (unidirectional flow)
+  const searchText = getTimelineSearchFromState().toLowerCase().trim();
   
   return events.filter(event => {
     // Type filter
@@ -430,10 +1573,37 @@ function getFilteredTimelineEvents(events) {
   });
 }
 
+// Get current timeline search from state
+function getTimelineSearchFromState() {
+  if (typeof AppStore !== 'undefined') {
+    const state = AppStore.getState();
+    return state?.ui?.timelineSearch || '';
+  }
+  return '';
+}
+
 // Filter resolved events (for v2 format)
 function filterResolvedEvents(events, data) {
   const typeFilter = document.getElementById('biblical-timeline-type-filter')?.value || 'all';
-  const searchText = (document.getElementById('biblical-timeline-search')?.value || '').toLowerCase().trim();
+  
+  // Get selected event/duration from state - these should ALWAYS be shown
+  let selectedEventId = null;
+  let selectedDurationId = null;
+  if (typeof AppStore !== 'undefined') {
+    const state = AppStore.getState();
+    selectedEventId = state?.ui?.timelineEventId;
+    selectedDurationId = state?.ui?.timelineDurationId;
+  }
+  
+  // Include selected duration's endpoints
+  const durationEndpointIds = new Set();
+  if (selectedDurationId && data?.durations) {
+    const selectedDur = data.durations.find(d => d.id === selectedDurationId);
+    if (selectedDur) {
+      if (selectedDur.from_event) durationEndpointIds.add(selectedDur.from_event);
+      if (selectedDur.to_event) durationEndpointIds.add(selectedDur.to_event);
+    }
+  }
   
   // Load filters on first call
   loadTimelineFilters();
@@ -442,12 +1612,24 @@ function filterResolvedEvents(events, data) {
     // Skip events with no valid dates
     if (event.startJD === null) return false;
     
+    // ALWAYS show selected event (top priority)
+    if (selectedEventId && event.id === selectedEventId) return true;
+    
+    // ALWAYS show duration endpoints (from/to events of selected duration)
+    if (durationEndpointIds.has(event.id)) return true;
+    
+    // If search filter is active, ONLY show search result events
+    // This ensures correct slot positions for just the search results
+    if (activeSearchResultIds !== null) {
+      return activeSearchResultIds.has(event.id);
+    }
+    
     // Apply toggle button filters
     const eventType = event.type || '';
     const eventTags = event.tags || [];
     
-    // Birth filter
-    if (!timelineFilters.births && eventType === 'birth') return false;
+    // Birth filter (includes conception events)
+    if (!timelineFilters.births && (eventType === 'birth' || eventType === 'conception')) return false;
     
     // Death filter
     if (!timelineFilters.deaths && eventType === 'death') return false;
@@ -456,6 +1638,11 @@ function filterResolvedEvents(events, data) {
     if (!timelineFilters.biblical) {
       const biblicalTypes = ['biblical-event', 'feast', 'creation', 'catastrophe'];
       if (biblicalTypes.includes(eventType)) return false;
+    }
+    
+    // Biblical-date events filter (specific verse date references)
+    if (!timelineFilters.dates) {
+      if (eventType === 'biblical-date') return false;
     }
     
     // Historical events filter (conquest, decree, construction, destruction, reign, astronomical, battle)
@@ -475,17 +1662,8 @@ function filterResolvedEvents(events, data) {
       return false;
     }
     
-    // Search filter
-    if (searchText) {
-      const searchableText = [
-        event.title,
-        ...(event.tags || [])
-      ].join(' ').toLowerCase();
-      
-      if (!searchableText.includes(searchText)) {
-        return false;
-      }
-    }
+    // NOTE: Search filtering is handled via CSS visibility toggle in displaySearchResults()
+    // This allows back/forward navigation without re-rendering the timeline
     
     return true;
   });
@@ -601,12 +1779,9 @@ function convertEventsToTimelineItems(events) {
       }
     }
     if (event.dates?.lunar) {
-      const monthNames = ['Nisan', 'Iyyar', 'Sivan', 'Tammuz', 'Av', 'Elul', 'Tishri', 'Cheshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar'];
       if (event.dates.lunar.month) {
-        title += `\nLunar: ${monthNames[event.dates.lunar.month - 1]}`;
-        if (event.dates.lunar.day) {
-          title += ` ${event.dates.lunar.day}`;
-        }
+        const lunarYear = event.dates.lunar.year || '';
+        title += `\nLunar: ${lunarYear}/${event.dates.lunar.month}/${event.dates.lunar.day || 1}`;
       }
     }
     if (event.description) {
@@ -670,45 +1845,45 @@ function switchTimelineTab(tab) {
 // Includes navigation history for PWA back/forward
 // =====================================================
 
-// Navigation history for the detail panel
-const detailPanelHistory = {
-  stack: [],      // Array of { type: 'event'|'duration', id: string }
-  currentIndex: -1
-};
+// NOTE: Detail panel navigation is now handled by browser history via URL
+// The old manual detailPanelHistory has been removed in favor of unidirectional flow
 
-// Initialize the slide-out panel (call once on page load)
+// Initialize the slide-out panel (creates as sibling of timeline container to survive re-renders)
 function initDetailPanel() {
   if (document.getElementById('detail-slideout-panel')) return;
+  
+  // Find the timeline page wrapper - panel should be sibling of vis container
+  const timelinePage = document.getElementById('biblical-timeline-page') ||
+                       document.querySelector('.biblical-timeline-page');
+  
+  if (!timelinePage) {
+    console.warn('[DetailPanel] Timeline page not found, deferring panel creation');
+    return;
+  }
   
   const panel = document.createElement('div');
   panel.id = 'detail-slideout-panel';
   panel.className = 'detail-slideout';
   panel.innerHTML = `
-    <div class="detail-slideout-header">
-      <div class="detail-nav-buttons">
-        <button class="detail-nav-btn" id="detail-nav-back" onclick="navigateDetailHistory(-1)" title="Back" disabled>◀</button>
-        <button class="detail-nav-btn" id="detail-nav-forward" onclick="navigateDetailHistory(1)" title="Forward" disabled>▶</button>
-      </div>
-      <button class="detail-close-btn" onclick="closeDetailPanel()">×</button>
-    </div>
     <div class="detail-slideout-content" id="detail-slideout-content"></div>
   `;
-  document.body.appendChild(panel);
+  timelinePage.appendChild(panel);
   
   // Add styles
   if (!document.getElementById('detail-slideout-styles')) {
     const style = document.createElement('style');
     style.id = 'detail-slideout-styles';
     style.textContent = `
+      /* Detail panel positioned within timeline container */
       .detail-slideout {
-        position: fixed;
-        top: 56px; /* Below main nav */
+        position: absolute;
+        top: 36px; /* Directly below search bar (input ~26px + padding) */
         right: -100%;
         width: 50%;
-        height: calc(100vh - 56px);
+        height: calc(100% - 36px);
         background: #1a1a2e;
         border-left: 2px solid rgba(126, 200, 227, 0.3);
-        z-index: 9000;
+        z-index: 9400; /* Below tabs (9500) and search bar (9600) */
         transition: right 0.3s ease;
         display: flex;
         flex-direction: column;
@@ -718,63 +1893,28 @@ function initDetailPanel() {
         right: 0;
       }
       
-      /* Mobile: slide out covers events but not ruler, adjust for smaller nav */
+      /* Ensure timeline page is positioned for absolute child */
+      .biblical-timeline-page {
+        position: relative;
+      }
+      
+      /* Mobile: slide DOWN from top, full width */
       @media (max-width: 768px) {
         .detail-slideout {
-          top: 48px;
-          height: calc(100vh - 48px);
-          width: calc(100% - 60px);
-          left: auto;
-          right: -100%;
+          top: -100%;
+          right: 0;
+          left: 0;
+          width: 100%;
+          height: 70vh;
+          max-height: 70vh;
+          border-left: none;
+          border-bottom: 2px solid rgba(126, 200, 227, 0.3);
+          transition: top 0.3s ease;
         }
         .detail-slideout.open {
-          right: 0;
+          top: 36px; /* Below search bar on mobile too */
+          height: calc(70vh - 36px);
         }
-      }
-      
-      .detail-slideout-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 15px;
-        background: rgba(0, 0, 0, 0.3);
-        border-bottom: 1px solid rgba(126, 200, 227, 0.2);
-        flex-shrink: 0;
-      }
-      
-      .detail-nav-buttons {
-        display: flex;
-        gap: 8px;
-      }
-      
-      .detail-nav-btn {
-        background: rgba(126, 200, 227, 0.2);
-        border: 1px solid rgba(126, 200, 227, 0.3);
-        color: #7ec8e3;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-      }
-      .detail-nav-btn:hover:not(:disabled) {
-        background: rgba(126, 200, 227, 0.3);
-      }
-      .detail-nav-btn:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-      }
-      
-      .detail-close-btn {
-        background: none;
-        border: none;
-        color: #7ec8e3;
-        font-size: 28px;
-        cursor: pointer;
-        padding: 0 5px;
-        line-height: 1;
-      }
-      .detail-close-btn:hover {
-        color: #ff6b6b;
       }
       
       .detail-slideout-content {
@@ -1053,48 +2193,53 @@ function initDetailPanel() {
         align-items: center;
         gap: 6px;
       }
+      
+      /* Search results list styles */
+      .search-results-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .search-result-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .search-result-item:hover {
+        background: rgba(126, 200, 227, 0.2);
+      }
+      .search-result-icon {
+        font-size: 1.2em;
+        flex-shrink: 0;
+      }
+      .search-result-title {
+        flex: 1;
+        color: #e0e0e0;
+      }
+      .search-result-year {
+        color: #7ec8e3;
+        font-size: 0.9em;
+        white-space: nowrap;
+      }
     `;
     document.head.appendChild(style);
   }
 }
 
-// Navigate through detail history
-function navigateDetailHistory(direction) {
-  const newIndex = detailPanelHistory.currentIndex + direction;
-  if (newIndex < 0 || newIndex >= detailPanelHistory.stack.length) return;
-  
-  detailPanelHistory.currentIndex = newIndex;
-  const item = detailPanelHistory.stack[newIndex];
-  
-  // Open without adding to history
-  if (item.type === 'event') {
-    openEventDetailInternal(item.id, false);
-  } else if (item.type === 'duration') {
-    openDurationDetailInternal(item.id, false);
-  }
-  
-  updateNavButtons();
-}
+// NOTE: Manual history navigation removed - use browser back/forward buttons instead
+// Navigation is now handled through URL state changes
 
-// Update nav button states
-function updateNavButtons() {
-  const backBtn = document.getElementById('detail-nav-back');
-  const forwardBtn = document.getElementById('detail-nav-forward');
-  if (backBtn) backBtn.disabled = detailPanelHistory.currentIndex <= 0;
-  if (forwardBtn) forwardBtn.disabled = detailPanelHistory.currentIndex >= detailPanelHistory.stack.length - 1;
-}
-
-// Close the detail panel
+// User action - close detail panel (unidirectional flow)
+// ONLY dispatches - no DOM manipulation. Render handles all UI updates.
 function closeDetailPanel() {
-  const panel = document.getElementById('detail-slideout-panel');
-  if (panel) {
-    panel.classList.remove('open');
-    document.body.classList.remove('detail-panel-open');
+  if (typeof AppStore !== 'undefined') {
+    AppStore.dispatch({ type: 'SET_TIMELINE_SEARCH', search: null });
   }
-  // Clear duration highlight
-  highlightDurationBar(null);
-  // Reset URL to just the timeline
-  updateTimelineURL(null, null);
 }
 
 // Navigate to calendar from timeline event detail
@@ -1102,6 +2247,23 @@ function navigateToCalendarFromTimeline(year, lunarMonth, lunarDay) {
   // Close the detail panel
   closeDetailPanel();
   
+  // Use AppStore if available for proper navigation
+  if (typeof AppStore !== 'undefined') {
+    // Set the lunar date and navigate to calendar
+    AppStore.dispatch({
+      type: 'SET_LUNAR_DATETIME',
+      year: year,
+      month: lunarMonth,
+      day: lunarDay
+    });
+    AppStore.dispatch({
+      type: 'SET_VIEW',
+      view: 'calendar'
+    });
+    return;
+  }
+  
+  // Fallback: Legacy state-based navigation
   // Set calendar state
   state.year = year;
   
@@ -1155,23 +2317,11 @@ function showDetailPanel(html) {
   if (content) content.innerHTML = html;
   if (panel) panel.classList.add('open');
   document.body.classList.add('detail-panel-open');
-  updateNavButtons();
-}
-
-// Add item to history (truncate forward history if navigating from middle)
-function addToDetailHistory(type, id) {
-  // Remove any forward history
-  detailPanelHistory.stack = detailPanelHistory.stack.slice(0, detailPanelHistory.currentIndex + 1);
-  // Add new item
-  detailPanelHistory.stack.push({ type, id });
-  detailPanelHistory.currentIndex = detailPanelHistory.stack.length - 1;
-  updateNavButtons();
 }
 
 // Make functions globally available
 window.initDetailPanel = initDetailPanel;
 window.closeDetailPanel = closeDetailPanel;
-window.navigateDetailHistory = navigateDetailHistory;
 window.navigateToCalendarFromTimeline = navigateToCalendarFromTimeline;
 
 // =====================================================
@@ -1206,24 +2356,13 @@ async function openDurationDetailInternal(durationId, addHistory = true) {
   // Highlight the selected duration bar
   highlightDurationBar(durationId);
   
-  if (addHistory) {
-    addToDetailHistory('duration', durationId);
-  }
-  
   // Load events data to get pretty names
   const data = await loadBiblicalTimelineData();
   const events = data?.events || [];
   
-  // Resolve events to get dates
+  // Get resolved events (uses cache)
   const profile = (typeof getTimelineProfile === 'function') ? getTimelineProfile() : null;
-  let resolvedEvents = [];
-  if (typeof EventResolver !== 'undefined' && profile) {
-    try {
-      resolvedEvents = EventResolver.resolveAllEvents(data, profile);
-    } catch (e) {
-      console.warn('Error resolving events:', e);
-    }
-  }
+  const resolvedEvents = getResolvedEvents(data, profile);
   
   const getEventInfo = (eventId) => {
     const event = events.find(e => e.id === eventId);
@@ -1233,7 +2372,8 @@ async function openDurationDetailInternal(durationId, addHistory = true) {
     if (resolved?.startJD && typeof EventResolver !== 'undefined') {
       const greg = EventResolver.julianDayToGregorian(resolved.startJD);
       const year = greg.year;
-      dateStr = year > 0 ? `${year} AD` : `${Math.abs(year)} BC`;
+      // Astronomical year: 0 = 1 BC, -1 = 2 BC, -N = (N+1) BC
+      dateStr = year > 0 ? `${year} AD` : `${1 - year} BC`;
     }
     
     if (event) {
@@ -1299,9 +2439,12 @@ async function openDurationDetailInternal(durationId, addHistory = true) {
       ${duration.sources && duration.sources.length > 0 ? 
         duration.sources.map(src => {
           const srcIcon = src.type === 'scripture' ? '📖' : src.type === 'historical' ? '📜' : '📋';
+          const refHtml = src.type === 'scripture' && src.ref
+            ? `<a href="#" class="scripture-link" onclick="if(typeof openBibleReader==='function'){openBibleReader('${src.ref.replace(/'/g, "\\'")}');} return false;">${src.ref}</a>`
+            : (src.ref || 'Unknown');
           return `
             <div class="detail-source-item">
-              <div class="detail-source-ref">${srcIcon} ${src.ref || 'Unknown'}</div>
+              <div class="detail-source-ref">${srcIcon} ${refHtml}</div>
               ${src.quote ? `<div class="detail-source-quote">"${renderMarkdown(src.quote)}"</div>` : ''}
             </div>
           `;
@@ -1386,10 +2529,27 @@ function openDurationDetail_openEvent(eventId) {
   openEventDetail(eventId);
 }
 
-// Public function - opens duration and adds to history
-async function openDurationDetail(durationId) {
-  await openDurationDetailInternal(durationId, true);
-  updateTimelineURL('duration', durationId);
+// Public function - dispatches to AppStore (unidirectional flow)
+function openDurationDetail(durationId) {
+  if (typeof AppStore !== 'undefined') {
+    AppStore.dispatch({ type: 'SET_TIMELINE_DURATION', durationId: durationId });
+  } else {
+    // Fallback for direct calls
+    showDurationDetailFromState(durationId);
+  }
+}
+
+// State-driven render function (called by TimelineView)
+async function showDurationDetailFromState(durationId) {
+  // Clear search filter when viewing a duration (so duration endpoints can be shown)
+  const needsRerender = activeSearchResultIds !== null;
+  if (needsRerender) {
+    activeSearchResultIds = null;
+    activeSearchDurationIds = null;
+    renderBiblicalTimeline();
+  }
+  
+  await openDurationDetailInternal(durationId, false);
 }
 
 // Close - just close the panel and reset URL
@@ -1416,10 +2576,6 @@ async function openEventDetailInternal(eventId, addHistory = true) {
   // Clear duration highlight when viewing an event
   highlightDurationBar(null);
   
-  if (addHistory) {
-    addToDetailHistory('event', eventId);
-  }
-  
   const icon = getTypeIcon(event.type);
   
   // Format dates
@@ -1428,9 +2584,14 @@ async function openEventDetailInternal(eventId, addHistory = true) {
   let hasFixedGregorian = false;
   let reckoningExplanation = '';
   
-  // Determine reckoning explanation
-  if (event.start?.regal?.epoch) {
-    const epoch = data?.epochs?.[event.start.regal.epoch];
+  // Support both v1 (event.dates) and v2 (event.start) formats
+  const eventLunar = event.start?.lunar || event.dates?.lunar;
+  const eventRegal = event.start?.regal || event.dates?.regal;
+  const eventFixed = event.start?.fixed || event.dates?.fixed;
+  
+  // Determine reckoning explanation (check dates from original event definition)
+  if (eventRegal?.epoch) {
+    const epoch = data?.epochs?.[eventRegal.epoch];
     if (epoch?.reckoning) {
       const reckoningMap = {
         'spring-to-spring': 'Spring-to-Spring (Nisan New Year)',
@@ -1440,33 +2601,37 @@ async function openEventDetailInternal(eventId, addHistory = true) {
       };
       reckoningExplanation = reckoningMap[epoch.reckoning] || epoch.reckoning;
     }
-  } else if (event.start?.lunar) {
-    // Infer reckoning from month
-    const month = event.start.lunar.month;
-    if (month >= 1 && month <= 6) {
-      reckoningExplanation = 'Spring Calendar (Nisan New Year)';
-    } else if (month >= 7 && month <= 12) {
-      reckoningExplanation = 'Civil Calendar (Tishri New Year)';
-    }
+  } else if (eventLunar) {
+    // All lunar dates use the religious calendar (Nisan New Year)
+    reckoningExplanation = 'Religious Calendar (Nisan New Year)';
   }
   
-  if (event.start?.lunar) {
-    const l = event.start.lunar;
-    const monthNames = ['Nisan', 'Iyyar', 'Sivan', 'Tammuz', 'Av', 'Elul', 'Tishri', 'Cheshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar'];
-    const monthName = monthNames[(l.month - 1) % 12] || `Month ${l.month}`;
-    lunarDateStr = l.day ? `${monthName} ${l.day}` : monthName;
-    if (l.year) {
-      lunarDateStr += `, ${l.year > 0 ? l.year + ' AD' : Math.abs(l.year) + ' BC'}`;
-    }
+  // Track if source lunar has year - we'll need resolved year if not
+  let sourceLunarHasYear = eventLunar?.year !== undefined;
+  
+  if (eventLunar) {
+    const l = eventLunar;
+    // Astronomical year: 0 = 1 BC, -1 = 2 BC, -N = (N+1) BC
+    const yearStr = l.year !== undefined ? (l.year > 0 ? l.year + ' AD' : (1 - l.year) + ' BC') : '';
+    // Hebrew month names
+    const hebrewMonths = ['', 'Nisan', 'Iyar', 'Sivan', 'Tammuz', 'Av', 'Elul', 
+                          'Tishri', 'Cheshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar', 'Adar II'];
+    const monthName = hebrewMonths[l.month] || `Month ${l.month}`;
+    // Format as "Tishri(7) 10, 29 AD" - unambiguous with month name and number
+    // Year will be added later from resolved date if not in source
+    lunarDateStr = yearStr 
+      ? `${monthName}(${l.month}) ${l.day || 1}, ${yearStr}` 
+      : `${monthName}(${l.month}) ${l.day || 1}`;
   }
   
   // Check for fixed Gregorian date (astronomically verified)
-  if (event.start?.fixed?.gregorian) {
+  if (eventFixed?.gregorian) {
     hasFixedGregorian = true;
-    const g = event.start.fixed.gregorian;
+    const g = eventFixed.gregorian;
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    gregorianDateStr = `${monthNames[(g.month || 1) - 1]} ${g.day || 1}, ${g.year > 0 ? g.year + ' AD' : Math.abs(g.year) + ' BC'}`;
-    reckoningExplanation = event.start.fixed.source || 'Astronomically/Historically Fixed';
+    // Astronomical year: 0 = 1 BC, -1 = 2 BC, -N = (N+1) BC
+    gregorianDateStr = `${monthNames[(g.month || 1) - 1]} ${g.day || 1}, ${g.year > 0 ? g.year + ' AD' : (1 - g.year) + ' BC'}`;
+    reckoningExplanation = eventFixed.source || 'Astronomically/Historically Fixed';
   }
   
   // Get resolved dates if available
@@ -1476,33 +2641,44 @@ async function openEventDetailInternal(eventId, addHistory = true) {
   let resolvedLunar = null;
   let resolved = []; // All resolved events for reference lookups
   
-  if (typeof EventResolver !== 'undefined' && profile) {
-    try {
-      resolved = EventResolver.resolveAllEvents(data, profile);
-      const resolvedEvent = resolved.find(e => e.id === eventId);
-      if (resolvedEvent) {
-        resolvedStartJD = resolvedEvent.startJD;
-        if (resolvedStartJD) {
-          resolvedGregorian = EventResolver.julianDayToGregorian(resolvedStartJD);
-          resolvedLunar = EventResolver.julianDayToLunar(resolvedStartJD, profile);
-          
-          // If no lunar date in source, use resolved lunar
-          if (lunarDateStr === '—' && resolvedLunar) {
-            const monthNames = ['Nisan', 'Iyyar', 'Sivan', 'Tammuz', 'Av', 'Elul', 'Tishri', 'Cheshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar'];
-            const monthName = monthNames[(resolvedLunar.month - 1) % 12] || `Month ${resolvedLunar.month}`;
-            lunarDateStr = `${monthName} ${resolvedLunar.day}, ${resolvedLunar.year > 0 ? resolvedLunar.year + ' AD' : Math.abs(resolvedLunar.year) + ' BC'}`;
-          }
-        }
+  // Get resolved events (uses cache)
+  resolved = getResolvedEvents(data, profile);
+  
+  const resolvedEvent = resolved.find(e => e.id === eventId);
+  if (resolvedEvent) {
+    resolvedStartJD = resolvedEvent.startJD;
+    if (resolvedStartJD && typeof EventResolver !== 'undefined') {
+      resolvedGregorian = EventResolver.julianDayToGregorian(resolvedStartJD);
+      resolvedLunar = EventResolver.julianDayToLunar(resolvedStartJD, profile);
+      
+      // If no lunar date in source, use resolved lunar entirely
+      if (lunarDateStr === '—' && resolvedLunar) {
+        // Prefer _lunarYear from chain calculation (more accurate than julianDayToLunar)
+        const displayYear = resolvedEvent._lunarYear !== undefined ? resolvedEvent._lunarYear : resolvedLunar.year;
+        // Astronomical year: 0 = 1 BC, -1 = 2 BC, -N = (N+1) BC
+        const yearStr = displayYear > 0 ? displayYear + ' AD' : (1 - displayYear) + ' BC';
+        // Hebrew month names
+        const hebrewMonths = ['', 'Nisan', 'Iyar', 'Sivan', 'Tammuz', 'Av', 'Elul', 
+                              'Tishri', 'Cheshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar', 'Adar II'];
+        const monthName = hebrewMonths[resolvedLunar.month] || `Month ${resolvedLunar.month}`;
+        // Format as "Tishri(7) 10, 29 AD"
+        lunarDateStr = `${monthName}(${resolvedLunar.month}) ${resolvedLunar.day}, ${yearStr}`;
       }
-    } catch (e) {
-      console.warn('Error resolving event:', e);
+      // If source lunar had month/day but no year, append the resolved year
+      else if (!sourceLunarHasYear && resolvedLunar && lunarDateStr !== '—') {
+        // Prefer _lunarYear from chain calculation (more accurate than julianDayToLunar)
+        const displayYear = resolvedEvent._lunarYear !== undefined ? resolvedEvent._lunarYear : resolvedLunar.year;
+        // Astronomical year: 0 = 1 BC, -1 = 2 BC, -N = (N+1) BC
+        const yearStr = displayYear > 0 ? displayYear + ' AD' : (1 - displayYear) + ' BC';
+        lunarDateStr = `${lunarDateStr}, ${yearStr}`;
+      }
     }
   }
   
   // Build clickable lunar date (navigates to calendar)
   let lunarDateHtml = lunarDateStr;
   if (lunarDateStr !== '—' && resolvedGregorian) {
-    const l = event.start?.lunar || resolvedLunar || {};
+    const l = eventLunar || resolvedLunar || {};
     const lunarMonth = l.month || 1;
     const lunarDay = l.day || 1;
     const calYear = resolvedGregorian.year;
@@ -1556,7 +2732,8 @@ async function openEventDetailInternal(eventId, addHistory = true) {
     let evYear = '';
     if (ev.startJD && typeof EventResolver !== 'undefined') {
       const greg = EventResolver.julianDayToGregorian(ev.startJD);
-      evYear = greg.year > 0 ? `${greg.year} AD` : `${Math.abs(greg.year)} BC`;
+      // Astronomical year: 0 = 1 BC, -1 = 2 BC, -N = (N+1) BC
+      evYear = greg.year > 0 ? `${greg.year} AD` : `${1 - greg.year} BC`;
     }
     return { id: ev.id, icon: evIcon, title: evTitle, year: evYear };
   };
@@ -1610,47 +2787,51 @@ async function openEventDetailInternal(eventId, addHistory = true) {
     `;
   }
   
-  // Show derivation if relative
-  if (event.start?.relative) {
-    const rel = event.start.relative;
-    const refEvent = data?.events?.find(e => e.id === rel.event);
-    const refTitle = refEvent?.title || rel.event;
-    const refIcon = refEvent ? getTypeIcon(refEvent.type) : '📍';
+  // Show full derivation chain if relative (support both event.start and event.dates)
+  const startSpec = event.start || event.dates;
+  if (startSpec?.relative || startSpec?.priestly_cycle || startSpec?.lunar_relative) {
+    // Build the full derivation chain
+    const chain = buildDerivationChain(event, data, resolved);
     
-    // Get date of reference event
-    let refDateStr = '';
-    const refResolved = resolved.find(e => e.id === rel.event);
-    if (refResolved?.startJD && typeof EventResolver !== 'undefined') {
-      const refGreg = EventResolver.julianDayToGregorian(refResolved.startJD);
-      refDateStr = refGreg.year > 0 ? `${refGreg.year} AD` : `${Math.abs(refGreg.year)} BC`;
-    }
-    
-    let offsetStr = '';
-    if (rel.offset) {
-      const parts = [];
-      if (rel.offset.years) parts.push(`${rel.offset.years} years`);
-      if (rel.offset.months) parts.push(`${rel.offset.months} months`);
-      if (rel.offset.days) parts.push(`${rel.offset.days} days`);
-      offsetStr = parts.join(', ');
-    }
-    const direction = rel.direction || 'after';
-    
-    html += `
-      <div class="detail-section">
-        <h4>Derived From</h4>
-        <div class="detail-events-row">
-          <div class="detail-event-link" onclick="openEventDetail('${rel.event}')" style="flex-direction: column; align-items: flex-start;">
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span>${refIcon}</span>
-              <span>${refTitle}</span>
+    if (chain.length > 0) {
+      html += `
+        <div class="detail-section">
+          <h4>Derivation Chain</h4>
+          <div class="derivation-chain" style="display: flex; flex-direction: column; gap: 8px;">
+      `;
+      
+      chain.forEach((link, idx) => {
+        const isLast = idx === chain.length - 1;
+        const isSolid = link.isSolid;
+        const safeEventId = (link.eventId || '').replace(/'/g, "\\'");
+        const safeTitle = (link.title || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        
+        html += `
+          <div class="derivation-chain-item" style="display: flex; align-items: center; gap: 8px; padding: 8px; background: ${isSolid ? 'rgba(107, 196, 107, 0.15)' : 'rgba(126, 200, 227, 0.08)'}; border-radius: 6px; border-left: 3px solid ${isSolid ? '#6bc46b' : '#7ec8e3'};">
+            <div class="derivation-event" onclick="openEventDetail('${safeEventId}')" style="cursor: pointer; flex: 1;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span>${link.icon}</span>
+                <span style="font-weight: ${isSolid ? '600' : '400'};">${safeTitle}</span>
+                ${isSolid ? '<span style="font-size: 0.75em; background: #6bc46b; color: #000; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">ANCHOR</span>' : ''}
+              </div>
+              <div style="font-size: 0.85em; color: #6bc46b; margin-top: 4px;">${link.dateStr}</div>
+              ${link.solidReason ? `<div style="font-size: 0.75em; color: #888; margin-top: 2px;">${(link.solidReason || '').replace(/</g, '&lt;')}</div>` : ''}
             </div>
-            ${refDateStr ? `<div style="font-size: 0.85em; color: #6bc46b; margin-top: 4px;">${refDateStr}</div>` : ''}
+            ${!isLast ? `
+              <div class="derivation-offset" style="text-align: center; min-width: 80px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                <div style="font-size: 0.8em; color: #888;">${link.offsetDirection}</div>
+                <div style="font-size: 0.9em; color: #d4a017;">${(link.offsetStr || '').replace(/</g, '&lt;')}</div>
+              </div>
+            ` : ''}
           </div>
-          <span class="detail-arrow">${direction === 'before' ? '←' : '→'}</span>
-          <span>${offsetStr} ${direction}</span>
+        `;
+      });
+      
+      html += `
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
   }
   
   // Show sources
@@ -1660,9 +2841,12 @@ async function openEventDetailInternal(eventId, addHistory = true) {
         <h4>Sources</h4>
         ${event.sources.map(src => {
           const srcIcon = src.type === 'scripture' ? '📖' : src.type === 'historical' ? '📜' : '📋';
+          const refHtml = src.type === 'scripture' && src.ref
+            ? `<a href="#" class="scripture-link" onclick="if(typeof openBibleReader==='function'){openBibleReader('${src.ref.replace(/'/g, "\\'")}');} return false;">${src.ref}</a>`
+            : (src.ref || 'Unknown');
           return `
             <div class="detail-source-item">
-              <div class="detail-source-ref">${srcIcon} ${src.ref || 'Unknown'}</div>
+              <div class="detail-source-ref">${srcIcon} ${refHtml}</div>
               ${src.quote ? `<div class="detail-source-quote">"${renderMarkdown(src.quote)}"</div>` : ''}
             </div>
           `;
@@ -1683,25 +2867,92 @@ async function openEventDetailInternal(eventId, addHistory = true) {
     `;
   }
   
-  // Show external links if present
-  if (event.links && event.links.length > 0) {
+  // Show documentation link if present (external markdown file)
+  if (event.doc) {
+    const docId = `doc-${eventId}`;
     html += `
       <div class="detail-section">
-        <h4>External Links</h4>
-        <div class="detail-links-container" style="display: flex; flex-direction: column; gap: 10px;">
-          ${event.links.map(link => `
-            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="detail-external-link" style="display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(126, 200, 227, 0.1); border: 1px solid rgba(126, 200, 227, 0.3); border-radius: 8px; text-decoration: none; color: #7ec8e3; transition: background 0.2s;">
-              <span style="font-size: 1.5em;">${link.icon || '🔗'}</span>
-              <div style="flex: 1;">
-                <div style="font-weight: 500;">${link.label}</div>
-                ${link.notes ? `<div style="font-size: 0.85em; color: #888; margin-top: 2px;">${link.notes}</div>` : ''}
-              </div>
-              <span style="color: #888;">↗</span>
-            </a>
-          `).join('')}
+        <h4>📐 Chronological Verification</h4>
+        <div id="${docId}" class="event-documentation" style="color: #ccc; line-height: 1.7;">
+          <p style="color: #888; font-style: italic;">Loading documentation...</p>
+        </div>
+        <button onclick="toggleDocExpand('${docId}')" class="doc-expand-btn" style="margin-top: 10px; padding: 8px 16px; background: rgba(126, 200, 227, 0.1); border: 1px solid rgba(126, 200, 227, 0.3); border-radius: 6px; color: #7ec8e3; cursor: pointer;">
+          Show Full Document
+        </button>
+      </div>
+    `;
+    // Documentation will be loaded after DOM insertion (see below)
+  }
+  
+  // Show related events if present
+  if (event.related_events && event.related_events.length > 0) {
+    html += `
+      <div class="detail-section">
+        <h4>🔗 Related Events</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          ${event.related_events.map(eventRef => {
+            const refEvent = data?.events?.find(e => e.id === eventRef);
+            const refTitle = refEvent?.title || eventRef;
+            const refIcon = refEvent ? getTypeIcon(refEvent.type) : '📍';
+            return `
+              <a href="#" onclick="openEventDetail('${eventRef}'); return false;" 
+                 style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: rgba(212, 160, 23, 0.1); border: 1px solid rgba(212, 160, 23, 0.3); border-radius: 6px; text-decoration: none; color: #d4a017; font-size: 0.85em; transition: background 0.2s;"
+                 onmouseover="this.style.background='rgba(212, 160, 23, 0.2)'" 
+                 onmouseout="this.style.background='rgba(212, 160, 23, 0.1)'">
+                ${refIcon} ${refTitle}
+              </a>
+            `;
+          }).join('')}
         </div>
       </div>
     `;
+  }
+  
+  // Show links if present (both internal event links and external URLs)
+  if (event.links && event.links.length > 0) {
+    // Separate internal event links from external URLs
+    const eventLinks = event.links.filter(l => l.event);
+    const externalLinks = event.links.filter(l => l.url);
+    
+    // Internal event links
+    if (eventLinks.length > 0) {
+      html += `
+        <div class="detail-section">
+          <h4>Related Events</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            ${eventLinks.map(link => `
+              <a href="#" onclick="openEventDetail('${link.event}'); return false;" 
+                 style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(126, 200, 227, 0.1); border: 1px solid rgba(126, 200, 227, 0.3); border-radius: 6px; text-decoration: none; color: #7ec8e3; font-size: 0.9em; transition: background 0.2s;"
+                 onmouseover="this.style.background='rgba(126, 200, 227, 0.2)'" 
+                 onmouseout="this.style.background='rgba(126, 200, 227, 0.1)'">
+                ${link.icon || '📍'} ${link.label}
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    // External URLs
+    if (externalLinks.length > 0) {
+      html += `
+        <div class="detail-section">
+          <h4>External Links</h4>
+          <div class="detail-links-container" style="display: flex; flex-direction: column; gap: 10px;">
+            ${externalLinks.map(link => `
+              <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="detail-external-link" style="display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(126, 200, 227, 0.1); border: 1px solid rgba(126, 200, 227, 0.3); border-radius: 8px; text-decoration: none; color: #7ec8e3; transition: background 0.2s;">
+                <span style="font-size: 1.5em;">${link.icon || '🔗'}</span>
+                <div style="flex: 1;">
+                  <div style="font-weight: 500;">${link.label}</div>
+                  ${link.notes ? `<div style="font-size: 0.85em; color: #888; margin-top: 2px;">${link.notes}</div>` : ''}
+                </div>
+                <span style="color: #888;">↗</span>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
   }
   
   // Show related durations
@@ -1754,6 +3005,12 @@ async function openEventDetailInternal(eventId, addHistory = true) {
   
   showDetailPanel(html);
   
+  // Load documentation after DOM is ready
+  if (event.doc) {
+    const docId = `doc-${eventId}`;
+    loadEventDocumentation(event.doc, docId);
+  }
+  
   // Check if description is truncated and add class if so
   requestAnimationFrame(() => {
     const descWrapper = document.getElementById(`desc-${eventId}`);
@@ -1775,6 +3032,20 @@ async function openEventDetailInternal(eventId, addHistory = true) {
 
 // Update URL to reflect currently open event/duration
 function updateTimelineURL(type, id) {
+  // Use AppStore if available for proper URL sync
+  if (typeof AppStore !== 'undefined') {
+    if (type === 'event') {
+      AppStore.dispatch({ type: 'SET_TIMELINE_EVENT', eventId: id });
+    } else if (type === 'duration') {
+      AppStore.dispatch({ type: 'SET_TIMELINE_DURATION', durationId: id });
+    } else {
+      // Clear selection
+      AppStore.dispatch({ type: 'CLEAR_TIMELINE_SELECTION' });
+    }
+    return;
+  }
+  
+  // Fallback: Legacy URL handling
   if (typeof getCurrentProfileSlug !== 'function') return;
   
   const profile = getCurrentProfileSlug();
@@ -1791,10 +3062,28 @@ function updateTimelineURL(type, id) {
   window.history.replaceState({ view: 'biblical-timeline', [type + 'Id']: id }, '', newURL);
 }
 
-// Public function - opens event and adds to history
-async function openEventDetail(eventId) {
-  await openEventDetailInternal(eventId, true);
-  updateTimelineURL('event', eventId);
+// Public function - dispatches to AppStore (unidirectional flow)
+// Actual rendering happens via TimelineView.syncPanelFromState
+function openEventDetail(eventId) {
+  if (typeof AppStore !== 'undefined') {
+    AppStore.dispatch({ type: 'SET_TIMELINE_EVENT', eventId: eventId });
+  } else {
+    // Fallback for direct calls
+    showEventDetailFromState(eventId);
+  }
+}
+
+// State-driven render function (called by TimelineView)
+async function showEventDetailFromState(eventId) {
+  // Clear search filter when viewing an event (so selected event can be shown)
+  const needsRerender = activeSearchResultIds !== null;
+  if (needsRerender) {
+    activeSearchResultIds = null;
+    activeSearchDurationIds = null;
+    renderBiblicalTimeline();
+  }
+  
+  await openEventDetailInternal(eventId, false);
 }
 
 // Scroll the timeline to center on a specific year with animation
@@ -1843,6 +3132,70 @@ function toggleDescriptionExpand(descId) {
   }
 }
 
+// Show Jubilee year info in a popup/detail panel
+function showJubileeInfo(astronomicalYear, jubileeNumber) {
+  const JORDAN_YEAR = -1405; // 1406 BC
+  const yearsSinceJordan = astronomicalYear - JORDAN_YEAR;
+  const displayYear = astronomicalYear <= 0 ? (1 - astronomicalYear) + ' BC' : astronomicalYear + ' AD';
+  const jordanDisplayYear = '1406 BC';
+  
+  // Calculate previous and next Jubilees
+  const prevJubilee = astronomicalYear - 49;
+  const nextJubilee = astronomicalYear + 49;
+  const prevDisplay = prevJubilee <= 0 ? (1 - prevJubilee) + ' BC' : prevJubilee + ' AD';
+  const nextDisplay = nextJubilee <= 0 ? (1 - nextJubilee) + ' BC' : nextJubilee + ' AD';
+  
+  // Known significant Jubilee events
+  const jubileeEvents = {
+    17: { event: "Josiah's 18th Year", description: "Book of the Law found, Great Passover reformation" },
+    18: { event: "Ezekiel 40 Vision", description: "Temple vision on 10th of Nisan, 25th year of captivity" },
+  };
+  
+  const knownEvent = jubileeEvents[jubileeNumber];
+  
+  let content = `
+    <div style="padding: 20px; color: white;">
+      <h2 style="color: #ffd700; margin-bottom: 15px;">🎺 Jubilee ${jubileeNumber}</h2>
+      <div style="margin-bottom: 15px;">
+        <div style="color: #888;">Year</div>
+        <div style="font-size: 1.3em;">${displayYear}</div>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <div style="color: #888;">Years from Jordan Crossing (${jordanDisplayYear})</div>
+        <div>${yearsSinceJordan} years = ${jubileeNumber - 1} × 49</div>
+      </div>
+      ${knownEvent ? `
+      <div style="margin-bottom: 15px; padding: 10px; background: rgba(255, 215, 0, 0.1); border-left: 3px solid #ffd700; border-radius: 4px;">
+        <div style="color: #ffd700; font-weight: bold;">${knownEvent.event}</div>
+        <div style="color: #ccc; font-size: 0.9em;">${knownEvent.description}</div>
+      </div>
+      ` : ''}
+      <div style="margin-bottom: 15px;">
+        <div style="color: #888;">Jubilee Cycle</div>
+        <div style="display: flex; gap: 20px;">
+          <div><span style="color: #666;">← Previous:</span> ${prevDisplay} (Jubilee ${jubileeNumber - 1})</div>
+          <div><span style="color: #666;">→ Next:</span> ${nextDisplay} (Jubilee ${jubileeNumber + 1})</div>
+        </div>
+      </div>
+      <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
+        <div style="color: #888; font-size: 0.85em;">
+          <strong>Leviticus 25:10</strong>: "And ye shall hallow the fiftieth year, and proclaim liberty throughout all the land unto all the inhabitants thereof: it shall be a jubilee unto you."
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Use the existing detail slideout
+  const slideout = document.querySelector('.timeline-detail-slideout');
+  if (slideout) {
+    slideout.innerHTML = `
+      <button class="timeline-detail-close" onclick="closeTimelineDetail()">×</button>
+      ${content}
+    `;
+    slideout.classList.add('open');
+  }
+}
+
 // Make functions globally available
 window.openEventDetail = openEventDetail;
 window.scrollTimelineToYear = scrollTimelineToYear;
@@ -1850,6 +3203,39 @@ window.openDurationDetail = openDurationDetail;
 window.closeDurationDetail = closeDurationDetail;
 window.openDurationDetail_openEvent = openDurationDetail_openEvent;
 window.toggleDescriptionExpand = toggleDescriptionExpand;
+window.showJubileeInfo = showJubileeInfo;
+
+// State-driven render functions (called by TimelineView)
+window.showEventDetailFromState = showEventDetailFromState;
+window.showDurationDetailFromState = showDurationDetailFromState;
+window.showSearchResultsFromState = showSearchResultsFromState;
+window.closeDetailPanelFromState = closeDetailPanelFromState;
+
+// Sync timeline zoom and position from state (for back/forward navigation)
+// This is called when state changes to update the view without full re-render
+window.syncTimelineZoomAndPosition = function(targetZoom, targetYear) {
+  const scrollContainer = document.getElementById('timeline-scroll-container');
+  if (!scrollContainer) return;
+  
+  const zoomChanged = targetZoom !== null && targetZoom !== biblicalTimelineZoom;
+  const yearChanged = targetYear !== null;
+  
+  if (zoomChanged) {
+    // Apply zoom and re-render
+    biblicalTimelineZoom = targetZoom;
+    renderBiblicalTimeline();
+    
+    // After render, scroll to year if provided
+    if (yearChanged) {
+      requestAnimationFrame(() => {
+        scrollTimelineToYear(targetYear);
+      });
+    }
+  } else if (yearChanged) {
+    // Just scroll - no zoom change
+    scrollTimelineToYear(targetYear);
+  }
+};
 
 // Render ruler-style timeline with events stacked on right, connected by lines
 async function renderBiblicalTimeline() {
@@ -1865,6 +3251,49 @@ async function renderBiblicalTimeline() {
   // Get calendar profile for resolution
   const profile = getTimelineProfile();
   
+  // Check if we need to calculate (not cached) - show progress bar
+  const needsCalculation = !isTimelineCacheValid(data, profile);
+  
+  // Check if background resolution is in progress
+  const bgInProgress = backgroundResolutionInProgress;
+  
+  if (needsCalculation || bgInProgress) {
+    // Show progress bar - either for first-time calculation or waiting for background
+    const statusText = bgInProgress 
+      ? 'Pre-loading timeline in background...' 
+      : 'Calculating biblical timeline...';
+    const initialProgress = bgInProgress ? backgroundResolutionProgress : 0;
+    
+    container.innerHTML = `
+      <div class="timeline-loading-container">
+        <div class="timeline-loading-text">${statusText}</div>
+        <div class="timeline-progress-bar">
+          <div class="timeline-progress-fill" style="width: ${initialProgress}%"></div>
+        </div>
+        <div class="timeline-loading-subtext">Resolving event dates across 6,000+ years</div>
+      </div>
+    `;
+    
+    // If background resolution is in progress, wait for it to complete
+    // Note: The background resolver callback updates the progress bar directly,
+    // we just poll for completion here (no duplicate progress bar updates)
+    if (bgInProgress) {
+      console.log('[Timeline] Waiting for background resolution to complete...');
+      await new Promise(resolve => {
+        const checkInterval = setInterval(() => {
+          if (!backgroundResolutionInProgress) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 100);
+      });
+      console.log('[Timeline] Background resolution complete, proceeding...');
+    } else {
+      // Allow UI to paint before heavy calculation
+      await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 50)));
+    }
+  }
+  
   // TABBED DEBUG MODE: Show tabs for table, graph, and durations
   // Graph tab uses the existing timeline rendering (skips debug mode)
   if (TIMELINE_DEBUG_MODE && currentTimelineTab !== 'graph') {
@@ -1874,14 +3303,10 @@ async function renderBiblicalTimeline() {
     // Use setTimeout to allow the UI to update before processing
     setTimeout(() => {
       try {
-        let resolvedEvents;
-        try {
-          resolvedEvents = EventResolver.resolveAllEvents(data, profile);
-        } catch (resolveErr) {
-          container.innerHTML = `<div style="padding: 20px; color: #ff6b6b;">
-            <h3>Error resolving events:</h3>
-            <pre>${resolveErr.message}\n${resolveErr.stack}</pre>
-          </div>`;
+        // Get resolved events (uses cache)
+        const resolvedEvents = getResolvedEvents(data, profile);
+        if (!resolvedEvents || resolvedEvents.length === 0) {
+          container.innerHTML = '<div style="padding: 20px; color: #ff6b6b;">No events resolved.</div>';
           return;
         }
         
@@ -1995,47 +3420,96 @@ async function renderBiblicalTimeline() {
             return { month: lunar.month, day: lunar.day, year: lunar.year, source: 'stipulated' };
           }
           
+          // If source has month/day but no year, check for _lunarYear from chain calculation
+          if (lunar.month !== undefined && lunar.day !== undefined && event._lunarYear !== undefined) {
+            return { month: lunar.month, day: lunar.day, year: event._lunarYear, source: '=chain' };
+          }
+          
+          // If we have a priestly_cycle reference, show appropriate formula
+          if (dateSpec.priestly_cycle) {
+            const cycle = dateSpec.priestly_cycle;
+            const courseName = cycle.course || 'Abijah';
+            const afterEvent = cycle.after_event || '?';
+            // Use resolved JD for the lunar date
+            const jd = isEnd ? event.resolved?.endJD : event.resolved?.startJD;
+            if (jd && isFinite(jd) && typeof EventResolver !== 'undefined' && profile) {
+              const lunar = EventResolver.julianDayToLunar(jd, profile);
+              if (lunar) {
+                return {
+                  month: lunar.month,
+                  day: lunar.day,
+                  year: lunar.year,
+                  source: `=firstCourse(${courseName}, ${afterEvent})`
+                };
+              }
+            }
+          }
+          
           // If we have a FIXED Gregorian date, calculate lunar from it
           if (fixed?.gregorian) {
             const greg = fixed.gregorian;
             const jd = gregorianToJD(greg);
+            // Use EventResolver's julianDayToLunar with proper profile
+            if (typeof EventResolver !== 'undefined' && profile) {
+              const lunar = EventResolver.julianDayToLunar(jd, profile);
+              if (lunar) {
+                return { 
+                  month: lunar.month, 
+                  day: lunar.day, 
+                  year: lunar.year, 
+                  source: `=lunar(${greg.month}/${greg.day}/${greg.year > 0 ? greg.year : (1-greg.year)+'BC'})`
+                };
+              }
+            }
+            // Fallback to approximate if resolver not available
             const approxLunar = jdToApproxLunar(jd, greg.year);
             if (approxLunar) {
               return { 
                 month: approxLunar.month, 
                 day: approxLunar.day, 
                 year: approxLunar.year, 
-                source: `=lunar(${greg.month}/${greg.day}/${greg.year > 0 ? greg.year : (1-greg.year)+'BC'})`
+                source: `=lunar(${greg.month}/${greg.day}/${greg.year > 0 ? greg.year : (1-greg.year)+'BC'}) approx`
               };
             }
           }
           
           // If we have a reference, resolve it and apply offset
           if (refId && eventsById[refId]) {
+            const offset = relative?.offset || {};
+            const direction = relative?.direction;
+            let yearsOffset = offset.years || 0;
+            let monthsOffset = offset.months || 0;
+            let daysOffset = offset.days || 0;
+            
+            if (direction === 'before') {
+              yearsOffset = -yearsOffset;
+              monthsOffset = -monthsOffset;
+              daysOffset = -daysOffset;
+            }
+            
+            // Build formula string for display
+            let formula = `=${refId}`;
+            if (yearsOffset) formula += (yearsOffset > 0 ? `+${yearsOffset}y` : `${yearsOffset}y`);
+            if (monthsOffset) formula += (monthsOffset > 0 ? `+${monthsOffset}m` : `${monthsOffset}m`);
+            if (daysOffset) formula += (daysOffset > 0 ? `+${daysOffset}d` : `${daysOffset}d`);
+            
+            // For day offsets (like 280 days), use resolved JD for accuracy
+            // Simple 30-day arithmetic is too inaccurate for large day offsets
+            if (Math.abs(daysOffset) > 30) {
+              const jd = isEnd ? event.resolved?.endJD : event.resolved?.startJD;
+              if (jd && isFinite(jd) && typeof EventResolver !== 'undefined' && profile) {
+                const lunarFromJD = EventResolver.julianDayToLunar(jd, profile);
+                if (lunarFromJD) {
+                  // Prefer _lunarYear from chain calculation (more accurate)
+                  return { month: lunarFromJD.month, day: lunarFromJD.day, year: event._lunarYear ?? lunarFromJD.year, source: formula };
+                }
+              }
+            }
+            
+            // For year/month offsets, use simple arithmetic (more accurate for these)
             const refLunar = resolveLunarDate(eventsById[refId], false, new Set(visited));
             if (refLunar) {
               let { month, day, year } = refLunar;
-              
-              // Build formula string
-              const offset = relative?.offset || {};
-              const direction = relative?.direction;
-              let formula = `=${refId}`;
-              
-              // Apply offsets
-              let yearsOffset = offset.years || 0;
-              let monthsOffset = offset.months || 0;
-              let daysOffset = offset.days || 0;
-              
-              if (direction === 'before') {
-                yearsOffset = -yearsOffset;
-                monthsOffset = -monthsOffset;
-                daysOffset = -daysOffset;
-              }
-              
-              // Build formula string
-              if (yearsOffset) formula += (yearsOffset > 0 ? `+${yearsOffset}y` : `${yearsOffset}y`);
-              if (monthsOffset) formula += (monthsOffset > 0 ? `+${monthsOffset}m` : `${monthsOffset}m`);
-              if (daysOffset) formula += (daysOffset > 0 ? `+${daysOffset}d` : `${daysOffset}d`);
               
               // Apply year offset
               year = (year || 0) + yearsOffset;
@@ -2065,25 +3539,43 @@ async function renderBiblicalTimeline() {
           // Partial lunar data - try to fill in from gregorian year
           const greg = isEnd ? event.resolved?.endGregorian : event.resolved?.startGregorian;
           if (lunar.month !== undefined || lunar.day !== undefined) {
+            // Prefer _lunarYear from chain calculation
+            const displayYear = event._lunarYear ?? lunar.year ?? greg?.year ?? null;
             return {
               month: lunar.month ?? 1,
               day: lunar.day ?? 1,
-              year: lunar.year ?? greg?.year ?? null,
-              source: lunar.year !== undefined ? 'stipulated' : '=G.Y(JD)'
+              year: displayYear,
+              source: event._lunarYear !== undefined ? '=chain' : (lunar.year !== undefined ? 'stipulated' : '=G.Y(JD)')
             };
           }
           
-          // Last resort: derive from resolved JD
+          // Last resort: derive from resolved JD using proper astronomy engine
           const jd = isEnd ? event.resolved?.endJD : event.resolved?.startJD;
-          if (jd && isFinite(jd) && greg) {
-            const approxLunar = jdToApproxLunar(jd, greg.year);
-            if (approxLunar) {
-              return {
-                month: approxLunar.month,
-                day: approxLunar.day,
-                year: approxLunar.year,
-                source: '=lunar(JD)'
-              };
+          if (jd && isFinite(jd)) {
+            // Use EventResolver's julianDayToLunar with proper profile
+            if (typeof EventResolver !== 'undefined' && profile) {
+              const lunarFromJD = EventResolver.julianDayToLunar(jd, profile);
+              if (lunarFromJD) {
+                // Prefer _lunarYear from chain calculation (more accurate)
+                return {
+                  month: lunarFromJD.month,
+                  day: lunarFromJD.day,
+                  year: event._lunarYear ?? lunarFromJD.year,
+                  source: event._lunarYear !== undefined ? '=chain' : '=lunar(JD)'
+                };
+              }
+            }
+            // Fallback to approximate if resolver not available
+            if (greg) {
+              const approxLunar = jdToApproxLunar(jd, greg.year);
+              if (approxLunar) {
+                return {
+                  month: approxLunar.month,
+                  day: approxLunar.day,
+                  year: approxLunar.year,
+                  source: '=lunar(JD) approx'
+                };
+              }
             }
           }
           
@@ -2128,10 +3620,16 @@ async function renderBiblicalTimeline() {
                 <button id="tabGraphBtn" style="${tabStyle(currentTimelineTab === 'graph')}">📈 Timeline Graph</button>
                 <button id="tabDurationsBtn" style="${tabStyle(currentTimelineTab === 'durations')}">🔗 Durations</button>
               </div>
-              <button id="exportCsvBtn" style="padding: 8px 16px; background: #4a9eff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Export CSV
-              </button>
+              <div>
+                <button id="testAsyncBtn" style="padding: 8px 16px; background: #9c27b0; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px;">
+                  🧪 Test Async
+                </button>
+                <button id="exportCsvBtn" style="padding: 8px 16px; background: #4a9eff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                  Export CSV
+                </button>
+              </div>
             </div>
+            <div id="testAsyncResult" style="display: none; padding: 10px; margin-bottom: 10px; border-radius: 4px;"></div>
             <div id="tabContent">
         `;
         
@@ -2352,6 +3850,39 @@ async function renderBiblicalTimeline() {
           tabDurationsBtn.onclick = () => { currentTimelineTab = 'durations'; renderBiblicalTimeline(); };
         }
         
+        // Attach async test handler
+        const testAsyncBtn = document.getElementById('testAsyncBtn');
+        if (testAsyncBtn) {
+          testAsyncBtn.onclick = async () => {
+            const resultDiv = document.getElementById('testAsyncResult');
+            if (resultDiv) {
+              resultDiv.style.display = 'block';
+              resultDiv.style.background = '#333';
+              resultDiv.innerHTML = '⏳ Running async vs sync comparison test...';
+            }
+            
+            try {
+              const result = await testAsyncResolver();
+              if (resultDiv) {
+                if (result.success) {
+                  resultDiv.style.background = '#1b5e20';
+                  resultDiv.innerHTML = `✓ PASS: Async and sync produce identical results!<br>
+                    Sync: ${result.syncCount} events | Async: ${result.asyncCount} events | Progress updates: ${result.progressUpdates}`;
+                } else {
+                  resultDiv.style.background = '#b71c1c';
+                  resultDiv.innerHTML = `✗ FAIL: ${result.errors?.length || 0} differences found.<br>
+                    Check browser console for details.`;
+                }
+              }
+            } catch (e) {
+              if (resultDiv) {
+                resultDiv.style.background = '#b71c1c';
+                resultDiv.innerHTML = `✗ ERROR: ${e.message}`;
+              }
+            }
+          };
+        }
+        
         // Attach CSV export handler
         const exportBtn = document.getElementById('exportCsvBtn');
         if (exportBtn) {
@@ -2386,28 +3917,20 @@ async function renderBiblicalTimeline() {
     return;
   }
   
-  // Create cache key from profile settings AND data content hash
-  // Use JSON string length as a simple content hash - changes when any event changes
-  const dataContentHash = JSON.stringify(data.events || []).length;
-  const cacheKey = JSON.stringify(profile) + ':' + dataContentHash;
-  
-  // Use cached resolved events if profile and data haven't changed
+  // Get resolved events (uses cache, or async with progress if calculating)
   let resolvedEvents;
-  if (biblicalTimelineResolvedCache && biblicalTimelineCacheKey === cacheKey) {
-    // Use cached results
-    resolvedEvents = biblicalTimelineResolvedCache;
-  } else if (biblicalTimelineUseV2 && typeof EventResolver !== 'undefined' && data.meta?.version === '2.0') {
-    // Resolve events and cache
-    resolvedEvents = EventResolver.resolveAllEvents(data, profile);
-    // Cache the results
-    biblicalTimelineResolvedCache = resolvedEvents;
-    biblicalTimelineCacheKey = cacheKey;
+  if (biblicalTimelineUseV2 && data.meta?.version === '2.0') {
+    if (needsCalculation) {
+      // Use async version with progress updates
+      resolvedEvents = await getResolvedEventsWithProgress(data, profile);
+    } else {
+      // Use sync version (cache hit)
+      resolvedEvents = getResolvedEvents(data, profile);
+    }
   } else {
     // Fallback: use old normalization for v1 data
     biblicalTimelineUseV2 = false;
     resolvedEvents = normalizeEventsLegacy(data.events || []);
-    biblicalTimelineResolvedCache = resolvedEvents;
-    biblicalTimelineCacheKey = cacheKey;
   }
   
   // Filter events (apply search/type/era filters) - apply fresh each time
@@ -2453,6 +3976,21 @@ async function renderBiblicalTimeline() {
     if (eventFull) {
       const year = eventFull.startJD ? Math.floor((eventFull.startJD - 1721425.5) / 365.25) : 'null';
       console.log(`${id}: startJD=${eventFull.startJD}, year=${year}, inFiltered=${!!eventFiltered}`);
+    } else {
+      console.log(`${id}: NOT FOUND in full cache`);
+    }
+  });
+  
+  // DEBUG: Check Yeshua/John birth events
+  const birthEvents = ['john-baptist-conception', 'john-baptist-birth', 'yeshua-conception', 'yeshua-birth'];
+  console.log('=== YESHUA/JOHN BIRTH EVENTS DEBUG ===');
+  birthEvents.forEach(id => {
+    const eventFiltered = resolvedEvents.find(e => e.id === id);
+    const eventFull = biblicalTimelineResolvedCache?.find(e => e.id === id);
+    
+    if (eventFull) {
+      const year = eventFull.startJD ? Math.floor((eventFull.startJD - 1721425.5) / 365.25) : 'null';
+      console.log(`${id}: startJD=${eventFull.startJD}, year=${year}, type=${eventFull.type}, inFiltered=${!!eventFiltered}`);
     } else {
       console.log(`${id}: NOT FOUND in full cache`);
     }
@@ -2569,7 +4107,7 @@ async function renderBiblicalTimeline() {
     // Auto-assign priority based on type and tags
     const majorTypes = ['milestone', 'creation', 'catastrophe', 'astronomical', 'battle', 'reign'];
     const highTypes = ['biblical-event'];
-    const majorTags = ['prophecy', 'resurrection', 'crucifixion', 'creation', 'flood', 'exodus', 'patriarch', 'genealogy', 'pre-flood', 'chronology-anchor', 'astronomical', 'assyrian'];
+    const majorTags = ['prophecy', 'resurrection', 'crucifixion', 'creation', 'flood', 'exodus', 'patriarch', 'genealogy', 'pre-flood', 'chronology-anchor', 'astronomical', 'assyrian', 'yeshua', 'jesus', 'john-baptist', 'nativity', 'annunciation'];
     
     if (majorTypes.includes(event.type)) return 1;
     if (event.tags && event.tags.some(tag => majorTags.includes(tag))) return 1;
@@ -2585,90 +4123,106 @@ async function renderBiblicalTimeline() {
   // Helper to check if event has duration (use Math.abs for negative durations)
   const hasDuration = (e) => e.endJD && Math.abs(e.endJD - e.startJD) >= 30;
   
-  // Filter events by zoom level
-  // Duration events are ALWAYS included (they render as bars, not clustered labels)
-  let eventsToShow = allEvents;
-  if (pixelPerYear < 5) {
-    // Very zoomed out (< 5 px/year) - only major milestones + duration events
-    eventsToShow = allEvents.filter(e => isMajorEvent(e) || hasDuration(e));
-  } else if (pixelPerYear < 20) {
-    // Medium zoom (5-20 px/year) - major events + high-certainty biblical events + duration events
-    eventsToShow = allEvents.filter(e => {
-      if (isMajorEvent(e)) return true;
-      if (hasDuration(e)) return true;
-      if (e.type === 'biblical-event' && e.certainty === 'high') return true;
-      return false;
-    });
-  }
-  // Fully zoomed in (>= 20 px/year) - show all events
+  // BEST-EFFORT PRIORITY-BASED SLOT ALLOCATION
+  // Never hide an event just because of zoom level - try to show ALL events
+  // If space is tight, higher priority events get slots first, lower priority may be displaced
   
-  // Event Clustering: Group events based on available vertical space
   // Each event label is ~32px tall + 8px spacing = 40px slot
-  // Calculate how many years fit in one event slot
-  const eventHeight = 40; // Height of event label + spacing
-  const yearsPerSlot = eventHeight / pixelPerYear; // How many years fit in one event slot
+  const eventHeight = 40;
+  const yearsPerSlot = eventHeight / pixelPerYear;
   
-  const getOverarchingEvent = (events) => {
-    // Priority: milestone > biblical-event > death > birth > feast > other
-    const typePriority = { 'milestone': 1, 'biblical-event': 2, 'death': 3, 'birth': 4, 'feast': 5 };
-    
-    // Sort by priority and pick the first
-    return events.sort((a, b) => {
-      const aPriority = typePriority[a.type] || 10;
-      const bPriority = typePriority[b.type] || 10;
-      if (aPriority !== bPriority) return aPriority - bPriority;
-      
-      // Prefer events with more tags (more significant)
-      const aTags = a.tags?.length || 0;
-      const bTags = b.tags?.length || 0;
-      return bTags - aTags;
-    })[0];
-  };
+  // Max slots an event can be displaced from its natural position before being hidden
+  // At low zoom, allow more displacement; at high zoom, less needed
+  const maxDisplacementSlots = Math.max(2, Math.ceil(10 / yearsPerSlot));
   
-  // Cluster POINT events that fall within the same slot
-  // Duration events are NOT clustered - they render as bars, not labels
-  if (yearsPerSlot > 1) {
-    // Separate duration events (keep all) from point events (cluster)
-    const durationEventsToKeep = eventsToShow.filter(e => hasDuration(e));
-    const pointEventsToCluster = eventsToShow.filter(e => !hasDuration(e));
+  // Helper to get year from JD
+  const jdToYear = (jd) => Math.floor((jd - 1721425.5) / 365.25);
+  
+  // Separate duration events (always shown as bars) from point events (need slot allocation)
+  const durationEventsToKeep = allEvents.filter(e => hasDuration(e));
+  const pointEventsForAlloc = allEvents.filter(e => !hasDuration(e) && e.startJD !== null);
+  
+  // Sort point events by priority (highest priority = lowest number = first)
+  const sortedPointEvents = [...pointEventsForAlloc].sort((a, b) => {
+    const aPri = getEventPriority(a);
+    const bPri = getEventPriority(b);
+    if (aPri !== bPri) return aPri - bPri;
+    // Secondary sort by date for determinism
+    return (a.startJD || 0) - (b.startJD || 0);
+  });
+  
+  // Slot allocation: map from slotIndex -> { event, priority }
+  const allocatedSlots = new Map();
+  const eventsWithSlots = []; // Events that got a slot
+  
+  sortedPointEvents.forEach(event => {
+    const eventYear = jdToYear(event.startJD);
+    const naturalSlot = Math.floor((eventYear - minYear) / yearsPerSlot);
+    const eventPriority = getEventPriority(event);
     
-    // Cluster only point events by slot
-    const eventsBySlot = new Map();
+    // Try to find a slot: natural slot first, then adjacent slots up to maxDisplacement
+    let assignedSlot = null;
     
-    // Helper to get year from JD (simplified)
-    const jdToYear = (jd) => {
-      // Approximate: JD 0 = Jan 1, 4713 BC, ~365.25 days/year
-      return Math.floor((jd - 1721425.5) / 365.25);
-    };
-    
-    pointEventsToCluster.forEach(event => {
-      if (event.startJD === null) return;
+    for (let offset = 0; offset <= maxDisplacementSlots; offset++) {
+      // Try both directions: natural, +1, -1, +2, -2, etc.
+      const slotsToTry = offset === 0 ? [naturalSlot] : [naturalSlot + offset, naturalSlot - offset];
       
-      const eventYear = jdToYear(event.startJD);
-      const slotIndex = Math.floor((eventYear - minYear) / yearsPerSlot);
+      for (const trySlot of slotsToTry) {
+        if (trySlot < 0) continue; // Skip negative slots
+        
+        const existing = allocatedSlots.get(trySlot);
+        
+        if (!existing) {
+          // Slot is free - take it
+          assignedSlot = trySlot;
+          break;
+        } else if (eventPriority < existing.priority) {
+          // Current event has higher priority - evict the existing one
+          // The evicted event will try to find another slot in a later pass (or be hidden)
+          assignedSlot = trySlot;
+          break;
+        }
+        // Slot taken by higher or equal priority - try next slot
+      }
       
-      if (!eventsBySlot.has(slotIndex)) {
-        eventsBySlot.set(slotIndex, []);
-      }
-      eventsBySlot.get(slotIndex).push(event);
-    });
+      if (assignedSlot !== null) break;
+    }
     
-    // Pick overarching event from each slot for point events
-    const clusteredPointEvents = [];
-    eventsBySlot.forEach((slotEvents, slot) => {
-      if (slotEvents.length === 1) {
-        clusteredPointEvents.push(slotEvents[0]);
-      } else {
-        const overarching = getOverarchingEvent([...slotEvents]); // Clone to avoid mutation
-        overarching._clusterCount = slotEvents.length;
-        clusteredPointEvents.push(overarching);
+    if (assignedSlot !== null) {
+      // Check if we're evicting someone
+      const evicted = allocatedSlots.get(assignedSlot);
+      if (evicted) {
+        // Remove evicted event from our results (it will try to get another slot)
+        const evictIdx = eventsWithSlots.findIndex(e => e.event.id === evicted.event.id);
+        if (evictIdx >= 0) {
+          // Try to reallocate evicted event to a different slot
+          const evictedEvent = eventsWithSlots[evictIdx].event;
+          eventsWithSlots.splice(evictIdx, 1);
+          
+          // Simple reallocation: find nearest free slot
+          const evictedYear = jdToYear(evictedEvent.startJD);
+          const evictedNatural = Math.floor((evictedYear - minYear) / yearsPerSlot);
+          for (let off = 1; off <= maxDisplacementSlots * 2; off++) {
+            for (const tryS of [evictedNatural + off, evictedNatural - off]) {
+              if (tryS >= 0 && !allocatedSlots.has(tryS) && tryS !== assignedSlot) {
+                allocatedSlots.set(tryS, { event: evictedEvent, priority: evicted.priority });
+                eventsWithSlots.push({ event: evictedEvent, slot: tryS, displaced: Math.abs(tryS - evictedNatural) });
+                break;
+              }
+            }
+            if (eventsWithSlots.find(e => e.event.id === evictedEvent.id)) break;
+          }
+        }
       }
-    });
-    
-    // Combine: all duration events + clustered point events
-    eventsToShow = [...durationEventsToKeep, ...clusteredPointEvents];
-  }
-  // When yearsPerSlot <= 1, we have enough space for all events
+      
+      allocatedSlots.set(assignedSlot, { event, priority: eventPriority });
+      eventsWithSlots.push({ event, slot: assignedSlot, displaced: Math.abs(assignedSlot - naturalSlot) });
+    }
+    // If no slot found within displacement limit, event is hidden (will show when zoomed in)
+  });
+  
+  // Extract just the events for rendering
+  let eventsToShow = [...durationEventsToKeep, ...eventsWithSlots.map(e => e.event)];
   
   // Build HTML - with tab navigation and filter toggles (z-index higher than slideout so filters stay visible)
   let html = '<div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: #1a1a2e; flex-wrap: wrap; gap: 8px; position: relative; z-index: 9500;">';
@@ -2678,8 +4232,16 @@ async function renderBiblicalTimeline() {
   html += '<button onclick="switchTimelineTab(\'durations\')" style="padding: 6px 12px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer;">🔗 Durations</button>';
   html += '</div>';
   
-  // Zoom level indicator in top bar
-  html += '<span style="color: #666; font-size: 0.75em;">' + Math.round(pixelPerYear * 10) / 10 + ' px/yr</span>';
+  // Search bar - far right
+  // Get search value from state (unidirectional flow)
+  const currentSearch = getTimelineSearchFromState();
+  html += `<div class="timeline-search-bar" style="margin-left: auto;">
+    <input type="text" id="biblical-timeline-search" placeholder="Search events..." 
+      value="${currentSearch ? currentSearch.replace(/"/g, '&quot;') : ''}"
+      onkeyup="if(event.key==='Enter')timelineSearchAndZoom()">
+    <button class="timeline-search-btn" onclick="timelineSearchAndZoom()" title="Search">🔍</button>
+    <button class="timeline-search-btn" onclick="timelineClearSearch()" title="Clear & Close">✕</button>
+  </div>`;
   html += '</div>';
   
   // Zoom and filter controls - fixed bottom left
@@ -2695,6 +4257,7 @@ async function renderBiblicalTimeline() {
       <button class="timeline-filter-btn ${timelineFilters.biblical ? 'active' : ''}" onclick="toggleTimelineFilter('biblical')" title="Biblical">📖</button>
       <button class="timeline-filter-btn ${timelineFilters.historical ? 'active' : ''}" onclick="toggleTimelineFilter('historical')" title="Historical">📜</button>
       <button class="timeline-filter-btn ${timelineFilters.prophecy ? 'active' : ''}" onclick="toggleTimelineFilter('prophecy')" title="Prophecy">🔮</button>
+      <button class="timeline-filter-btn ${timelineFilters.dates ? 'active' : ''}" onclick="toggleTimelineFilter('dates')" title="Date References">📅</button>
     </div>
   </div>`;
   
@@ -2853,6 +4416,85 @@ async function renderBiblicalTimeline() {
       </div>`;
     }
   });
+  
+  // === YEAR BARS AND SABBATH/JUBILEE MARKERS ===
+  // Regular years: alternating gray shades
+  // Sabbath years: every 7th year from Jordan crossing (1406 BC) - green
+  // Jubilee years: every 49th year (7 × 7) from Jordan crossing - gold
+  // These appear as colored bars ON the baseline (centered on axis line)
+  const JORDAN_CROSSING_YEAR = -1405; // 1406 BC in astronomical years (0 = 1 BC)
+  
+  const isSabbathYear = (astronomicalYear) => {
+    // Years since Jordan crossing
+    const yearsSinceJordan = astronomicalYear - JORDAN_CROSSING_YEAR;
+    if (yearsSinceJordan < 0) return false; // Before Jordan crossing
+    // Sabbath year is every 7th year (year 7, 14, 21, etc.)
+    return yearsSinceJordan > 0 && yearsSinceJordan % 7 === 0;
+  };
+  
+  const isJubileeYear = (astronomicalYear) => {
+    // Years since Jordan crossing
+    const yearsSinceJordan = astronomicalYear - JORDAN_CROSSING_YEAR;
+    if (yearsSinceJordan < 0) return false; // Before Jordan crossing
+    // Jubilee year is every 49th year (year 49, 98, 147, etc.)
+    return yearsSinceJordan > 0 && yearsSinceJordan % 49 === 0;
+  };
+  
+  const getJubileeNumber = (astronomicalYear) => {
+    const yearsSinceJordan = astronomicalYear - JORDAN_CROSSING_YEAR;
+    return Math.floor(yearsSinceJordan / 49) + 1;
+  };
+  
+  // Format year for display
+  const formatYearForTooltip = (year) => {
+    return year <= 0 ? (1 - year) + ' BC' : year + ' AD';
+  };
+  
+  // Show year bars when zoomed in enough to see individual years
+  const showYearBars = pixelPerYear >= 3;         // Show year bars when >= 3 px/year
+  const showJubileeMarkers = pixelPerYear >= 0.5;  // Show Jubilees when >= 0.5 px/year
+  const showSabbathMarkers = pixelPerYear >= 2;   // Show Sabbaths when >= 2 px/year
+  
+  // Position year bars centered on the axis line (baseline)
+  const yearBarWidth = 6;
+  const yearBarLeft = axisLinePosForRuler - (yearBarWidth / 2); // Center on axis
+  
+  if (showYearBars || showJubileeMarkers || showSabbathMarkers) {
+    html += `<div class="year-bars-container" style="position: absolute; left: ${yearBarLeft}px; top: 0; width: ${yearBarWidth + 4}px; height: 100%; pointer-events: auto;">`;
+    
+    // Iterate through visible years
+    for (let year = Math.floor(minYear); year <= Math.ceil(maxYear); year++) {
+      const isJubilee = isJubileeYear(year);
+      const isSabbath = isSabbathYear(year);
+      const yearPos = ((year - minYear) * pixelPerYear);
+      const barHeight = Math.max(pixelPerYear, 1); // At least 1px tall
+      const displayYear = formatYearForTooltip(year);
+      
+      if (isJubilee && showJubileeMarkers) {
+        // Jubilee year - gold/amber bar, wider
+        const jubNum = getJubileeNumber(year);
+        html += `<div class="jubilee-year-marker" 
+          style="position: absolute; top: ${yearPos}px; left: -2px; width: ${yearBarWidth + 4}px; height: ${barHeight}px;"
+          title="🎺 Jubilee ${jubNum} - ${displayYear}"
+          onclick="showJubileeInfo(${year}, ${jubNum})"></div>`;
+      } else if (isSabbath && showSabbathMarkers) {
+        // Sabbath year - green bar
+        html += `<div class="sabbath-year-marker" 
+          style="position: absolute; top: ${yearPos}px; left: 0; width: ${yearBarWidth}px; height: ${barHeight}px;"
+          title="🌿 Sabbath Year - ${displayYear}"></div>`;
+      } else if (showYearBars) {
+        // Regular year - alternating gray shades
+        const isOdd = Math.abs(year) % 2 === 1;
+        const grayClass = isOdd ? 'odd' : 'even';
+        html += `<div class="year-bar ${grayClass}" 
+          style="position: absolute; top: ${yearPos}px; left: 0; width: ${yearBarWidth}px; height: ${barHeight}px;"
+          title="${displayYear}"></div>`;
+      }
+    }
+    
+    html += '</div>';
+  }
+  
   html += '</div>';
   
   // Only show lunar bars when zoomed in enough (pixelPerYear >= 5)
@@ -3121,8 +4763,20 @@ async function renderBiblicalTimeline() {
         icon: icon,
         color: color
       });
+      
+      // Debug: log yeshua/john events
+      if (event.id && (event.id.includes('yeshua') || event.id.includes('john-baptist'))) {
+        console.log(`[Render] Added to pendingPointEvents: ${event.id}, pos=${eventTimelinePos}, year=${year}`);
+      }
     }
   });
+  
+  // Debug: Check if yeshua/john events are in pendingPointEvents
+  const yeshuaJohnPending = pendingPointEvents.filter(pe => 
+    pe.event.id && (pe.event.id.includes('yeshua') || pe.event.id.includes('john-baptist'))
+  );
+  console.log('[Render] Yeshua/John events in pendingPointEvents:', yeshuaJohnPending.length, 
+    yeshuaJohnPending.map(pe => pe.event.id));
   
   // Smart positioning: sort by timeline position, then resolve overlaps
   pendingPointEvents.sort((a, b) => a.eventTimelinePos - b.eventTimelinePos);
@@ -3152,7 +4806,19 @@ async function renderBiblicalTimeline() {
       color: pe.color,
       clusterCount: null
     });
+    
+    // Debug: log yeshua/john events
+    if (pe.event.id && (pe.event.id.includes('yeshua') || pe.event.id.includes('john-baptist'))) {
+      console.log(`[Render] Added to pointEventsForStack: ${pe.event.id}, displayPos=${displayPos}`);
+    }
   });
+  
+  // Debug: Check if yeshua/john events are in pointEventsForStack
+  const yeshuaJohnStack = pointEventsForStack.filter(pe => 
+    pe.event.id && (pe.event.id.includes('yeshua') || pe.event.id.includes('john-baptist'))
+  );
+  console.log('[Render] Yeshua/John events in pointEventsForStack:', yeshuaJohnStack.length,
+    yeshuaJohnStack.map(pe => `${pe.event.id}@${pe.eventDisplayPos}`));
   
   // =====================================================
   // DURATION BARS - Render ONLY from explicit durations array
@@ -3197,7 +4863,8 @@ async function renderBiblicalTimeline() {
     const jd = eventJulianDays[id];
     if (jd !== undefined) {
       const year = Math.floor((jd - 1721425.5) / 365.25);
-      const yearStr = year > 0 ? `${year} AD` : `${Math.abs(year)} BC`;
+      // Astronomical year: 0 = 1 BC, -1 = 2 BC, -N = (N+1) BC
+      const yearStr = year > 0 ? `${year} AD` : `${1 - year} BC`;
       const pos = jdToPixelPos(jd);
       console.log(`${id}: JD=${jd.toFixed(2)}, year=${yearStr}, pixelPos=${pos.toFixed(2)}`);
     } else {
@@ -3427,6 +5094,25 @@ async function renderBiblicalTimeline() {
       eventLeft = minEventsLeft;
     }
     
+    // Build tooltip with lunar date
+    const hebrewMonths = ['', 'Nisan', 'Iyar', 'Sivan', 'Tammuz', 'Av', 'Elul', 
+                          'Tishri', 'Cheshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar', 'Adar II'];
+    
+    // Get lunar date - check both old format (dates.lunar) and new format (source.start.lunar)
+    let lunarStr = '';
+    const lunarData = pointEvent.event.dates?.lunar || pointEvent.event.source?.start?.lunar;
+    if (lunarData?.month) {
+      const monthName = hebrewMonths[lunarData.month] || `Month ${lunarData.month}`;
+      // Prefer _lunarYear from chain calculation, then source data, then empty
+      const displayYear = pointEvent.event._lunarYear !== undefined ? pointEvent.event._lunarYear : lunarData.year;
+      // Astronomical year: 0 = 1 BC, -1 = 2 BC, -N = (N+1) BC
+      const lunarYearStr = displayYear !== undefined ? (displayYear <= 0 ? `${1 - displayYear} BC` : `${displayYear} AD`) : '';
+      lunarStr = `${monthName}(${lunarData.month}) ${lunarData.day || 1}${lunarYearStr ? ', ' + lunarYearStr : ''}`;
+    }
+    
+    let eventTooltip = pointEvent.event.title;
+    if (lunarStr) eventTooltip += `&#10;🌙 ${lunarStr}`;
+    
     html += `
       <div class="stacked-event" 
            style="top: ${pointEvent.eventDisplayPos}px; left: ${eventLeft}px; border-left-color: ${pointEvent.color};"
@@ -3435,7 +5121,7 @@ async function renderBiblicalTimeline() {
            data-event-display-pos="${pointEvent.eventDisplayPos}"
            data-event-color="${pointEvent.color}"
            data-event-left="${eventLeft}"
-           title="${pointEvent.event.title} (${formatYear(pointEvent.year)})"
+           title="${eventTooltip}"
            onclick="openEventDetail('${pointEvent.event.id}')">
         <span class="stacked-event-icon">${pointEvent.icon}</span>
         <span class="stacked-event-title">${pointEvent.event.title}</span>
@@ -3783,9 +5469,26 @@ function initBiblicalTimelinePage() {
     profileNameEl.textContent = getCurrentProfileName();
   }
   
-  // Restore saved state
+  // Priority 1: Check URL state for zoom and center year (via AppStore)
+  let zoomFromURL = null;
+  let centerYearFromURL = null;
+  if (typeof AppStore !== 'undefined') {
+    const state = AppStore.getState();
+    if (state?.ui?.timelineZoom) {
+      zoomFromURL = state.ui.timelineZoom;
+    }
+    if (state?.ui?.timelineCenterYear) {
+      centerYearFromURL = state.ui.timelineCenterYear;
+    }
+  }
+  
+  // Priority 2: Restore saved state from localStorage
   const savedState = loadTimelineState();
-  if (savedState) {
+  
+  if (zoomFromURL !== null) {
+    // Use zoom from URL
+    biblicalTimelineZoom = zoomFromURL;
+  } else if (savedState) {
     biblicalTimelineZoom = savedState.zoom || 1.0;
   }
   
@@ -3793,14 +5496,21 @@ function initBiblicalTimelinePage() {
   renderBiblicalTimeline();
   
   // Restore scroll position after render
-  if (savedState && savedState.scrollTop) {
-    requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    if (centerYearFromURL !== null) {
+      // Priority 1: Use center year from URL
+      scrollToTimelineYear(centerYearFromURL);
+    } else if (savedState && savedState.centerYear) {
+      // Priority 2: Use center year from localStorage
+      scrollToTimelineYear(savedState.centerYear);
+    } else if (savedState && savedState.scrollTop) {
+      // Priority 3: Fall back to raw scroll position
       const scrollContainer = document.getElementById('timeline-scroll-container');
       if (scrollContainer) {
         scrollContainer.scrollTop = savedState.scrollTop;
       }
-    });
-  }
+    }
+  });
 }
 
 // Clear the resolved events cache (call when profile changes)
@@ -3825,6 +5535,88 @@ function cleanupBiblicalTimeline() {
   biblicalTimelinePan = 0;
 }
 
+/**
+ * Test function to verify async resolver produces same results as sync resolver.
+ * Call from browser console: testAsyncResolver()
+ */
+async function testAsyncResolver() {
+  console.log('=== Testing Async vs Sync Resolver ===');
+  
+  const data = await loadBiblicalTimelineData();
+  if (!data) {
+    console.error('Failed to load timeline data');
+    return { success: false, error: 'Failed to load data' };
+  }
+  
+  const profile = getTimelineProfile();
+  console.log('Profile:', profile);
+  console.log('Events to resolve:', data.events?.length || 0);
+  
+  // Clear cache to force fresh resolution
+  biblicalTimelineResolvedCache = null;
+  biblicalTimelineCacheKey = null;
+  
+  // Run sync version
+  console.time('Sync resolution');
+  const syncResult = EventResolver.resolveAllEvents(data, profile);
+  console.timeEnd('Sync resolution');
+  console.log('Sync result count:', syncResult.length);
+  
+  // Clear cache again
+  biblicalTimelineResolvedCache = null;
+  biblicalTimelineCacheKey = null;
+  
+  // Run async version
+  let progressUpdates = 0;
+  console.time('Async resolution');
+  const asyncResult = await EventResolver.resolveAllEventsAsync(data, profile, (percent, msg) => {
+    progressUpdates++;
+  });
+  console.timeEnd('Async resolution');
+  console.log('Async result count:', asyncResult.length);
+  console.log('Progress updates received:', progressUpdates);
+  
+  // Compare results
+  const errors = [];
+  
+  if (syncResult.length !== asyncResult.length) {
+    errors.push(`Length mismatch: sync=${syncResult.length}, async=${asyncResult.length}`);
+  }
+  
+  // Compare each event
+  const maxCheck = Math.min(syncResult.length, asyncResult.length);
+  for (let i = 0; i < maxCheck; i++) {
+    const s = syncResult[i];
+    const a = asyncResult[i];
+    
+    if (s.id !== a.id) {
+      errors.push(`Event ${i}: ID mismatch - sync=${s.id}, async=${a.id}`);
+    }
+    if (s.startJD !== a.startJD) {
+      errors.push(`Event ${s.id}: startJD mismatch - sync=${s.startJD}, async=${a.startJD}`);
+    }
+    if (s.endJD !== a.endJD) {
+      errors.push(`Event ${s.id}: endJD mismatch - sync=${s.endJD}, async=${a.endJD}`);
+    }
+    if (s.title !== a.title) {
+      errors.push(`Event ${s.id}: title mismatch`);
+    }
+  }
+  
+  // Report results
+  if (errors.length === 0) {
+    console.log('%c✓ PASS: Async and sync resolvers produce identical results!', 'color: green; font-weight: bold');
+    return { success: true, syncCount: syncResult.length, asyncCount: asyncResult.length, progressUpdates };
+  } else {
+    console.error('%c✗ FAIL: Differences found:', 'color: red; font-weight: bold');
+    errors.slice(0, 20).forEach(e => console.error('  -', e));
+    if (errors.length > 20) {
+      console.error(`  ... and ${errors.length - 20} more errors`);
+    }
+    return { success: false, errors, syncCount: syncResult.length, asyncCount: asyncResult.length };
+  }
+}
+
 // Export for use in navigation
 if (typeof window !== 'undefined') {
   window.renderBiblicalTimeline = renderBiblicalTimeline;
@@ -3835,4 +5627,5 @@ if (typeof window !== 'undefined') {
   window.biblicalTimelineZoomIn = biblicalTimelineZoomIn;
   window.biblicalTimelineZoomOut = biblicalTimelineZoomOut;
   window.biblicalTimelineResetZoom = biblicalTimelineResetZoom;
+  window.testAsyncResolver = testAsyncResolver;
 }

@@ -1,9 +1,131 @@
 // Historical Events Module
 // Handles loading, rendering, and filtering of historical events
 
+// ============================================================================
+// APP VERSION - Increment this when code changes require cache invalidation
+// This should match the version number in sw.js CACHE_NAME
+// ============================================================================
+const EVENTS_CACHE_VERSION = 'v768';
+
 let historicalEventsData = null;
+let resolvedEventsCache = null;  // Cache for resolved events (avoids duplicate resolution)
 let currentEventView = 'list';
 let selectedEventId = null;
+
+// ============================================================================
+// LOCALSTORAGE CACHE UTILITIES
+// ============================================================================
+
+/**
+ * Generate a cache key based on version and profile settings
+ * Different profiles produce different resolved dates, so each needs its own cache
+ */
+function getResolvedEventsCacheKey(profile) {
+  const profileKey = profile ? 
+    `${profile.moonPhase || 'full'}_${profile.yearStartRule || 'equinox'}_${profile.dayStartTime || 'morning'}` : 
+    'default';
+  return `resolved_events_${EVENTS_CACHE_VERSION}_${profileKey}`;
+}
+
+/**
+ * Try to load resolved events from localStorage
+ * Returns null if not found or version mismatch
+ */
+function loadResolvedEventsFromStorage(profile) {
+  try {
+    const key = getResolvedEventsCacheKey(profile);
+    const stored = localStorage.getItem(key);
+    if (!stored) return null;
+    
+    const parsed = JSON.parse(stored);
+    
+    // Validate structure
+    if (!parsed.version || !parsed.events || !Array.isArray(parsed.events)) {
+      console.log('[EventsCache] Invalid cache structure, clearing');
+      localStorage.removeItem(key);
+      return null;
+    }
+    
+    // Check version match
+    if (parsed.version !== EVENTS_CACHE_VERSION) {
+      console.log(`[EventsCache] Version mismatch: stored ${parsed.version}, current ${EVENTS_CACHE_VERSION}`);
+      localStorage.removeItem(key);
+      return null;
+    }
+    
+    console.log(`[EventsCache] Loaded ${parsed.events.length} events from localStorage`);
+    return parsed.events;
+    
+  } catch (e) {
+    console.warn('[EventsCache] Failed to load from localStorage:', e);
+    return null;
+  }
+}
+
+/**
+ * Save resolved events to localStorage
+ */
+function saveResolvedEventsToStorage(events, profile) {
+  try {
+    const key = getResolvedEventsCacheKey(profile);
+    const data = {
+      version: EVENTS_CACHE_VERSION,
+      timestamp: Date.now(),
+      events: events
+    };
+    
+    const json = JSON.stringify(data);
+    localStorage.setItem(key, json);
+    console.log(`[EventsCache] Saved ${events.length} events to localStorage (${(json.length / 1024).toFixed(1)} KB)`);
+    
+  } catch (e) {
+    // localStorage might be full or disabled
+    console.warn('[EventsCache] Failed to save to localStorage:', e);
+    // Try to clear old caches to make room
+    clearOldEventCaches();
+  }
+}
+
+/**
+ * Clear old event caches (different versions or profiles)
+ */
+function clearOldEventCaches() {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('resolved_events_') && !key.includes(EVENTS_CACHE_VERSION)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => {
+      localStorage.removeItem(key);
+      console.log(`[EventsCache] Cleared old cache: ${key}`);
+    });
+  } catch (e) {
+    console.warn('[EventsCache] Failed to clear old caches:', e);
+  }
+}
+
+/**
+ * Clear all event caches (for manual invalidation)
+ */
+function clearAllEventCaches() {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('resolved_events_')) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    console.log(`[EventsCache] Cleared ${keysToRemove.length} cache entries`);
+    resolvedEventsCache = null;
+  } catch (e) {
+    console.warn('[EventsCache] Failed to clear caches:', e);
+  }
+}
 
 // Load historical events data
 async function loadHistoricalEvents() {
@@ -18,6 +140,120 @@ async function loadHistoricalEvents() {
     return null;
   }
 }
+
+/**
+ * Get resolved events with proper dates calculated from the event resolver.
+ * This caches the result in both RAM and localStorage for fast subsequent loads.
+ * @returns {Promise<Array>} Array of resolved events with startJD, dates, etc.
+ */
+async function getResolvedEvents() {
+  const profile = typeof EventResolver !== 'undefined' ? EventResolver.DEFAULT_PROFILE : null;
+  
+  // Return RAM cache if available
+  if (resolvedEventsCache) {
+    return resolvedEventsCache;
+  }
+  
+  // Try localStorage cache (persists across page loads)
+  const storedEvents = loadResolvedEventsFromStorage(profile);
+  if (storedEvents) {
+    resolvedEventsCache = storedEvents;
+    return storedEvents;
+  }
+  
+  // Clear old version caches
+  clearOldEventCaches();
+  
+  // Load raw data (prefer v2)
+  let data = await loadHistoricalEventsV2();
+  if (!data) {
+    data = await loadHistoricalEvents();
+  }
+  if (!data) return [];
+  
+  // Resolve events using EventResolver
+  if (typeof EventResolver === 'undefined') {
+    console.warn('EventResolver not available, returning raw events');
+    return data.events || [];
+  }
+  
+  console.time('[EventsCache] Resolution');
+  try {
+    const resolved = EventResolver.resolveAllEvents(data, profile);
+    
+    // Enrich original events with resolved dates
+    const enrichedEvents = (data.events || []).map(event => {
+      const resolvedEvent = resolved.find(r => r.id === event.id);
+      
+      if (resolvedEvent && resolvedEvent.startJD !== null) {
+        // Get gregorian date from resolved JD
+        const gregorian = EventResolver.julianDayToGregorian(resolvedEvent.startJD);
+        
+        // Start with original lunar data or empty object
+        let lunar = { ...(event.dates?.lunar || {}) };
+        
+        // Try to get lunar date from resolver if available
+        if (typeof EventResolver.julianDayToLunar === 'function') {
+          try {
+            const resolvedLunar = EventResolver.julianDayToLunar(resolvedEvent.startJD, profile);
+            if (resolvedLunar) {
+              lunar = { ...lunar, ...resolvedLunar };
+            }
+          } catch (e) {
+            // Keep original lunar date if conversion fails
+          }
+        }
+        
+        // ALWAYS ensure year is set from gregorian if not in lunar
+        if (!lunar.year && gregorian && gregorian.year !== null) {
+          lunar.year = gregorian.year;
+        }
+        
+        return {
+          ...event,
+          resolvedStartJD: resolvedEvent.startJD,
+          resolvedEndJD: resolvedEvent.endJD || null,
+          dates: {
+            ...event.dates,
+            gregorian: gregorian,
+            lunar: lunar
+          }
+        };
+      }
+      
+      return event;
+    });
+    
+    console.timeEnd('[EventsCache] Resolution');
+    
+    // Cache in RAM
+    resolvedEventsCache = enrichedEvents;
+    
+    // Cache in localStorage for persistence across page loads
+    saveResolvedEventsToStorage(enrichedEvents, profile);
+    
+    return enrichedEvents;
+    
+  } catch (e) {
+    console.error('Error resolving events:', e);
+    return data.events || [];
+  }
+}
+
+/**
+ * Clear the resolved events cache (e.g., when profile changes)
+ * Clears both RAM and localStorage caches
+ */
+function clearResolvedEventsCache() {
+  resolvedEventsCache = null;
+  clearAllEventCaches();
+}
+
+// Make cache functions available globally
+window.getResolvedEvents = getResolvedEvents;
+window.clearResolvedEventsCache = clearResolvedEventsCache;
+window.clearAllEventCaches = clearAllEventCaches;
+window.EVENTS_CACHE_VERSION = EVENTS_CACHE_VERSION;
 
 // Format year for display (handles BC/AD with astronomical year numbering)
 // Astronomical: Year 1 = 1 AD, Year 0 = 1 BC, Year -1 = 2 BC, Year -17 = 18 BC
@@ -266,7 +502,12 @@ async function renderEventsList() {
   const container = document.getElementById('events-list-container');
   if (!container) return;
   
-  const data = await loadHistoricalEvents();
+  // Use v2 data (preferred, more complete)
+  let data = await loadHistoricalEventsV2();
+  if (!data) {
+    // Fallback to v1
+    data = await loadHistoricalEvents();
+  }
   if (!data) {
     container.innerHTML = '<div class="events-loading">Failed to load events.</div>';
     return;
@@ -352,7 +593,11 @@ async function renderEventsTimeline() {
   const container = document.getElementById('events-timeline-container');
   if (!container) return;
   
-  const data = await loadHistoricalEvents();
+  // Use v2 data (preferred, more complete)
+  let data = await loadHistoricalEventsV2();
+  if (!data) {
+    data = await loadHistoricalEvents();
+  }
   if (!data) {
     container.innerHTML = '<div class="events-timeline-loading">Failed to load timeline.</div>';
     return;
@@ -592,34 +837,33 @@ function normalizeEventForDisplay(event, data, isV2 = false) {
 
 // Open event detail modal
 async function openEventDetail(eventId) {
-  // Try v1 data first
-  const dataV1 = await loadHistoricalEvents();
-  let event = dataV1?.events?.find(e => e.id === eventId);
-  let data = dataV1;
-  let isV2 = false;
+  // Try v2 data first (preferred, more complete data)
+  const dataV2 = await loadHistoricalEventsV2();
+  let event = dataV2?.events?.find(e => e.id === eventId);
+  let data = dataV2;
+  let isV2 = true;
   
-  // If not found in v1, try v2
-  if (!event) {
-    const dataV2 = await loadHistoricalEventsV2();
-    event = dataV2?.events?.find(e => e.id === eventId);
-    data = dataV2;
-    isV2 = true;
-    
-    // If still not found, check if this is a prophecy ID (format: parent-event-id-prophecy-id)
-    // Try to find parent event that has this prophecy
-    if (!event && dataV2?.events) {
-      for (const e of dataV2.events) {
-        if (e.prophecies) {
-          const prophecy = e.prophecies.find(p => `${e.id}-${p.id}` === eventId);
-          if (prophecy) {
-            // Found the parent event - use it but note the prophecy
-            event = e;
-            event._selectedProphecy = prophecy;
-            break;
-          }
+  // Check if this is a prophecy ID (format: parent-event-id-prophecy-id)
+  if (!event && dataV2?.events) {
+    for (const e of dataV2.events) {
+      if (e.prophecies) {
+        const prophecy = e.prophecies.find(p => `${e.id}-${p.id}` === eventId);
+        if (prophecy) {
+          // Found the parent event - use it but note the prophecy
+          event = e;
+          event._selectedProphecy = prophecy;
+          break;
         }
       }
     }
+  }
+  
+  // Fallback to v1 if not found in v2
+  if (!event) {
+    const dataV1 = await loadHistoricalEvents();
+    event = dataV1?.events?.find(e => e.id === eventId);
+    data = dataV1;
+    isV2 = false;
   }
   
   if (!event) {
@@ -748,10 +992,26 @@ async function openEventDetail(eventId) {
     sourcesList.innerHTML = '<li>No sources listed</li>';
   }
   
-  // Article link
+  // Article link - convert article path to reader dispatch
   const articleLink = document.getElementById('event-detail-article-link');
   if (normalizedEvent.article) {
-    articleLink.href = normalizedEvent.article;
+    // Extract chapter ID from article path (e.g., "/chapters/13_Herod/" -> "13_Herod")
+    // or "/chapters/extra/e03_Herods_Appointment/" -> "extra/e03_Herods_Appointment"
+    let chapterId = normalizedEvent.article
+      .replace(/^\/chapters\//, '')  // Remove /chapters/ prefix
+      .replace(/\/$/, '');           // Remove trailing slash
+    
+    articleLink.href = '#';
+    articleLink.onclick = (e) => {
+      e.preventDefault();
+      if (typeof AppStore !== 'undefined') {
+        AppStore.dispatch({
+          type: 'SET_VIEW',
+          view: 'reader',
+          params: { contentType: 'timetested', chapterId: chapterId }
+        });
+      }
+    };
     articleLink.style.display = 'flex';
   } else {
     articleLink.style.display = 'none';
@@ -806,13 +1066,13 @@ function closeEventDetail(event) {
 async function navigateToEventDate() {
   if (!selectedEventId) return;
   
-  // Try v1 data first
-  let data = await loadHistoricalEvents();
+  // Try v2 data first (preferred, more complete)
+  let data = await loadHistoricalEventsV2();
   let event = data?.events?.find(e => e.id === selectedEventId);
   
-  // If not found in v1, try v2
+  // Fallback to v1 if not found
   if (!event) {
-    data = await loadHistoricalEventsV2();
+    data = await loadHistoricalEvents();
     event = data?.events?.find(e => e.id === selectedEventId);
   }
   

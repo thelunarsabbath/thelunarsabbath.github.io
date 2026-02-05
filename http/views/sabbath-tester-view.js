@@ -100,11 +100,19 @@ const BIBLICAL_TESTS = [
 
 const SabbathTesterView = {
   _isRendering: false,
+  _hasRendered: false, // Track if we've completed rendering
   _testCache: {}, // Cache for test results: { 'testId-profileId': result }
   _cacheVersion: '2.8', // Increment to invalidate cache if test logic changes (v2.8: Fixed getDayStartTime to find same-day sunset)
   
   render(state, derived, container) {
     if (this._isRendering) return; // Prevent re-render loops
+    
+    // Skip re-render if we've already rendered and content is still there
+    // The Sabbath Tester generates its own historical calendars and doesn't
+    // depend on app state (location, current date, etc.)
+    if (this._hasRendered && container.querySelector('.sabbath-tester-view')) {
+      return;
+    }
     
     container.innerHTML = `
       <div class="sabbath-tester-view">
@@ -426,7 +434,11 @@ const SabbathTesterView = {
     const loadingEl = container.querySelector('#sabbath-tester-loading');
     const resultsEl = container.querySelector('#sabbath-tester-results');
     
-    if (!loadingEl || !resultsEl) return;
+    if (!loadingEl || !resultsEl) {
+      // User navigated away before render completed - reset flags
+      this._isRendering = false;
+      return;
+    }
     
     // Load cache from localStorage on first render
     if (Object.keys(this._testCache).length === 0) {
@@ -557,6 +569,7 @@ const SabbathTesterView = {
       resultsEl.innerHTML = html;
       
       this._isRendering = false;
+      this._hasRendered = true;
     }, 50);
   },
   

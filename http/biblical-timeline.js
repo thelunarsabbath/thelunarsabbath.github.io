@@ -3746,10 +3746,8 @@ async function renderBiblicalTimelineInternal(container) {
   const bgInProgress = backgroundResolutionInProgress;
   
   if (needsCalculation || bgInProgress) {
-    // Show progress bar - either for first-time calculation or waiting for background
-    const statusText = bgInProgress 
-      ? 'Pre-loading timeline in background...' 
-      : 'Calculating biblical timeline...';
+    // Show progress bar - use consistent message regardless of background/foreground
+    const statusText = 'Loading timeline...';
     const initialProgress = bgInProgress ? backgroundResolutionProgress : 0;
     
     // Reset global progress floor to current state (prevents backward jumps)
@@ -3779,10 +3777,13 @@ async function renderBiblicalTimelineInternal(container) {
         }, 100);
       });
       console.log('[Timeline] Background resolution complete, proceeding...');
-      // Re-check cache validity - background should have populated it
-      needsCalculation = !isTimelineCacheValid(data, profile);
-      if (!needsCalculation) {
-        console.log('[Timeline] Cache now valid from background resolution');
+      // Background just completed - trust that it populated the cache
+      // Don't re-validate with potentially different cache key (causes double-load)
+      if (biblicalTimelineResolvedCache) {
+        needsCalculation = false;
+        console.log('[Timeline] Using background resolution result directly');
+      } else {
+        console.warn('[Timeline] Background completed but cache is empty - will recalculate');
       }
     } else {
       // Allow UI to paint before heavy calculation
@@ -4419,8 +4420,12 @@ async function renderBiblicalTimelineInternal(container) {
     if (needsCalculation) {
       // Use async version with progress updates
       resolvedEvents = await getResolvedEventsWithProgress(data, profile);
+    } else if (biblicalTimelineResolvedCache) {
+      // Use RAM cache directly (trusted from background resolution)
+      console.log('[Timeline] Using RAM cache directly:', biblicalTimelineResolvedCache.length, 'events');
+      resolvedEvents = biblicalTimelineResolvedCache;
     } else {
-      // Use sync version (cache hit)
+      // Fallback to sync version (will check localStorage, then resolve if needed)
       resolvedEvents = getResolvedEvents(data, profile);
     }
   } else {

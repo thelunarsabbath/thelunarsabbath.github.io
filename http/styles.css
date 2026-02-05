@@ -2484,7 +2484,7 @@ body.view-reader:not(.reader-landing) {
 /* Biblical Timeline Page - positioned below main nav */
 .biblical-timeline-page {
   position: fixed;
-  top: 56px; /* Height of top-nav */
+  top: var(--top-nav-height);
   left: 0;
   right: 0;
   bottom: 0;

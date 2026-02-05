@@ -7124,7 +7124,7 @@ body.biblical-timeline-open .top-nav-inner {
 /* Biblical Timeline Page - positioned below main nav */
 .biblical-timeline-page {
   position: fixed;
-  top: 56px; /* Height of top-nav */
+  top: var(--top-nav-height);
   left: 0;
   right: 0;
   bottom: 0;
@@ -11342,8 +11342,8 @@ details.concept-strongs-section[open] .concept-expand-icon {
   #nav-menu,
   .nav-menu {
     right: 0 !important;
-    top: 56px !important;
-    height: calc(100% - 56px) !important;
+    top: var(--top-nav-height) !important;
+    height: calc(100% - var(--top-nav-height)) !important;
     width: 280px !important;
     transition: none !important;
     box-shadow: -2px 0 10px rgba(0,0,0,0.3);

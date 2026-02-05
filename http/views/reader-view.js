@@ -1292,55 +1292,24 @@ const ReaderView = {
       <div class="reader-ttt-index">
         <header class="ttt-index-header">
           <div class="ttt-hero">
-            <div class="ttt-hero-title-block">
-              <span class="ttt-hero-line ttt-hero-line-1">TIME</span>
-              <span class="ttt-hero-line ttt-hero-line-2">Tested Tradition</span>
-              <span class="ttt-hero-line ttt-hero-line-3">The Renewed Biblical Calendar</span>
-            </div>
-            <p class="ttt-hero-tagline">Scripture-first. Tradition tested. A full-moon calendar that fits the text—and the heavens.</p>
-            <p class="ttt-author">By Daniel Larimer</p>
+            <img src="/assets/img/TimeTestedBookFront.jpg" alt="Time-Tested Tradition Book Cover" class="ttt-hero-cover">
+            <a class="ttt-hero-download" href="/media/time-tested-tradition.pdf" download>
+              <span class="icon">📥</span>
+              <span>Download PDF</span>
+            </a>
           </div>
 
-          <div class="ttt-index-reviews-blurb">
-            <p class="ttt-reviews-intro">Three independent AI systems reviewed the full book using the same prompt. No incentive for positive reviews—read the exact prompt and their full assessments below.</p>
-            <div class="ttt-review-cards">
-              <div class="ttt-review-card" title="GPT-5.2">
-                <span class="ttt-review-logo-wrap">
-                  <img class="ttt-review-logo ttt-review-logo-invert ttt-review-logo-zoom" src="/assets/img/reviews/openai.png" alt="OpenAI" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                  <span class="ttt-review-logo-fallback" style="display:none;">GPT</span>
-                </span>
-                <span class="ttt-review-name">GPT-5.2</span>
-                <span class="ttt-phrase">Provocative and rigorous</span>
-              </div>
-              <div class="ttt-review-card" title="Grok">
-                <span class="ttt-review-logo-wrap">
-                  <img class="ttt-review-logo ttt-review-logo-invert" src="/assets/img/reviews/xai.svg" alt="xAI" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                  <span class="ttt-review-logo-fallback" style="display:none;">Grok</span>
-                </span>
-                <span class="ttt-review-name">Grok</span>
-                <span class="ttt-phrase">Rigorous but dense</span>
-              </div>
-              <div class="ttt-review-card" title="Claude">
-                <span class="ttt-review-logo-wrap">
-                  <img class="ttt-review-logo" src="/assets/img/reviews/anthropic.svg" alt="Anthropic" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                  <span class="ttt-review-logo-fallback" style="display:none;">Claude</span>
-                </span>
-                <span class="ttt-review-name">Claude</span>
-                <span class="ttt-phrase">Ambitious biblical calendar revisionism demanding critical engagement</span>
-              </div>
+          <div class="ttt-reviews-compact">
+            <div class="ttt-reviews-icons">
+              <img class="ttt-review-icon" src="/assets/img/reviews/openai.png" alt="GPT-5.2" title="GPT-5.2">
+              <img class="ttt-review-icon" src="/assets/img/reviews/xai.svg" alt="Grok" title="Grok">
+              <img class="ttt-review-icon" src="/assets/img/reviews/anthropic.svg" alt="Claude" title="Claude">
             </div>
-            <div class="ttt-reviews-cta-wrap">
-              <a class="ttt-reviews-cta-link" href="#" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'timetested',chapterId:'__reviews__'}}); return false;">
-                <span class="ttt-cta-text">Read full reviews &amp; methodology</span>
-                <span class="ttt-cta-arrow">→</span>
-              </a>
-            </div>
+            <p class="ttt-reviews-summary">"Provocative and rigorous" · "Rigorous but dense" · "Ambitious biblical calendar revisionism demanding critical engagement"</p>
+            <a class="ttt-reviews-link" href="#" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'timetested',chapterId:'__reviews__'}}); return false;">
+              Read full AI reviews →
+            </a>
           </div>
-
-          <a class="ttt-pdf-download" href="/media/time-tested-tradition.pdf" download>
-            <span class="icon">📥</span>
-            <span>Download PDF</span>
-          </a>
         </header>
         
         <div class="ttt-index-list">

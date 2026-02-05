@@ -434,6 +434,61 @@
   margin-top: 4px;
 }
 
+/* Compact AI Reviews Section */
+.ttt-reviews-compact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(20, 40, 70, 0.8);
+  border-radius: 12px;
+}
+
+.ttt-reviews-icons {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.ttt-review-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: invert(1) brightness(0.9);
+  opacity: 0.9;
+}
+
+.ttt-review-icon:first-child {
+  width: 38px;
+  height: 38px;
+}
+
+.ttt-review-icon:last-child {
+  filter: none;
+  opacity: 0.9;
+}
+
+.ttt-reviews-summary {
+  font-size: 0.9em;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.ttt-reviews-link {
+  font-size: 0.9em;
+  color: #7ec8e3;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.ttt-reviews-link:hover {
+  color: #fff;
+}
+
 /* Reader / TTT content links (e.g. in chapter body and reviews page) */
 .reader-ttt-index a:not(.ttt-pdf-download):not(.ttt-reviews-cta-link),
 .ttt-chapter-body a {

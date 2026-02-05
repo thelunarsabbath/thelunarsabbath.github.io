@@ -177,10 +177,253 @@ const GlobalSearch = {
       return;
     }
     
+    // Check for Gregorian date (1/15/2025, 2025-01-15, January 15, etc.) - navigate to calendar
+    const dateRef = this.parseGregorianDate(query);
+    if (dateRef) {
+      this.navigateToDate(dateRef);
+      return;
+    }
+    
+    // Check for Hebrew/Lunar date (Nisan 1, 32 AD or Tishri 15, 2025) - navigate to calendar
+    const lunarRef = this.parseLunarDate(query);
+    if (lunarRef) {
+      this.navigateToLunarDate(lunarRef);
+      return;
+    }
+    
     // For text searches, dispatch to AppStore - the subscriber will trigger the actual search
     if (typeof AppStore !== 'undefined') {
       console.log('[GlobalSearch] Dispatching SET_GLOBAL_SEARCH:', query);
       AppStore.dispatch({ type: 'SET_GLOBAL_SEARCH', query: query });
+    }
+  },
+  
+  /**
+   * Parse a Gregorian date from query
+   * Supports many formats: MM/DD/YYYY, YYYY-MM-DD, Month DD YYYY, etc.
+   * Returns { year, month, day } or null
+   */
+  parseGregorianDate(query) {
+    const q = query.trim();
+    const currentYear = new Date().getFullYear();
+    
+    // Month names for parsing
+    const monthNames = {
+      'january': 1, 'jan': 1,
+      'february': 2, 'feb': 2,
+      'march': 3, 'mar': 3,
+      'april': 4, 'apr': 4,
+      'may': 5,
+      'june': 6, 'jun': 6,
+      'july': 7, 'jul': 7,
+      'august': 8, 'aug': 8,
+      'september': 9, 'sep': 9, 'sept': 9,
+      'october': 10, 'oct': 10,
+      'november': 11, 'nov': 11,
+      'december': 12, 'dec': 12
+    };
+    
+    let year, month, day;
+    
+    // ISO format: YYYY-MM-DD
+    let match = q.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (match) {
+      year = parseInt(match[1]);
+      month = parseInt(match[2]);
+      day = parseInt(match[3]);
+    }
+    
+    // US format: MM/DD/YYYY or M/D/YYYY or MM/DD/YY or M/D/YY
+    if (!match) {
+      match = q.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);
+      if (match) {
+        month = parseInt(match[1]);
+        day = parseInt(match[2]);
+        if (match[3]) {
+          year = parseInt(match[3]);
+          if (year < 100) year += 2000; // 25 -> 2025
+        } else {
+          year = currentYear;
+        }
+      }
+    }
+    
+    // European format: DD.MM.YYYY or DD-MM-YYYY
+    if (!match) {
+      match = q.match(/^(\d{1,2})[.\-](\d{1,2})[.\-](\d{2,4})$/);
+      if (match) {
+        day = parseInt(match[1]);
+        month = parseInt(match[2]);
+        year = parseInt(match[3]);
+        if (year < 100) year += 2000;
+      }
+    }
+    
+    // Month DD, YYYY or Month DD YYYY (e.g., "January 15, 2025" or "Jan 15 2025")
+    if (!match) {
+      match = q.match(/^([a-z]+)\s+(\d{1,2})(?:,?\s+(\d{4}))?$/i);
+      if (match) {
+        const monthStr = match[1].toLowerCase();
+        if (monthNames[monthStr]) {
+          month = monthNames[monthStr];
+          day = parseInt(match[2]);
+          year = match[3] ? parseInt(match[3]) : currentYear;
+        }
+      }
+    }
+    
+    // DD Month YYYY (e.g., "15 January 2025" or "15 Jan 2025")
+    if (!match || !month) {
+      match = q.match(/^(\d{1,2})\s+([a-z]+)(?:\s+(\d{4}))?$/i);
+      if (match) {
+        const monthStr = match[2].toLowerCase();
+        if (monthNames[monthStr]) {
+          day = parseInt(match[1]);
+          month = monthNames[monthStr];
+          year = match[3] ? parseInt(match[3]) : currentYear;
+        }
+      }
+    }
+    
+    // Validate the date
+    if (year && month && day) {
+      if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        // Basic validation - could be more strict but Date will handle edge cases
+        const testDate = new Date(year, month - 1, day);
+        if (testDate.getMonth() === month - 1 && testDate.getDate() === day) {
+          return { year, month, day };
+        }
+      }
+    }
+    
+    return null;
+  },
+  
+  /**
+   * Navigate to calendar on a specific date
+   */
+  navigateToDate(date) {
+    // Close search results
+    this.closeResults();
+    
+    // Navigate using AppStore - use SET_GREGORIAN_DATETIME then SET_VIEW
+    if (typeof AppStore !== 'undefined') {
+      AppStore.dispatchBatch([
+        {
+          type: 'SET_GREGORIAN_DATETIME',
+          year: date.year,
+          month: date.month,
+          day: date.day
+        },
+        {
+          type: 'SET_VIEW',
+          view: 'calendar'
+        }
+      ]);
+    }
+  },
+  
+  /**
+   * Parse a Hebrew/Lunar date from query
+   * Supports: "Nisan 1, 32 AD", "Tishri 15, 2025", "15 Nisan 32", etc.
+   * Returns { year, month, day } or null (month is 1-based, Nisan = 1)
+   */
+  parseLunarDate(query) {
+    const q = query.trim();
+    
+    // Hebrew month names (1-based index: Nisan/Abib = 1)
+    const hebrewMonths = {
+      'nisan': 1, 'nissan': 1, 'abib': 1, 'aviv': 1,
+      'iyar': 2, 'iyyar': 2, 'ziv': 2,
+      'sivan': 3,
+      'tammuz': 4, 'tamuz': 4,
+      'av': 5, 'ab': 5,
+      'elul': 6,
+      'tishri': 7, 'tishrei': 7, 'ethanim': 7,
+      'cheshvan': 8, 'heshvan': 8, 'marcheshvan': 8, 'bul': 8,
+      'kislev': 9,
+      'tevet': 10, 'tebeth': 10,
+      'shevat': 11, 'shvat': 11,
+      'adar': 12,
+      'adar i': 12, 'adar 1': 12,
+      'adar ii': 13, 'adar 2': 13, 'veadar': 13
+    };
+    
+    let year, month, day;
+    
+    // Pattern: Month Day, Year AD/BC or Month Day, Year
+    // e.g., "Nisan 1, 32 AD", "Tishri 15, 2025", "Nisan 14, 32 ad"
+    let match = q.match(/^([a-z]+(?:\s+[i12]+)?)\s+(\d{1,2})(?:,?\s+(\d+)\s*(ad|bc|bce|ce)?)?$/i);
+    if (match) {
+      const monthStr = match[1].toLowerCase();
+      if (hebrewMonths[monthStr]) {
+        month = hebrewMonths[monthStr];
+        day = parseInt(match[2]);
+        if (match[3]) {
+          year = parseInt(match[3]);
+          const era = (match[4] || '').toLowerCase();
+          if (era === 'bc' || era === 'bce') {
+            year = -year + 1; // 1 BC = year 0, 2 BC = year -1, etc.
+          }
+        } else {
+          year = new Date().getFullYear(); // Default to current year
+        }
+      }
+    }
+    
+    // Pattern: Day Month, Year or Day Month Year
+    // e.g., "14 Nisan, 32 AD", "15 Tishri 2025"
+    if (!month) {
+      match = q.match(/^(\d{1,2})\s+([a-z]+(?:\s+[i12]+)?)(?:,?\s+(\d+)\s*(ad|bc|bce|ce)?)?$/i);
+      if (match) {
+        const monthStr = match[2].toLowerCase();
+        if (hebrewMonths[monthStr]) {
+          day = parseInt(match[1]);
+          month = hebrewMonths[monthStr];
+          if (match[3]) {
+            year = parseInt(match[3]);
+            const era = (match[4] || '').toLowerCase();
+            if (era === 'bc' || era === 'bce') {
+              year = -year + 1;
+            }
+          } else {
+            year = new Date().getFullYear();
+          }
+        }
+      }
+    }
+    
+    // Validate
+    if (year !== undefined && month && day) {
+      if (day >= 1 && day <= 30) { // Hebrew months have max 30 days
+        return { year, month, day };
+      }
+    }
+    
+    return null;
+  },
+  
+  /**
+   * Navigate to calendar on a specific lunar date
+   */
+  navigateToLunarDate(date) {
+    // Close search results
+    this.closeResults();
+    
+    // Navigate using AppStore - use SET_LUNAR_DATETIME then SET_VIEW
+    if (typeof AppStore !== 'undefined') {
+      AppStore.dispatchBatch([
+        {
+          type: 'SET_LUNAR_DATETIME',
+          year: date.year,
+          month: date.month,
+          day: date.day
+        },
+        {
+          type: 'SET_VIEW',
+          view: 'calendar'
+        }
+      ]);
     }
   },
   

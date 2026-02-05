@@ -329,11 +329,6 @@
         
         <div class="menu-divider"></div>
         
-        <button class="menu-item" onclick="AppStore.dispatch({type:'CLOSE_MENU'}); CalendarExport.showExportModal();">
-          <span class="menu-icon">📥</span>
-          <span class="menu-label">Export Calendar</span>
-        </button>
-        
         <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'sabbath-tester'}])">
           <span class="menu-icon">🔬</span>
           <span class="menu-label">Sabbath Tester</span>
@@ -470,7 +465,7 @@
   <script src="/calendar-export.js?v=1"></script>
   
   <!-- Global Search -->
-  <script src="/global-search.js?v=18"></script>
+  <script src="/global-search.js?v=21"></script>
   
   <!-- Views -->
   <script src="/views/calendar-view.js?v=87"></script>

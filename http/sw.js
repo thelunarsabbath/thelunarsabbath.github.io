@@ -1,5 +1,5 @@
 // Lunar Sabbath Calendar Service Worker
-const CACHE_NAME = 'lunar-sabbath-v820';
+const CACHE_NAME = 'lunar-sabbath-v823';
 
 // Core app files
 const CORE_ASSETS = [
@@ -167,6 +167,7 @@ const VIEW_ASSETS = [
   '/views/book-view.js',
   '/views/calendar-view.js',
   '/views/help-view.js',
+  '/views/events-view.js',
   '/views/priestly-view.js',
   '/views/reader-view.js',
   '/views/sabbath-tester-view.js',

@@ -71,7 +71,7 @@
   <link rel="stylesheet" href="/assets/css/symbols.css?v=1">
   <link rel="stylesheet" href="/assets/css/reader.css?v=1">
   <link rel="stylesheet" href="/assets/css/components.css?v=1">
-  <link rel="stylesheet" href="/assets/css/sabbath-tester.css?v=1">
+  <link rel="stylesheet" href="/assets/css/sabbath-tester.css?v=3">
   
   <!-- CRITICAL MOBILE FIX: Inline to bypass cache issues and body class dependencies -->
   <style>
@@ -453,7 +453,7 @@
   
   <!-- Core (cache-bust with version) -->
   <script src="/app-store.js?v=45"></script>
-  <script src="/url-router.js?v=23"></script>
+  <script src="/url-router.js?v=24"></script>
   <script src="/layout.js?v=2"></script>
   <script src="/content-manager.js?v=2"></script>
   
@@ -496,8 +496,9 @@
   <script src="/views/tutorial-view.js?v=8"></script>
   <script src="/views/help-view.js?v=1"></script>
   <script src="/views/priestly-view.js?v=2"></script>
-  <script src="/views/sabbath-tester-view.js?v=2"></script>
+  <script src="/views/sabbath-tester-view.js?v=4"></script>
   <script src="/views/settings-view.js?v=6"></script>
+  <script src="/views/events-view.js?v=1"></script>
   
   <!-- Initialize App -->
   <script>
@@ -702,6 +703,7 @@
       if (typeof PriestlyView !== 'undefined') ContentManager.registerView('priestly', PriestlyView);
       if (typeof SabbathTesterView !== 'undefined') ContentManager.registerView('sabbath-tester', SabbathTesterView);
       if (typeof SettingsView !== 'undefined') ContentManager.registerView('settings', SettingsView);
+      if (typeof EventsView !== 'undefined') ContentManager.registerView('events', EventsView);
       
       // Load initial state from URL
       AppStore.dispatch({ type: 'INIT_FROM_URL', url: window.location });

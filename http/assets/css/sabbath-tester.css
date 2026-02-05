@@ -429,12 +429,24 @@
    7. RESULTS TABLE
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* Table wrapper for horizontal scroll on small screens */
+.sabbath-test-card {
+  overflow-x: auto;
+}
+
 .sabbath-test-results-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   margin-top: 18px;
   font-size: 0.9em;
+  min-width: 400px; /* Ensures table doesn't get too squished */
+}
+
+/* Weekday column - keep narrow */
+.weekday-cell {
+  white-space: nowrap;
+  text-align: center;
 }
 
 .sabbath-test-results-table thead {
@@ -533,7 +545,20 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   9. MOBILE RESPONSIVE
+   9. RESPONSIVE DATE COLUMNS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Default: show full date, hide compact date */
+.date-cell-full {
+  display: table-cell;
+}
+
+.date-cell-compact {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   10. MOBILE RESPONSIVE
    ───────────────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
@@ -561,7 +586,7 @@
     gap: 14px;
   }
   
-  /* Scoreboard table - card layout on mobile */
+  /* Scoreboard table - keep as table, reduce padding */
   .sabbath-scoreboard-table {
     font-size: 0.9em;
   }
@@ -575,44 +600,30 @@
     padding: 14px 12px 14px 32px;
   }
   
-  /* Results table - card layout on mobile */
+  /* Results table - keep as table with abbreviated data */
   .sabbath-test-results-table {
-    display: block;
+    font-size: 0.8em;
   }
   
-  .sabbath-test-results-table thead {
+  .sabbath-test-results-table th,
+  .sabbath-test-results-table td {
+    padding: 8px 6px;
+  }
+  
+  /* Switch to compact date column on mobile */
+  .date-cell-full {
     display: none;
   }
   
-  .sabbath-test-results-table tbody {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  .date-cell-compact {
+    display: table-cell;
   }
   
-  .sabbath-test-results-table tr {
-    display: block;
-    background: rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    padding: 14px;
-  }
-  
-  .sabbath-test-results-table td {
-    display: block;
-    border: none;
-    padding: 6px 0;
-    text-align: left;
-  }
-  
-  .sabbath-test-results-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #7ec8e3;
-    display: block;
-    font-size: 0.8em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
+  /* Profile column - allow wrapping */
+  .profile-cell {
+    max-width: 120px;
+    word-break: break-word;
+    line-height: 1.3;
   }
   
   .test-evidence-content {
@@ -625,7 +636,74 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   10. DESKTOP SIDEBAR ADJUSTMENT
+   11. EXTRA SMALL SCREENS (< 480px)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .sabbath-tester-content {
+    padding: 10px;
+  }
+  
+  .sabbath-tester-intro,
+  .sabbath-scoreboard,
+  .sabbath-test-card {
+    padding: 12px;
+    border-radius: 8px;
+  }
+  
+  .sabbath-scoreboard-title {
+    font-size: 1.2em;
+  }
+  
+  .sabbath-test-title {
+    font-size: 1.1em;
+  }
+  
+  .sabbath-scoreboard-table {
+    font-size: 0.8em;
+  }
+  
+  .sabbath-scoreboard-table th,
+  .sabbath-scoreboard-table td {
+    padding: 8px 6px;
+  }
+  
+  /* Results table - even more compact */
+  .sabbath-test-results-table {
+    font-size: 0.75em;
+  }
+  
+  .sabbath-test-results-table th,
+  .sabbath-test-results-table td {
+    padding: 6px 4px;
+  }
+  
+  .profile-cell {
+    max-width: 90px;
+  }
+  
+  .test-evidence-content,
+  .test-interpretation {
+    padding: 12px;
+    font-size: 0.88em;
+  }
+  
+  .test-evidence-content ul,
+  .test-interpretation ul {
+    padding-left: 16px;
+  }
+  
+  .scoreboard-conclusion {
+    padding: 12px 14px;
+  }
+  
+  .scoreboard-conclusion p {
+    font-size: 0.88em;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   12. DESKTOP SIDEBAR ADJUSTMENT
    ───────────────────────────────────────────────────────────────────────────── */
 
 @media (min-width: 1200px) {

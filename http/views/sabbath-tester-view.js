@@ -207,6 +207,33 @@ const SabbathTesterView = {
   },
   
   /**
+   * Get abbreviated profile name for mobile display
+   * @param {string} fullName - The full profile name
+   * @returns {string} Shortened name suitable for narrow screens
+   */
+  getShortProfileName(fullName) {
+    return fullName
+      .replace('Full Moon', 'Full')
+      .replace('Dark Moon', 'Dark')
+      .replace('Crescent Moon', 'Cres')
+      .replace('Daybreak', 'AM')
+      .replace('Sunset', 'PM')
+      .replace(' (Time-Tested)', '')
+      .replace(' (Traditional Lunar)', '')
+      .replace(' (Ancient Traditional)', '');
+  },
+  
+  /**
+   * Get abbreviated weekday name
+   * @param {string} weekdayName - Full weekday name
+   * @returns {string} 3-letter abbreviation
+   */
+  getShortWeekday(weekdayName) {
+    if (!weekdayName) return 'N/A';
+    return weekdayName.substring(0, 3);
+  },
+  
+  /**
    * Check if a test profile matches a preset profile
    */
   getMatchingPresetName(profile) {
@@ -789,11 +816,12 @@ const SabbathTesterView = {
       <table class="sabbath-test-results-table">
         <thead>
           <tr>
-            <th>Calendar Profile</th>
-            <th>${test.year < 1582 ? 'Julian Date' : 'Gregorian Date'}</th>
-            <th>Weekday</th>
+            <th>Profile</th>
+            <th class="date-cell-full">${test.year < 1582 ? 'Julian Date' : 'Gregorian Date'}</th>
+            <th class="date-cell-compact">Date</th>
+            <th>Day</th>
             <th>Result</th>
-            ${(test.id === 'resurrection-30ad' || test.id === 'resurrection-33ad') ? '<th title="Score if this year replaces 32 AD as the resurrection test">Alt Score</th>' : ''}
+            ${(test.id === 'resurrection-30ad' || test.id === 'resurrection-33ad') ? '<th title="Score if this year replaces 32 AD as the resurrection test">Alt</th>' : ''}
           </tr>
         </thead>
         <tbody>
@@ -816,7 +844,10 @@ const SabbathTesterView = {
       }
       
       const dateStr = r.gregorianDate ? this.formatAncientDate(r.gregorianDate, false) : 'N/A';
+      const dateStrShort = r.gregorianDate ? this.formatAncientDate(r.gregorianDate, false, true) : 'N/A';
       const weekdayStr = r.calculatedWeekdayName || 'N/A';
+      const weekdayStrShort = this.getShortWeekday(r.calculatedWeekdayName);
+      const profileNameShort = this.getShortProfileName(r.mergedName);
       
       let yearUncertaintyIcon = '';
       if (r.yearUncertainty && r.yearUncertainty.probability > 0) {
@@ -876,11 +907,18 @@ const SabbathTesterView = {
         </td>`;
       }
       
+      // Build compact date link for mobile
+      const dateStrCompact = r.gregorianDate ? this.formatAncientDate(r.gregorianDate, false, true) : 'N/A';
+      const dateLinkCompact = r.gregorianDate ? 
+        `<a class="sabbath-test-date-link" title="${jdTooltip}" onclick="SabbathTesterView.navigateToTestResult('${test.id}', '${r.profileIdForNav}')">${dateStrCompact}</a>${yearUncertaintyIcon}` :
+        dateStrCompact;
+      
       html += `
         <tr>
-          <td data-label="Profile">${r.mergedName}</td>
-          <td data-label="Date">${dateLink}</td>
-          <td data-label="Weekday">${weekdayStr}</td>
+          <td data-label="Profile" class="profile-cell">${profileNameShort}</td>
+          <td data-label="Date" class="date-cell-full">${dateLink}</td>
+          <td data-label="Date" class="date-cell-compact">${dateLinkCompact}</td>
+          <td data-label="Day" class="weekday-cell">${weekdayStrShort}</td>
           <td data-label="Result" class="${resultClass}">${resultText}</td>
           ${altScoreCell}
         </tr>
@@ -982,8 +1020,11 @@ const SabbathTesterView = {
    * Format a Gregorian/Julian date for display
    * Uses JDN-based weekday calculation for accuracy with ancient dates
    * Uses the same formula as LunarCalendarEngine for consistency
+   * @param {Date|string} date - The date to format
+   * @param {boolean} includeWeekday - Whether to include weekday (not used, kept for API compat)
+   * @param {boolean} compact - Whether to use compact format for mobile
    */
-  formatAncientDate(date, includeWeekday = true) {
+  formatAncientDate(date, includeWeekday = true, compact = false) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     
@@ -1003,15 +1044,11 @@ const SabbathTesterView = {
     const monthName = months[month];
     const yearStr = year < 0 ? `${Math.abs(year) + 1} BC` : `${year} AD`;
     
-    if (includeWeekday) {
-      // For ancient dates (before 1582), the engine calculates weekday correctly
-      // Just display what's already in the result - don't recalculate here
-      // The weekday is already computed by LunarCalendarEngine.getWeekday()
-      // We should NOT recalculate it here - just use it from the cached result
-      
-      // If we don't have a precomputed weekday, skip it
-      return `${monthName} ${day}, ${yearStr}`;
+    // Compact format: just month and day (year shown elsewhere)
+    if (compact) {
+      return `${monthName} ${day}`;
     }
+    
     return `${monthName} ${day}, ${yearStr}`;
   },
   

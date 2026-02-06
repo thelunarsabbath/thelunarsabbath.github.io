@@ -29,3 +29,7 @@ notes/
 
 # Trash - deprecated files kept locally but not tracked
 http/.trash/
+
+# Legacy app versions — kept locally for migration reference only
+http-v1/
+http-v2/

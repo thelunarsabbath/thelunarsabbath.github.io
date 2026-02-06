@@ -74,6 +74,11 @@ const CalendarView = {
       });
     }
     
+    // If date calculator is open (restored from URL), compute the result preview
+    if (state.ui.calcOpen) {
+      requestAnimationFrame(() => this.computeDateCalc());
+    }
+    
     // Update left panel with feast list and priestly cycles
     const profile = derived.config || {};
     this.updateLeftPanel(lunarMonths, profile);
@@ -545,8 +550,15 @@ const CalendarView = {
     let priestlyHtml = '';
     if (typeof getPriestlyCourseForDay === 'function') {
       // Skip Day 1 for lunar sabbath (Day 1 is New Moon day, not part of a week)
-      const skipPriestly = day.lunarDay === 1 && (profile.sabbathMode === 'lunar');
-      if (!skipPriestly) {
+      const isNewMoonDay = day.lunarDay === 1 && (profile.sabbathMode === 'lunar');
+      if (isNewMoonDay) {
+        priestlyHtml = `
+          <div class="day-detail-priestly new-moon-note">
+            <span class="priestly-icon">🌑</span>
+            <span class="priestly-note">Renewed Moon Day — outside the weekly priestly cycle</span>
+          </div>
+        `;
+      } else {
         const courseInfo = getPriestlyCourseForDay(day, month);
         if (courseInfo && !courseInfo.beforeDedication) {
           priestlyHtml = `
@@ -676,11 +688,18 @@ const CalendarView = {
         <div class="day-detail-header">
           <div class="day-detail-date-info">
             <h2>Day ${lunarDay} of the ${this.getOrdinal(month.monthNumber)} Month</h2>
-            <div class="day-detail-date header-dropdown" data-action="date-picker" title="Click to go to a specific date">
-              <span>${weekday}, ${this.formatFullDate(day.gregorianDate)}</span>
-              <span class="dropdown-arrow">▼</span>
+            <div class="day-detail-date-row">
+              <div class="day-detail-date header-dropdown" data-action="date-picker" title="Click to go to a specific date">
+                <span>${weekday}, ${this.formatFullDate(day.gregorianDate)}</span>
+                <span class="dropdown-arrow">▼</span>
+              </div>
+              <div class="date-calc-toggle" onclick="CalendarView.toggleDateCalculator()" title="Date Calculator">
+                <span class="date-calc-icon">🧮</span>
+                <span class="date-calc-label">Date Calc</span>
+              </div>
             </div>
             ${priestlyHtml}
+            ${this.renderDateCalculatorPanel()}
           </div>
           ${astroTimesHtml}
         </div>
@@ -3489,6 +3508,416 @@ const CalendarView = {
       return formatCitySlug(slug);
     }
     return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // DATE CALCULATOR
+  // ═══════════════════════════════════════════════════════════════════
+
+  /**
+   * Render the date calculator panel (toggle is rendered inline next to the date).
+   * All state is read from AppStore.getState().ui for URL persistence.
+   */
+  renderDateCalculatorPanel() {
+    const state = AppStore.getState();
+    const ui = state.ui;
+    const profile = window.PROFILES?.[state.context.profileId] || {};
+    const calcMode = ui.calcMode || ((profile.sabbathMode || 'lunar') === 'lunar' ? 'lunar' : 'gregorian');
+    const isLunar = calcMode === 'lunar';
+    const isOpen = ui.calcOpen;
+    const dir = ui.calcDir || 'add';
+    const dirLabel = dir === 'sub' ? '− Sub' : '+ Add';
+    return `
+      <div class="date-calc-panel" id="date-calc-panel" style="display: ${isOpen ? 'block' : 'none'}">
+        <div class="date-calc-row">
+          <div class="date-calc-mode-toggle" id="date-calc-mode-toggle">
+            <button class="date-calc-mode-btn ${isLunar ? 'active' : ''}" data-mode="lunar" onclick="CalendarView.setCalcMode('lunar')">Lunar</button>
+            <button class="date-calc-mode-btn ${!isLunar ? 'active' : ''}" data-mode="gregorian" onclick="CalendarView.setCalcMode('gregorian')">Greg</button>
+          </div>
+          <span class="date-calc-lbl">Yr</span><span class="date-calc-lbl">Mo</span><span class="date-calc-lbl">Wk</span><span class="date-calc-lbl">Dy</span>
+        </div>
+        <div class="date-calc-row">
+          <div class="date-calc-mode-toggle" id="date-calc-dir-toggle">
+            <button class="date-calc-mode-btn ${dir === 'add' ? 'active' : ''}" data-dir="add" onclick="CalendarView.setCalcDir('add')">Add</button>
+            <button class="date-calc-mode-btn ${dir === 'sub' ? 'active' : ''}" data-dir="sub" onclick="CalendarView.setCalcDir('sub')">Sub</button>
+          </div>
+          <input type="number" class="date-calc-input" id="date-calc-years" min="0" value="${ui.calcYears || 0}" oninput="CalendarView.onCalcInput()">
+          <input type="number" class="date-calc-input" id="date-calc-months" min="0" value="${ui.calcMonths || 0}" oninput="CalendarView.onCalcInput()">
+          <input type="number" class="date-calc-input" id="date-calc-weeks" min="0" value="${ui.calcWeeks || 0}" oninput="CalendarView.onCalcInput()">
+          <input type="number" class="date-calc-input" id="date-calc-days" min="0" value="${ui.calcDays || 0}" oninput="CalendarView.onCalcInput()">
+        </div>
+        <div class="date-calc-result" id="date-calc-result"></div>
+      </div>
+    `;
+  },
+
+  toggleDateCalculator() {
+    const ui = AppStore.getState().ui;
+    AppStore.dispatch({ type: 'SET_CALC_STATE', calcOpen: !ui.calcOpen });
+    // After state update, toggle DOM visibility directly (avoids full re-render)
+    const panel = document.getElementById('date-calc-panel');
+    if (panel) {
+      panel.style.display = !ui.calcOpen ? 'block' : 'none';
+      if (!ui.calcOpen) this.computeDateCalc();
+    }
+  },
+
+  setCalcDir(dir) {
+    AppStore.dispatch({ type: 'SET_CALC_STATE', calcDir: dir });
+    // Update only the Add/Sub toggle (second toggle in the panel)
+    const toggle = document.getElementById('date-calc-dir-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('.date-calc-mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.dir === dir);
+      });
+    }
+    this.computeDateCalc();
+  },
+
+  setCalcMode(mode) {
+    AppStore.dispatch({ type: 'SET_CALC_STATE', calcMode: mode });
+    // Update only the Lunar/Greg toggle (first toggle in the panel)
+    const toggle = document.getElementById('date-calc-mode-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('.date-calc-mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+    }
+    this.computeDateCalc();
+  },
+
+  /** Read current input values from DOM — sync to state silently (replaceState, no re-render) */
+  onCalcInput() {
+    this._syncCalcInputsToState();
+    // Update URL via replaceState (no history entry, no re-render)
+    if (window.URLRouter && AppStore._derived) {
+      const url = URLRouter.buildURL(AppStore.getState(), AppStore._derived);
+      const currentURL = window.location.pathname + window.location.search;
+      if (url !== currentURL) {
+        history.replaceState({}, '', url);
+      }
+    }
+    this.computeDateCalc();
+  },
+
+  /** Sync current DOM input values to AppStore (called before navigation) */
+  _syncCalcInputsToState() {
+    const years = parseInt(document.getElementById('date-calc-years')?.value) || 0;
+    const months = parseInt(document.getElementById('date-calc-months')?.value) || 0;
+    const weeks = parseInt(document.getElementById('date-calc-weeks')?.value) || 0;
+    const days = parseInt(document.getElementById('date-calc-days')?.value) || 0;
+    // Use silentUpdate to avoid triggering re-render
+    AppStore.silentUpdate({ ui: { calcYears: years, calcMonths: months, calcWeeks: weeks, calcDays: days } });
+  },
+
+  _getCalcMode() {
+    const ui = AppStore.getState().ui;
+    if (ui.calcMode) return ui.calcMode;
+    const state = AppStore.getState();
+    const profile = window.PROFILES?.[state.context.profileId] || {};
+    return (profile.sabbathMode || 'lunar') === 'lunar' ? 'lunar' : 'gregorian';
+  },
+
+  /**
+   * Resolve a JD to a lunar date { year, month, day } using the engine.
+   * Generates the calendar for the appropriate year.
+   */
+  _resolveLunarDate(jd) {
+    if (!AppStore._engine) return null;
+    const state = AppStore.getState();
+    const location = state.context.location;
+
+    // Get approximate year from JD using engine's conversion
+    const calDate = AppStore._engine.jdToDisplayDate(jd);
+    const approxYear = calDate.year;
+
+    // Try approxYear and approxYear-1 (dates before equinox belong to previous biblical year)
+    for (const year of [approxYear, approxYear - 1]) {
+      try {
+        const calendar = AppStore._engine.generateYear(year, location);
+        if (!calendar || !calendar.months) continue;
+        const jdFloor = Math.floor(jd);
+        for (const month of calendar.months) {
+          if (!month.days || month.days.length === 0) continue;
+          for (const day of month.days) {
+            if (day.jd != null && Math.floor(day.jd) === jdFloor) {
+              return { year, month: month.monthNumber, day: day.lunarDay, jd: day.jd, daysInMonth: month.days.length };
+            }
+          }
+        }
+      } catch (e) {
+        // generateYear may fail for extreme years
+      }
+    }
+    return null;
+  },
+
+  /**
+   * Get info about a specific lunar date (year, month, day).
+   * Returns { jd, daysInMonth, monthCount } or null.
+   */
+  _getLunarDateInfo(year, month, day) {
+    if (!AppStore._engine) return null;
+    const state = AppStore.getState();
+    const location = state.context.location;
+    try {
+      const calendar = AppStore._engine.generateYear(year, location);
+      if (!calendar || !calendar.months) return null;
+      const monthCount = calendar.months.length;
+      const clampedMonth = Math.min(month, monthCount);
+      const monthData = calendar.months[clampedMonth - 1];
+      if (!monthData || !monthData.days) return null;
+      const daysInMonth = monthData.days.length;
+      const clampedDay = Math.min(day, daysInMonth);
+      const dayData = monthData.days.find(d => d.lunarDay === clampedDay);
+      return {
+        year, month: clampedMonth, day: clampedDay,
+        jd: dayData?.jd || null,
+        daysInMonth,
+        monthCount
+      };
+    } catch (e) {
+      return null;
+    }
+  },
+
+  /**
+   * Compute the date calculator result.
+   * Lunar mode: 4-stage JD pipeline with snapping (years, months, weeks, days).
+   * Gregorian mode: standard JS Date arithmetic, then resolve to lunar date.
+   */
+  computeDateCalc() {
+    const resultEl = document.getElementById('date-calc-result');
+    if (!resultEl) return;
+
+    const derived = AppStore.getDerived();
+    const ui = AppStore.getState().ui;
+    const calcMode = this._getCalcMode();
+
+    // Read inputs from DOM (avoids dispatch/re-render on keystroke)
+    const sign = (ui.calcDir || 'add') === 'sub' ? -1 : 1;
+    const years = (parseInt(document.getElementById('date-calc-years')?.value) || 0) * sign;
+    const months = (parseInt(document.getElementById('date-calc-months')?.value) || 0) * sign;
+    const weeks = (parseInt(document.getElementById('date-calc-weeks')?.value) || 0) * sign;
+    const days = (parseInt(document.getElementById('date-calc-days')?.value) || 0) * sign;
+
+    if (years === 0 && months === 0 && weeks === 0 && days === 0) {
+      resultEl.innerHTML = '<span class="date-calc-hint">Enter values above</span>';
+      return;
+    }
+
+    if (calcMode === 'gregorian') {
+      this._computeGregorianCalc(resultEl, derived, years, months, weeks, days);
+    } else {
+      this._computeLunarCalc(resultEl, derived, years, months, weeks, days);
+    }
+  },
+
+  /**
+   * Gregorian mode: standard calendar arithmetic via JS Date, then resolve to lunar date.
+   */
+  _computeGregorianCalc(resultEl, derived, years, months, weeks, days) {
+    // Get the Gregorian date of the currently selected day
+    const startMonth = (derived.currentMonthIndex ?? 0) + 1;
+    const startDay = derived.currentLunarDay ?? 1;
+    const startInfo = this._getLunarDateInfo(derived.year, startMonth, startDay);
+    if (!startInfo || !startInfo.jd) {
+      resultEl.innerHTML = '<span class="date-calc-error">Cannot compute</span>';
+      return;
+    }
+
+    // Convert JD to Gregorian components, then to a JS Date for arithmetic
+    const greg = AppStore._julianToGregorian(startInfo.jd);
+    if (!greg) {
+      resultEl.innerHTML = '<span class="date-calc-error">Cannot compute</span>';
+      return;
+    }
+    const startDate = new Date(Date.UTC(2000, greg.month - 1, greg.day, 12, 0, 0));
+    startDate.setUTCFullYear(greg.year);
+
+    // Stage 1 & 2: Add years and months via Date (handles variable month lengths, leap years)
+    startDate.setUTCFullYear(startDate.getUTCFullYear() + years);
+    startDate.setUTCMonth(startDate.getUTCMonth() + months);
+
+    // Stage 3 & 4: Add weeks and days
+    startDate.setUTCDate(startDate.getUTCDate() + weeks * 7 + days);
+
+    // Convert result back to JD and resolve to lunar date
+    const resultJD = AppStore._dateToJulian(startDate);
+    if (!resultJD) {
+      resultEl.innerHTML = '<span class="date-calc-error">Cannot compute</span>';
+      return;
+    }
+
+    const resolved = this._resolveLunarDate(resultJD);
+    if (!resolved) {
+      resultEl.innerHTML = '<span class="date-calc-error">Date out of range</span>';
+      return;
+    }
+
+    const yearStr = resolved.year < 0 ? `${Math.abs(resolved.year) + 1} BC` : `${resolved.year} AD`;
+    const gregStr = this._getCalcGregorianStr(resolved.year, resolved.month, resolved.day);
+    resultEl.innerHTML = `
+      <a class="date-calc-go" onclick="CalendarView.navigateToCalcResult(${resolved.year}, ${resolved.month}, ${resolved.day})">
+        Day ${resolved.day} of Month ${resolved.month}, ${yearStr}
+        <span class="date-calc-greg">${gregStr || ''} →</span>
+      </a>
+    `;
+  },
+
+  /**
+   * Lunar mode: 4-stage JD pipeline with snapping.
+   */
+  _computeLunarCalc(resultEl, derived, years, months, weeks, days) {
+    const state = AppStore.getState();
+    const profile = window.PROFILES?.[state.context.profileId] || {};
+    const sabbathMode = profile.sabbathMode || 'lunar';
+
+    const startYear = derived.year;
+    const startMonth = (derived.currentMonthIndex ?? 0) + 1;
+    const startDay = derived.currentLunarDay ?? 1;
+
+    const startInfo = this._getLunarDateInfo(startYear, startMonth, startDay);
+    if (!startInfo || !startInfo.jd) {
+      resultEl.innerHTML = '<span class="date-calc-error">Cannot compute</span>';
+      return;
+    }
+
+    let currentJD = startInfo.jd;
+    let currentYear = startInfo.year;
+    let currentMonth = startInfo.month;
+    let currentDay = startInfo.day;
+
+    // Stage 1: Add years — direct lookup, snap to same month/day
+    if (years !== 0) {
+      const targetYear = currentYear + years;
+      const info = this._getLunarDateInfo(targetYear, currentMonth, currentDay);
+      if (info && info.jd) {
+        currentJD = info.jd; currentYear = info.year;
+        currentMonth = info.month; currentDay = info.day;
+      } else {
+        resultEl.innerHTML = '<span class="date-calc-error">Year out of range</span>';
+        return;
+      }
+    }
+
+    // Stage 2: Add months — jump by months*29.53, snap to same day
+    if (months !== 0) {
+      const jumpJD = currentJD + months * 29.53;
+      const resolved = this._resolveLunarDate(jumpJD);
+      if (resolved) {
+        const info = this._getLunarDateInfo(resolved.year, resolved.month, currentDay);
+        if (info && info.jd) {
+          currentJD = info.jd; currentYear = info.year;
+          currentMonth = info.month; currentDay = info.day;
+        }
+      } else {
+        resultEl.innerHTML = '<span class="date-calc-error">Month out of range</span>';
+        return;
+      }
+    }
+
+    // Stage 3: Add weeks
+    if (weeks !== 0) {
+      if (sabbathMode === 'lunar') {
+        // Lunar weeks: 4 weeks = 1 month, snap to same position in week block
+        const startPos = (currentDay >= 2 && currentDay <= 29) ? (currentDay - 2) % 7 : 0;
+        const absWeeks = Math.abs(weeks);
+        const weekSign = weeks > 0 ? 1 : -1;
+        const extraMonths = Math.floor(absWeeks / 4) * weekSign;
+        const remainWeeks = (absWeeks % 4) * weekSign;
+
+        const jumpJD = currentJD + extraMonths * 29.53 + remainWeeks * 7;
+        const resolved = this._resolveLunarDate(jumpJD);
+        if (resolved && resolved.day >= 2 && resolved.day <= 29) {
+          const landedPos = (resolved.day - 2) % 7;
+          let adjustment = (startPos - landedPos + 7) % 7;
+          if (adjustment > 3) adjustment -= 7;
+          let snappedDay = resolved.day + adjustment;
+
+          if (snappedDay > 29) {
+            const nextInfo = this._getLunarDateInfo(resolved.year, resolved.month + 1, snappedDay - 28 + 1);
+            if (nextInfo && nextInfo.jd) {
+              currentJD = nextInfo.jd; currentYear = nextInfo.year;
+              currentMonth = nextInfo.month; currentDay = nextInfo.day;
+            }
+          } else if (snappedDay < 2) {
+            const prevInfo = this._getLunarDateInfo(resolved.year, resolved.month - 1, 29 + (snappedDay - 1));
+            if (prevInfo && prevInfo.jd) {
+              currentJD = prevInfo.jd; currentYear = prevInfo.year;
+              currentMonth = prevInfo.month; currentDay = prevInfo.day;
+            }
+          } else {
+            const info = this._getLunarDateInfo(resolved.year, resolved.month, snappedDay);
+            if (info && info.jd) {
+              currentJD = info.jd; currentYear = info.year;
+              currentMonth = info.month; currentDay = info.day;
+            }
+          }
+        } else if (resolved) {
+          currentJD = resolved.jd; currentYear = resolved.year;
+          currentMonth = resolved.month; currentDay = resolved.day;
+        }
+      } else {
+        // Saturday mode: weeks are 7 calendar days
+        currentJD = currentJD + weeks * 7;
+        const resolved = this._resolveLunarDate(currentJD);
+        if (resolved) {
+          currentYear = resolved.year; currentMonth = resolved.month;
+          currentDay = resolved.day; currentJD = resolved.jd;
+        }
+      }
+    }
+
+    // Stage 4: Add days — exact JD arithmetic
+    if (days !== 0) {
+      currentJD = currentJD + days;
+      const resolved = this._resolveLunarDate(currentJD);
+      if (resolved) {
+        currentYear = resolved.year; currentMonth = resolved.month;
+        currentDay = resolved.day; currentJD = resolved.jd;
+      }
+    }
+
+    // Format result
+    const yearStr = currentYear < 0 ? `${Math.abs(currentYear) + 1} BC` : `${currentYear} AD`;
+    const gregStr = this._getCalcGregorianStr(currentYear, currentMonth, currentDay);
+    resultEl.innerHTML = `
+      <a class="date-calc-go" onclick="CalendarView.navigateToCalcResult(${currentYear}, ${currentMonth}, ${currentDay})">
+        Day ${currentDay} of Month ${currentMonth}, ${yearStr}
+        <span class="date-calc-greg">${gregStr || ''} →</span>
+      </a>
+    `;
+  },
+
+  /**
+   * Get a formatted Gregorian date string for a lunar date, for the calculator result preview.
+   */
+  _getCalcGregorianStr(year, month, day) {
+    const info = this._getLunarDateInfo(year, month, day);
+    if (!info || !info.jd) return '';
+    // Look up the actual day data to get gregorianDate
+    try {
+      const state = AppStore.getState();
+      const location = state.context.location;
+      const calendar = AppStore._engine.generateYear(year, location);
+      if (!calendar || !calendar.months) return '';
+      const clampedMonth = Math.min(month, calendar.months.length);
+      const monthData = calendar.months[clampedMonth - 1];
+      if (!monthData || !monthData.days) return '';
+      const clampedDay = Math.min(day, monthData.days.length);
+      const dayData = monthData.days.find(d => d.lunarDay === clampedDay);
+      if (!dayData || !dayData.gregorianDate) return '';
+      return this.formatFullDate(dayData.gregorianDate);
+    } catch (e) {
+      return '';
+    }
+  },
+
+  navigateToCalcResult(year, month, day) {
+    // Sync current input values to state so they appear in the URL
+    this._syncCalcInputsToState();
+    AppStore.dispatch({ type: 'SET_LUNAR_DATETIME', year, month, day });
   }
 };
 

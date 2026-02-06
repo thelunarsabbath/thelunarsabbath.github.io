@@ -4487,9 +4487,195 @@ body.view-reader:not(.reader-landing) {
   background: rgba(100, 100, 100, 0.2);
 }
 
-.day-detail-priestly.before-dedication .priestly-note {
+.day-detail-priestly.before-dedication .priestly-note,
+.day-detail-priestly.new-moon-note .priestly-note {
   color: #888;
   font-style: italic;
+}
+
+.day-detail-priestly.new-moon-note {
+  background: rgba(100, 100, 100, 0.2);
+}
+
+/* Date Calculator */
+.day-detail-date-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.date-calc-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(100, 160, 255, 0.15);
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.date-calc-toggle:hover {
+  background: rgba(100, 160, 255, 0.3);
+}
+
+.date-calc-icon {
+  font-size: 1em;
+}
+
+.date-calc-label {
+  color: #8cb4e0;
+  font-weight: 500;
+}
+
+.date-calc-panel {
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: rgba(100, 160, 255, 0.08);
+  border: 1px solid rgba(100, 160, 255, 0.2);
+  border-radius: 8px;
+  max-width: 260px;
+}
+
+/* Both rows share the same column grid: fixed toggle + 4 equal small inputs */
+.date-calc-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-calc-row + .date-calc-row {
+  margin-top: 4px;
+}
+
+.date-calc-lbl {
+  width: 36px;
+  text-align: center;
+  font-size: 0.7em;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.date-calc-mode-toggle {
+  display: flex;
+  width: 90px;
+  flex-shrink: 0;
+  border: 1px solid rgba(100, 160, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.date-calc-mode-btn {
+  flex: 1;
+  padding: 3px 0;
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 0.75em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.date-calc-mode-btn.active {
+  background: rgba(100, 160, 255, 0.25);
+  color: #8cb4e0;
+}
+
+.date-calc-mode-btn:hover:not(.active) {
+  background: rgba(100, 160, 255, 0.1);
+}
+
+.date-calc-input {
+  width: 36px;
+  flex-shrink: 0;
+  padding: 3px 2px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #ddd;
+  font-size: 0.85em;
+  -moz-appearance: textfield;
+}
+
+.date-calc-input::-webkit-inner-spin-button,
+.date-calc-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.date-calc-input:focus {
+  outline: none;
+  border-color: rgba(100, 160, 255, 0.5);
+}
+
+.date-calc-result {
+  margin-top: 8px;
+  min-height: 1.5em;
+}
+
+.date-calc-go {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(100, 200, 100, 0.15);
+  border: 1px solid rgba(100, 200, 100, 0.3);
+  border-radius: 4px;
+  color: #8ed48e;
+  font-weight: 500;
+  font-size: 0.9em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.date-calc-go:hover {
+  background: rgba(100, 200, 100, 0.3);
+}
+
+.date-calc-greg {
+  display: block;
+  font-size: 0.85em;
+  color: #aaa;
+  margin-top: 1px;
+}
+
+.date-calc-hint {
+  color: #666;
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+.date-calc-error {
+  color: #ff6b6b;
+  font-size: 0.85em;
+}
+
+@media (max-width: 480px) {
+  .date-calc-panel {
+    max-width: 240px;
+  }
+  .date-calc-input {
+    width: 32px;
+  }
+  .date-calc-lbl {
+    width: 32px;
+  }
+  .date-calc-mode-toggle {
+    width: 80px;
+  }
+  .date-calc-mode-btn {
+    font-size: 0.7em;
+  }
+  .date-calc-go {
+    font-size: 0.8em;
+  }
 }
 
 /* Torah Portion Display */

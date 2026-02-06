@@ -58,7 +58,14 @@ const AppStore = {
       feastsPanel: false,       // Feasts slideout panel state
       priestlyPanel: false,     // Priestly cycles slideout panel state
       globalSearchQuery: null,  // Global search query (in top nav)
-      globalSearchCollapsed: { events: false, bible: false }  // Collapsed sections in search results
+      globalSearchCollapsed: { events: false, bible: false },  // Collapsed sections in search results
+      calcOpen: false,          // Date calculator open state
+      calcDir: 'add',           // Calculator direction: 'add' or 'sub'
+      calcMode: null,           // Calculator mode: null=auto, 'lunar', 'gregorian'
+      calcYears: 0,
+      calcMonths: 0,
+      calcWeeks: 0,
+      calcDays: 0
     },
     
     // Bible navigation history (for PWA/desktop where browser history may not work)
@@ -478,7 +485,8 @@ const AppStore = {
     'NAV_PUSH',
     'SET_GLOBAL_SEARCH',
     'CLOSE_GLOBAL_SEARCH',
-    'SET_SEARCH_COLLAPSED'
+    'SET_SEARCH_COLLAPSED',
+    'SET_CALC_STATE'
   ]),
   
   dispatch(event) {
@@ -1348,6 +1356,18 @@ const AppStore = {
         if (!s.ui.priestlyPanel) return false;
         s.ui.priestlyPanel = false;
         return true;
+        
+      // ─── Date Calculator Actions ───
+      case 'SET_CALC_STATE': {
+        let changed = false;
+        for (const key of ['calcOpen', 'calcDir', 'calcMode', 'calcYears', 'calcMonths', 'calcWeeks', 'calcDays']) {
+          if (event[key] !== undefined && s.ui[key] !== event[key]) {
+            s.ui[key] = event[key];
+            changed = true;
+          }
+        }
+        return changed;
+      }
       
       // ─── Global Search Actions ───
       case 'SET_GLOBAL_SEARCH':
@@ -1843,6 +1863,7 @@ const AppStore = {
       const pushEvents = [
         'SET_VIEW', 'SET_SELECTED_DATE', 'SET_PROFILE', 'SET_LOCATION', 
         'SELECT_DAY', 'SET_BIBLE_LOCATION', 'SET_GREGORIAN_DATETIME',
+        'SET_LUNAR_DATETIME',
         'SET_TIMELINE_EVENT', 'SET_TIMELINE_DURATION', 'SET_TIMELINE_SEARCH',
         'SET_TIMELINE_FOCUSED_EVENT', 'SET_GLOBAL_SEARCH', 'CLOSE_GLOBAL_SEARCH'
       ];

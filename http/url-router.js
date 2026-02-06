@@ -475,6 +475,24 @@ const URLRouter = {
         }
       }
     }
+    // Date calculator state (calendar view)
+    // Format: ?calc=add.lunar.3mo.7wk or ?calc=sub.greg.2yr.1mo.5dy
+    if (searchParams.get('calc')) {
+      const parts = searchParams.get('calc').split('.');
+      result.ui.calcOpen = true;
+      result.ui.calcDir = parts[0] === 'sub' ? 'sub' : 'add';
+      result.ui.calcMode = parts[1] === 'greg' ? 'gregorian' : 'lunar';
+      for (let i = 2; i < parts.length; i++) {
+        const match = parts[i].match(/^(\d+)(yr|mo|wk|dy)$/);
+        if (match) {
+          const val = parseInt(match[1]) || 0;
+          if (match[2] === 'yr') result.ui.calcYears = val;
+          else if (match[2] === 'mo') result.ui.calcMonths = val;
+          else if (match[2] === 'wk') result.ui.calcWeeks = val;
+          else if (match[2] === 'dy') result.ui.calcDays = val;
+        }
+      }
+    }
   },
   
   /**
@@ -671,6 +689,17 @@ const URLRouter = {
     if (content.view === 'calendar') {
       if (ui.feastsPanel) params.set('panel', 'feasts');
       else if (ui.priestlyPanel) params.set('panel', 'priestly');
+      // Date calculator state: ?calc=add.lunar.3mo.7wk
+      if (ui.calcOpen) {
+        const dir = ui.calcDir || 'add';
+        const mode = (ui.calcMode === 'gregorian') ? 'greg' : 'lunar';
+        let calc = `${dir}.${mode}`;
+        if (ui.calcYears) calc += `.${ui.calcYears}yr`;
+        if (ui.calcMonths) calc += `.${ui.calcMonths}mo`;
+        if (ui.calcWeeks) calc += `.${ui.calcWeeks}wk`;
+        if (ui.calcDays) calc += `.${ui.calcDays}dy`;
+        params.set('calc', calc);
+      }
     }
     // Add verse to query params for bible content (both 'bible' view and 'reader' view with bible content)
     const isBibleContent = content.view === 'bible' || 

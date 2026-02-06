@@ -594,6 +594,13 @@
 
 ---
 
+## Future Feature Backlog
+
+- [ ] **Name-aware search**: Searching for "Jesus" should also match "Yeshua" and vice versa. Same for LORD/YHWH/Yahweh and God/Elohim. Search should expand queries based on the name equivalence mapping in SettingsView.
+- [ ] **Universal name normalization**: All displayed text (Bible reader, chapter content, events, tooltips, search results) should normalize names to the user's stated preference from Settings. Currently `applyNamePreferences()` exists but is not applied everywhere. Needs systematic integration into all rendering paths.
+
+---
+
 ## Verification Checklist
 
 After completing all phases, verify:

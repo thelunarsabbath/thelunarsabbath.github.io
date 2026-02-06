@@ -741,6 +741,13 @@
       if (typeof SettingsView !== 'undefined') ContentManager.registerView('settings', SettingsView);
       // EventsView removed — was unreachable (no menu entry)
       
+      // GitHub Pages SPA redirect: if 404.html stored a path, restore it
+      const spaRedirect = sessionStorage.getItem('spa-redirect');
+      if (spaRedirect) {
+        sessionStorage.removeItem('spa-redirect');
+        history.replaceState({}, '', spaRedirect);
+      }
+      
       // Load initial state from URL
       AppStore.dispatch({ type: 'INIT_FROM_URL', url: window.location });
       

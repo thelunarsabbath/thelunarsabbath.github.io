@@ -181,6 +181,12 @@ const VIEW_ASSETS = [
 // CSS assets
 const CSS_ASSETS = [
   '/assets/css/bible-styles.css',
+  '/assets/css/tutorial.css',
+  '/assets/css/settings.css',
+  '/assets/css/symbols.css',
+  '/assets/css/reader.css',
+  '/assets/css/components.css',
+  '/assets/css/sabbath-tester.css',
   '/components/world-map.css',
   '/components/dateline-map.css'
 ];

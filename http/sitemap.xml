@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Main app views -->
+  <url><loc>https://lunarsabbath.net/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://lunarsabbath.net/timeline</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lunarsabbath.net/sabbath-tester</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- Book chapters -->
+  <url><loc>https://lunarsabbath.net/reader/timetested/01_Introduction</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/02_Inherited_Lies</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/03_Principles_of_Evaluation</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/04_Alleged_Authority_of_Sanhedrin</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/05_Where_Does_the_Day_Start</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/06_When_Does_the_Day_Start</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/07_When_Does_the_Month_Start</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/08_When_does_the_Year_Start</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/09_How_to_Observe_the_Signs</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/10_When_is_the_Sabbath</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/11_The_Day_of_Saturn</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/12_32_AD_Resurrection</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/13_Herod_the_Great</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/14_Passion_Week_-_3_Days_%26_3_Nights</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/15_Solar_Only_Calendars</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/16_The_Path_to_Salvation</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/17_Commands_to_Follow</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/18_Appointed_Times</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/timetested/19_Miscellaneous_Commands</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+  <!-- Bible reader entry points -->
+  <url><loc>https://lunarsabbath.net/reader/bible/kjv/Genesis/1</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/bible/kjv/Exodus/1</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/bible/kjv/Leviticus/23</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/bible/kjv/Daniel/9</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/bible/kjv/Matthew/28</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/bible/kjv/Revelation/1</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+</urlset>

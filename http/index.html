@@ -29,20 +29,48 @@
   
   <!-- Structured Data (JSON-LD) -->
   <script type="application/ld+json">
-  {
+  [{
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Time Tested - Biblical Lunar Calendar",
-    "description": "A biblical lunar calendar application for tracking Sabbaths, feast days, priestly courses, and historical events based on moon phases.",
-    "url": "https://lunarsabbath.net/time-tested/",
-    "applicationCategory": "LifestyleApplication",
+    "description": "A biblical lunar calendar application for tracking Sabbaths, feast days, priestly courses, and historical events based on moon phases. Compare multiple calendar theories against Scripture with precise astronomical calculations.",
+    "url": "https://lunarsabbath.net/",
+    "applicationCategory": "ReferenceApplication",
     "operatingSystem": "Any",
+    "browserRequirements": "Requires JavaScript",
+    "softwareVersion": "2.0",
+    "author": {
+      "@type": "Organization",
+      "name": "LunarSabbath.net",
+      "url": "https://lunarsabbath.net"
+    },
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD"
-    }
-  }
+    },
+    "featureList": "Lunar Calendar, Biblical Timeline, Sabbath Tester, Bible Reader with Strong's Concordance, Priestly Courses, Torah Portions, Date Calculator, World Clock",
+    "screenshot": "https://lunarsabbath.net/icons/icon-512.png"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    "name": "A Time Tested Tradition",
+    "description": "An exploration of biblical calendar methodology using first-principles physics, astronomical calculations, and Scripture to determine when the day, month, year, and Sabbath begin.",
+    "url": "https://lunarsabbath.net/reader/timetested/01_Introduction",
+    "author": {
+      "@type": "Person",
+      "name": "Daniel Larimer"
+    },
+    "inLanguage": "en",
+    "genre": "Religion",
+    "about": [
+      {"@type": "Thing", "name": "Biblical calendar"},
+      {"@type": "Thing", "name": "Lunar Sabbath"},
+      {"@type": "Thing", "name": "Biblical chronology"}
+    ],
+    "isAccessibleForFree": true
+  }]
   </script>
   
   <!-- PWA Meta Tags -->
@@ -287,6 +315,47 @@
       <main id="content-area" class="content-area">
         <!-- Content rendered by ContentManager -->
         <div class="loading">Loading...</div>
+        <noscript>
+          <div style="padding: 20px; max-width: 800px; margin: 0 auto; line-height: 1.6;">
+            <h1>Time Tested - Biblical Lunar Calendar</h1>
+            <p>A comprehensive biblical calendar application that uses precise astronomical calculations to compute lunar Sabbaths, feast days, priestly courses, and historical biblical events. Compare multiple calendar theories against Scripture and astronomical data.</p>
+
+            <h2>Features</h2>
+            <ul>
+              <li><strong>Lunar Calendar</strong> — Full Moon, Dark Moon, and Crescent Moon month-start options with configurable day-start (morning or evening) and year-start rules</li>
+              <li><strong>Biblical Timeline</strong> — Interactive timeline spanning 4050 BC to 3500 AD with over 500 historical and prophetic events</li>
+              <li><strong>Sabbath Tester</strong> — Tests calendar configurations against 7 biblical events where specific weekdays are mentioned in Scripture</li>
+              <li><strong>Bible Reader</strong> — KJV, ASV, and Septuagint translations with Strong's Hebrew/Greek dictionaries and interlinear display</li>
+              <li><strong>Priestly Courses</strong> — 24 Mishmarot divisions calculated from Temple dedication and destruction anchors</li>
+              <li><strong>Torah Portions</strong> — Weekly Torah readings for both Lunar Sabbath and Saturday Sabbath observance</li>
+              <li><strong>Date Calculator</strong> — Add/subtract years, months, weeks, and days in both lunar and Gregorian modes</li>
+              <li><strong>World Clock</strong> — Compare the same moment across different calendar profiles and locations</li>
+            </ul>
+
+            <h2>Book: A Time Tested Tradition</h2>
+            <p>This app is the interactive companion to the book exploring biblical calendar methodology. Chapters include:</p>
+            <ul>
+              <li>When Does the Day Start? — Evidence for morning vs evening</li>
+              <li>When Does the Month Start? — Full moon, dark moon, or crescent?</li>
+              <li>When is the Sabbath? — The case for Lunar Sabbath from Scripture, history, and physics</li>
+              <li>32 AD Resurrection — Multiple independent proofs for the crucifixion year</li>
+              <li>Passion Week — 3 Days and 3 Nights reconciled</li>
+              <li>Appointed Times — Feast days and their prophetic significance</li>
+            </ul>
+
+            <h2>Calendar Profiles</h2>
+            <p>Compare five preset calendar configurations or create your own:</p>
+            <ul>
+              <li><strong>Time-Tested</strong> — Full Moon, Morning start, Equinox year, Lunar Sabbath</li>
+              <li><strong>Ancient Traditional</strong> — Crescent Moon, Evening start, Saturday Sabbath</li>
+              <li><strong>119 Ministries</strong> — Dark Moon, Evening start, Saturday Sabbath</li>
+              <li><strong>Creator's Calendar</strong> — Full Moon, Morning start, Virgo year rule</li>
+              <li><strong>Traditional Lunar</strong> — Crescent Moon, Evening start, Lunar Sabbath</li>
+            </ul>
+
+            <p>This application requires JavaScript to run. Please enable JavaScript in your browser to use the interactive calendar, timeline, and Bible reader.</p>
+          </div>
+        </noscript>
       </main>
     </div>
     

@@ -1,10 +1,12 @@
 // Lunar Sabbath Calendar Service Worker
-const CACHE_NAME = 'lunar-sabbath-v828';
+importScripts('/version.js');
+const CACHE_NAME = 'lunar-sabbath-v' + APP_VERSION;
 
 // Core app files
 const CORE_ASSETS = [
   '/',
   '/index.html',
+  '/version.js',
   '/manifest.json',
   '/styles.css',
   '/app-store.js',

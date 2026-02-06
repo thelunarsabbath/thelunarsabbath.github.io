@@ -20,7 +20,7 @@
 const ResolvedEventsCache = (() => {
   // ── Configuration ──────────────────────────────────────────────────────
   // Bump when event-resolver.js logic, data schema, or historical-events JSON changes.
-  const CACHE_VERSION = '12.0';
+  const CACHE_VERSION = String(typeof APP_VERSION !== 'undefined' ? APP_VERSION : 0);
   const STORAGE_PREFIX = 'rev_cache_v';
 
   // ── Internal State ─────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ const ResolvedEventsCache = (() => {
 
     _dataPromise = (async () => {
       try {
-        const resp = await fetch('/historical-events-v2.json');
+        const resp = await fetch('/historical-events-v2.json?v=' + (typeof APP_VERSION !== 'undefined' ? APP_VERSION : 0));
         if (resp.ok) { _data = await resp.json(); return _data; }
       } catch (e) { /* fall through */ }
       console.error('[ResolvedEventsCache] Failed to load event data');

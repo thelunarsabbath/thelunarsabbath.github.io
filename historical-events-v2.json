@@ -5959,7 +5959,8 @@
     {
       "id": "solomon-temple-construction",
       "title": "Solomon's Temple Foundation Laid",
-      "type": "construction",
+      "type": "milestone",
+      "priority": 1,
       "description": "In the 4th year of Solomon's reign (regal year Fall 967 to Fall 966 BC), on the 2nd day of the 2nd month (Iyyar 2, Spring 966 BC), construction of the First Temple begins. 2 Chronicles 3:2 gives the exact day. 1 Kings 6:1 states this is 480 years after the Exodus.",
       "start": {
         "lunar": {
@@ -5967,27 +5968,7 @@
           "month": 2,
           "day": 2
         },
-        "regal": {
-          "epoch": "solomon",
-          "year": 4
-        },
-        "notes": "Solomon's 4th regal year (Fall 967 - Fall 966 BC), foundation laid Spring 966 BC (Iyyar 2)"
-      },
-      "end": {
-        "gregorian": {
-          "year": -958
-        },
-        "lunar": {
-          "month": 8
-        },
-        "regal": {
-          "epoch": "solomon",
-          "year": 11
-        }
-      },
-      "duration": {
-        "value": 7,
-        "unit": "lunar_years"
+        "notes": "Solomon's 4th regal year (Fall 967 - Fall 966 BC), foundation laid Spring 966 BC (Iyyar 2). Regal ref removed to avoid circular dependency with solomon-reign."
       },
       "certainty": "high",
       "sources": [

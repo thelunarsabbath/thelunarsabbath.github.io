@@ -102,7 +102,7 @@ const SabbathTesterView = {
   _isRendering: false,
   _hasRendered: false, // Track if we've completed rendering
   _testCache: {}, // Cache for test results: { 'testId-profileId': result }
-  _cacheVersion: '2.9', // Increment to invalidate cache if test logic changes (v2.9: Julian calendar for ancient dates)
+  _cacheVersion: String(typeof APP_VERSION !== 'undefined' ? APP_VERSION : 0), // Keyed to APP_VERSION from version.js
   
   render(state, derived, container) {
     if (this._isRendering) return; // Prevent re-render loops

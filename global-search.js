@@ -1046,31 +1046,26 @@ const GlobalSearch = {
   },
   
   /**
-   * Navigate to a timeline event (just focus/highlight, don't open details)
+   * Navigate to a timeline event — focus + open details on desktop
    */
   goToEvent(eventId) {
     if (typeof AppStore !== 'undefined') {
       const state = AppStore.getState();
       const isOnTimeline = state.content?.view === 'timeline';
+      const isMobile = window.innerWidth < 768;
       
       if (isOnTimeline) {
-        // Already on timeline - just dispatch focus event directly
-        AppStore.dispatch({
-          type: 'SET_TIMELINE_FOCUSED_EVENT',
-          eventId: eventId
-        });
+        // Already on timeline - dispatch focus (and event detail on desktop)
+        AppStore.dispatch({ type: 'SET_TIMELINE_FOCUSED_EVENT', eventId });
+        if (!isMobile) {
+          AppStore.dispatch({ type: 'SET_TIMELINE_EVENT', eventId });
+        }
       } else {
-        // Navigate to timeline view first
-        AppStore.dispatch({
-          type: 'SET_VIEW',
-          view: 'timeline'
-        });
-        // After view change, focus on the event (scroll to it and highlight)
-        setTimeout(() => {
-          if (typeof focusTimelineEvent === 'function') {
-            focusTimelineEvent(eventId);
-          }
-        }, 300);
+        // Navigate via URL to avoid race with async timeline init
+        const params = `focus=${encodeURIComponent(eventId)}${isMobile ? '' : '&event=' + encodeURIComponent(eventId)}`;
+        const url = `/timeline?${params}`;
+        history.pushState({}, '', url);
+        AppStore.dispatch({ type: 'URL_CHANGED', url });
       }
     }
   },

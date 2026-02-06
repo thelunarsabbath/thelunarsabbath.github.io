@@ -89,17 +89,17 @@
   <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json">
   
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="/styles.css?v=146">
-  <link rel="stylesheet" href="/components/world-map.css?v=1">
-  <link rel="stylesheet" href="/components/dateline-map.css?v=5">
-  <link rel="stylesheet" href="/assets/css/bible-styles.css?v=125">
-  <link rel="stylesheet" href="/assets/css/tutorial.css?v=1">
-  <link rel="stylesheet" href="/assets/css/settings.css?v=1">
-  <link rel="stylesheet" href="/assets/css/symbols.css?v=1">
-  <link rel="stylesheet" href="/assets/css/reader.css?v=1">
-  <link rel="stylesheet" href="/assets/css/components.css?v=1">
-  <link rel="stylesheet" href="/assets/css/sabbath-tester.css?v=3">
+  <!-- Stylesheets (cache busting via SW cache name keyed to APP_VERSION) -->
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/components/world-map.css">
+  <link rel="stylesheet" href="/components/dateline-map.css">
+  <link rel="stylesheet" href="/assets/css/bible-styles.css">
+  <link rel="stylesheet" href="/assets/css/tutorial.css">
+  <link rel="stylesheet" href="/assets/css/settings.css">
+  <link rel="stylesheet" href="/assets/css/symbols.css">
+  <link rel="stylesheet" href="/assets/css/reader.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/sabbath-tester.css">
   
   <!-- CRITICAL MOBILE FIX: Inline to bypass cache issues and body class dependencies -->
   <style>
@@ -499,75 +499,78 @@
   <!-- SCRIPTS -->
   <!-- ═══════════════════════════════════════════════════════════════════ -->
   
+  <!-- App version (single source of truth for all cache busting) -->
+  <script src="/version.js"></script>
+  
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tz-lookup@6.1.25/tz.min.js"></script>
   <script src="/lib/marked.min.js"></script>
   
   <!-- Timezone lookup utility -->
-  <script src="/timezone-utils.js?v=1"></script>
+  <script src="/timezone-utils.js"></script>
   
   <!-- Astronomy Engine Abstraction (loads Swiss Ephemeris, NASA Eclipse data) -->
-  <script src="/astronomy-engine-abstraction.js?v=2"></script>
-  <script src="/astronomy-utils.js?v=14"></script>
-  <script src="/lunar-calendar-engine.js?v=4"></script>
-  <script src="/jubilee-cycle.js?v=1"></script>
-  <script src="/feasts.js?v=1"></script>
-  <script src="/bible-events-loader.js?v=5"></script>
-  <script src="/torah-portions.js?v=1"></script>
-  <script src="/priestly-divisions.js?v=4"></script>
+  <script src="/astronomy-engine-abstraction.js"></script>
+  <script src="/astronomy-utils.js"></script>
+  <script src="/lunar-calendar-engine.js"></script>
+  <script src="/jubilee-cycle.js"></script>
+  <script src="/feasts.js"></script>
+  <script src="/bible-events-loader.js"></script>
+  <script src="/torah-portions.js"></script>
+  <script src="/priestly-divisions.js"></script>
   
   <!-- Year utilities (BC/AD conversion) -->
-  <script src="/year-utils.js?v=2"></script>
+  <script src="/year-utils.js"></script>
   
   <!-- Core (cache-bust with version) -->
-  <script src="/app-store.js?v=46"></script>
-  <script src="/url-router.js?v=25"></script>
-  <script src="/layout.js?v=2"></script>
-  <script src="/content-manager.js?v=2"></script>
+  <script src="/app-store.js"></script>
+  <script src="/url-router.js"></script>
+  <script src="/layout.js"></script>
+  <script src="/content-manager.js"></script>
   
   <!-- Components -->
-  <script src="/components/world-map.js?v=1"></script>
-  <script src="/components/dateline-map.js?v=21"></script>
+  <script src="/components/world-map.js"></script>
+  <script src="/components/dateline-map.js"></script>
   
   <!-- Calendar Export -->
-  <script src="/calendar-export.js?v=1"></script>
+  <script src="/calendar-export.js"></script>
   
   <!-- Global Search -->
-  <script src="/global-search.js?v=22"></script>
+  <script src="/global-search.js"></script>
   
   <!-- Views -->
-  <script src="/views/calendar-view.js?v=87"></script>
+  <script src="/views/calendar-view.js"></script>
   
   <!-- Bible Reader and Strong's Dictionaries -->
   <script src="/strongs-hebrew-dictionary.js"></script>
   <script src="/strongs-greek-dictionary.js"></script>
-  <script src="/symbol-dictionary.js?v=1"></script>
-  <script src="/word-study-dictionary.js?v=1"></script>
-  <script src="/book-scripture-index.js?v=1"></script>
-  <script src="/cross-references.js?v=1"></script>
-  <script src="/verse-event-links.js?v=1"></script>
-  <script src="/bible-reader.js?v=26"></script>
-  <script src="/views/bible-view.js?v=13"></script>
-  <script src="/views/symbols-view.js?v=1"></script>
-  <script src="/timetested-chapters.js?v=1"></script>
-  <script src="/views/reader-view.js?v=4"></script>
+  <script src="/symbol-dictionary.js"></script>
+  <script src="/word-study-dictionary.js"></script>
+  <script src="/book-scripture-index.js"></script>
+  <script src="/cross-references.js"></script>
+  <script src="/verse-event-links.js"></script>
+  <script src="/bible-reader.js"></script>
+  <script src="/views/bible-view.js"></script>
+  <script src="/views/symbols-view.js"></script>
+  <script src="/timetested-chapters.js"></script>
+  <script src="/views/reader-view.js"></script>
   
   <!-- Timeline and Historical Events -->
-  <script src="/event-resolver.js?v=55"></script>
-  <script src="/resolved-events-cache.js?v=2"></script>
-  <script src="/biblical-timeline.js?v=35"></script>
-  <script src="/views/timeline-view.js?v=7"></script>
+  <script src="/event-resolver.js"></script>
+  <script src="/resolved-events-cache.js"></script>
+  <script src="/biblical-timeline.js"></script>
+  <script src="/views/timeline-view.js"></script>
   
   <!-- Day Detail and World Clock -->
-  <script src="/day-detail.js?v=6"></script>
-  <script src="/world-clock.js?v=3"></script>
-  <script src="/views/book-view.js?v=2"></script>
-  <script src="/views/tutorial-view.js?v=8"></script>
-  <script src="/views/help-view.js?v=1"></script>
-  <script src="/views/priestly-view.js?v=2"></script>
-  <script src="/views/sabbath-tester-view.js?v=4"></script>
-  <script src="/views/settings-view.js?v=6"></script>
+  <script src="/day-detail.js"></script>
+  <script src="/world-clock.js"></script>
+  <script src="/views/book-view.js"></script>
+  <script src="/views/tutorial-view.js"></script>
+  <script src="/views/help-view.js"></script>
+  <script src="/views/priestly-view.js"></script>
+  <script src="/views/sabbath-tester-view.js"></script>
+  <script src="/views/settings-view.js"></script>
   
   <!-- Initialize App -->
   <script>

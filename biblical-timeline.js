@@ -4266,10 +4266,6 @@ async function renderBiblicalTimelineInternal(container) {
   // Helper to get year from JD
   const jdToYear = (jd) => Math.floor((jd - 1721425.5) / 365.25);
   
-  // Separate duration events (always shown as bars) from point events (need slot allocation)
-  const durationEventsToKeep = allEvents.filter(e => hasDuration(e));
-  const pointEventsForAlloc = allEvents.filter(e => !hasDuration(e) && e.startJD !== null);
-  
   // Get selected/focused event ID from state - these events MUST always be shown
   let selectedEventIdForSlots = null;
   let focusedEventIdForSlots = null;
@@ -4283,6 +4279,10 @@ async function renderBiblicalTimelineInternal(container) {
   const isPriorityEvent = (eventId) => {
     return eventId === selectedEventIdForSlots || eventId === focusedEventIdForSlots;
   };
+  
+  // Separate duration events (always shown as bars) from point events (need slot allocation)
+  const durationEventsToKeep = allEvents.filter(e => hasDuration(e));
+  const pointEventsForAlloc = allEvents.filter(e => !hasDuration(e) && e.startJD !== null);
   
   // Sort point events by priority (highest priority = lowest number = first)
   // Selected/focused events get absolute priority (0)

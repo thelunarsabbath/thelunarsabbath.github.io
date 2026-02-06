@@ -11,3 +11,9 @@ alwaysApply: true
 - "commit and push"
 
 Even after completing a task, do NOT automatically commit or push. Wait for the user to request it.
+
+## Version Bumping
+
+When the user asks to commit, **always bump `APP_VERSION` in `version.js`** by 1 before committing. This is the single source of truth for all cache busting (service worker, localStorage caches, HTTP cache). Include `version.js` in the commit.
+
+**NEVER** add manual `?v=N` version numbers to script or link tags. All caching is controlled by `APP_VERSION` in `version.js`.

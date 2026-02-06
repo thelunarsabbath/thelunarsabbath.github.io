@@ -62,14 +62,8 @@ const ResolvedEventsCache = (() => {
     if (_dataPromise) return _dataPromise;
 
     _dataPromise = (async () => {
-      // Prefer v2 format
       try {
         const resp = await fetch('/historical-events-v2.json');
-        if (resp.ok) { _data = await resp.json(); return _data; }
-      } catch (e) { /* fall through */ }
-      // Fallback to v1
-      try {
-        const resp = await fetch('/historical-events.json');
         if (resp.ok) { _data = await resp.json(); return _data; }
       } catch (e) { /* fall through */ }
       console.error('[ResolvedEventsCache] Failed to load event data');
@@ -261,4 +255,12 @@ const ResolvedEventsCache = (() => {
 // Expose globally
 if (typeof window !== 'undefined') {
   window.ResolvedEventsCache = ResolvedEventsCache;
+
+  // Legacy global wrappers (previously in historical-events.js)
+  // Kept so any stray callers don't break.
+  window.clearResolvedEventsCache = () => ResolvedEventsCache.invalidate();
+  window.clearAllEventCaches = () => ResolvedEventsCache.invalidate();
+  window.getSWVersion = async () => ResolvedEventsCache.CACHE_VERSION;
+  window.getSWVersionSync = () => ResolvedEventsCache.CACHE_VERSION;
+  window.getProfileHash = (profile) => ResolvedEventsCache.profileKey(profile);
 }

@@ -1,6 +1,6 @@
 // Bible Events Loader
 // Indexes resolved timeline events by lunar month/day for calendar day detail display
-// Uses getResolvedEvents() from historical-events.js which already has all dates calculated
+// Uses ResolvedEventsCache singleton for resolved event data
 
 let bibleEventsByMonthDay = null;
 

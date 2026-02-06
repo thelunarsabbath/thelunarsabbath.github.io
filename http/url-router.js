@@ -251,6 +251,7 @@ const URLRouter = {
       },
       ui: {
         strongsId: null,
+        gematriaExpanded: false,
         searchQuery: null,
         personId: null,
         interlinearVerse: null,
@@ -373,6 +374,9 @@ const URLRouter = {
   _parseQueryParams(searchParams, result) {
     if (searchParams.get('strongs')) {
       result.ui.strongsId = searchParams.get('strongs');
+    }
+    if (searchParams.get('gematria')) {
+      result.ui.gematriaExpanded = searchParams.get('gematria') === '1';
     }
     // Global search query
     if (searchParams.get('q')) {
@@ -636,6 +640,7 @@ const URLRouter = {
     // Query params (UI state)
     const params = new URLSearchParams();
     if (ui.strongsId) params.set('strongs', ui.strongsId);
+    if (ui.gematriaExpanded) params.set('gematria', '1');
     // Global search query (appears on any view when results are open)
     if (ui.globalSearchQuery) {
       params.set('q', ui.globalSearchQuery);

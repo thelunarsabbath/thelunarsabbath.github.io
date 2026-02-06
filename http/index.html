@@ -485,9 +485,8 @@
   
   <!-- Timeline and Historical Events -->
   <script src="/event-resolver.js?v=55"></script>
-  <script src="/resolved-events-cache.js?v=1"></script>
-  <script src="/historical-events.js?v=5"></script>
-  <script src="/biblical-timeline.js?v=33"></script>
+  <script src="/resolved-events-cache.js?v=2"></script>
+  <script src="/biblical-timeline.js?v=34"></script>
   <script src="/views/timeline-view.js?v=7"></script>
   
   <!-- Day Detail and World Clock -->
@@ -716,7 +715,7 @@
       if (typeof PriestlyView !== 'undefined') ContentManager.registerView('priestly', PriestlyView);
       if (typeof SabbathTesterView !== 'undefined') ContentManager.registerView('sabbath-tester', SabbathTesterView);
       if (typeof SettingsView !== 'undefined') ContentManager.registerView('settings', SettingsView);
-      if (typeof EventsView !== 'undefined') ContentManager.registerView('events', EventsView);
+      // EventsView removed — was unreachable (no menu entry)
       
       // Load initial state from URL
       AppStore.dispatch({ type: 'INIT_FROM_URL', url: window.location });

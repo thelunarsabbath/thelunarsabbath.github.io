@@ -35,6 +35,7 @@ const AppStore = {
     // UI - transient state
     ui: {
       strongsId: null,          // Open Strongs modal (e.g., 'H430')
+      gematriaExpanded: false,  // Whether gematria related-words section is expanded
       searchQuery: null,        // Search query string
       personId: null,           // Open person card
       interlinearVerse: null,   // Open interlinear for verse (e.g., 5)
@@ -467,6 +468,7 @@ const AppStore = {
     'OPEN_STRONGS',
     'SET_STRONGS_ID',
     'CLOSE_STRONGS',
+    'TOGGLE_GEMATRIA',
     'OPEN_SEARCH',
     'SET_SEARCH_QUERY',
     'CLOSE_SEARCH',
@@ -1079,12 +1081,18 @@ const AppStore = {
         const newStrongsId = event.strongsId || null;
         if (s.ui.strongsId === newStrongsId) return false;
         s.ui.strongsId = newStrongsId;
+        s.ui.gematriaExpanded = false; // Reset when Strong's number changes
         return true;
       }
         
       case 'CLOSE_STRONGS':
         if (s.ui.strongsId === null) return false;
         s.ui.strongsId = null;
+        s.ui.gematriaExpanded = false;
+        return true;
+      
+      case 'TOGGLE_GEMATRIA':
+        s.ui.gematriaExpanded = !s.ui.gematriaExpanded;
         return true;
         
       case 'OPEN_SEARCH':

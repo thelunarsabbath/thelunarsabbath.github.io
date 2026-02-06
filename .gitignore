@@ -26,3 +26,6 @@ enrichment.log
 
 # Development notes (local only)
 notes/
+
+# Trash - deprecated files kept locally but not tracked
+http/.trash/

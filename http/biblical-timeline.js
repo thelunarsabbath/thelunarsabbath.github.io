@@ -7,7 +7,6 @@ let biblicalTimelineZoom = null;
 let biblicalTimelinePan = 0;
 let biblicalTimelineMinYear = null;
 let biblicalTimelineMaxYear = null;
-let biblicalTimelineUseV2 = true; // Use v2 data format with resolver
 
 // ============================================================================
 // DATA ACCESS — All caching delegated to ResolvedEventsCache singleton
@@ -1419,61 +1418,6 @@ function filterResolvedEvents(events, data) {
   });
 }
 
-// Legacy event normalization (for v1 format fallback)
-function normalizeEventsLegacy(events) {
-  const normalized = [];
-  
-  events.forEach(event => {
-    const startDate = getEventTimelineDate(event);
-    if (!startDate) return;
-    
-    const startJD = EventResolver.gregorianToJulianDay(
-      startDate.getUTCFullYear(),
-      startDate.getUTCMonth() + 1,
-      startDate.getUTCDate()
-    );
-    
-    let endJD = null;
-    const endDate = getEventEndDate(event);
-    if (endDate) {
-      endJD = EventResolver.gregorianToJulianDay(
-        endDate.getUTCFullYear(),
-        endDate.getUTCMonth() + 1,
-        endDate.getUTCDate()
-      );
-    }
-    
-    normalized.push({
-      id: event.id,
-      title: event.title,
-      type: event.type,
-      startJD,
-      endJD,
-      tags: event.tags,
-      certainty: event.certainty,
-      _original: event
-    });
-    
-    // Handle durations array
-    if (event.durations) {
-      event.durations.forEach((dur, idx) => {
-        if (dur.years) {
-          const prophEndJD = startJD + (dur.years * 365.2422);
-          normalized.push({
-            id: `${event.id}-duration-${idx}`,
-            title: `${dur.years} Years (${dur.prophecy || event.title})`,
-            type: 'prophecy-duration',
-            startJD,
-            endJD: prophEndJD,
-            _parentEvent: event.id
-          });
-        }
-      });
-    }
-  });
-  
-  return normalized;
-}
 
 // Convert events to vis.js timeline items
 function convertEventsToTimelineItems(events) {
@@ -2500,6 +2444,11 @@ async function openEventDetailInternal(eventId, addHistory = true) {
   
   if (!event) {
     console.warn('Event not found:', eventId);
+    // Notify user and clear the invalid event from URL/state
+    console.log(`[Timeline] Unknown event "${eventId}" — clearing from URL`);
+    if (typeof AppStore !== 'undefined') {
+      AppStore.dispatch({ type: 'CLEAR_TIMELINE_SELECTION' });
+    }
     return;
   }
   
@@ -3070,6 +3019,17 @@ function openEventDetail(eventId) {
 // State-driven render function (called by TimelineView)
 async function showEventDetailFromState(eventId) {
   console.log('[Timeline] showEventDetailFromState called with eventId:', eventId);
+  
+  // Validate: check if event exists in data before doing any work
+  const data = ResolvedEventsCache.getDataSync();
+  if (data && !data.events?.find(e => e.id === eventId)) {
+    console.warn(`[Timeline] Unknown event "${eventId}" — clearing from state`);
+    if (typeof AppStore !== 'undefined') {
+      AppStore.dispatch({ type: 'CLEAR_TIMELINE_SELECTION' });
+    }
+    return;
+  }
+  
   // Clear search filter when viewing an event (so selected event can be shown)
   const hadSearchFilter = activeSearchResultIds !== null;
   if (hadSearchFilter) {
@@ -4007,15 +3967,10 @@ async function renderBiblicalTimelineInternal(container) {
   
   // Get resolved events via singleton (cached or computed with progress)
   let resolvedEvents;
-  if (biblicalTimelineUseV2 && data.meta?.version === '2.0') {
-    if (needsCalculation) {
-      resolvedEvents = await getResolvedEventsWithProgress(data, profile);
-    } else {
-      resolvedEvents = getResolvedEvents(data, profile);
-    }
+  if (needsCalculation) {
+    resolvedEvents = await getResolvedEventsWithProgress(data, profile);
   } else {
-    biblicalTimelineUseV2 = false;
-    resolvedEvents = normalizeEventsLegacy(data.events || []);
+    resolvedEvents = getResolvedEvents(data, profile);
   }
   
   // Pre-apply URL search filter during initial render to avoid a second render cycle.
@@ -6271,7 +6226,7 @@ let _lastProfileHash = null;
  * This ensures events are resolved with the correct calendar settings
  */
 async function handleProfileChange(newProfile) {
-  const newHash = _getTimelineProfileHash(newProfile);
+  const newHash = ResolvedEventsCache.profileKey(newProfile);
   
   // Skip if profile hash hasn't actually changed
   if (_lastProfileHash === newHash) {
@@ -6284,11 +6239,6 @@ async function handleProfileChange(newProfile) {
   
   // Clear RAM cache to force re-resolution
   ResolvedEventsCache.invalidate();
-  
-  // Also clear historical-events.js RAM cache if available
-  if (typeof clearResolvedEventsCache === 'function') {
-    clearResolvedEventsCache();
-  }
   
   // Trigger background re-resolution with the new profile
   // This will either load from localStorage cache (if exists for this profile)
@@ -6329,7 +6279,7 @@ function subscribeToProfileChanges() {
   const profiles = window.PROFILES || window.PRESET_PROFILES || {};
   const profile = profiles[profileId];
   if (profile) {
-    _lastProfileHash = _getTimelineProfileHash(profile);
+    _lastProfileHash = ResolvedEventsCache.profileKey(profile);
     console.log('[ProfileChange] Initial profile hash:', _lastProfileHash);
   }
   
@@ -6341,7 +6291,7 @@ function subscribeToProfileChanges() {
     const profile = profiles[profileId];
     
     if (profile) {
-      const newHash = _getTimelineProfileHash(profile);
+      const newHash = ResolvedEventsCache.profileKey(profile);
       if (_lastProfileHash !== newHash) {
         // Profile changed - handle async
         handleProfileChange(profile);

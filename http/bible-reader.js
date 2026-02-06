@@ -334,7 +334,7 @@ function getRelatedByGematria(strongsNum, limit = 20) {
 }
 
 // Render gematria section HTML
-function renderGematriaSection(strongsNum) {
+function renderGematriaSection(strongsNum, expanded = false) {
   const value = getGematriaValue(strongsNum);
   if (!value) return '';
   
@@ -343,16 +343,16 @@ function renderGematriaSection(strongsNum) {
   
   let html = `
     <div class="strongs-gematria-section">
-      <div class="strongs-gematria-header" onclick="toggleGematriaExpanded()">
+      <div class="strongs-gematria-header" onclick="AppStore.dispatch({type:'TOGGLE_GEMATRIA'})">
         <span class="strongs-gematria-icon">🔢</span>
         <span class="strongs-gematria-title">Gematria</span>
         <span class="strongs-gematria-value">${value}</span>
-        ${hasRelated ? '<span class="strongs-gematria-expand">▼</span>' : ''}
+        ${hasRelated ? `<span class="strongs-gematria-expand">${expanded ? '▲' : '▼'}</span>` : ''}
       </div>
   `;
   
   if (hasRelated) {
-    html += `<div class="strongs-gematria-related" id="gematria-related" style="display: none;">`;
+    html += `<div class="strongs-gematria-related" id="gematria-related" style="display: ${expanded ? 'block' : 'none'};">`;
     
     // Hebrew words with same value
     if (related.hebrew.length > 0) {
@@ -421,18 +421,9 @@ function extractPrimaryWord(def) {
   return cleaned || '(unknown)';
 }
 
-// Toggle gematria expanded state
+// Toggle gematria expanded state — dispatches to AppStore (unidirectional flow)
 function toggleGematriaExpanded() {
-  const relatedEl = document.getElementById('gematria-related');
-  const expandIcon = document.querySelector('.strongs-gematria-expand');
-  
-  if (relatedEl) {
-    const isVisible = relatedEl.style.display !== 'none';
-    relatedEl.style.display = isVisible ? 'none' : 'block';
-    if (expandIcon) {
-      expandIcon.textContent = isVisible ? '▼' : '▲';
-    }
-  }
+  AppStore.dispatch({ type: 'TOGGLE_GEMATRIA' });
 }
 
 // Get entry from Strong's dictionary (Hebrew or Greek)
@@ -3123,9 +3114,10 @@ function updateStrongsPanelContent(strongsNum, isNavigation = false) {
     html += renderWordStudyHtml(wordStudy);
   }
   
-  // Add gematria section (if data is loaded)
+  // Add gematria section (if data is loaded) — derive expanded state from AppStore
+  const gematriaExp1 = typeof AppStore !== 'undefined' ? AppStore.getState().ui.gematriaExpanded : false;
   if (gematriaData) {
-    html += renderGematriaSection(strongsNum);
+    html += renderGematriaSection(strongsNum, gematriaExp1);
   }
   
   // Add verse search section
@@ -3144,7 +3136,7 @@ function updateStrongsPanelContent(strongsNum, isNavigation = false) {
       // Guard: check if gematria section already exists (avoid duplicate)
       if (contentEl.querySelector('.strongs-gematria-section')) return;
       
-      const gematriaSection = renderGematriaSection(strongsNum);
+      const gematriaSection = renderGematriaSection(strongsNum, gematriaExp1);
       if (gematriaSection) {
         const verseSearch = contentEl.querySelector('.strongs-verse-search');
         if (verseSearch) {
@@ -3266,9 +3258,10 @@ function showStrongsPanel(strongsNum, englishWord, gloss, event, skipDispatch = 
     html += renderWordStudyHtml(wordStudy);
   }
   
-  // Add gematria section (if data is loaded)
+  // Add gematria section (if data is loaded) — derive expanded state from AppStore
+  const gematriaExp2 = typeof AppStore !== 'undefined' ? AppStore.getState().ui.gematriaExpanded : false;
   if (gematriaData) {
-    html += renderGematriaSection(strongsNum);
+    html += renderGematriaSection(strongsNum, gematriaExp2);
   }
   
   // Add verse search section
@@ -3287,7 +3280,7 @@ function showStrongsPanel(strongsNum, englishWord, gloss, event, skipDispatch = 
       // Guard: check if gematria section already exists (avoid duplicate)
       if (contentEl.querySelector('.strongs-gematria-section')) return;
       
-      const gematriaSection = renderGematriaSection(strongsNum);
+      const gematriaSection = renderGematriaSection(strongsNum, gematriaExp2);
       if (gematriaSection) {
         const verseSearch = contentEl.querySelector('.strongs-verse-search');
         if (verseSearch) {

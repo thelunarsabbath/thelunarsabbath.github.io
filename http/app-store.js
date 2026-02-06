@@ -920,6 +920,14 @@ const AppStore = {
         const newLoc = event.location || (event.lat != null ? { lat: event.lat, lon: event.lon } : null);
         if (newLoc && (s.context.location.lat !== newLoc.lat || s.context.location.lon !== newLoc.lon)) {
           s.context.location = newLoc;
+          // Same cleanup as SET_LOCATION: clear lunar date so it re-resolves
+          // from the unchanged JD at the new location, and recalculate "today"
+          s.context.selectedLunarDate = null;
+          s.context.today = this._getTodayJD();
+          try {
+            localStorage.setItem('userLocation', JSON.stringify(newLoc));
+            localStorage.setItem('userLocationSource', 'user');
+          } catch (e) {}
           changed = true;
         }
         return changed;
@@ -1473,9 +1481,9 @@ const AppStore = {
       this._engine.configure({
         moonPhase: profile.moonPhase || 'full',
         dayStartTime: profile.dayStartTime || 'morning',
-        dayStartAngle: profile.dayStartAngle || 12,
+        dayStartAngle: profile.dayStartAngle ?? 12,
         yearStartRule: profile.yearStartRule || 'equinox',
-        crescentThreshold: profile.crescentThreshold || 18
+        crescentThreshold: profile.crescentThreshold ?? 18
       });
       
       // Check if we need to regenerate the calendar

@@ -1,0 +1,848 @@
+{
+  "generatedAt": "2026-02-06T07:38:14.014Z",
+  "testCount": 7,
+  "profileCount": 12,
+  "totalResults": 84,
+  "results": [
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-full-morning-equinox",
+      "jd": 1193435,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "-001445-06-14T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-full-morning-13daysBefore",
+      "jd": 1193406,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "-001445-05-16T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-full-evening-equinox",
+      "jd": 1193436,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "-001445-06-14T00:00:00.000Z",
+      "result": "uncertain",
+      "probability": 18
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-full-evening-13daysBefore",
+      "jd": 1193406,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "-001445-05-15T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-dark-morning-equinox",
+      "jd": 1193420,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "-001445-05-30T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-dark-morning-13daysBefore",
+      "jd": 1193420,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "-001445-05-30T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-dark-evening-equinox",
+      "jd": 1193420,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "-001445-05-29T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-dark-evening-13daysBefore",
+      "jd": 1193420,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "-001445-05-29T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-crescent-morning-equinox",
+      "jd": 1193420,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "-001445-05-30T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-crescent-morning-13daysBefore",
+      "jd": 1193420,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "-001445-05-30T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-crescent-evening-equinox",
+      "jd": 1193421,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "-001445-05-30T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "manna-sabbath",
+      "profileId": "test-crescent-evening-13daysBefore",
+      "jd": 1193421,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "-001445-05-30T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-full-morning-equinox",
+      "jd": 1208017,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "-001405-05-17T00:00:00.000Z",
+      "result": "uncertain",
+      "probability": 64
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-full-morning-13daysBefore",
+      "jd": 1207987,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "-001405-04-17T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-full-evening-equinox",
+      "jd": 1208017,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "-001405-05-16T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-full-evening-13daysBefore",
+      "jd": 1207988,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "-001405-04-17T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-dark-morning-equinox",
+      "jd": 1208003,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "-001405-05-03T00:00:00.000Z",
+      "result": "uncertain",
+      "probability": 65
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-dark-morning-13daysBefore",
+      "jd": 1208003,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "-001405-05-03T00:00:00.000Z",
+      "result": "uncertain",
+      "probability": 65
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-dark-evening-equinox",
+      "jd": 1208003,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "-001405-05-02T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-dark-evening-13daysBefore",
+      "jd": 1208003,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "-001405-05-02T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-crescent-morning-equinox",
+      "jd": 1208003,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "-001405-05-03T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-crescent-morning-13daysBefore",
+      "jd": 1208003,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "-001405-05-03T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-crescent-evening-equinox",
+      "jd": 1208004,
+      "weekday": 1,
+      "weekdayName": "Monday",
+      "gregorianDate": "-001405-05-03T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "first-fruits-1406",
+      "profileId": "test-crescent-evening-13daysBefore",
+      "jd": 1208004,
+      "weekday": 1,
+      "weekdayName": "Monday",
+      "gregorianDate": "-001405-05-03T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-full-morning-equinox",
+      "jd": 1732865,
+      "weekday": 2,
+      "weekdayName": "Tuesday",
+      "gregorianDate": "0032-04-30T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-full-morning-13daysBefore",
+      "jd": 1732835,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "0032-03-31T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-full-evening-equinox",
+      "jd": 1732865,
+      "weekday": 2,
+      "weekdayName": "Tuesday",
+      "gregorianDate": "0032-04-29T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-full-evening-13daysBefore",
+      "jd": 1732836,
+      "weekday": 1,
+      "weekdayName": "Monday",
+      "gregorianDate": "0032-03-31T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-dark-morning-equinox",
+      "jd": 1732849,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "0032-04-14T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-dark-morning-13daysBefore",
+      "jd": 1732849,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "0032-04-14T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-dark-evening-equinox",
+      "jd": 1732850,
+      "weekday": 1,
+      "weekdayName": "Monday",
+      "gregorianDate": "0032-04-14T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-dark-evening-13daysBefore",
+      "jd": 1732850,
+      "weekday": 1,
+      "weekdayName": "Monday",
+      "gregorianDate": "0032-04-14T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-crescent-morning-equinox",
+      "jd": 1732850,
+      "weekday": 1,
+      "weekdayName": "Monday",
+      "gregorianDate": "0032-04-15T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-crescent-morning-13daysBefore",
+      "jd": 1732850,
+      "weekday": 1,
+      "weekdayName": "Monday",
+      "gregorianDate": "0032-04-15T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-crescent-evening-equinox",
+      "jd": 1732850,
+      "weekday": 1,
+      "weekdayName": "Monday",
+      "gregorianDate": "0032-04-14T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-32ad",
+      "profileId": "test-crescent-evening-13daysBefore",
+      "jd": 1732850,
+      "weekday": 1,
+      "weekdayName": "Monday",
+      "gregorianDate": "0032-04-14T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-full-morning-equinox",
+      "jd": 1732126,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0030-04-22T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-full-morning-13daysBefore",
+      "jd": 1732126,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0030-04-22T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-full-evening-equinox",
+      "jd": 1732127,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0030-04-22T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-full-evening-13daysBefore",
+      "jd": 1732127,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0030-04-22T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-dark-morning-equinox",
+      "jd": 1732141,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0030-05-07T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-dark-morning-13daysBefore",
+      "jd": 1732111,
+      "weekday": 4,
+      "weekdayName": "Thursday",
+      "gregorianDate": "0030-04-07T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-dark-evening-equinox",
+      "jd": 1732141,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0030-05-06T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-dark-evening-13daysBefore",
+      "jd": 1732112,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0030-04-07T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-crescent-morning-equinox",
+      "jd": 1732112,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0030-04-08T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-crescent-morning-13daysBefore",
+      "jd": 1732112,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0030-04-08T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-crescent-evening-equinox",
+      "jd": 1732112,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0030-04-07T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-30ad",
+      "profileId": "test-crescent-evening-13daysBefore",
+      "jd": 1732112,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0030-04-07T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-full-morning-equinox",
+      "jd": 1733219,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0033-04-19T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-full-morning-13daysBefore",
+      "jd": 1733219,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0033-04-19T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-full-evening-equinox",
+      "jd": 1733219,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0033-04-18T00:00:00.000Z",
+      "result": "uncertain",
+      "probability": 3
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-full-evening-13daysBefore",
+      "jd": 1733219,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0033-04-18T00:00:00.000Z",
+      "result": "uncertain",
+      "probability": 3
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-dark-morning-equinox",
+      "jd": 1733233,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0033-05-03T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-dark-morning-13daysBefore",
+      "jd": 1733204,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0033-04-04T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-dark-evening-equinox",
+      "jd": 1733234,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "0033-05-03T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-dark-evening-13daysBefore",
+      "jd": 1733204,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0033-04-03T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-crescent-morning-equinox",
+      "jd": 1733234,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "0033-05-04T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-crescent-morning-13daysBefore",
+      "jd": 1733205,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0033-04-05T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-crescent-evening-equinox",
+      "jd": 1733234,
+      "weekday": 0,
+      "weekdayName": "Sunday",
+      "gregorianDate": "0033-05-03T00:00:00.000Z",
+      "result": "pass",
+      "probability": null
+    },
+    {
+      "testId": "resurrection-33ad",
+      "profileId": "test-crescent-evening-13daysBefore",
+      "jd": 1733205,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0033-04-04T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-full-morning-equinox",
+      "jd": 1507628,
+      "weekday": 4,
+      "weekdayName": "Thursday",
+      "gregorianDate": "-000585-08-31T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-full-morning-13daysBefore",
+      "jd": 1507598,
+      "weekday": 2,
+      "weekdayName": "Tuesday",
+      "gregorianDate": "-000585-08-01T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-full-evening-equinox",
+      "jd": 1507628,
+      "weekday": 4,
+      "weekdayName": "Thursday",
+      "gregorianDate": "-000585-08-30T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-full-evening-13daysBefore",
+      "jd": 1507598,
+      "weekday": 2,
+      "weekdayName": "Tuesday",
+      "gregorianDate": "-000585-07-31T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-dark-morning-equinox",
+      "jd": 1507612,
+      "weekday": 2,
+      "weekdayName": "Tuesday",
+      "gregorianDate": "-000585-08-15T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-dark-morning-13daysBefore",
+      "jd": 1507612,
+      "weekday": 2,
+      "weekdayName": "Tuesday",
+      "gregorianDate": "-000585-08-15T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-dark-evening-equinox",
+      "jd": 1507612,
+      "weekday": 2,
+      "weekdayName": "Tuesday",
+      "gregorianDate": "-000585-08-14T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-dark-evening-13daysBefore",
+      "jd": 1507612,
+      "weekday": 2,
+      "weekdayName": "Tuesday",
+      "gregorianDate": "-000585-08-14T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-crescent-morning-equinox",
+      "jd": 1507613,
+      "weekday": 3,
+      "weekdayName": "Wednesday",
+      "gregorianDate": "-000585-08-16T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-crescent-morning-13daysBefore",
+      "jd": 1507613,
+      "weekday": 3,
+      "weekdayName": "Wednesday",
+      "gregorianDate": "-000585-08-16T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-crescent-evening-equinox",
+      "jd": 1507613,
+      "weekday": 3,
+      "weekdayName": "Wednesday",
+      "gregorianDate": "-000585-08-15T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple1-talmud",
+      "profileId": "test-crescent-evening-13daysBefore",
+      "jd": 1507613,
+      "weekday": 3,
+      "weekdayName": "Wednesday",
+      "gregorianDate": "-000585-08-15T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-full-morning-equinox",
+      "jd": 1746855,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0070-08-19T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-full-morning-13daysBefore",
+      "jd": 1746825,
+      "weekday": 4,
+      "weekdayName": "Thursday",
+      "gregorianDate": "0070-07-20T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-full-evening-equinox",
+      "jd": 1746855,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0070-08-18T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-full-evening-13daysBefore",
+      "jd": 1746826,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0070-07-20T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-dark-morning-equinox",
+      "jd": 1746839,
+      "weekday": 4,
+      "weekdayName": "Thursday",
+      "gregorianDate": "0070-08-03T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-dark-morning-13daysBefore",
+      "jd": 1746839,
+      "weekday": 4,
+      "weekdayName": "Thursday",
+      "gregorianDate": "0070-08-03T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-dark-evening-equinox",
+      "jd": 1746840,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0070-08-03T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-dark-evening-13daysBefore",
+      "jd": 1746840,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0070-08-03T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-crescent-morning-equinox",
+      "jd": 1746840,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0070-08-04T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-crescent-morning-13daysBefore",
+      "jd": 1746840,
+      "weekday": 5,
+      "weekdayName": "Friday",
+      "gregorianDate": "0070-08-04T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-crescent-evening-equinox",
+      "jd": 1746841,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0070-08-04T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    },
+    {
+      "testId": "temple2-talmud",
+      "profileId": "test-crescent-evening-13daysBefore",
+      "jd": 1746841,
+      "weekday": 6,
+      "weekdayName": "Saturday",
+      "gregorianDate": "0070-08-04T00:00:00.000Z",
+      "result": "fail",
+      "probability": null
+    }
+  ]
+}

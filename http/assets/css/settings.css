@@ -247,6 +247,21 @@
   cursor: not-allowed;
 }
 
+.settings-btn-danger {
+  background: rgba(220, 50, 50, 0.25);
+  color: #ff6b6b;
+  border: 1px solid rgba(220, 50, 50, 0.4);
+}
+
+.settings-btn-danger:hover:not(:disabled) {
+  background: rgba(220, 50, 50, 0.4);
+}
+
+.settings-btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Settings Map Container */
 .settings-map-container {
   margin: 15px 0;

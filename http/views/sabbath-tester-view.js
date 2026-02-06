@@ -102,7 +102,7 @@ const SabbathTesterView = {
   _isRendering: false,
   _hasRendered: false, // Track if we've completed rendering
   _testCache: {}, // Cache for test results: { 'testId-profileId': result }
-  _cacheVersion: '2.8', // Increment to invalidate cache if test logic changes (v2.8: Fixed getDayStartTime to find same-day sunset)
+  _cacheVersion: '2.9', // Increment to invalidate cache if test logic changes (v2.9: Julian calendar for ancient dates)
   
   render(state, derived, container) {
     if (this._isRendering) return; // Prevent re-render loops
@@ -820,6 +820,7 @@ const SabbathTesterView = {
             <th class="date-cell-full">${test.year < 1582 ? 'Julian Date' : 'Gregorian Date'}</th>
             <th class="date-cell-compact">Date</th>
             <th>Day</th>
+            <th>JD</th>
             <th>Result</th>
             ${(test.id === 'resurrection-30ad' || test.id === 'resurrection-33ad') ? '<th title="Score if this year replaces 32 AD as the resurrection test">Alt</th>' : ''}
           </tr>
@@ -913,12 +914,15 @@ const SabbathTesterView = {
         `<a class="sabbath-test-date-link" title="${jdTooltip}" onclick="SabbathTesterView.navigateToTestResult('${test.id}', '${r.profileIdForNav}')">${dateStrCompact}</a>${yearUncertaintyIcon}` :
         dateStrCompact;
       
+      const jdStr = r.jd != null ? Math.floor(r.jd).toString() : 'N/A';
+      
       html += `
         <tr>
           <td data-label="Profile" class="profile-cell">${profileNameShort}</td>
           <td data-label="Date" class="date-cell-full">${dateLink}</td>
           <td data-label="Date" class="date-cell-compact">${dateLinkCompact}</td>
           <td data-label="Day" class="weekday-cell">${weekdayStrShort}</td>
+          <td data-label="JD" class="jd-cell" style="font-size:0.8em;color:#888">${jdStr}</td>
           <td data-label="Result" class="${resultClass}">${resultText}</td>
           ${altScoreCell}
         </tr>
@@ -953,9 +957,15 @@ const SabbathTesterView = {
       window.PROFILES = {};
     }
     
+    const moonLabel = profile.moonPhase === 'full' ? 'Full' : profile.moonPhase === 'dark' ? 'Dark' : 'Crescent';
+    const moonIcon = profile.moonPhase === 'full' ? '🌕' : profile.moonPhase === 'dark' ? '🌑' : '🌒';
+    const dayLabel = profile.dayStartTime === 'morning' ? 'Daybreak' : 'Sunset';
+    const yearIcon = profile.yearStartRule === 'equinox' ? '⚖️' : '🐑';
+    const presetSuffix = profile.presetName ? ` (${profile.presetName})` : '';
+
     window.PROFILES[tempProfileId] = {
-      name: 'Sabbath Test',
-      icon: profile.moonPhase === 'full' ? '🌕' : profile.moonPhase === 'dark' ? '🌑' : '🌒',
+      name: `${moonLabel} ${dayLabel} ${yearIcon}${presetSuffix}`,
+      icon: moonIcon,
       moonPhase: profile.moonPhase,
       dayStartTime: profile.dayStartTime,
       dayStartAngle: profile.dayStartAngle,
@@ -990,12 +1000,10 @@ const SabbathTesterView = {
       view: 'calendar'
     });
     
-    // Clean up temporary profile after a delay (calendar will have loaded it)
-    setTimeout(() => {
-      if (window.PROFILES && window.PROFILES[tempProfileId]) {
-        delete window.PROFILES[tempProfileId];
-      }
-    }, 1000);
+    // Keep the temp profile alive — deleting it caused subsequent interactions
+    // (clicking days, re-renders) to fall back to the default profile since
+    // state.context.profileId still references 'sabbath-test-temp'.
+    // The profile is tiny and harmless to keep in memory.
   },
   
   /**
@@ -1066,10 +1074,12 @@ const SabbathTesterView = {
   }
 };
 
-// Make available globally
-window.SabbathTesterView = SabbathTesterView;
-window.BIBLICAL_TESTS = BIBLICAL_TESTS; // Expose for debugging
+// Make available globally (browser only)
+if (typeof window !== 'undefined') {
+  window.SabbathTesterView = SabbathTesterView;
+  window.BIBLICAL_TESTS = BIBLICAL_TESTS; // Expose for debugging
+}
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = SabbathTesterView;
+  module.exports = { SabbathTesterView, BIBLICAL_TESTS };
 }

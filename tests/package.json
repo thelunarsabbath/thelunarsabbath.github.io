@@ -1,10 +1,12 @@
 {
   "name": "tests",
   "version": "1.0.0",
-  "description": "",
-  "main": "test-lunar-date.js",
+  "description": "Snapshot tests for LunarCalendarEngine",
+  "main": "snapshot-verify.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node snapshot-verify.js",
+    "snapshot:generate": "node snapshot-generate.js",
+    "snapshot:update": "node snapshot-generate.js"
   },
   "keywords": [],
   "author": "",

@@ -146,6 +146,15 @@ const SettingsView = {
           </div>
         </section>
         
+        <!-- Data & Cache -->
+        <section class="settings-section">
+          <h3>🗑️ Data &amp; Cache</h3>
+          <p class="settings-description">Clear all cached data including Sabbath Tester results, calendar computations, and service worker cache. The page will reload after clearing.</p>
+          <button class="settings-btn settings-btn-danger" onclick="SettingsView.clearAllCache()">
+            🗑️ Clear All Cache &amp; Reload
+          </button>
+        </section>
+        
         <!-- Theme Preference -->
         <section class="settings-section">
           <h3>🎨 Theme</h3>
@@ -501,6 +510,81 @@ const SettingsView = {
       return localStorage.getItem('userThemePreference') || 'dark';
     } catch (e) {
       return 'dark';
+    }
+  },
+  
+  /**
+   * Clear all cached data and reload the page
+   */
+  clearAllCache() {
+    const btn = event?.target;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '⏳ Clearing...';
+    }
+    
+    try {
+      // 1. Clear Sabbath Tester in-memory + localStorage cache
+      if (typeof SabbathTesterView !== 'undefined') {
+        SabbathTesterView.clearCache();
+        SabbathTesterView._hasRendered = false;
+      }
+      
+      // 2. Clear calendar engine caches (if accessible via AppStore)
+      if (typeof AppStore !== 'undefined' && AppStore._engine) {
+        AppStore._engine._calendarCache = {};
+        AppStore._engine._moonEventsCache = {};
+        AppStore._engine._virgoCache = {};
+      }
+      
+      // 3. Clear resolved events cache
+      if (typeof ResolvedEventsCache !== 'undefined' && ResolvedEventsCache.clear) {
+        ResolvedEventsCache.clear();
+      }
+      
+      // 4. Clear app-specific localStorage keys (preserve user preferences)
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (
+          key === 'sabbathTesterCache' ||
+          key === 'resolvedEventsCache' ||
+          key.startsWith('calendarCache')
+        )) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
+      // 5. Clear service worker caches
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          return Promise.all(names.map(name => caches.delete(name)));
+        }).then(() => {
+          console.log('[Settings] All service worker caches cleared');
+        });
+      }
+      
+      // 6. Unregister service worker so it re-fetches everything
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(reg => reg.unregister());
+        });
+      }
+      
+      console.log('[Settings] All caches cleared, reloading...');
+      
+      // Reload after a brief delay to let async operations finish
+      setTimeout(() => {
+        window.location.reload(true);
+      }, 500);
+      
+    } catch (e) {
+      console.error('Failed to clear cache:', e);
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '❌ Error - try again';
+      }
     }
   },
   

@@ -182,7 +182,8 @@ const CalendarView = {
                 : '';
               return `
               <div class="new-moon-box day-cell new-moon${isDay1Selected ? ' highlighted' : ''}${isDay1Today ? ' today' : ''}${day1?.feasts?.length > 0 ? ' feast' : ''}${day1?.events?.length > 0 ? ' has-events' : ''}" 
-                   data-lunar-day="1">
+                   data-lunar-day="1"
+                   title="${day1?.jd != null ? 'JD ' + Math.floor(day1.jd) + ' · ' + day1.weekdayName : ''}">
                 ${day1TimeIndicator}
                 ${day1SelectedIndicator}
                 <div class="gregorian">${day1 ? this.formatShortDate(day1.gregorianDate) : ''}<span class="day-year">${day1 ? this.formatYear(day1.gregorianDate.getUTCFullYear()) : ''}</span></div>
@@ -267,7 +268,7 @@ const CalendarView = {
           : '';
         
         html += `
-          <div class="${classes.join(' ')}" data-lunar-day="${lunarDay}">
+          <div class="${classes.join(' ')}" data-lunar-day="${lunarDay}" title="JD ${day.jd != null ? Math.floor(day.jd) : '?'} · ${day.weekdayName || ''}">
             ${timeIndicator}
             ${selectedIndicator}
             <div class="gregorian">${this.formatShortDate(day.gregorianDate)}</div>
@@ -307,7 +308,7 @@ const CalendarView = {
         : '';
       
       html += `
-        <div class="${classes30.join(' ')}" data-lunar-day="30">
+        <div class="${classes30.join(' ')}" data-lunar-day="30" title="JD ${day30.jd != null ? Math.floor(day30.jd) : '?'} · ${day30.weekdayName || ''}">
           ${timeIndicator30}
           ${selectedIndicator30}
           <div class="gregorian">${this.formatShortDate(day30.gregorianDate)}</div>

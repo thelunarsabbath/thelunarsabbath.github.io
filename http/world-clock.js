@@ -167,9 +167,11 @@ function getLunarDayForJD(jd, profile) {
     
     const location = { lat: profile.lat ?? 31.7683, lon: profile.lon ?? 35.2137 };
     
-    // Convert JD to approximate gregorian year, try that year and previous
-    // (dates before spring equinox belong to the previous biblical year)
-    const approxYear = Math.floor((jd - 1721425.5) / 365.25);
+    // Convert JD to calendar year using the engine's accurate conversion,
+    // then try that year and previous (dates before spring equinox belong
+    // to the previous biblical year).
+    const calDate = calEngine.jdToDisplayDate(jd);
+    const approxYear = calDate.year;
     for (const year of [approxYear, approxYear - 1]) {
       const calendar = calEngine.generateYear(year, location);
       if (!calendar || !calendar.months) continue;

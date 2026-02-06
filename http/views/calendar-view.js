@@ -1382,25 +1382,13 @@ const CalendarView = {
     }
     
     picker.innerHTML = `
-      <div class="date-picker-spinners">
-        <div class="date-spinner">
-          <button class="spinner-up" data-field="year">▲</button>
-          <input type="text" class="spinner-input year-input" value="${year}" inputmode="numeric">
-          <button class="spinner-down" data-field="year">▼</button>
-        </div>
-        <span class="date-sep">–</span>
-        <div class="date-spinner">
-          <button class="spinner-up" data-field="month">▲</button>
-          <input type="text" class="spinner-input month-input" value="${month}" inputmode="numeric">
-          <button class="spinner-down" data-field="month">▼</button>
-        </div>
-        <span class="date-sep">–</span>
-        <div class="date-spinner">
-          <button class="spinner-up" data-field="day">▲</button>
-          <input type="text" class="spinner-input day-input" value="${day}" inputmode="numeric">
-          <button class="spinner-down" data-field="day">▼</button>
-        </div>
-        <button class="era-toggle" data-bc="${isBC}">${isBC ? 'BC' : 'AD'}</button>
+      <div class="dp-row">
+        <div class="dp-col dp-col-yr"><button class="dp-btn" data-field="year" data-dir="1">▲</button><input type="text" class="dp-input" value="${year}" data-field="year" inputmode="numeric"><button class="dp-btn" data-field="year" data-dir="-1">▼</button></div>
+        <span class="dp-sep">–</span>
+        <div class="dp-col dp-col-md"><button class="dp-btn" data-field="month" data-dir="1">▲</button><input type="text" class="dp-input" value="${month}" data-field="month" inputmode="numeric"><button class="dp-btn" data-field="month" data-dir="-1">▼</button></div>
+        <span class="dp-sep">–</span>
+        <div class="dp-col dp-col-md"><button class="dp-btn" data-field="day" data-dir="1">▲</button><input type="text" class="dp-input" value="${day}" data-field="day" inputmode="numeric"><button class="dp-btn" data-field="day" data-dir="-1">▼</button></div>
+        <button class="dp-era" data-bc="${isBC}">${isBC ? 'BC' : 'AD'}</button>
       </div>
     `;
     
@@ -1433,10 +1421,10 @@ const CalendarView = {
     let pickerDay = day;
     let pickerIsBC = isBC;
     
-    const yearInput = picker.querySelector('.year-input');
-    const monthInput = picker.querySelector('.month-input');
-    const dayInput = picker.querySelector('.day-input');
-    const eraBtn = picker.querySelector('.era-toggle');
+    const yearInput = picker.querySelector('[data-field="year"].dp-input');
+    const monthInput = picker.querySelector('[data-field="month"].dp-input');
+    const dayInput = picker.querySelector('[data-field="day"].dp-input');
+    const eraBtn = picker.querySelector('.dp-era');
     
     const updateInputs = () => {
       yearInput.value = pickerYear;
@@ -1447,12 +1435,8 @@ const CalendarView = {
     };
     
     const dispatchDate = () => {
-      // Convert to astronomical year (BC 1 = 0, BC 2 = -1, etc.)
       let astroYear = pickerYear;
-      if (pickerIsBC) {
-        astroYear = 1 - pickerYear;
-      }
-      
+      if (pickerIsBC) astroYear = 1 - pickerYear;
       AppStore.dispatch({
         type: 'SET_GREGORIAN_DATETIME',
         year: astroYear,
@@ -1461,11 +1445,11 @@ const CalendarView = {
       });
     };
     
-    // Spinner buttons
-    picker.querySelectorAll('.spinner-up, .spinner-down').forEach(btn => {
+    // Spinner buttons (up/down arrows)
+    picker.querySelectorAll('.dp-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const field = btn.dataset.field;
-        const delta = btn.classList.contains('spinner-up') ? 1 : -1;
+        const delta = parseInt(btn.dataset.dir);
         
         if (field === 'year') {
           pickerYear = Math.max(1, pickerYear + delta);

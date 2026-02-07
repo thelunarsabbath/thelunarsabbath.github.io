@@ -83,6 +83,13 @@ const SettingsView = {
                         onclick="SettingsView.saveNamePreference('messiah', 'jesus')">Jesus</button>
                 <button class="settings-name-btn ${namePrefs.messiah === 'yeshua' ? 'selected' : ''}" 
                         onclick="SettingsView.saveNamePreference('messiah', 'yeshua')">Yeshua</button>
+                <select class="settings-name-more ${!['jesus','yeshua'].includes(namePrefs.messiah) ? 'selected' : ''}" 
+                        onchange="if(this.value) SettingsView.saveNamePreference('messiah', this.value)">
+                  <option value="">More...</option>
+                  <option value="yahushua" ${namePrefs.messiah === 'yahushua' ? 'selected' : ''}>Yahushua</option>
+                  <option value="yehoshua" ${namePrefs.messiah === 'yehoshua' ? 'selected' : ''}>Yehoshua</option>
+                  <option value="iesous" ${namePrefs.messiah === 'iesous' ? 'selected' : ''}>Iesous (Greek)</option>
+                </select>
               </div>
             </div>
             
@@ -91,10 +98,25 @@ const SettingsView = {
               <div class="settings-name-options">
                 <button class="settings-name-btn ${namePrefs.divineName === 'lord' ? 'selected' : ''}" 
                         onclick="SettingsView.saveNamePreference('divineName', 'lord')">the LORD</button>
-                <button class="settings-name-btn ${namePrefs.divineName === 'yhwh' ? 'selected' : ''}" 
-                        onclick="SettingsView.saveNamePreference('divineName', 'yhwh')">𐤉𐤄𐤅𐤄</button>
                 <button class="settings-name-btn ${namePrefs.divineName === 'yahweh' ? 'selected' : ''}" 
                         onclick="SettingsView.saveNamePreference('divineName', 'yahweh')">Yahweh</button>
+                <button class="settings-name-btn ${namePrefs.divineName === 'jehovah' ? 'selected' : ''}" 
+                        onclick="SettingsView.saveNamePreference('divineName', 'jehovah')">Jehovah</button>
+                <button class="settings-name-btn ${namePrefs.divineName === 'yhwh' ? 'selected' : ''}" 
+                        onclick="SettingsView.saveNamePreference('divineName', 'yhwh')">YHWH</button>
+                <select class="settings-name-more ${!['lord','yahweh','jehovah','yhwh'].includes(namePrefs.divineName) ? 'selected' : ''}"
+                        onchange="if(this.value) SettingsView.saveNamePreference('divineName', this.value)">
+                  <option value="">More...</option>
+                  <option value="yhvh" ${namePrefs.divineName === 'yhvh' ? 'selected' : ''}>YHVH</option>
+                  <option value="yhuh" ${namePrefs.divineName === 'yhuh' ? 'selected' : ''}>YHUH</option>
+                  <option value="yehovah" ${namePrefs.divineName === 'yehovah' ? 'selected' : ''}>Yehovah</option>
+                  <option value="yahuah" ${namePrefs.divineName === 'yahuah' ? 'selected' : ''}>Yahuah</option>
+                  <option value="yah" ${namePrefs.divineName === 'yah' ? 'selected' : ''}>Yah</option>
+                  <option value="paleo" ${namePrefs.divineName === 'paleo' ? 'selected' : ''}>𐤉𐤄𐤅𐤄 (Paleo-Hebrew)</option>
+                  <option value="hebrew" ${namePrefs.divineName === 'hebrew' ? 'selected' : ''}>יהוה (Hebrew)</option>
+                  <option value="hashem" ${namePrefs.divineName === 'hashem' ? 'selected' : ''}>HaShem</option>
+                  <option value="adonai" ${namePrefs.divineName === 'adonai' ? 'selected' : ''}>Adonai</option>
+                </select>
               </div>
             </div>
             
@@ -105,6 +127,13 @@ const SettingsView = {
                         onclick="SettingsView.saveNamePreference('god', 'god')">God</button>
                 <button class="settings-name-btn ${namePrefs.god === 'elohim' ? 'selected' : ''}" 
                         onclick="SettingsView.saveNamePreference('god', 'elohim')">Elohim</button>
+                <select class="settings-name-more ${!['god','elohim'].includes(namePrefs.god) ? 'selected' : ''}"
+                        onchange="if(this.value) SettingsView.saveNamePreference('god', this.value)">
+                  <option value="">More...</option>
+                  <option value="eloah" ${namePrefs.god === 'eloah' ? 'selected' : ''}>Eloah</option>
+                  <option value="elyon" ${namePrefs.god === 'elyon' ? 'selected' : ''}>El Elyon</option>
+                  <option value="shaddai" ${namePrefs.god === 'shaddai' ? 'selected' : ''}>El Shaddai</option>
+                </select>
               </div>
             </div>
           </div>
@@ -265,11 +294,10 @@ const SettingsView = {
       const prefs = this.getNamePreferences();
       prefs[key] = value;
       localStorage.setItem('namePreferences', JSON.stringify(prefs));
-      
-      // Update button states without full re-render
+
+      // Update button + dropdown states without full re-render
       const container = document.querySelector('.settings-name-prefs');
       if (container) {
-        // Find all buttons in the row for this key
         const rows = container.querySelectorAll('.settings-name-row');
         rows.forEach(row => {
           const label = row.querySelector('.settings-name-label');
@@ -278,16 +306,30 @@ const SettingsView = {
             const keyMap = { 'messiah:': 'messiah', 'divine name:': 'divineName', 'creator:': 'god' };
             const rowKey = keyMap[labelText];
             if (rowKey === key) {
+              // Map button text to values
+              const valueMap = {
+                'Jesus': 'jesus', 'Yeshua': 'yeshua',
+                'the LORD': 'lord', 'Yahweh': 'yahweh', 'Jehovah': 'jehovah', 'YHWH': 'yhwh',
+                'God': 'god', 'Elohim': 'elohim'
+              };
+              let matchedButton = false;
               row.querySelectorAll('.settings-name-btn').forEach(btn => {
-                const btnValue = btn.textContent.trim();
-                const valueMap = {
-                  'Jesus': 'jesus', 'Yeshua': 'yeshua',
-                  'the LORD': 'lord', '𐤉𐤄𐤅𐤄': 'yhwh', 'Yahweh': 'yahweh',
-                  'God': 'god', 'Elohim': 'elohim'
-                };
-                const mappedValue = valueMap[btnValue];
-                btn.classList.toggle('selected', mappedValue === value);
+                const mappedValue = valueMap[btn.textContent.trim()];
+                const isMatch = mappedValue === value;
+                btn.classList.toggle('selected', isMatch);
+                if (isMatch) matchedButton = true;
               });
+              // Update dropdown — if value came from dropdown, highlight it; if from button, reset dropdown
+              const dropdown = row.querySelector('.settings-name-more');
+              if (dropdown) {
+                if (!matchedButton) {
+                  dropdown.value = value;
+                  dropdown.classList.add('selected');
+                } else {
+                  dropdown.value = '';
+                  dropdown.classList.remove('selected');
+                }
+              }
             }
           }
         });
@@ -825,41 +867,78 @@ const SettingsView = {
  * @param {string} text - The text to transform
  * @returns {string} - Text with name substitutions applied
  */
+// Map of divine name preference values to their display text
+const DIVINE_NAME_MAP = {
+  'lord': { display: 'the LORD', upper: 'THE LORD', bare: 'LORD' },
+  'yahweh': { display: 'Yahweh', upper: 'YAHWEH', bare: 'Yahweh' },
+  'jehovah': { display: 'Jehovah', upper: 'JEHOVAH', bare: 'Jehovah' },
+  'yhwh': { display: 'YHWH', upper: 'YHWH', bare: 'YHWH' },
+  'yhvh': { display: 'YHVH', upper: 'YHVH', bare: 'YHVH' },
+  'yhuh': { display: 'YHUH', upper: 'YHUH', bare: 'YHUH' },
+  'yehovah': { display: 'Yehovah', upper: 'YEHOVAH', bare: 'Yehovah' },
+  'yahuah': { display: 'Yahuah', upper: 'YAHUAH', bare: 'Yahuah' },
+  'yah': { display: 'Yah', upper: 'YAH', bare: 'Yah' },
+  'paleo': { display: '𐤉𐤄𐤅𐤄', upper: '𐤉𐤄𐤅𐤄', bare: '𐤉𐤄𐤅𐤄' },
+  'hebrew': { display: 'יהוה', upper: 'יהוה', bare: 'יהוה' },
+  'hashem': { display: 'HaShem', upper: 'HASHEM', bare: 'HaShem' },
+  'adonai': { display: 'Adonai', upper: 'ADONAI', bare: 'Adonai' }
+};
+
+const MESSIAH_NAME_MAP = {
+  'jesus': { display: 'Jesus', upper: 'JESUS' },
+  'yeshua': { display: 'Yeshua', upper: 'YESHUA' },
+  'yahushua': { display: 'Yahushua', upper: 'YAHUSHUA' },
+  'yehoshua': { display: 'Yehoshua', upper: 'YEHOSHUA' },
+  'iesous': { display: 'Iesous', upper: 'IESOUS' }
+};
+
+const GOD_NAME_MAP = {
+  'god': { display: 'God', upper: 'GOD' },
+  'elohim': { display: 'Elohim', upper: 'ELOHIM' },
+  'eloah': { display: 'Eloah', upper: 'ELOAH' },
+  'elyon': { display: 'El Elyon', upper: 'EL ELYON' },
+  'shaddai': { display: 'El Shaddai', upper: 'EL SHADDAI' }
+};
+
 function applyNamePreferences(text) {
   if (!text) return text;
-  
+
   const prefs = SettingsView.getNamePreferences();
   let result = text;
-  
+
   // Messiah name
-  if (prefs.messiah === 'yeshua') {
-    result = result.replace(/\bJesus\b/g, 'Yeshua');
-    result = result.replace(/\bJESUS\b/g, 'YESHUA');
-  } else {
+  const messiah = MESSIAH_NAME_MAP[prefs.messiah];
+  if (messiah && prefs.messiah !== 'jesus') {
+    result = result.replace(/\bJesus\b/g, messiah.display);
+    result = result.replace(/\bJESUS\b/g, messiah.upper);
+  } else if (prefs.messiah === 'jesus') {
+    // Normalize any non-standard back to Jesus
     result = result.replace(/\bYeshua\b/g, 'Jesus');
     result = result.replace(/\bYESHUA\b/g, 'JESUS');
   }
-  
-  // Divine name (LORD -> YHWH or Yahweh)
-  if (prefs.divineName === 'yhwh') {
-    result = result.replace(/\bthe LORD\b/g, '𐤉𐤄𐤅𐤄');
-    result = result.replace(/\bTHE LORD\b/g, '𐤉𐤄𐤅𐤄');
-    result = result.replace(/\bLORD\b/g, '𐤉𐤄𐤅𐤄');
-  } else if (prefs.divineName === 'yahweh') {
-    result = result.replace(/\bthe LORD\b/g, 'Yahweh');
-    result = result.replace(/\bTHE LORD\b/g, 'YAHWEH');
-    result = result.replace(/\bLORD\b/g, 'Yahweh');
+
+  // Divine name (LORD → user's preference)
+  const divine = DIVINE_NAME_MAP[prefs.divineName];
+  if (divine && prefs.divineName !== 'lord') {
+    result = result.replace(/\bthe LORD\b/g, divine.display);
+    result = result.replace(/\bTHE LORD\b/g, divine.upper);
+    result = result.replace(/\bLORD\b/g, divine.bare);
+    // Also handle "Jehovah" in ASV → user's preference
+    if (prefs.divineName !== 'jehovah') {
+      result = result.replace(/\bJehovah\b/g, divine.display);
+      result = result.replace(/\bJEHOVAH\b/g, divine.upper);
+    }
   }
-  // If 'lord', keep as-is (default in most translations)
-  
-  // God/Elohim
-  if (prefs.god === 'elohim') {
-    // Only replace standalone "God" not "gods" or "godly" etc.
-    result = result.replace(/\bGod\b/g, 'Elohim');
-    result = result.replace(/\bGOD\b/g, 'ELOHIM');
+  // If 'lord', keep as-is
+
+  // God/Creator name
+  const god = GOD_NAME_MAP[prefs.god];
+  if (god && prefs.god !== 'god') {
+    result = result.replace(/\bGod\b/g, god.display);
+    result = result.replace(/\bGOD\b/g, god.upper);
   }
-  // If 'god', keep as-is (default)
-  
+  // If 'god', keep as-is
+
   return result;
 }
 

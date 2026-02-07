@@ -2899,6 +2899,23 @@ body.view-reader:not(.reader-landing) {
   color: #fff;
 }
 
+.settings-name-more {
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  color: #999;
+  font-size: 0.9em;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.settings-name-more.selected {
+  border-color: #d4a017;
+  background: rgba(212, 160, 23, 0.25);
+  color: #fff;
+}
+
 /* Profile Row */
 .profile-row {
   display: flex;

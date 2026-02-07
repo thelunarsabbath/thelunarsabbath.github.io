@@ -254,7 +254,7 @@ const AppStore = {
       // Need to adjust for the difference
       
       // Get current offset of target timezone
-      const testDate = new Date(Date.UTC(year, date.getUTCMonth(), date.getUTCDate(), 12, 0, 0));
+      const testDate = this._gregorianToDate(year, date.getUTCMonth() + 1, date.getUTCDate());
       const inTarget = new Intl.DateTimeFormat('en-US', {
         timeZone: tz,
         hour: '2-digit', minute: '2-digit', hour12: false
@@ -293,7 +293,7 @@ const AppStore = {
     if (!selectedDate) return utcTime;
     
     const gregDate = this._julianToGregorian(selectedDate);
-    const date = new Date(Date.UTC(gregDate.year, gregDate.month - 1, gregDate.day, 12, 0, 0));
+    const date = this._gregorianToDate(gregDate.year, gregDate.month, gregDate.day);
     
     return this.utcToLocal(utcTime, date, location);
   },
@@ -368,7 +368,7 @@ const AppStore = {
     
     // Use astronomy functions if available
     if (typeof getAstronomicalTimes === 'function') {
-      const currentDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+      const currentDate = this._gregorianToDate(year, month, day);
       const astroTimes = getAstronomicalTimes(currentDate, location);
       
       if (astroTimes) {
@@ -379,7 +379,7 @@ const AppStore = {
           // If current time is before first light, we're still in the previous biblical day
           if (astroTimes.firstLightTs && nowMs < astroTimes.firstLightTs) {
             // Still in the previous biblical day
-            const prevDay = new Date(Date.UTC(year, month - 1, day - 1));
+            const prevDay = this._gregorianToDate(year, month, day - 1);
             biblicalYear = prevDay.getUTCFullYear();
             biblicalMonth = prevDay.getUTCMonth() + 1;
             biblicalDay = prevDay.getUTCDate();
@@ -389,7 +389,7 @@ const AppStore = {
           // If current time is after sunset, we're in the next biblical day
           if (astroTimes.sunsetTs && nowMs >= astroTimes.sunsetTs) {
             // Already in the next biblical day
-            const nextDay = new Date(Date.UTC(year, month - 1, day + 1));
+            const nextDay = this._gregorianToDate(year, month, day + 1);
             biblicalYear = nextDay.getUTCFullYear();
             biblicalMonth = nextDay.getUTCMonth() + 1;
             biblicalDay = nextDay.getUTCDate();
@@ -415,12 +415,11 @@ const AppStore = {
     const dateAtLoc = this._getDateAtLocation(location);
     
     // Use biblical day (accounts for dawn/sunset boundary) instead of Gregorian day
-    const date = new Date(Date.UTC(
-      dateAtLoc.biblicalYear, 
-      dateAtLoc.biblicalMonth - 1, 
-      dateAtLoc.biblicalDay, 
-      12, 0, 0
-    ));
+    const date = this._gregorianToDate(
+      dateAtLoc.biblicalYear,
+      dateAtLoc.biblicalMonth,
+      dateAtLoc.biblicalDay
+    );
     return this._dateToJulian(date);
   },
   
@@ -799,7 +798,7 @@ const AppStore = {
         // Optionally update time as well (event.time is local, convert to UTC)
         if (event.time !== undefined) {
           const gregDate = this._julianToGregorian(s.context.selectedDate);
-          const date = new Date(Date.UTC(gregDate.year, gregDate.month - 1, gregDate.day, 12, 0, 0));
+          const date = this._gregorianToDate(gregDate.year, gregDate.month, gregDate.day);
           s.context.utcTime = this.localToUtc(event.time, date, s.context.location);
           changed = true;
         }
@@ -927,7 +926,7 @@ const AppStore = {
       case 'SET_TIME':
         // event.time is local, convert to UTC
         const setTimeGreg = this._julianToGregorian(s.context.selectedDate);
-        const setTimeDate = new Date(Date.UTC(setTimeGreg.year, setTimeGreg.month - 1, setTimeGreg.day, 12, 0, 0));
+        const setTimeDate = this._gregorianToDate(setTimeGreg.year, setTimeGreg.month, setTimeGreg.day);
         s.context.utcTime = this.localToUtc(event.time, setTimeDate, s.context.location);
         return true;
         
@@ -989,17 +988,19 @@ const AppStore = {
         return true;
         
       case 'SET_ASTRO_ENGINE':
-        // Update astronomy engine after async load completes
+        // Update astronomy engine after async load completes (only for lunar-backend profiles)
         if (event.payload) {
           const profile = this._profiles[s.context.profileId] || this._profiles.timeTested || {};
-          _engine = new LunarCalendarEngine(event.payload);
-          _engine.configure({
-            moonPhase: profile.moonPhase || 'full',
-            dayStartTime: profile.dayStartTime || 'morning',
-            dayStartAngle: profile.dayStartAngle ?? 12,
-            yearStartRule: profile.yearStartRule || 'virgoFeet'
-          });
-          console.log('[AppStore] Astronomy engine updated');
+          if (profile.calendarBackend !== 'hebcal') {
+            _engine = new LunarCalendarEngine(event.payload);
+            _engine.configure({
+              moonPhase: profile.moonPhase || 'full',
+              dayStartTime: profile.dayStartTime || 'morning',
+              dayStartAngle: profile.dayStartAngle ?? 12,
+              yearStartRule: profile.yearStartRule || 'virgoFeet'
+            });
+            console.log('[AppStore] Astronomy engine updated');
+          }
         }
         return true;
         
@@ -1526,13 +1527,26 @@ const AppStore = {
     const oldConfig = this._derived.config;  // Save old config BEFORE updating
     this._derived.config = profile;
     
-    // Only regenerate lunar months if we have an engine
-    if (this._astroEngine && typeof LunarCalendarEngine !== 'undefined') {
-      if (!this._engine) {
+    // Create or reuse the appropriate calendar engine for this profile
+    const useHebcal = profile.calendarBackend === 'hebcal' &&
+      typeof HebcalCalendarAdapter !== 'undefined' &&
+      HebcalCalendarAdapter.isAvailable();
+    const wantLunar = this._astroEngine && typeof LunarCalendarEngine !== 'undefined';
+
+    if (useHebcal) {
+      if (!this._engine || typeof this._engine.findMoonEvents === 'function') {
+        this._engine = new HebcalCalendarAdapter();
+      }
+      this._engine.configure({
+        moonPhase: profile.moonPhase || 'full',
+        dayStartTime: profile.dayStartTime || 'morning',
+        yearStartRule: 'hebcal',
+        sabbathMode: profile.sabbathMode || 'saturday'
+      });
+    } else if (wantLunar) {
+      if (!this._engine || typeof this._engine.findMoonEvents !== 'function') {
         this._engine = new LunarCalendarEngine(this._astroEngine);
       }
-      
-      // Configure engine with profile
       this._engine.configure({
         moonPhase: profile.moonPhase || 'full',
         dayStartTime: profile.dayStartTime || 'morning',
@@ -1540,6 +1554,8 @@ const AppStore = {
         yearStartRule: profile.yearStartRule || 'equinox',
         crescentThreshold: profile.crescentThreshold ?? 18
       });
+    }
+    if (this._engine) {
       
       // Check if we need to regenerate the calendar
       // Regenerate if: year changed, location changed, profile/config changed, or no calendar yet
@@ -1833,7 +1849,7 @@ const AppStore = {
    * @returns {number|null} Julian Day number or null if not found
    */
   _lunarDateToJD(lunarYear, lunarMonth, lunarDay, context) {
-    if (!this._engine || !this._astroEngine) {
+    if (!this._engine) {
       console.warn('[AppStore] _lunarDateToJD: engine not available');
       return null;
     }
@@ -2023,6 +2039,22 @@ const AppStore = {
     const minutes = Math.floor((fracDay * 24 - hours) * 60);
     
     return { year, month, day, hours, minutes };
+  },
+
+  /**
+   * Build a Date from Gregorian components. Use instead of new Date(Date.UTC(year, ...))
+   * so years 1-99 are 1-99 AD, not 1900-1999.
+   * @param {number} year - Full year (1-99 AD or negative for BC)
+   * @param {number} month - 1-based month
+   * @param {number} day - Day of month
+   * @param {number} [h=12]
+   * @param {number} [min=0]
+   * @returns {Date}
+   */
+  _gregorianToDate(year, month, day, h = 12, min = 0) {
+    const d = new Date(Date.UTC(2000, month - 1, day, h, min, 0));
+    d.setUTCFullYear(year);
+    return d;
   },
   
   /**

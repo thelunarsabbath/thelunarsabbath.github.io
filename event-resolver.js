@@ -202,7 +202,8 @@ let _sharedLunarEngine = null;
 let _sharedEngineConfigKey = null;
 
 function _getEngineConfigKey(profile) {
-  return `${profile.moonPhase || 'full'}:${profile.yearStartRule || 'equinox'}:${profile.dayStartTime || 'morning'}:${profile.dayStartAngle ?? 12}:${profile.crescentThreshold ?? 18}`;
+  const backend = profile.calendarBackend || 'lunar';
+  return `${backend}:${profile.moonPhase || 'full'}:${profile.yearStartRule || 'equinox'}:${profile.dayStartTime || 'morning'}:${profile.dayStartAngle ?? 12}:${profile.crescentThreshold ?? 18}`;
 }
 
 function _getSharedEngine(profile) {
@@ -213,20 +214,35 @@ function _getSharedEngine(profile) {
     return _sharedLunarEngine;
   }
   
-  // Check if LunarCalendarEngine and astronomy engine are available
+  const useHebcal = profile.calendarBackend === 'hebcal' &&
+    typeof HebcalCalendarAdapter !== 'undefined' &&
+    HebcalCalendarAdapter.isAvailable();
   const hasLunarEngine = typeof LunarCalendarEngine !== 'undefined' && typeof getAstroEngine === 'function';
   const astroEngine = hasLunarEngine ? getAstroEngine() : null;
+  
+  if (useHebcal) {
+    if (_sharedEngineConfigKey !== null && _sharedEngineConfigKey !== configKey) {
+      _calendarCache.clear();
+    }
+    _sharedLunarEngine = new HebcalCalendarAdapter();
+    _sharedLunarEngine.configure({
+      moonPhase: profile.moonPhase || 'full',
+      dayStartTime: profile.dayStartTime || 'morning',
+      yearStartRule: 'hebcal',
+      sabbathMode: profile.sabbathMode || 'saturday'
+    });
+    _sharedEngineConfigKey = configKey;
+    return _sharedLunarEngine;
+  }
   
   if (!hasLunarEngine || !astroEngine) {
     return null;
   }
   
-  // Config changed - clear calendar cache too (uses engine internally)
   if (_sharedEngineConfigKey !== null && _sharedEngineConfigKey !== configKey) {
     _calendarCache.clear();
   }
   
-  // Create and configure new engine (old engine with stale caches will be GC'd)
   _sharedLunarEngine = new LunarCalendarEngine(astroEngine);
   _sharedLunarEngine.configure({
     moonPhase: profile.moonPhase || 'full',
@@ -246,7 +262,8 @@ const _calendarCache = new Map();
 const MAX_CALENDAR_CACHE_SIZE = 20;
 
 function _getCalendarCacheKey(year, profile) {
-  return `${year}:${profile.moonPhase || 'full'}:${profile.yearStartRule || 'equinox'}:${profile.dayStartTime || 'morning'}`;
+  const backend = profile.calendarBackend || 'lunar';
+  return `${backend}:${year}:${profile.moonPhase || 'full'}:${profile.yearStartRule || 'equinox'}:${profile.dayStartTime || 'morning'}`;
 }
 
 function _getCachedCalendar(year, profile, location) {
@@ -329,7 +346,7 @@ function lunarToJulianDay(lunar, gregorianYear, profile) {
   }
   const yearStartRule = profile.yearStartRule || 'equinox';
   let yearStartApprox;
-  if (yearStartRule === 'equinox' || yearStartRule === 'barley') {
+  if (yearStartRule === 'equinox' || yearStartRule === 'barley' || yearStartRule === '1dayBefore') {
     yearStartApprox = gregorianToJulianDay(year, 3, 20);
   } else if (yearStartRule === 'fall-equinox') {
     yearStartApprox = gregorianToJulianDay(year, 9, 22);

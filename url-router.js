@@ -892,11 +892,14 @@ const URLRouter = {
       'ancient-traditional': 'ancientTraditional',
       '119': 'ministries119',
       '119-ministries': 'ministries119',
+      '119-equinox': 'ministries119Equinox',
       'creators': 'creatorsCalendar',
       'creators-calendar': 'creatorsCalendar',
       'traditional-lunar': 'traditionalLunar',
       'lunar': 'traditionalLunar',
-      'traditional-saturday': 'traditionalSaturday'
+      'traditional-saturday': 'traditionalSaturday',
+      'modern-jewish': 'modernJewish',
+      'modern-jewish-calendar': 'modernJewish'
     };
     return mapping[slug.toLowerCase()] || slug;
   },
@@ -907,9 +910,11 @@ const URLRouter = {
       'timeTested': 'time-tested',
       'ancientTraditional': 'ancient',
       'ministries119': '119-ministries',
+      'ministries119Equinox': '119-equinox',
       'creatorsCalendar': 'creators-calendar',
       'traditionalLunar': 'traditional-lunar',
-      'traditionalSaturday': 'traditional-saturday'
+      'traditionalSaturday': 'traditional-saturday',
+      'modernJewish': 'modern-jewish'
     };
     return mapping[profileId] || profileId;
   },

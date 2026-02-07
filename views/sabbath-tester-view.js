@@ -157,10 +157,14 @@ const SabbathTesterView = {
     switch (rule) {
       case 'equinox':
         return { icons: '⚖️📅🐑', label: 'Month after Eq' };
+      case '1dayBefore':
+        return { icons: '⚖️−1📅', label: 'Eq −1 day' };
       case '14daysBefore':
         return { icons: '📅⚖️🐑', label: 'Passover after Eq' };
       case 'virgoFeet':
         return { icons: '♍', label: "Moon under Virgo's feet" };
+      case 'hebcal':
+        return { icons: '🕎', label: 'Molad (Hebcal)' };
       default:
         return { icons: '⚖️📅🐑', label: rule || 'Month after Eq' };
     }
@@ -185,7 +189,8 @@ const SabbathTesterView = {
         <div class="configs-grid">
     `;
     for (const p of profiles) {
-      const yearDisplay = this.getYearStartDisplay(p.yearStartRule);
+      const yearRule = p.calendarBackend === 'hebcal' ? 'hebcal' : p.yearStartRule;
+      const yearDisplay = this.getYearStartDisplay(yearRule);
       const moon = moonLabels[p.moonPhase] || p.moonPhase;
       const dayStart = dayStartLabels[p.dayStartTime] || p.dayStartTime;
       const sabbath = sabbathLabels[p.sabbathMode] || p.sabbathMode;
@@ -225,6 +230,7 @@ const SabbathTesterView = {
         yearStartRule: p.yearStartRule,
         crescentThreshold: p.crescentThreshold || 18,
         sabbathMode: p.sabbathMode || 'lunar',
+        calendarBackend: p.calendarBackend,
         lat: 31.7683,  // Jerusalem for all tests
         lon: 35.2137
       });
@@ -318,20 +324,29 @@ const SabbathTesterView = {
         return { result: 'error', error: 'Astronomy engine not available' };
       }
       
-      const astroEngine = getAstroEngine();
-      if (!astroEngine) {
-        return { result: 'error', error: 'Astronomy engine not initialized' };
+      let engine;
+      if (profile.calendarBackend === 'hebcal' && typeof HebcalCalendarAdapter !== 'undefined' && HebcalCalendarAdapter.isAvailable()) {
+        engine = new HebcalCalendarAdapter();
+        engine.configure({
+          moonPhase: profile.moonPhase || 'full',
+          dayStartTime: profile.dayStartTime === 'morning' ? 'morning' : 'evening',
+          yearStartRule: 'hebcal',
+          sabbathMode: profile.sabbathMode || 'saturday'
+        });
+      } else {
+        const astroEngine = getAstroEngine();
+        if (!astroEngine) {
+          return { result: 'error', error: 'Astronomy engine not initialized' };
+        }
+        engine = new LunarCalendarEngine(astroEngine);
+        engine.configure({
+          moonPhase: profile.moonPhase,
+          dayStartTime: profile.dayStartTime === 'morning' ? 'morning' : 'evening',
+          dayStartAngle: profile.dayStartAngle,
+          yearStartRule: profile.yearStartRule,
+          crescentThreshold: profile.crescentThreshold
+        });
       }
-      
-      // Create LunarCalendarEngine instance
-      const engine = new LunarCalendarEngine(astroEngine);
-      engine.configure({
-        moonPhase: profile.moonPhase,
-        dayStartTime: profile.dayStartTime === 'morning' ? 'morning' : 'evening',
-        dayStartAngle: profile.dayStartAngle,
-        yearStartRule: profile.yearStartRule,
-        crescentThreshold: profile.crescentThreshold
-      });
       
       // Generate calendar for test year
       const calendar = engine.generateYear(test.year, test.location, { includeUncertainty: true });

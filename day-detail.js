@@ -630,6 +630,8 @@ function showDayDetail(dayObj, month) {
           beforeAfter: beforeAfter
         });
         yearMonthInfo = ''; // Content is in virgoExplanationHtml
+      } else if (state.yearStartRule === '1dayBefore') {
+        yearMonthInfo = `Using Equinox −1 day rule. First new moon on or after (equinox − 1 day). Spring equinox: ${equinoxDateStr}. Day 1 begins ${timingStr} ${beforeAfter} equinox.`;
       } else {
         // Equinox rule - use shared function
         virgoExplanationHtml = getEquinoxMethodologyHtml({
@@ -646,6 +648,7 @@ function showDayDetail(dayObj, month) {
       let ruleIcon = '📅';
       if (state.yearStartRule === 'virgoFeet') ruleIcon = '♍';
       else if (state.yearStartRule === '14daysBefore') ruleIcon = '🐑';
+      else if (state.yearStartRule === '1dayBefore') ruleIcon = '⚖️−1';
       else ruleIcon = '⚖️';
       
       item.innerHTML = `

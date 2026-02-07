@@ -330,8 +330,8 @@ const GlobalSearch = {
     // Validate the date
     if (year && month && day) {
       if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-        // Basic validation - could be more strict but Date will handle edge cases
-        const testDate = new Date(year, month - 1, day);
+        const testDate = new Date(2000, month - 1, day);
+        testDate.setFullYear(year);
         if (testDate.getMonth() === month - 1 && testDate.getDate() === day) {
           return { year, month, day };
         }

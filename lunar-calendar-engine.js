@@ -28,7 +28,7 @@ class LunarCalendarEngine {
       moonPhase: 'dark',        // 'dark', 'full', 'crescent'
       dayStartTime: 'evening',  // 'evening', 'morning'
       dayStartAngle: 0,         // Degrees below horizon (0=horizon, 6=civil, 12=nautical, 18=astronomical)
-      yearStartRule: 'equinox', // 'equinox', '14daysBefore', or 'virgoFeet' (Spica/Creator's Calendar)
+      yearStartRule: 'equinox', // 'equinox', '1dayBefore', '14daysBefore', or 'virgoFeet'
       crescentThreshold: 18,    // Hours after conjunction for crescent visibility
     };
     
@@ -233,8 +233,12 @@ class LunarCalendarEngine {
     const equinox = this.getSpringEquinox(year);
     
     if (this.config.yearStartRule === '14daysBefore') {
-      // Day 15 (Unleavened Bread) must be on or after equinox — year start point is 14 days before equinox
+      // Lamb rule: Day 15 on or after equinox — year start point is 14 days before equinox
       return new Date(equinox.getTime() - 14 * 24 * 60 * 60 * 1000);
+    }
+    if (this.config.yearStartRule === '1dayBefore') {
+      // 119-style: first conjunction on or after (equinox − 1 day), so equinox "on the day" counts
+      return new Date(equinox.getTime() - 1 * 24 * 60 * 60 * 1000);
     }
     
     if (this.config.yearStartRule === 'virgoFeet') {
@@ -515,30 +519,16 @@ class LunarCalendarEngine {
     const localDate = this.getLocalDate(moonEvent, location.lon);
     const monthStart = new Date(localDate.getTime());
     
-    if (this.config.dayStartTime === 'evening') {
-      const sunsetTs = this.getSunsetTime(localDate, location);
-      if (sunsetTs != null) {
-        const moonEventLocalTime = moonEvent.getTime() + (location.lon / 15) * 60 * 60 * 1000;
-        const sunsetLocalTime = sunsetTs + (location.lon / 15) * 60 * 60 * 1000;
-        
-        if (moonEventLocalTime > sunsetLocalTime) {
-          // Moon event after sunset - Day 1 starts next day
-          monthStart.setUTCDate(monthStart.getUTCDate() + 1);
-        }
-      }
-    } else if (this.config.dayStartTime === 'morning') {
-      const sunriseTs = this.getSunriseTime(localDate, location);
-      if (sunriseTs != null) {
-        const moonEventLocalTime = moonEvent.getTime() + (location.lon / 15) * 60 * 60 * 1000;
-        const sunriseLocalTime = sunriseTs + (location.lon / 15) * 60 * 60 * 1000;
-        
-        if (moonEventLocalTime >= sunriseLocalTime) {
-          // Moon event at or after sunrise - Day 1 starts next day
-          monthStart.setUTCDate(monthStart.getUTCDate() + 1);
-        }
+    // Use the same day boundary as getDayStartTime (respects dayStartAngle)
+    // so month start is consistent with when each day begins.
+    const dayStartTs = this.getDayStartTime(localDate, location);
+    if (dayStartTs != null) {
+      if (moonEvent.getTime() > dayStartTs) {
+        // Moon event after this day's start - Day 1 starts next day
+        monthStart.setUTCDate(monthStart.getUTCDate() + 1);
       }
     } else {
-      // Default: add 1 day
+      // Fallback: add 1 day
       monthStart.setUTCDate(monthStart.getUTCDate() + 1);
     }
     

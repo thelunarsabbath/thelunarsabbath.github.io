@@ -529,6 +529,10 @@
   <script src="/astronomy-engine-abstraction.js"></script>
   <script src="/astronomy-utils.js"></script>
   <script src="/lunar-calendar-engine.js"></script>
+  <!-- Hebcal (optional): run scripts/fetch-hebcal.sh to download the bundle -->
+  <script src="/lib/hebcal/hebcal-core.min.js"></script>
+  <script src="/lib/hebcal/hebcal-loader.js"></script>
+  <script src="/hebcal-adapter.js"></script>
   <script src="/jubilee-cycle.js"></script>
   <script src="/feasts.js"></script>
   <script src="/bible-events-loader.js"></script>
@@ -665,6 +669,16 @@
           crescentThreshold: 18,
           sabbathMode: 'saturday'
         },
+        ministries119Equinox: {
+          name: '119 Ministries',
+          icon: '🌑',
+          moonPhase: 'dark',
+          dayStartTime: 'evening',
+          dayStartAngle: 18,
+          yearStartRule: '1dayBefore',
+          crescentThreshold: 18,
+          sabbathMode: 'saturday'
+        },
         creatorsCalendar: {
           name: "Creator's Calendar",
           icon: '🌕',
@@ -694,6 +708,17 @@
           yearStartRule: 'equinox',
           crescentThreshold: 18,
           sabbathMode: 'saturday'
+        },
+        modernJewish: {
+          name: 'Modern Jewish',
+          icon: '🕎',
+          moonPhase: 'dark',
+          dayStartTime: 'evening',
+          dayStartAngle: 0,
+          yearStartRule: 'equinox',
+          crescentThreshold: 18,
+          sabbathMode: 'saturday',
+          calendarBackend: 'hebcal'
         }
       };
       

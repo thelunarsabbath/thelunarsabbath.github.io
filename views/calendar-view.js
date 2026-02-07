@@ -810,6 +810,9 @@ const CalendarView = {
         } else {
           methodologyHtml = `<p>Using Passover after Equinox rule. Spring equinox: ${equinoxDateStr}. Day 1 begins ${timingStr} ${beforeAfter} equinox.</p>`;
         }
+      } else if (yearStartRule === '1dayBefore') {
+        ruleIcon = '⚖️−1';
+        methodologyHtml = `<p>Using Equinox −1 day rule. First new moon on or after (equinox − 1 day). Spring equinox: ${equinoxDateStr}. Day 1 begins ${timingStr} ${beforeAfter} equinox.</p>`;
       } else {
         ruleIcon = '⚖️';
         if (typeof getEquinoxMethodologyHtml === 'function') {
@@ -2504,14 +2507,19 @@ const CalendarView = {
         </div>
       </div>
       
-      <div class="settings-section">
+      <div class="settings-section" data-section="year-start">
         <h3>Year Starts At</h3>
-        <p class="settings-description">Choose the rule for determining the first month of the year.</p>
+        <p class="settings-description yearstart-description">Choose the rule for determining the first month of the year.</p>
         <div class="settings-options yearstart-options">
           <button class="settings-option-btn" data-yearstart="equinox">
             <span class="option-icon">🌕</span>
             <span class="option-label">Renewed Moon after Equinox</span>
             <span class="option-hint">Month 1 starts after spring equinox</span>
+          </button>
+          <button class="settings-option-btn" data-yearstart="1dayBefore">
+            <span class="option-icon">⚖️−1</span>
+            <span class="option-label">Equinox −1 day</span>
+            <span class="option-hint">First moon on or after (equinox − 1 day)</span>
           </button>
           <button class="settings-option-btn" data-yearstart="14daysBefore">
             <span class="option-icon">🐑</span>
@@ -2524,11 +2532,14 @@ const CalendarView = {
             <span class="option-hint">Full moon below Spica (Rev 12:1)</span>
           </button>
         </div>
-        <details class="settings-details">
+        <details class="settings-details yearstart-details">
           <summary class="settings-details-toggle">📚 Understanding Year Start Rules</summary>
           <div class="settings-details-content">
             <h4>Renewed Moon after Equinox</h4>
             <p>The most common interpretation: the new year begins with the first lunar month (full/new moon) that occurs after the spring equinox. This ensures the year always starts in spring.</p>
+            
+            <h4>Equinox −1 day</h4>
+            <p>First new moon on or after the day before the equinox. So if the equinox falls after sunset (on “the next day” in evening reckoning), the conjunction that occurred earlier that same calendar day still counts—no postponement. Matches 119 Ministries’ interpretation for 30 AD (14th = Wednesday April 5).</p>
             
             <h4>Passover after Equinox</h4>
             <p>Based on the requirement that Passover (Day 14-15) must occur on or after the spring equinox. This can result in a month starting up to 13 days before the equinox.</p>
@@ -2537,6 +2548,21 @@ const CalendarView = {
             <p>Based on Revelation 12:1 describing "a woman clothed with the sun, with the moon under her feet." This astronomical sign occurs when the full moon appears below the star Spica in Virgo near the spring equinox.</p>
           </div>
         </details>
+        <div class="yearstart-hebcal-doc" style="display: none;">
+          <p class="settings-description">The modern Jewish (rabbinic) calendar uses a fixed arithmetic system based on the <strong>molad</strong> (mean lunar conjunction). The year begins at Tishri 1 (Rosh Hashanah). Month and year lengths follow the traditional 19-year cycle. Four <strong>rules of postponement</strong> adjust Rosh Hashanah so it never falls on certain weekdays.</p>
+          <details class="settings-details">
+            <summary class="settings-details-toggle">📚 Rules of postponement</summary>
+            <div class="settings-details-content">
+              <p>Rosh Hashanah (Tishri 1) is shifted by one or two days when the molad would place it on a forbidden day:</p>
+              <ul>
+                <li><strong>Lo Adu Rosh</strong> — If the molad of Tishri falls on Sunday, Wednesday, or Friday, Rosh Hashanah is postponed by one day (so Yom Kippur does not fall on Friday or Sunday; Hoshana Rabbah not on Saturday).</li>
+                <li><strong>Lo Badu</strong> — If the molad is at or after 18 hours (noon), Rosh Hashanah is postponed by one day (and again if that lands on Sunday, Wednesday, or Friday).</li>
+                <li><strong>GaTRaD</strong> — In a common year, if the molad of Tishri falls on Tuesday at 9 hours 204 parts or later, postpone to Thursday (so the year has a valid length).</li>
+                <li><strong>BechUTaT Kaf</strong> — After a leap year, if the molad of Tishri falls on Monday at 15 hours 589 parts or later, postpone to Tuesday.</li>
+              </ul>
+            </div>
+          </details>
+        </div>
       </div>
       
       <div class="settings-section">
@@ -2595,14 +2621,16 @@ const CalendarView = {
         select.appendChild(opt);
       }
       
-      // Enable/disable edit/delete for custom profiles
+      // Modern Jewish (Hebcal) is not cloneable or customizable
+      const isHebcalProfile = currentProfile.calendarBackend === 'hebcal';
       const isPreset = !currentProfileId.startsWith('custom_');
       page.querySelector('.edit-btn').disabled = isPreset;
       page.querySelector('.delete-btn').disabled = isPreset;
+      page.querySelector('.clone-btn').disabled = isHebcalProfile;
+      page.querySelector('.clone-btn').title = isHebcalProfile ? 'Cannot clone this profile' : 'Clone as new profile';
       
-      // Gray out settings for preset profiles
+      // Gray out settings for preset profiles (except Hebcal gets special Year Start doc)
       page.querySelectorAll('.settings-section').forEach((section, idx) => {
-        // Skip the first section (profile selector)
         if (idx > 0) {
           section.classList.toggle('disabled', isPreset);
         }
@@ -2610,6 +2638,26 @@ const CalendarView = {
       page.querySelectorAll('.settings-option-btn').forEach(btn => {
         btn.disabled = isPreset;
       });
+      
+      // Year Starts At: show either standard options or Hebcal documentation
+      const yearSection = page.querySelector('[data-section="year-start"]');
+      const yearstartOptions = yearSection?.querySelector('.yearstart-options');
+      const yearstartDetails = yearSection?.querySelector('.yearstart-details');
+      const yearstartHebcalDoc = yearSection?.querySelector('.yearstart-hebcal-doc');
+      const yearstartDescription = yearSection?.querySelector('.yearstart-description');
+      if (yearSection) {
+        if (isHebcalProfile) {
+          if (yearstartDescription) yearstartDescription.style.display = 'none';
+          if (yearstartOptions) yearstartOptions.style.display = 'none';
+          if (yearstartDetails) yearstartDetails.style.display = 'none';
+          if (yearstartHebcalDoc) yearstartHebcalDoc.style.display = 'block';
+        } else {
+          if (yearstartDescription) yearstartDescription.style.display = '';
+          if (yearstartOptions) yearstartOptions.style.display = '';
+          if (yearstartDetails) yearstartDetails.style.display = '';
+          if (yearstartHebcalDoc) yearstartHebcalDoc.style.display = 'none';
+        }
+      }
       
       // Update moon phase buttons
       page.querySelectorAll('.moon-phase-options .settings-option-btn').forEach(btn => {

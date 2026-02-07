@@ -381,6 +381,10 @@ function getYearStartPoint(year, location = null) {
     // Return 14 days before the equinox (Day 15 must be on or after equinox per Maimonides)
     return new Date(springEquinox.getTime() - 14 * 24 * 60 * 60 * 1000);
   }
+  if (state.yearStartRule === '1dayBefore') {
+    // Eq −1 day: first conjunction on or after (equinox − 1 day), so equinox "on the day" counts (119-style)
+    return new Date(springEquinox.getTime() - 1 * 24 * 60 * 60 * 1000);
+  }
   
   if (state.yearStartRule === 'virgoFeet') {
     // Creator's Calendar: First full moon after equinox where moon is "under Virgo's feet"
@@ -601,6 +605,7 @@ function getMoonEclipticLongitude(date) {
 function getYearStartLabel() {
   switch (state.yearStartRule) {
     case '14daysBefore': return 'Passover after Equinox';
+    case '1dayBefore': return 'Equinox −1 day';
     case 'virgoFeet': return 'Moon Under Virgo\'s Feet';
     default: return 'Renewed Moon after Equinox';
   }
@@ -888,11 +893,10 @@ function parseDatetimeLocal(datetimeStr) {
   const [year, month, day] = datePart.split('-').map(Number);
   const [hours, minutes] = timePart.split(':').map(Number);
   
-  // Create date as UTC
-  const localAsUtc = Date.UTC(year, month - 1, day, hours, minutes);
-  
-  // Convert from local time at longitude to actual UTC
-  return localTimeToUtc(new Date(localAsUtc), state.lon);
+  // Build date so year 1-99 is 1-99 AD, not 1900-1999
+  const d = new Date(Date.UTC(2000, month - 1, day, hours, minutes));
+  d.setUTCFullYear(year);
+  return localTimeToUtc(d, state.lon);
 }
 
 function getTimezoneFromLongitude(lon) {

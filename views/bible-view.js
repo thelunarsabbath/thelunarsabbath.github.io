@@ -54,10 +54,10 @@ const BibleView = {
     if (needsFullRender) {
       this.renderStructure(container, state);
     } else {
-      // Page exists - ensure selector visibility reflects state (switching back to Bible)
-      this.syncSelectorVisibility(state);
       this.applyMobileReaderHeight();
     }
+    // Always sync selector visibility (handles multiverse hide, content type switching, etc.)
+    this.syncSelectorVisibility(state);
     
     if (isMultiverse) {
       if (this.lastRenderedParams !== paramsKey) {

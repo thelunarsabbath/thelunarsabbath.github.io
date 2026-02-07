@@ -1345,10 +1345,16 @@ function getInterlinearVerse(bookName, chapter, verse) {
 }
 
 // Show interlinear display for a verse
-async function showInterlinear(book, chapter, verse, event) {
+// verseElOrId: optional - for multiverse use unique id (e.g. 'mv-Dan-9-23') or pass element
+async function showInterlinear(book, chapter, verse, event, verseElOrId) {
   if (event) event.stopPropagation();
   
-  const verseEl = document.getElementById(`verse-${verse}`);
+  let verseEl;
+  if (verseElOrId) {
+    verseEl = typeof verseElOrId === 'string' ? document.getElementById(verseElOrId) : verseElOrId;
+  } else {
+    verseEl = document.getElementById(`verse-${verse}`);
+  }
   if (!verseEl) return;
   
   // Toggle off if already expanded
@@ -1479,8 +1485,9 @@ async function showInterlinear(book, chapter, verse, event) {
     interlinear.classList.add('expanded');
   });
   
-  // Dispatch to AppStore for URL sync (unidirectional flow)
-  if (typeof AppStore !== 'undefined') {
+  // Dispatch to AppStore for URL sync only when in chapter view (not multiverse)
+  const isMultiverse = typeof verseElOrId === 'string' && verseElOrId.startsWith('mv-');
+  if (!isMultiverse && typeof AppStore !== 'undefined') {
     AppStore.dispatch({ type: 'SET_INTERLINEAR_VERSE', verse: verse });
   }
 }
@@ -3779,7 +3786,7 @@ function parseCitation(citationStr) {
       if (crossChapterMatch) {
         const [, startVerse, endChapter, endVerse] = crossChapterMatch;
         citations.push({
-          book: book.trim(),
+          book: (typeof normalizeBookName === 'function' ? normalizeBookName(book.trim()) : book.trim()),
           startChapter: chapterNum,
           startVerse: parseInt(startVerse),
           endChapter: parseInt(endChapter),
@@ -3800,7 +3807,7 @@ function parseCitation(citationStr) {
         if (rangeMatch) {
           const [, startVerse, endVerse] = rangeMatch;
           citations.push({
-            book: book.trim(),
+            book: (typeof normalizeBookName === 'function' ? normalizeBookName(book.trim()) : book.trim()),
             startChapter: chapterNum,
             startVerse: parseInt(startVerse),
             endChapter: chapterNum,
@@ -3811,7 +3818,7 @@ function parseCitation(citationStr) {
           const verseNum = parseInt(segTrimmed);
           if (!isNaN(verseNum)) {
             citations.push({
-              book: book.trim(),
+              book: (typeof normalizeBookName === 'function' ? normalizeBookName(book.trim()) : book.trim()),
               startChapter: chapterNum,
               startVerse: verseNum,
               endChapter: chapterNum,
@@ -3827,7 +3834,7 @@ function parseCitation(citationStr) {
         const [, book, startChapter, endChapter] = chapterRangeMatch;
         // Return full chapters from start to end
         citations.push({
-          book: book.trim(),
+          book: (typeof normalizeBookName === 'function' ? normalizeBookName(book.trim()) : book.trim()),
           startChapter: parseInt(startChapter),
           startVerse: 1,
           endChapter: parseInt(endChapter),
@@ -3840,7 +3847,7 @@ function parseCitation(citationStr) {
           const [, book, chapter] = wholeChapterMatch;
           // Return whole chapter (verses 1-200 to be safe)
           citations.push({
-            book: book.trim(),
+            book: (typeof normalizeBookName === 'function' ? normalizeBookName(book.trim()) : book.trim()),
             startChapter: parseInt(chapter),
             startVerse: 1,
             endChapter: parseInt(chapter),
@@ -3852,6 +3859,109 @@ function parseCitation(citationStr) {
   }
   
   return citations;
+}
+
+// Check if a citation string contains multiple references (for routing to multiverse view)
+function isMultiVerseCitation(citationStr) {
+  if (!citationStr || typeof citationStr !== 'string') return false;
+  const parsed = parseCitation(citationStr);
+  return parsed.length > 1;
+}
+
+// Build HTML for multiverse view: selected verses with Strongs, symbols, and verse numbers that link to full chapter
+function buildMultiverseHTML(citationStr) {
+  if (!bibleData) return '<div class="bible-explorer-welcome"><p>Bible data not loaded.</p></div>';
+  const verses = getVersesForCitationString(citationStr);
+  if (!verses || verses.length === 0) {
+    return '<div class="bible-explorer-welcome"><p>No verses found for this reference.</p></div>';
+  }
+  const trans = (typeof currentTranslation !== 'undefined' && currentTranslation) || 'kjv';
+  let html = '<div class="bible-explorer-chapter bible-multiverse">';
+  html += `<div class="bible-explorer-chapter-header">
+    <h2>Multi-verse</h2>
+    <div class="chapter-subtitle">${escapeHtml(citationStr)}</div>
+  </div>`;
+  let currentBook = '';
+  let currentChapter = -1;
+  for (const verse of verses) {
+    if (verse.isSeparator) {
+      html += '<div class="bible-chapter-separator"></div>';
+      currentChapter = -1;
+      continue;
+    }
+    const bookName = verse.book;
+    const chapter = verse.chapter;
+    if (bookName !== currentBook || chapter !== currentChapter) {
+      if (currentBook !== '') html += '</div>';
+      currentBook = bookName;
+      currentChapter = chapter;
+      html += `<div class="bible-multiverse-section">`;
+      html += `<div class="bible-multiverse-section-header">${escapeHtml(bookName)} ${chapter}</div>`;
+      html += '<div class="bible-multiverse-verses">';
+    }
+    const reference = `${bookName} ${chapter}:${verse.verse}`;
+    const isNT = isNTBook(bookName);
+    const hasInterlinearData = (isNT ? ntInterlinearData : interlinearData);
+    const hasOriginalLang = hasInterlinear(bookName);
+    const origLangClass = hasOriginalLang ? ' has-hebrew' : '';
+    let verseText;
+    if (hasOriginalLang && hasInterlinearData) {
+      verseText = renderVerseWithStrongs(bookName, chapter, verse.verse, verse.text);
+    } else {
+      verseText = applySymbolHighlighting(applyVerseAnnotations(reference, verse.text));
+    }
+    const bookRefs = (typeof getBookReferences === 'function') ? getBookReferences(bookName, chapter, verse.verse) : null;
+    const bookRefHtml = bookRefs && bookRefs.length > 0
+      ? `<span class="verse-book-ref" onclick="showBookRefPopup('${bookName}', ${chapter}, ${verse.verse}, event)" title="Referenced in A Time Tested Tradition">📖</span>`
+      : `<span class="verse-book-ref-spacer"></span>`;
+    const hasCrossRefs = (typeof hasCrossReferences === 'function') ? hasCrossReferences(bookName, chapter, verse.verse) : false;
+    const crossRefHtml = hasCrossRefs
+      ? `<span class="verse-cross-ref" onclick="showCrossRefPanel('${bookName}', ${chapter}, ${verse.verse}, event)" title="Cross References">🔗</span>`
+      : `<span class="verse-cross-ref-spacer"></span>`;
+    const tlData = (typeof getVerseTimelineEvents === 'function') ? getVerseTimelineEvents(bookName, chapter, verse.verse) : null;
+    let timelineHtml;
+    if (tlData && tlData.events.length > 0) {
+      const ev = tlData.events[0];
+      const title = (ev.title || '').replace(/📅\s*/g, '');
+      const dateStr = (typeof _formatEventDate === 'function' && tlData.date) ? _formatEventDate(tlData.date) : '';
+      const tipText = dateStr ? `${title} — ${dateStr}` : title;
+      timelineHtml = `<span class="verse-timeline-ref" data-tip="${(tipText || '').replace(/"/g, '&quot;')}" onclick="navigateToVerseEvent('${ev.id}', event)"><img src="/assets/img/timeline_icon.png" alt="Timeline" class="verse-timeline-icon"></span>`;
+    } else {
+      timelineHtml = `<span class="verse-timeline-ref-spacer"></span>`;
+    }
+    const mvVerseId = 'mv-' + (bookName.replace(/\s+/g, '-')) + '-' + chapter + '-' + verse.verse;
+    const interlinearTitle = hasOriginalLang ? (isNT ? 'Compare translations / Greek interlinear' : 'Compare translations / Hebrew interlinear') : 'Compare translations';
+    const interlinearBtn = `<span class="verse-interlinear-ref" onclick="showInterlinear('${bookName.replace(/'/g, "\\'")}', ${chapter}, ${verse.verse}, event, '${mvVerseId}')" title="${interlinearTitle}">☰</span>`;
+    const verseNumSpan = `<span class="bible-verse-number${hasOriginalLang ? ' clickable-hebrew' : ''}" onclick="goToChapterFromMultiverse('${bookName.replace(/'/g, "\\'")}', ${chapter}, ${verse.verse})" title="Open ${bookName} ${chapter}:${verse.verse}">${verse.verse}</span>`;
+    html += `<div class="bible-explorer-verse${origLangClass}" id="${mvVerseId}" data-book="${escapeHtml(bookName)}" data-chapter="${chapter}" data-verse="${verse.verse}">
+      <div class="verse-meta">${bookRefHtml}${crossRefHtml}${timelineHtml}${interlinearBtn}${verseNumSpan}</div>
+      <span class="bible-verse-text">${verseText}</span>
+    </div>`;
+  }
+  if (currentBook !== '') html += '</div></div>';
+  html += '</div>';
+  return html;
+}
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// Navigate from multiverse verse number to full chapter view at that verse
+function goToChapterFromMultiverse(bookName, chapter, verse) {
+  if (typeof AppStore !== 'undefined') {
+    const translation = (typeof currentTranslation !== 'undefined' && currentTranslation) || 'kjv';
+    AppStore.dispatch({
+      type: 'SET_VIEW',
+      view: 'reader',
+      params: { contentType: 'bible', translation, book: bookName, chapter, verse }
+    });
+  }
 }
 
 // Get verses for a parsed citation
@@ -4028,7 +4138,7 @@ function closeBibleReader() {
   }
 }
 
-// Handle click on citation link — navigate via SPA router
+// Handle click on citation link — navigate via SPA router (single verse → chapter; multi → multiverse)
 function handleCitationClick(event) {
   event.preventDefault();
   event.stopPropagation();
@@ -4036,11 +4146,23 @@ function handleCitationClick(event) {
   const citation = el?.dataset.citation;
   if (!citation) return;
   
-  // Parse citation to get book, chapter, verse
+  if (typeof isMultiVerseCitation === 'function' && isMultiVerseCitation(citation)) {
+    if (typeof AppStore !== 'undefined') {
+      const translation = (typeof currentTranslation !== 'undefined' && currentTranslation) || 'kjv';
+      AppStore.dispatch({
+        type: 'SET_VIEW',
+        view: 'reader',
+        params: { contentType: 'multiverse', multiverse: citation, translation }
+      });
+    }
+    return;
+  }
+  
+  // Single reference: go to chapter/verse
   const match = citation.match(/^(.+?)\s+(\d+)(?::(\d+))?/);
   if (!match) return;
   
-  const book = match[1];
+  const book = (typeof normalizeBookName === 'function' ? normalizeBookName(match[1]) : match[1]);
   const chapter = parseInt(match[2]);
   const verse = match[3] ? parseInt(match[3]) : undefined;
   const translation = (typeof currentTranslation !== 'undefined' && currentTranslation) || 'kjv';
@@ -4071,10 +4193,12 @@ function buildBibleUrl(citation, translation = null) {
   return url;
 }
 
-// Make a citation string clickable with proper URL
+// Make a citation string clickable (single ref → chapter URL; multi ref → handleCitationClick opens multiverse)
 function makeCitationClickable(citationStr, title = '') {
   const url = buildBibleUrl(citationStr);
-  return `<a href="${url}" class="bible-citation-link" data-citation="${citationStr}" data-title="${title}" onclick="handleCitationClick(event)">${citationStr}</a>`;
+  const citationEscaped = (citationStr || '').replace(/"/g, '&quot;');
+  const titleEscaped = (title || '').replace(/"/g, '&quot;');
+  return `<a href="${url}" class="bible-citation-link" data-citation="${citationEscaped}" data-title="${titleEscaped}" onclick="handleCitationClick(event)">${escapeHtml(citationStr)}</a>`;
 }
 
 // Normalize a book name to KJV format

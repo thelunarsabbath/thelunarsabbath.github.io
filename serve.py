@@ -2,13 +2,18 @@
 """
 Simple SPA-compatible HTTP server.
 Serves static files, but falls back to index.html for unknown paths (SPA routing).
+
+Port: use PORT=3000 python serve.py, or python serve.py 3000, or default 8080.
+Ctrl+C shuts down and releases the port.
 """
 
 import http.server
 import socketserver
 import os
+import signal
+import sys
 
-PORT = 8080
+DEFAULT_PORT = 8080
 
 class SPAHandler(http.server.SimpleHTTPRequestHandler):
     # Follow symlinks
@@ -33,12 +38,14 @@ class SPAHandler(http.server.SimpleHTTPRequestHandler):
                 # Serve the actual file/directory
                 return super().do_GET()
         
-        # Check if path has a file extension - if so, it's a real file request that failed
-        if '.' in os.path.basename(path):
-            # Return 404 for actual file requests that don't exist
+        # Only 404 when it looks like a static file request (known extension) that doesn't exist.
+        # Paths like /reader/multiverse/Gen.1.15/Dan.9.24 have dots but are SPA routes, not files.
+        basename = os.path.basename(path.rstrip('/'))
+        static_extensions = ('.html', '.htm', '.js', '.css', '.json', '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.woff', '.woff2', '.txt', '.pdf', '.wasm', '.map')
+        if basename and any(basename.lower().endswith(ext) for ext in static_extensions):
             self.send_error(404, f"File not found: {path}")
             return
-        
+
         # SPA fallback: serve index.html for unknown paths (likely routes)
         self.path = '/index.html'
         return super().do_GET()
@@ -61,16 +68,34 @@ def get_local_ip():
     except:
         return "unknown"
 
+def get_port():
+    if len(sys.argv) > 1:
+        try:
+            return int(sys.argv[1])
+        except ValueError:
+            print(f"Invalid port: {sys.argv[1]}", file=sys.stderr)
+            sys.exit(1)
+    return int(os.environ.get('PORT', DEFAULT_PORT))
+
+
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    
-    with socketserver.TCPServer(("0.0.0.0", PORT), SPAHandler) as httpd:
+    port = get_port()
+
+    # Allow rebinding the port immediately after shutdown (avoids "Address already in use")
+    class ReusableTCPServer(socketserver.TCPServer):
+        allow_reuse_address = True
+
+    with ReusableTCPServer(("0.0.0.0", port), SPAHandler) as httpd:
         local_ip = get_local_ip()
         print(f"SPA Server running at:")
-        print(f"  Local:   http://localhost:{PORT}")
-        print(f"  Network: http://{local_ip}:{PORT}")
+        print(f"  Local:   http://localhost:{port}")
+        print(f"  Network: http://{local_ip}:{port}")
         print("\nPress Ctrl+C to stop")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
+            pass
+        finally:
+            httpd.shutdown()
             print("\nServer stopped.")

@@ -207,6 +207,12 @@ const GlobalSearch = {
       return;
     }
     
+    // Check for multi-verse reference (e.g. "Jer 52:12-13; 2 Kings 25:8-9") - open multiverse view
+    if (typeof isMultiVerseCitation === 'function' && isMultiVerseCitation(query)) {
+      this.navigateToMultiverse(query);
+      return;
+    }
+    
     // Check for verse reference (John 3:16, Gen 1:1) - navigate directly
     const verseRef = this.parseVerseReference(query);
     if (verseRef) {
@@ -545,6 +551,20 @@ const GlobalSearch = {
         type: 'SET_VIEW',
         view: 'reader',
         params
+      });
+    }
+  },
+
+  /**
+   * Navigate to multiverse view (multiple verse references on one page)
+   */
+  navigateToMultiverse(citationStr) {
+    this.close();
+    if (typeof AppStore !== 'undefined') {
+      AppStore.dispatch({
+        type: 'SET_VIEW',
+        view: 'reader',
+        params: { contentType: 'multiverse', multiverse: citationStr }
       });
     }
   },

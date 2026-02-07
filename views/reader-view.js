@@ -80,6 +80,9 @@ const ReaderView = {
       case 'bible':
         currentKey = `bible:${params.translation}:${params.book}:${params.chapter}:${params.verse || ''}`;
         break;
+      case 'multiverse':
+        currentKey = `multiverse:${(params.multiverse || '').replace(/"/g, '')}`;
+        break;
       case 'symbols':
         currentKey = `symbols:${params.symbol || 'index'}`;
         break;
@@ -124,6 +127,15 @@ const ReaderView = {
       case 'bible':
         this.renderBible(state, derived, container);
         // Sync the content selector after Bible view renders
+        setTimeout(() => {
+          if (typeof updateReaderContentSelector === 'function') {
+            updateReaderContentSelector('bible');
+          }
+        }, 50);
+        break;
+
+      case 'multiverse':
+        this.renderBible(state, derived, container);
         setTimeout(() => {
           if (typeof updateReaderContentSelector === 'function') {
             updateReaderContentSelector('bible');

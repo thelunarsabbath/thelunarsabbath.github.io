@@ -38,16 +38,18 @@ const BibleView = {
     // Extract Bible-specific params from state
     const { content, ui } = state;
     const params = content?.params || {};
-    const { translation, book, chapter, verse } = params;
+    const { translation, book, chapter, verse, contentType, multiverse } = params;
     
-    // Check if we need a full re-render or just navigation update
-    const paramsKey = `${book}-${chapter}-${verse}-${translation}`;
+    const isMultiverse = contentType === 'multiverse' && multiverse;
+    const paramsKey = isMultiverse
+      ? `multiverse:${translation || 'kjv'}:${multiverse}`
+      : `${book}-${chapter}-${verse}-${translation}`;
     const needsFullRender = !this.initialized || !container.querySelector('#bible-explorer-page');
     
     // Check if the content area has non-Bible content (switching back from Time-Tested/Symbols)
     const textArea = container.querySelector('#bible-explorer-text');
     const hasBibleContent = textArea && textArea.querySelector('.bible-explorer-chapter');
-    const switchingBack = !hasBibleContent && book && chapter;
+    const switchingBack = !hasBibleContent && book && chapter && !isMultiverse;
     
     if (needsFullRender) {
       this.renderStructure(container, state);
@@ -57,20 +59,52 @@ const BibleView = {
       this.applyMobileReaderHeight();
     }
     
-    // Navigate if params changed OR if switching back to Bible from another content type
-    if (this.lastRenderedParams !== paramsKey || switchingBack) {
-      this.lastRenderedParams = paramsKey;
-      console.log('[BibleView] Navigating to:', { translation, book, chapter, verse, switchingBack });
-      
-      // Reset restoration flags on navigation change
-      this._interlinearRestored = false;
-      
-      // Wait for Bible data to be ready then navigate
-      this.navigateWhenReady(translation, book, chapter, verse);
+    if (isMultiverse) {
+      if (this.lastRenderedParams !== paramsKey) {
+        this.lastRenderedParams = paramsKey;
+        console.log('[BibleView] Rendering multiverse:', multiverse);
+        this.renderMultiverseContent(multiverse, translation || 'kjv');
+      }
+    } else {
+      // Navigate if params changed OR if switching back to Bible from another content type
+      if (this.lastRenderedParams !== paramsKey || switchingBack) {
+        this.lastRenderedParams = paramsKey;
+        console.log('[BibleView] Navigating to:', { translation, book, chapter, verse, switchingBack });
+        
+        // Reset restoration flags on navigation change
+        this._interlinearRestored = false;
+        
+        // Wait for Bible data to be ready then navigate
+        this.navigateWhenReady(translation, book, chapter, verse);
+      }
     }
     
     // Restore UI state from URL (Strong's panel, search)
     this.restoreUIState(ui);
+  },
+
+  // Render multiverse view (verses from citation string) in #bible-explorer-text
+  async renderMultiverseContent(citationStr, translation) {
+    const textContainer = document.getElementById('bible-explorer-text');
+    if (!textContainer) return;
+    // Ensure Bible data is loaded
+    const isReady = typeof bibleExplorerState !== 'undefined' &&
+                    bibleExplorerState.bookChapterCounts &&
+                    Object.keys(bibleExplorerState.bookChapterCounts).length > 0;
+    if (!isReady) {
+      if (typeof loadBible === 'function') {
+        textContainer.innerHTML = '<div class="bible-explorer-welcome"><p>Loading Bible...</p></div>';
+        await loadBible(false);
+      }
+    }
+    if (translation && typeof switchTranslation === 'function') {
+      await switchTranslation(translation);
+    }
+    if (typeof buildMultiverseHTML === 'function') {
+      textContainer.innerHTML = buildMultiverseHTML(citationStr);
+    } else {
+      textContainer.innerHTML = '<div class="bible-explorer-welcome"><p>Multi-verse view not available.</p></div>';
+    }
   },
   
   // Restore UI state from URL parameters (syncs panel state with URL)
@@ -190,21 +224,21 @@ const BibleView = {
   // Sync selector visibility from state (when page structure already exists)
   syncSelectorVisibility(state) {
     const contentType = state?.content?.params?.contentType || 'bible';
+    const displayContentType = (contentType === 'multiverse') ? 'bible' : contentType;
     
-    // Update content type dropdown
+    // Update content type dropdown (multiverse displays as Bible)
     const contentSelect = document.getElementById('reader-content-select');
     if (contentSelect) {
-      contentSelect.value = contentType;
+      contentSelect.value = displayContentType;
     }
     
-    // Show/hide selector groups based on contentType
-    // For 'words', 'numbers', 'people', and 'symbols-article', hide all selectors (they don't need any)
-    const hideAllSelectors = ['words', 'numbers', 'people', 'symbols-article'].includes(contentType);
+    // Show/hide selector groups (multiverse shows Bible selectors e.g. translation)
+    const hideAllSelectors = ['words', 'numbers', 'people', 'symbols-article'].includes(displayContentType);
     const bibleSelectors = document.getElementById('bible-selectors');
     const symbolSelectors = document.getElementById('symbol-selectors');
     const ttSelectors = document.getElementById('timetested-selectors');
     
-    if (bibleSelectors) bibleSelectors.style.display = (contentType === 'bible' && !hideAllSelectors) ? '' : 'none';
+    if (bibleSelectors) bibleSelectors.style.display = ((contentType === 'bible' || contentType === 'multiverse') && !hideAllSelectors) ? '' : 'none';
     if (symbolSelectors) symbolSelectors.style.display = (contentType === 'symbols' && !hideAllSelectors) ? '' : 'none';
     if (ttSelectors) ttSelectors.style.display = (contentType === 'timetested' && !hideAllSelectors) ? '' : 'none';
   },
@@ -250,6 +284,8 @@ const BibleView = {
   renderStructure(container, state = null) {
     // Get contentType from state - this determines which selectors are visible
     const contentType = state?.content?.params?.contentType || 'bible';
+    // Multiverse uses Bible selectors (e.g. translation) and shows as Bible in dropdown
+    const displayContentType = (contentType === 'multiverse') ? 'bible' : contentType;
     
     // Build content type dropdown with correct selection
     const contentTypeOptions = [
@@ -259,12 +295,11 @@ const BibleView = {
       { value: 'numbers', label: 'Numbers' },
       { value: 'timetested', label: 'Time Tested Tradition' },
       { value: 'people', label: 'People' } // Future: People studies
-    ].map(opt => `<option value="${opt.value}"${opt.value === contentType ? ' selected' : ''}>${opt.label}</option>`).join('');
+    ].map(opt => `<option value="${opt.value}"${opt.value === displayContentType ? ' selected' : ''}>${opt.label}</option>`).join('');
     
-    // Selector visibility based on contentType
-    // For 'words', 'people', and 'symbols-article', hide all selectors (numbers has its own dropdown)
-    const hideAllSelectors = ['words', 'people', 'symbols-article'].includes(contentType);
-    const bibleDisplay = (contentType === 'bible' && !hideAllSelectors) ? '' : 'display:none;';
+    // Selector visibility based on contentType (multiverse shows Bible selectors for translation)
+    const hideAllSelectors = ['words', 'people', 'symbols-article'].includes(displayContentType);
+    const bibleDisplay = ((contentType === 'bible' || contentType === 'multiverse') && !hideAllSelectors) ? '' : 'display:none;';
     const symbolsDisplay = (contentType === 'symbols' && !hideAllSelectors) ? '' : 'display:none;';
     const ttDisplay = (contentType === 'timetested' && !hideAllSelectors) ? '' : 'display:none;';
     const numbersDisplay = (contentType === 'numbers') ? '' : 'display:none;';

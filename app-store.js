@@ -1425,14 +1425,32 @@ const AppStore = {
       }
       
       // ─── URL Events ───
-      case 'INIT_FROM_URL':
-        // Initial URL was already parsed in init() - just enable URL sync
-        console.log('[AppStore] INIT_FROM_URL: URL was parsed in init(), enabling sync');
-        setTimeout(() => { 
-          this._urlSyncEnabled = true; 
+      case 'INIT_FROM_URL': {
+        // Re-parse current URL and apply (ensures reload/direct link to e.g. multiverse shows correct view)
+        const url = event.url || window.location.href;
+        const parsed = window.URLRouter?.parseURL(url);
+        if (parsed) {
+          s.content.view = parsed.content.view;
+          s.content.params = parsed.content.params;
+          Object.assign(s.context, parsed.context);
+          Object.assign(s.ui, parsed.ui);
+          s.context.today = this._getTodayJD();
+          if (parsed.context.selectedLunarDate && parsed.context.location) {
+            const { year, month, day } = parsed.context.selectedLunarDate;
+            const jd = this._lunarDateToJD(year, month, day, s.context);
+            if (jd !== null) {
+              s.context.selectedDate = jd;
+              s.context.selectedLunarDate = null;
+            }
+          }
+          console.log('[AppStore] INIT_FROM_URL: applied', parsed.content.view, parsed.content.params);
+        }
+        setTimeout(() => {
+          this._urlSyncEnabled = true;
           console.log('[AppStore] URL sync enabled');
         }, 50);
         return true;
+      }
         
       case 'URL_CHANGED': {
         // Browser navigation (back/forward) or programmatic URL change

@@ -11,6 +11,44 @@
  */
 
 const URLRouter = {
+
+  // Option C: human-readable multiverse slugs
+  // One path segment per reference: Book.Chapter.VerseSpec (spaces→hyphen, comma→dot, abbrev OK)
+  // e.g. Jer.52.12-13 / 2-Kings.25.8-9  or  Jer.52.12.15.19-21 for 12,15,19-21
+  _encodeMultiverseSegments(citation) {
+    if (!citation || typeof citation !== 'string') return [];
+    const refs = citation.split(/\s*[+;]\s*/).map(s => s.trim()).filter(Boolean);
+    const segments = [];
+    for (const ref of refs) {
+      const match = ref.match(/^(.+?)\s+(\d+):(.+)$/);
+      if (!match) continue;
+      const [, book, chapter, verseSpec] = match;
+      const bookSlug = book.trim().replace(/\s+/g, '-');
+      const verseSlug = verseSpec.replace(/,/g, '.').replace(/\s+/g, '');
+      segments.push(bookSlug + '.' + chapter + '.' + verseSlug);
+    }
+    return segments;
+  },
+  _decodeMultiverse(segments) {
+    if (!Array.isArray(segments) || segments.length === 0) return '';
+    const refs = [];
+    for (const segment of segments) {
+      const parts = segment.split('.');
+      if (parts.length < 2) continue;
+      const verseParts = [];
+      // Need at least 2 parts left for chapter + book. Pop only trailing verse part(s).
+      while (parts.length > 2 && /^\d+(-\d+)?$/.test(parts[parts.length - 1])) {
+        verseParts.unshift(parts.pop());
+      }
+      if (parts.length === 0 || verseParts.length === 0) continue;
+      const chapter = parts.pop();
+      if (!/^\d+$/.test(chapter)) continue;
+      const book = parts.join(' ').replace(/-/g, ' ');
+      const verseSpec = verseParts.join(',');
+      refs.push(book + ' ' + chapter + ':' + verseSpec);
+    }
+    return refs.join('; ');
+  },
   
   // ═══════════════════════════════════════════════════════════════════════
   // CITY SLUGS - Location name to coordinates mapping
@@ -175,9 +213,9 @@ const URLRouter = {
       this.COORDS_TO_SLUG[`${coords.lat},${coords.lon}`] = slug;
     }
     
-    // Listen for browser navigation
+    // Listen for browser navigation (pass href so parseURL gets a string and parses consistently)
     window.addEventListener('popstate', (event) => {
-      AppStore.dispatch({ type: 'URL_CHANGED', url: window.location });
+      AppStore.dispatch({ type: 'URL_CHANGED', url: window.location.href });
       
       // Restore scroll position from history state
       if (event.state && event.state.scrollTop !== undefined) {
@@ -219,12 +257,16 @@ const URLRouter = {
    * @returns {Object} Parsed state { context, content, ui }
    */
   parseURL(url) {
+    if (!url) url = window.location;
+    if (typeof url === 'object' && url.href !== undefined) {
+      url = url.href;
+    }
     if (typeof url === 'string') {
       url = new URL(url, window.location.origin);
     }
     
     const pathname = url.pathname;
-    const searchParams = url.searchParams || new URLSearchParams(url.search);
+    const searchParams = url.searchParams || new URLSearchParams(url.search || '');
     
     // Split path into segments
     const parts = pathname.split('/').filter(Boolean);
@@ -585,6 +627,21 @@ const URLRouter = {
         } else if (contentType === 'timetested') {
           // Parse book chapter: /reader/timetested/chapter-slug
           if (parts[1]) params.chapterId = parts[1];
+        } else if (contentType === 'multiverse') {
+          // Parse multiverse: /reader/multiverse/kjv/Dan.9.23/Daniel.12.11 (translation then ref segments)
+          const knownTranslations = ['kjv', 'asv', 'web', 'ylt', 'drb'];
+          let multiverseParts = parts.slice(1).filter(Boolean);
+          if (multiverseParts[0] && knownTranslations.includes(multiverseParts[0].toLowerCase())) {
+            params.translation = multiverseParts[0].toLowerCase();
+            multiverseParts = multiverseParts.slice(1);
+          }
+          if (multiverseParts.length) {
+            if (multiverseParts.length === 1 && (multiverseParts[0].includes('%') || !multiverseParts[0].includes('.'))) {
+              params.multiverse = decodeURIComponent(multiverseParts[0]);
+            } else {
+              params.multiverse = this._decodeMultiverse(multiverseParts);
+            }
+          }
         }
         break;
         
@@ -789,6 +846,10 @@ const URLRouter = {
           if (params.number) readerPath += '/' + params.number;
         } else if (contentType === 'timetested') {
           if (params.chapterId) readerPath += '/' + params.chapterId;
+        } else if (contentType === 'multiverse') {
+          readerPath += '/' + (params.translation || 'kjv');
+          const segments = this._encodeMultiverseSegments(params.multiverse);
+          for (const seg of segments) readerPath += '/' + seg;
         }
         return readerPath;
         

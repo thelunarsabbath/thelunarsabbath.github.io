@@ -4610,6 +4610,26 @@ body.bible-reader-open {
   margin: 32px 0;
 }
 
+/* Multi-verse view (reader) */
+.bible-multiverse .bible-explorer-chapter-header .chapter-subtitle {
+  font-size: 0.95rem;
+  font-weight: normal;
+  color: var(--color-text-muted);
+  word-break: break-word;
+}
+.bible-multiverse-section {
+  margin-bottom: 1.5rem;
+}
+.bible-multiverse-section-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+}
+.bible-multiverse-verses {
+  padding-left: 0.25rem;
+}
+
 /* Mobile adjustments for Bible Reader */
 @media (max-width: 600px) {
   .bible-reader-modal.open {
@@ -9184,6 +9204,7 @@ body.biblical-timeline-open .top-nav-inner {
 .bible-explorer-verse .verse-meta .verse-cross-ref-spacer,
 .bible-explorer-verse .verse-meta .verse-timeline-ref,
 .bible-explorer-verse .verse-meta .verse-timeline-ref-spacer,
+.bible-explorer-verse .verse-meta .verse-interlinear-ref,
 .bible-explorer-verse .verse-meta .bible-verse-number {
   flex-shrink: 0;
 }
@@ -9221,6 +9242,9 @@ body.biblical-timeline-open .top-nav-inner {
   .bible-explorer-verse .verse-meta .verse-timeline-ref,
   .bible-explorer-verse .verse-meta .verse-timeline-ref-spacer {
     order: 4;
+  }
+  .bible-explorer-verse .verse-meta .verse-interlinear-ref {
+    order: 5;
   }
   .bible-explorer-verse .verse-meta .verse-book-ref-spacer,
   .bible-explorer-verse .verse-meta .verse-cross-ref-spacer,
@@ -9351,6 +9375,7 @@ body.biblical-timeline-open .top-nav-inner {
 .bible-explorer-verse.interlinear-expanded > .verse-meta .verse-cross-ref-spacer,
 .bible-explorer-verse.interlinear-expanded > .verse-meta .verse-timeline-ref,
 .bible-explorer-verse.interlinear-expanded > .verse-meta .verse-timeline-ref-spacer,
+.bible-explorer-verse.interlinear-expanded > .verse-meta .verse-interlinear-ref,
 .bible-explorer-verse.interlinear-expanded > .verse-meta .bible-verse-number {
   display: inline;
   margin-right: 4px;
@@ -10038,6 +10063,25 @@ body.biblical-timeline-open .top-nav-inner {
   display: inline-block;
   width: 18px;
   margin-right: 4px;
+}
+
+/* Hamburger: comparative verse / interlinear in multiverse (and chapter view if added there) */
+.verse-interlinear-ref {
+  display: inline-block;
+  width: 20px;
+  margin-right: 2px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0.7;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.2;
+  user-select: none;
+}
+.verse-interlinear-ref:hover,
+.verse-interlinear-ref:active {
+  opacity: 1;
+  color: var(--color-accent);
 }
 
 /* Cross Reference Panel (shown in Strong's panel area) */

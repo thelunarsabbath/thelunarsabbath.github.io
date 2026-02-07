@@ -1498,10 +1498,10 @@ const Bible = {
 
   // ── Translation ordering preferences ──
 
-  // Default order: AKJV, ASV, LXX shown; KJV, YLT, SLT, DBT loaded but hidden; rest not loaded
-  _defaultOrder: ['akjv', 'asv', 'lxx', 'kjv', 'ylt', 'slt', 'dbt', 'drb', 'jps', 'wbt'],
+  // Default order: AKJV, ASV, LXX shown; YLT, SLT, DBT, DRB, JPS loaded but hidden; KJV, WBT not loaded (saves space)
+  _defaultOrder: ['akjv', 'asv', 'lxx', 'ylt', 'slt', 'dbt', 'drb', 'jps', 'kjv', 'wbt'],
   _defaultVisibleCount: 3,
-  _defaultLoadCount: 7,
+  _defaultLoadCount: 8,
 
   /**
    * Get translations in user-preferred order, split into three tiers:

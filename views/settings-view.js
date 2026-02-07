@@ -330,7 +330,7 @@ const SettingsView = {
       // Divider 2: between hidden (loaded) and not-loaded
       if (i === loadCount) {
         html += `<div class="translation-sort-divider ts-divider-noload" data-divider="noload">
-          <span class="ts-divider-label">Not loaded — saves bandwidth</span>
+          <span class="ts-divider-label">Not loaded — saves space</span>
         </div>`;
       }
 
@@ -352,7 +352,7 @@ const SettingsView = {
     }
     if (loadCount >= all.length && !html.includes('data-divider="noload"')) {
       html += `<div class="translation-sort-divider ts-divider-noload" data-divider="noload">
-        <span class="ts-divider-label">Not loaded — saves bandwidth</span>
+        <span class="ts-divider-label">Not loaded — saves space</span>
       </div>`;
     }
 

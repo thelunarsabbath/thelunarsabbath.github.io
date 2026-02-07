@@ -1381,18 +1381,19 @@ const Bible = {
     const ok = await this.loadTranslation(primaryId);
     if (onProgress) onProgress(primaryId, 1, BIBLE_REGISTRY.length);
 
-    // Load rest in background (non-blocking)
+    // Only background-load translations within the user's loadCount threshold
+    const { order, loadCount } = this.getOrderedTranslations();
+    const toLoad = order.slice(0, loadCount).filter(id => id !== primaryId);
+
     let loaded = 1;
-    const total = BIBLE_REGISTRY.length;
-    for (const reg of BIBLE_REGISTRY) {
-      if (reg.id === primaryId) continue;
-      // Don't await — fire and forget, but track progress
-      this.loadTranslation(reg.id).then(() => {
+    const total = toLoad.length + 1;
+    for (const id of toLoad) {
+      this.loadTranslation(id).then(() => {
         loaded++;
-        if (onProgress) onProgress(reg.id, loaded, total);
+        if (onProgress) onProgress(id, loaded, total);
       }).catch(() => {
         loaded++;
-        if (onProgress) onProgress(reg.id, loaded, total);
+        if (onProgress) onProgress(id, loaded, total);
       });
     }
 
@@ -1497,67 +1498,81 @@ const Bible = {
 
   // ── Translation ordering preferences ──
 
-  /** Default visible count if no preference is saved. */
-  _defaultVisibleCount: 4,
+  // Default order: AKJV, ASV, LXX shown; KJV, YLT, SLT, DBT loaded but hidden; rest not loaded
+  _defaultOrder: ['akjv', 'asv', 'lxx', 'kjv', 'ylt', 'slt', 'dbt', 'drb', 'jps', 'wbt'],
+  _defaultVisibleCount: 3,
+  _defaultLoadCount: 7,
 
   /**
-   * Get translations in user-preferred order, split into visible/hidden.
-   * Reads from localStorage. Falls back to registry order with default visible count.
-   * Excludes source texts (WLC, Greek NT) — those are for interlinear display only.
-   * @returns {{ visible: Object[], hidden: Object[], order: string[], visibleCount: number }}
+   * Get translations in user-preferred order, split into three tiers:
+   *   visible: shown by default in interlinear/dropdown
+   *   hidden: loaded but behind "more translations" button
+   *   notLoaded: not downloaded/loaded until user moves them up
+   *
+   * @returns {{ visible: Object[], hidden: Object[], notLoaded: Object[], order: string[], visibleCount: number, loadCount: number }}
    */
   getOrderedTranslations() {
     this._ensureInit();
     const searchable = BIBLE_REGISTRY.filter(t => t.searchable !== false);
-    const defaultOrder = searchable.map(t => t.id);
-    let order = defaultOrder;
+    const defaultOrder = this._defaultOrder;
+    let order = [...defaultOrder];
     let visibleCount = this._defaultVisibleCount;
+    let loadCount = this._defaultLoadCount;
 
     try {
       const saved = localStorage.getItem('bible_translation_order');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed.order) && parsed.order.length > 0) {
-          // Validate: keep only ids that still exist in registry, append any new ones
-          const validIds = new Set(defaultOrder);
+          const validIds = new Set(searchable.map(t => t.id));
           const filtered = parsed.order.filter(id => validIds.has(id));
-          const missing = defaultOrder.filter(id => !filtered.includes(id));
+          const missing = searchable.map(t => t.id).filter(id => !filtered.includes(id));
           order = [...filtered, ...missing];
         }
         if (typeof parsed.visibleCount === 'number' && parsed.visibleCount >= 1) {
-          visibleCount = Math.min(parsed.visibleCount, order.length);
+          visibleCount = parsed.visibleCount;
+        }
+        if (typeof parsed.loadCount === 'number' && parsed.loadCount >= 1) {
+          loadCount = parsed.loadCount;
         }
       }
     } catch (e) {}
 
-    // Ensure at least 1 visible
+    // Clamp
     if (visibleCount < 1) visibleCount = 1;
+    if (loadCount < visibleCount) loadCount = visibleCount;
     if (visibleCount > order.length) visibleCount = order.length;
+    if (loadCount > order.length) loadCount = order.length;
 
     const visible = [];
     const hidden = [];
+    const notLoaded = [];
     for (let i = 0; i < order.length; i++) {
       const reg = this._registryMap[order[i]];
       if (!reg) continue;
       if (i < visibleCount) {
         visible.push(reg);
-      } else {
+      } else if (i < loadCount) {
         hidden.push(reg);
+      } else {
+        notLoaded.push(reg);
       }
     }
 
-    return { visible, hidden, order, visibleCount };
+    return { visible, hidden, notLoaded, order, visibleCount, loadCount };
   },
 
   /**
    * Save translation ordering preference to localStorage.
    * @param {string[]} order - Translation IDs in priority order
    * @param {number} visibleCount - How many are shown by default
+   * @param {number} loadCount - How many to download/load (visible + hidden)
    */
-  saveTranslationOrder(order, visibleCount) {
+  saveTranslationOrder(order, visibleCount, loadCount) {
     try {
       const vc = Math.max(1, Math.min(visibleCount, order.length));
-      localStorage.setItem('bible_translation_order', JSON.stringify({ order, visibleCount: vc }));
+      const lc = Math.max(vc, Math.min(loadCount || order.length, order.length));
+      localStorage.setItem('bible_translation_order', JSON.stringify({ order, visibleCount: vc, loadCount: lc }));
     } catch (e) {}
   },
 

@@ -710,6 +710,16 @@
   white-space: nowrap;
 }
 
+/* Second divider: "not loaded" tier — red/muted styling */
+.ts-divider-noload::before,
+.ts-divider-noload::after {
+  background: rgba(200, 80, 80, 0.3);
+}
+
+.ts-divider-noload .ts-divider-label {
+  color: #c85050;
+}
+
 /* Touch drag clone */
 .ts-touch-clone {
   position: fixed;

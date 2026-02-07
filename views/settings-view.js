@@ -308,10 +308,11 @@ const SettingsView = {
    * Build the HTML for the draggable translation sort list.
    */
   _buildTranslationSortList() {
-    const { visible, hidden, visibleCount } = Bible.getOrderedTranslations();
-    const all = [...visible, ...hidden];
+    const { visible, hidden, notLoaded, visibleCount, loadCount } = Bible.getOrderedTranslations();
+    const all = [...visible, ...hidden, ...notLoaded];
 
     let html = '<div class="translation-sort-list" id="translation-sort-list">';
+    let itemIdx = 0;
     for (let i = 0; i < all.length; i++) {
       const t = all[i];
       const isDefault = i === 0;
@@ -319,10 +320,17 @@ const SettingsView = {
       const defaultBadge = isDefault ? '<span class="ts-badge ts-badge-default">Default</span>' : '';
       const yearStr = t.year ? `<span class="ts-year">${t.year}</span>` : '';
 
-      // Insert divider before first hidden item
+      // Divider 1: between visible and hidden
       if (i === visibleCount) {
-        html += `<div class="translation-sort-divider" id="translation-sort-divider">
+        html += `<div class="translation-sort-divider" data-divider="hidden">
           <span class="ts-divider-label">Hidden — tap "more" to see</span>
+        </div>`;
+      }
+
+      // Divider 2: between hidden (loaded) and not-loaded
+      if (i === loadCount) {
+        html += `<div class="translation-sort-divider ts-divider-noload" data-divider="noload">
+          <span class="ts-divider-label">Not loaded — saves bandwidth</span>
         </div>`;
       }
 
@@ -333,12 +341,18 @@ const SettingsView = {
         ${yearStr}
         <span class="ts-badges">${defaultBadge}${strongsBadge}</span>
       </div>`;
+      itemIdx++;
     }
 
-    // If all are visible, add divider at the end
-    if (visibleCount >= all.length) {
-      html += `<div class="translation-sort-divider" id="translation-sort-divider">
+    // Add missing dividers at end if needed
+    if (visibleCount >= all.length && !html.includes('data-divider="hidden"')) {
+      html += `<div class="translation-sort-divider" data-divider="hidden">
         <span class="ts-divider-label">Hidden — tap "more" to see</span>
+      </div>`;
+    }
+    if (loadCount >= all.length && !html.includes('data-divider="noload"')) {
+      html += `<div class="translation-sort-divider ts-divider-noload" data-divider="noload">
+        <span class="ts-divider-label">Not loaded — saves bandwidth</span>
       </div>`;
     }
 
@@ -463,30 +477,34 @@ const SettingsView = {
     const children = Array.from(list.children);
     const order = [];
     let visibleCount = 0;
-    let foundDivider = false;
+    let loadCount = 0;
+    let foundHiddenDivider = false;
+    let foundNoloadDivider = false;
 
     for (const child of children) {
-      if (child.classList.contains('translation-sort-divider')) {
-        foundDivider = true;
+      if (child.dataset && child.dataset.divider === 'hidden') {
+        foundHiddenDivider = true;
         visibleCount = order.length;
         continue;
       }
-      if (child.dataset.id) {
+      if (child.dataset && child.dataset.divider === 'noload') {
+        foundNoloadDivider = true;
+        loadCount = order.length;
+        continue;
+      }
+      if (child.dataset && child.dataset.id) {
         order.push(child.dataset.id);
       }
     }
 
-    // If divider is at the end, all are visible
-    if (!foundDivider) visibleCount = order.length;
-    // Enforce at least 1 visible
+    // If dividers not found, default to all
+    if (!foundHiddenDivider) visibleCount = order.length;
+    if (!foundNoloadDivider) loadCount = order.length;
+    // Enforce constraints
     if (visibleCount < 1) visibleCount = 1;
+    if (loadCount < visibleCount) loadCount = visibleCount;
 
-    Bible.saveTranslationOrder(order, visibleCount);
-
-    // Also save the first (default) translation to the legacy preference key
-    if (order[0]) {
-      try { localStorage.setItem('bible_translation_preference', order[0]); } catch (e) {}
-    }
+    Bible.saveTranslationOrder(order, visibleCount, loadCount);
 
     // Re-render the list to update badges
     const container = document.getElementById('translation-sort-container');

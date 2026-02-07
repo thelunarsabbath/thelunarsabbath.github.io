@@ -820,9 +820,12 @@ async function loadAllTranslations() {
   // Load primary translation via Bible API
   await loadTranslation(currentTranslation, false);
 
-  // Background-load the other translations the old code expects (asv, lxx)
-  Bible.loadTranslation('asv').then(() => syncLegacyVariables()).catch(() => {});
-  Bible.loadTranslation('lxx').then(() => syncLegacyVariables()).catch(() => {});
+  // Background-load translations within user's loadCount threshold
+  const { order, loadCount } = Bible.getOrderedTranslations();
+  const toLoad = order.slice(0, loadCount).filter(id => id !== currentTranslation);
+  for (const id of toLoad) {
+    Bible.loadTranslation(id).then(() => syncLegacyVariables()).catch(() => {});
+  }
 
   // Also load extra data not managed by Bible API
   loadHebrew().catch(err =>
@@ -1243,9 +1246,9 @@ async function showInterlinear(book, chapter, verse, event, verseElOrId) {
   // ── Translation comparison section ──
   // Show primary translations (loaded, not current), then a "More" button for the rest
   // Use user-ordered translations: visible = primary, hidden = "more"
-  const { visible: visibleTranslations, hidden: hiddenTranslations } = Bible.getOrderedTranslations();
+  const { visible: visibleTranslations, hidden: hiddenTranslations, notLoaded: notLoadedTranslations } = Bible.getOrderedTranslations();
   const primaryIds = visibleTranslations.map(t => t.id);
-  const moreIds = hiddenTranslations.map(t => t.id).filter(id => id !== currentTranslation);
+  const moreIds = [...hiddenTranslations, ...notLoadedTranslations].map(t => t.id).filter(id => id !== currentTranslation);
 
   html += '<div class="interlinear-translations">';
   for (const tid of primaryIds) {

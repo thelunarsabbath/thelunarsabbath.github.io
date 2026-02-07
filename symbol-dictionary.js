@@ -499,6 +499,19 @@ const SYMBOL_DICTIONARY = {
     sentence: "The spirits God dispatches from His throne to execute His purposes throughout all the earth—scattering, gathering, stirring nations, and bringing judgment or restoration",
     opposite: 'Stillness/Calm',
     link: '/symbols/wind/'
+  },
+  
+  'man child': {
+    name: 'MAN CHILD',
+    words: ['man child', 'man-child', 'manchild', 'male child'],
+    strongs: ['H2145', 'G730'],
+    is: 'Nation',
+    is2: 'Covenant Nation',
+    does: 'Rules',
+    does2: 'Governs Nations',
+    sentence: "The covenant nation/kingdom community that God brings forth from Zion—collectively authorized to rule over nations with divine mandate",
+    opposite: 'Barrenness/Childlessness',
+    link: '/symbols/man-child/'
   }
 };
 

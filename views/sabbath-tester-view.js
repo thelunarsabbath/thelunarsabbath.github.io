@@ -6,93 +6,96 @@
  */
 
 // Biblical test cases - extensible array
-// These tests validate fixed-weekday sabbath theories (Saturday) against biblical events
+//
+// expectedWeekPosition: which day of the 7-day cycle the lunar date must fall on
+//   7 = Sabbath (7th day), 1 = 1st day (day after Sabbath), 6 = 6th day (day before Sabbath), etc.
+//
+// For lunar sabbath calendars, the week position is inherent in the lunar date:
+//   Days 8,15,22,29 = 7th day (Sabbath)
+//   Days 2,9,16,23  = 1st day (day after Sabbath)
+//   Days 3,10,17,24 = 2nd day, etc.
+//
+// For fixed-weekday sabbath calendars, the expected Gregorian weekday is computed
+// from the profile's sabbathMode + expectedWeekPosition at test time.
 const BIBLICAL_TESTS = [
   {
     id: 'manna-sabbath',
     name: 'First Sabbath of Manna',
-    description: 'Israel arrived in the Wilderness of Sin on the 15th of the Second Month, 1446 BC (Exodus 16:1). Manna first fell on the 16th (the morning after arrival). They gathered manna for 6 days (16th-21st), and the 22nd was explicitly called the Sabbath when no manna fell (Exodus 16:22-26). Therefore, the 22nd of the 2nd month must be a Saturday.',
+    description: 'Israel arrived in the Wilderness of Sin on the 15th of the Second Month, 1446 BC (Exodus 16:1). Manna first fell on the 16th (the morning after arrival). They gathered manna for 6 days (16th-21st), and the 22nd was explicitly called the Sabbath when no manna fell (Exodus 16:22-26). Therefore, the 22nd of the 2nd month must be the 7th day of the week — which is Saturday for Saturday-Sabbath calendars, and is always true for Lunar Sabbath calendars where the 22nd is inherently the Sabbath.',
     scripture: 'Exodus 16:1-26',
     year: -1445,  // Astronomical year (1446 BC = -1445)
     month: 2,     // Second month (Iyar)
     day: 22,
-    expectedWeekday: 6,  // Saturday (0=Sun, 6=Sat)
-    expectedLabel: 'Saturday',
+    expectedWeekPosition: 7,  // 7th day = Sabbath
     location: { lat: 29.1500, lon: 33.4000, name: 'Wilderness of Sin' }
   },
   {
     id: 'first-fruits-1406',
     name: 'First Fruits After Jordan Crossing',
-    description: 'The 16th of the First Month, 1406 BC was First Fruits when Israel ate the produce of Canaan for the first time (Joshua 5:10-12). According to Leviticus 23:11, First Fruits is offered "on the day after the Sabbath," which means the 16th should be the first day of the week (Sunday).',
+    description: 'The 16th of the First Month, 1406 BC was First Fruits when Israel ate the produce of Canaan for the first time (Joshua 5:10-12). According to Leviticus 23:11, First Fruits is offered "on the day after the Sabbath," which means the 16th must be the 1st day of the week — Sunday for Saturday-Sabbath calendars, and always true for Lunar Sabbath calendars where the 16th is inherently the day after the 15th (Sabbath).',
     scripture: 'Joshua 5:10-12, Leviticus 23:11',
     year: -1405,  // Astronomical year (1406 BC = -1405)
     month: 1,     // First month (Nisan)
     day: 16,
-    expectedWeekday: 0,  // Sunday (first day of week)
-    expectedLabel: 'Sunday',
+    expectedWeekPosition: 1,  // 1st day = day after Sabbath
     location: { lat: 31.8500, lon: 35.4500, name: 'Jericho' }
   },
   {
     id: 'resurrection-32ad',
     name: 'Resurrection of Jesus (32 AD)',
-    description: 'Jesus rose from the dead on the first day of the week (Matthew 28:1, Mark 16:2, Luke 24:1, John 20:1), which was also First Fruits (Leviticus 23:11). He was crucified on Passover (14th), rested in the tomb on the 15th, and rose on the 16th. For Saturday to be the weekly Sabbath, this calendar must place the 16th of Nisan 32 AD on Sunday (the day after Saturday).',
+    description: 'Jesus rose from the dead on the 1st day of the week (Matthew 28:1, Mark 16:2, Luke 24:1, John 20:1), which was also First Fruits (Leviticus 23:11). He was crucified on Passover (14th), rested in the tomb on the 15th (Sabbath), and rose on the 16th. The 16th must be the 1st day of the week — Sunday for Saturday-Sabbath calendars, and always true for Lunar Sabbath calendars.',
     scripture: 'Matthew 28:1, 1 Corinthians 15:20',
     year: 32,  // 32 AD
     month: 1,  // First month (Nisan)
-    day: 16,   // First Fruits / Resurrection (must be first day of week)
-    expectedWeekday: 0,  // Sunday (first day of week)
-    expectedLabel: 'Sunday',
+    day: 16,   // First Fruits / Resurrection
+    expectedWeekPosition: 1,  // 1st day = day after Sabbath
     location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' }
   },
   {
-    id: 'resurrection-30ad',
-    name: 'Resurrection of Jesus (30 AD)',
-    description: 'Alternative crucifixion year theory. For Saturday to be the weekly Sabbath, this calendar must place the 16th of Nisan 30 AD on Sunday.',
-    scripture: 'Matthew 28:1, 1 Corinthians 15:20',
+    id: 'passover-30ad',
+    name: 'Passover / Crucifixion (30 AD)',
+    description: 'Alternative crucifixion year theory. Jesus was crucified on Passover, the 14th of Nisan (John 19:14). For Jesus to rest in the tomb on the Sabbath (15th) and rise on the 1st day of the week (16th), the 14th must be the 6th day of the week — Friday for Saturday-Sabbath calendars, and always true for Lunar Sabbath calendars where the 14th is inherently the day before the 15th (Sabbath).',
+    scripture: 'John 19:14, Matthew 27:62, Mark 15:42',
     year: 30,  // 30 AD
     month: 1,  // First month (Nisan)
-    day: 16,   // First Fruits / Resurrection (must be first day of week)
-    expectedWeekday: 0,  // Sunday (first day of week)
-    expectedLabel: 'Sunday',
+    day: 14,   // Passover / Crucifixion
+    expectedWeekPosition: 6,  // 6th day = day before Sabbath
     location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' },
     excludeFromScore: true  // Alternative theory - don't include in main score
   },
   {
     id: 'resurrection-33ad',
     name: 'Resurrection of Jesus (33 AD)',
-    description: 'Alternative crucifixion year theory. For Saturday to be the weekly Sabbath, this calendar must place the 16th of Nisan 33 AD on Sunday.',
+    description: 'Alternative crucifixion year theory. The 16th of Nisan 33 AD must be the 1st day of the week — Sunday for Saturday-Sabbath calendars, and always true for Lunar Sabbath calendars.',
     scripture: 'Matthew 28:1, 1 Corinthians 15:20',
     year: 33,  // 33 AD
     month: 1,  // First month (Nisan)
-    day: 16,   // First Fruits / Resurrection (must be first day of week)
-    expectedWeekday: 0,  // Sunday (first day of week)
-    expectedLabel: 'Sunday',
+    day: 16,   // First Fruits / Resurrection
+    expectedWeekPosition: 1,  // 1st day = day after Sabbath
     location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' },
     excludeFromScore: true  // Alternative theory - don't include in main score
   },
   {
     id: 'temple1-talmud',
     name: 'First Temple Destruction (Talmud)',
-    description: 'The Talmud (Ta\'anit 29a) claims both Temples fell on the 9th of Av "at the conclusion of Shabbat" (post-Sabbath, i.e., Sunday). The Talmud reconciles biblical accounts (7th in 2 Kings, 10th in Jeremiah) by describing a multi-day process where the fire was set toward the end of the 9th. This tests whether the 9th of Av falls on Sunday according to Talmudic tradition.',
+    description: 'The Talmud (Ta\'anit 29a) claims both Temples fell on the 9th of Av "at the conclusion of Shabbat" (post-Sabbath). The Talmud reconciles biblical accounts (7th in 2 Kings, 10th in Jeremiah) by describing a multi-day process where the fire was set toward the end of the 9th. This tests whether the 9th of Av falls on the 1st day of the week (day after Sabbath) — Sunday for Saturday-Sabbath calendars, and always true for Lunar Sabbath calendars where the 9th is inherently the day after the 8th (Sabbath).',
     scripture: 'Talmud Ta\'anit 29a, Arakhin 11b',
     year: -585,  // Astronomical year (586 BC = -585)
     month: 5,    // Fifth month (Av)
     day: 9,      // 9th of Av per Talmud
-    expectedWeekday: 0,  // Sunday (first day of week, "post-Shabbat")
-    expectedLabel: 'Sunday',
+    expectedWeekPosition: 1,  // 1st day = day after Sabbath ("post-Shabbat")
     location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' },
     excludeFromScore: true  // Extra-biblical tradition test
   },
   {
     id: 'temple2-talmud',
     name: 'Second Temple Destruction (Talmud)',
-    description: 'The Talmud claims the Second Temple also fell on the 9th of Av "at the conclusion of Shabbat" (Sunday), mirroring the First Temple. Josephus records the destruction on the 10th and notes the Romans built siege ramps on the 8th while Jews rested (implying the 8th was a Sabbath). This tests the Talmudic claim that 9th of Av was Sunday.',
+    description: 'The Talmud claims the Second Temple also fell on the 9th of Av "at the conclusion of Shabbat" (1st day of the week), mirroring the First Temple. Josephus records the destruction on the 10th and notes the Romans built siege ramps on the 8th while Jews rested (implying the 8th was a Sabbath). This tests whether the 9th of Av falls on the 1st day — Sunday for Saturday-Sabbath calendars, and always true for Lunar Sabbath calendars.',
     scripture: 'Talmud Ta\'anit 29a, Josephus Jewish War 6.4',
     year: 70,    // 70 AD
     month: 5,    // Fifth month (Av)
     day: 9,      // 9th of Av per Talmud
-    expectedWeekday: 0,  // Sunday (first day of week, "post-Shabbat")
-    expectedLabel: 'Sunday',
+    expectedWeekPosition: 1,  // 1st day = day after Sabbath ("post-Shabbat")
     location: { lat: 31.7683, lon: 35.2137, name: 'Jerusalem' },
     excludeFromScore: true  // Extra-biblical tradition test
   }
@@ -121,13 +124,10 @@ const SabbathTesterView = {
         </div>
         <div class="sabbath-tester-content">
           <div class="sabbath-tester-intro">
-            <p>This tool tests various <strong>lunar calendar theories</strong> against historical biblical events where specific weekdays are mentioned in Scripture.</p>
-            <p>All tests assume a <strong>fixed Saturday Sabbath</strong> and <strong>Jerusalem location</strong>. The goal is to determine which combination of moon phase (Full, Dark, or Crescent) and day-start time (Daybreak or Sunset) produces dates that align with the biblical record.</p>
-            <div class="sabbath-tester-legend">
-              <div><span>⚖️</span> <strong>Scale</strong> — New Moon on or after Spring Equinox</div>
-              <div><span>🐑</span> <strong>Lamb</strong> — Day 15 (Unleavened) on or after Spring Equinox</div>
-            </div>
+            <p>This tool tests the <strong>built-in calendar profiles</strong> against historical biblical events where specific weekdays are mentioned in Scripture.</p>
+            <p>All tests use <strong>Jerusalem location</strong>. The goal is to determine which calendar configuration produces dates that align with the biblical record.</p>
           </div>
+          <div id="sabbath-tester-configs-container"></div>
           <div id="sabbath-tester-loading" class="sabbath-test-loading">
             <div id="sabbath-progress-text">Loading tests...</div>
             <div class="sabbath-progress-bar" id="sabbath-progress-bar" style="display:none">
@@ -139,89 +139,98 @@ const SabbathTesterView = {
       </div>
     `;
     
+    const configContainer = container.querySelector('#sabbath-tester-configs-container');
+    if (configContainer) {
+      configContainer.innerHTML = this.buildConfigurationsSectionHTML();
+    }
+    
     // Start rendering tests (async — yields between computations)
     this._isRendering = true;
     this.renderTests(container);
   },
   
   /**
-   * Generate test profiles dynamically
+   * Year-start rule display: icon sequence + label
+   * scales + calendar + lamb = month after eq; calendar + scales + lamb = passover after eq
+   */
+  getYearStartDisplay(rule) {
+    switch (rule) {
+      case 'equinox':
+        return { icons: '⚖️📅🐑', label: 'Month after Eq' };
+      case '14daysBefore':
+        return { icons: '📅⚖️🐑', label: 'Passover after Eq' };
+      case 'virgoFeet':
+        return { icons: '♍', label: "Moon under Virgo's feet" };
+      default:
+        return { icons: '⚖️📅🐑', label: rule || 'Month after Eq' };
+    }
+  },
+
+  /**
+   * Build HTML for the calendar configurations section (what each profile means)
+   */
+  buildConfigurationsSectionHTML() {
+    const profiles = this.getSabbathTestProfiles();
+    const moonLabels = { full: 'Full', dark: 'Dark', crescent: 'Crescent' };
+    const dayStartLabels = { morning: 'Morning', evening: 'Evening' };
+    const sabbathLabels = { lunar: 'Lunar (8,15,22,29)', saturday: 'Saturday' };
+
+    let html = `
+      <div class="sabbath-tester-configs">
+        <h3>Calendar configurations tested</h3>
+        <p class="configs-legend">
+          <strong>Year start:</strong> ⚖️📅🐑 = Month after Eq (renewed moon after equinox). 
+          📅⚖️🐑 = Passover after Eq (Day 15 on or after equinox).
+        </p>
+        <div class="configs-grid">
+    `;
+    for (const p of profiles) {
+      const yearDisplay = this.getYearStartDisplay(p.yearStartRule);
+      const moon = moonLabels[p.moonPhase] || p.moonPhase;
+      const dayStart = dayStartLabels[p.dayStartTime] || p.dayStartTime;
+      const sabbath = sabbathLabels[p.sabbathMode] || p.sabbathMode;
+      html += `
+        <div class="config-card" data-profile="${p.id}">
+          <div class="config-card-header">${p.name}</div>
+          <ul class="config-card-details">
+            <li><strong>Month:</strong> ${moon}</li>
+            <li><strong>Day start:</strong> ${dayStart}</li>
+            <li><strong>Year start:</strong> <span class="config-year-icons" title="${yearDisplay.label}">${yearDisplay.icons}</span> ${yearDisplay.label}</li>
+            <li><strong>Sabbath:</strong> ${sabbath}</li>
+          </ul>
+        </div>
+      `;
+    }
+    html += `
+        </div>
+      </div>
+    `;
+    return html;
+  },
+
+  /**
+   * Get test profiles from the built-in app profiles
    */
   getSabbathTestProfiles() {
+    const allProfiles = window.PROFILES || {};
     const profiles = [];
     
-    // Moon phases to test
-    const moonPhases = [
-      { id: 'full', name: 'Full Moon', icon: '🌕' },
-      { id: 'dark', name: 'Dark Moon', icon: '🌑' },
-      { id: 'crescent', name: 'Crescent Moon', icon: '🌒' }
-    ];
-    
-    // Day start times to test
-    const dayStarts = [
-      { id: 'morning', name: 'Daybreak', angle: 12 },
-      { id: 'evening', name: 'Sunset', angle: 0 }
-    ];
-    
-    // Year start rules to test
-    const yearRules = [
-      { id: 'equinox', name: 'Sun Scale', icon: '⚖️' },
-      { id: '13daysBefore', name: 'Lamb', icon: '🐑' }
-    ];
-    
-    for (const moon of moonPhases) {
-      for (const dayStart of dayStarts) {
-        for (const yearRule of yearRules) {
-          const profile = {
-            id: `test-${moon.id}-${dayStart.id}-${yearRule.id}`,
-            name: `${moon.icon} ${moon.name} ${dayStart.name} ${yearRule.icon}`,
-            moonPhase: moon.id,
-            dayStartTime: dayStart.id,
-            dayStartAngle: dayStart.angle,
-            yearStartRule: yearRule.id,
-            crescentThreshold: 18,
-            sabbathMode: 'saturday',
-            lat: 31.7683,  // Jerusalem
-            lon: 35.2137
-          };
-          
-          // Check if this matches a preset
-          const presetName = this.getMatchingPresetName(profile);
-          if (presetName) {
-            profile.presetName = presetName;
-            profile.name += ` (${presetName})`;
-          }
-          
-          profiles.push(profile);
-        }
-      }
+    for (const [id, p] of Object.entries(allProfiles)) {
+      profiles.push({
+        id: id,
+        name: `${p.icon || ''} ${p.name}`.trim(),
+        moonPhase: p.moonPhase,
+        dayStartTime: p.dayStartTime,
+        dayStartAngle: p.dayStartAngle ?? (p.dayStartTime === 'morning' ? 12 : 0),
+        yearStartRule: p.yearStartRule,
+        crescentThreshold: p.crescentThreshold || 18,
+        sabbathMode: p.sabbathMode || 'lunar',
+        lat: 31.7683,  // Jerusalem for all tests
+        lon: 35.2137
+      });
     }
     
-    // Sort profiles: presets first, then alphabetically
-    profiles.sort((a, b) => {
-      if (a.presetName && !b.presetName) return -1;
-      if (!a.presetName && b.presetName) return 1;
-      return a.name.localeCompare(b.name);
-    });
-    
     return profiles;
-  },
-  
-  /**
-   * Get abbreviated profile name for mobile display
-   * @param {string} fullName - The full profile name
-   * @returns {string} Shortened name suitable for narrow screens
-   */
-  getShortProfileName(fullName) {
-    return fullName
-      .replace('Full Moon', 'Full')
-      .replace('Dark Moon', 'Dark')
-      .replace('Crescent Moon', 'Cres')
-      .replace('Daybreak', 'AM')
-      .replace('Sunset', 'PM')
-      .replace(' (Time-Tested)', '')
-      .replace(' (Traditional Lunar)', '')
-      .replace(' (Ancient Traditional)', '');
   },
   
   /**
@@ -235,23 +244,15 @@ const SabbathTesterView = {
   },
   
   /**
-   * Check if a test profile matches a preset profile
+   * Get human-readable label for a week position
+   * @param {number} pos - 1-7 (1 = 1st day after Sabbath, 7 = Sabbath)
+   * @returns {string}
    */
-  getMatchingPresetName(profile) {
-    if (!window.PRESET_PROFILES) return null;
-    
-    for (const [presetId, preset] of Object.entries(window.PRESET_PROFILES)) {
-      // Must match sabbath mode (only show presets that are Saturday sabbath for the tester)
-      if (preset.sabbathMode !== 'saturday') continue;
-      
-      if (profile.moonPhase === preset.moonPhase &&
-          profile.dayStartTime === preset.dayStartTime &&
-          profile.yearStartRule === preset.yearStartRule &&
-          (profile.moonPhase !== 'crescent' || profile.crescentThreshold === (preset.crescentThreshold || 18))) {
-        return preset.name;
-      }
-    }
-    return null;
+  weekPositionLabel(pos) {
+    if (pos === 7) return 'Sabbath (7th day of the week)';
+    if (pos === 1) return '1st day of the week (day after Sabbath)';
+    const ordinals = ['', '1st', '2nd', '3rd', '4th', '5th', '6th'];
+    return `${ordinals[pos]} day of the week`;
   },
   
   /**
@@ -277,7 +278,8 @@ const SabbathTesterView = {
   },
   
   /**
-   * Cache a test result
+   * Cache a test result (in-memory only — recomputes each page load
+   * so results always reflect the current engine code)
    */
   cacheResult(testId, profileId, result) {
     const cacheKey = this.getCacheKey(testId, profileId);
@@ -286,49 +288,10 @@ const SabbathTesterView = {
       result: result,
       timestamp: Date.now()
     };
-    
-    // Also save to localStorage for persistence across sessions
-    try {
-      const cacheData = {
-        version: this._cacheVersion,
-        timestamp: Date.now(),
-        results: this._testCache
-      };
-      localStorage.setItem('sabbathTesterCache', JSON.stringify(cacheData));
-    } catch (e) {
-      // localStorage might be full or unavailable, ignore
-      console.warn('Failed to save test cache to localStorage:', e);
-    }
   },
   
   /**
-   * Load cache from localStorage on initialization
-   */
-  loadCache() {
-    try {
-      const cached = localStorage.getItem('sabbathTesterCache');
-      if (cached) {
-        const cacheData = JSON.parse(cached);
-        // Only use cache if version matches
-        if (cacheData.version === this._cacheVersion) {
-          this._testCache = cacheData.results || {};
-          console.log(`[SabbathTester] Loaded ${Object.keys(this._testCache).length} cached test results`);
-          return true;
-        } else {
-          // Version mismatch - clear old cache
-          localStorage.removeItem('sabbathTesterCache');
-          this._testCache = {};
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to load test cache from localStorage:', e);
-      this._testCache = {};
-    }
-    return false;
-  },
-  
-  /**
-   * Clear all cached results (useful for debugging or if test logic changes)
+   * Clear all cached results
    */
   clearCache() {
     this._testCache = {};
@@ -389,48 +352,69 @@ const SabbathTesterView = {
       const uncertainty = monthData?.uncertainty || null;
       const yearUncertainty = calendar.yearStartUncertainty || null;
       
-      // Determine result
+      // Determine result based on sabbath mode
       let result, probability = null;
       
-      if (calculatedWeekday === test.expectedWeekday) {
-        // Calculated matches expected
-        if (uncertainty && uncertainty.probability > 0) {
-          // Pass but with uncertainty
-          result = 'uncertain';
-          probability = 100 - uncertainty.probability; // Probability we're correct
-        } else {
-          result = 'pass';
-        }
+      if (profile.sabbathMode === 'lunar') {
+        // Lunar sabbath: week position is inherent in the lunar date
+        // Days 2-8 = week 1, 9-15 = week 2, 16-22 = week 3, 23-29 = week 4
+        // Position within week: ((day - 2) % 7) + 1  (1 = 1st day, 7 = Sabbath)
+        const lunarWeekPos = ((test.day - 2) % 7) + 1;
+        result = (lunarWeekPos === test.expectedWeekPosition) ? 'pass' : 'fail';
       } else {
-        // Calculated doesn't match expected
-        // Check if uncertainty could explain the mismatch
-        if (uncertainty && uncertainty.probability > 0) {
-          // Check if alternative date would match
-          let alternativeWeekday = null;
-          if (uncertainty.direction === '-') {
-            // Dates could be 1 day earlier
-            alternativeWeekday = (calculatedWeekday + 6) % 7;
-          } else if (uncertainty.direction === '+') {
-            // Dates could be 1 day later
-            alternativeWeekday = (calculatedWeekday + 1) % 7;
-          }
-          
-          if (alternativeWeekday === test.expectedWeekday) {
-            // Alternative date would match
+        // Fixed-weekday sabbath: compute expected weekday from sabbathMode + position
+        const sabbathDayMap = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
+        const sabbathDay = sabbathDayMap[profile.sabbathMode] ?? 6;
+        // expectedWeekPosition 7 = sabbath day, 1 = day after sabbath, etc.
+        const expectedWeekday = (sabbathDay + test.expectedWeekPosition) % 7;
+        
+        if (calculatedWeekday === expectedWeekday) {
+          // Calculated matches expected
+          if (uncertainty && uncertainty.probability > 0) {
             result = 'uncertain';
-            probability = uncertainty.probability; // Probability the alternative is correct
+            probability = 100 - uncertainty.probability;
+          } else {
+            result = 'pass';
+          }
+        } else {
+          // Check if uncertainty could explain the mismatch
+          if (uncertainty && uncertainty.probability > 0) {
+            let alternativeWeekday = null;
+            if (uncertainty.direction === '-') {
+              alternativeWeekday = (calculatedWeekday + 6) % 7;
+            } else if (uncertainty.direction === '+') {
+              alternativeWeekday = (calculatedWeekday + 1) % 7;
+            }
+            
+            if (alternativeWeekday === expectedWeekday) {
+              result = 'uncertain';
+              probability = uncertainty.probability;
+            } else {
+              result = 'fail';
+            }
           } else {
             result = 'fail';
           }
-        } else {
-          result = 'fail';
         }
+      }
+      
+      // For lunar sabbath, display lunar week position instead of Gregorian day name
+      let displayWeekday = calculatedWeekdayName;  // Full name: "Saturday", "Sunday", etc.
+      let displayWeekdayShort = this.getShortWeekday(calculatedWeekdayName);  // Short: "Sat", "Sun", etc.
+      if (profile.sabbathMode === 'lunar') {
+        const lunarWeekPos = ((test.day - 2) % 7) + 1;
+        const posLabelsFull = ['', '1st', '2nd', '3rd', '4th', '5th', '6th', 'Sabbath'];
+        const posLabelsShort = ['', '1st', '2nd', '3rd', '4th', '5th', '6th', 'Sab'];
+        displayWeekday = posLabelsFull[lunarWeekPos];
+        displayWeekdayShort = posLabelsShort[lunarWeekPos];
       }
       
       const testResult = {
         result,
         calculatedWeekday,
         calculatedWeekdayName,
+        displayWeekday,
+        displayWeekdayShort,
         gregorianDate,
         jd, // Julian Day Number for debugging
         uncertaintyHours: uncertainty ? (uncertainty.marginHours || 0) : 0,
@@ -470,10 +454,8 @@ const SabbathTesterView = {
       return;
     }
     
-    // Load cache from localStorage on first render
-    if (Object.keys(this._testCache).length === 0) {
-      this.loadCache();
-    }
+    // Clear any stale localStorage cache from older versions
+    try { localStorage.removeItem('sabbathTesterCache'); } catch (e) {}
     
     loadingEl.style.display = 'block';
     resultsEl.innerHTML = '';
@@ -732,7 +714,7 @@ const SabbathTesterView = {
           <div class="sabbath-test-description">${test.description}</div>
           ${this.buildTestEvidenceHTML(test)}
           <div class="sabbath-test-expected">
-            <strong>Expected:</strong> ${test.expectedLabel} (${test.expectedLabel === 'Saturday' ? 'Sabbath' : 'First Day of Week'})
+            <strong>Expected:</strong> ${this.weekPositionLabel(test.expectedWeekPosition)}
           </div>
           ${this.buildTestResultsTableHTML(test, results, baseScoreWithout32AD, numTests)}
         </div>
@@ -800,49 +782,13 @@ const SabbathTesterView = {
    * Build test results table HTML
    */
   buildTestResultsTableHTML(test, results, baseScoreWithout32AD, numTests) {
-    // Group results by base profile (moon phase + day start, without year rule)
-    const groupedResults = {};
-    for (const r of results) {
-      const baseKey = `${r.profile.moonPhase}-${r.profile.dayStartTime}`;
-      if (!groupedResults[baseKey]) {
-        groupedResults[baseKey] = { equinox: null, lamb: null };
-      }
-      if (r.profile.yearStartRule === 'equinox') {
-        groupedResults[baseKey].equinox = r;
-      } else {
-        groupedResults[baseKey].lamb = r;
-      }
-    }
-    
-    // Build merged results array
-    const mergedResults = [];
-    for (const [baseKey, group] of Object.entries(groupedResults)) {
-      const eq = group.equinox;
-      const lamb = group.lamb;
-      
-      if (eq && lamb && eq.calculatedWeekday === lamb.calculatedWeekday && eq.result === lamb.result) {
-        const moonIcon = eq.profile.moonPhase === 'full' ? '🌕' : eq.profile.moonPhase === 'dark' ? '🌑' : '🌒';
-        const moonName = eq.profile.moonPhase === 'full' ? 'Full Moon' : eq.profile.moonPhase === 'dark' ? 'Dark Moon' : 'Crescent Moon';
-        const dayStartName = eq.profile.dayStartTime === 'morning' ? 'Daybreak' : 'Sunset';
-        const presetName = eq.profile.presetName || lamb.profile.presetName;
-        const presetSuffix = presetName ? ` (${presetName})` : '';
-        mergedResults.push({
-          ...eq,
-          mergedName: `${moonIcon} ${moonName} ${dayStartName} ⚖️🐑${presetSuffix}`,
-          isMerged: true,
-          profileIdForNav: eq.profile.id
-        });
-      } else {
-        if (eq) mergedResults.push({ ...eq, mergedName: eq.profile.name, isMerged: false, profileIdForNav: eq.profile.id });
-        if (lamb) mergedResults.push({ ...lamb, mergedName: lamb.profile.name, isMerged: false, profileIdForNav: lamb.profile.id });
-      }
-    }
-    
     // Sort results: pass first, then uncertain, then fail
-    const sortedResults = mergedResults.sort((a, b) => {
+    const sortedResults = [...results].sort((a, b) => {
       const order = { pass: 0, uncertain: 1, fail: 2, error: 3 };
       return (order[a.result] || 3) - (order[b.result] || 3);
     });
+    
+    const hasAltScore = test.id === 'passover-30ad' || test.id === 'resurrection-33ad';
     
     let html = `
       <table class="sabbath-test-results-table">
@@ -851,10 +797,11 @@ const SabbathTesterView = {
             <th>Profile</th>
             <th class="date-cell-full">${test.year < 1582 ? 'Julian Date' : 'Gregorian Date'}</th>
             <th class="date-cell-compact">Date</th>
-            <th>Day</th>
+            <th class="weekday-cell-full">Day</th>
+            <th class="weekday-cell-compact">Day</th>
             <th>JD</th>
             <th>Result</th>
-            ${(test.id === 'resurrection-30ad' || test.id === 'resurrection-33ad') ? '<th title="Score if this year replaces 32 AD as the resurrection test">Alt</th>' : ''}
+            ${hasAltScore ? '<th title="Score if this year replaces 32 AD as the resurrection test">Alt</th>' : ''}
           </tr>
         </thead>
         <tbody>
@@ -877,10 +824,9 @@ const SabbathTesterView = {
       }
       
       const dateStr = r.gregorianDate ? this.formatAncientDate(r.gregorianDate, false) : 'N/A';
-      const dateStrShort = r.gregorianDate ? this.formatAncientDate(r.gregorianDate, false, true) : 'N/A';
-      const weekdayStr = r.calculatedWeekdayName || 'N/A';
-      const weekdayStrShort = this.getShortWeekday(r.calculatedWeekdayName);
-      const profileNameShort = this.getShortProfileName(r.mergedName);
+      const weekdayFull = r.displayWeekday || r.calculatedWeekdayName || 'N/A';
+      const weekdayShort = r.displayWeekdayShort || this.getShortWeekday(r.calculatedWeekdayName);
+      const profileName = r.profile.name;
       
       let yearUncertaintyIcon = '';
       if (r.yearUncertainty && r.yearUncertainty.probability > 0) {
@@ -889,14 +835,15 @@ const SabbathTesterView = {
       }
       
       const jdTooltip = r.jd != null ? `JD: ${r.jd.toFixed(2)}` : '';
+      const profileId = r.profile.id;
       const dateLink = r.gregorianDate ? 
-        `<a class="sabbath-test-date-link" title="${jdTooltip}" onclick="SabbathTesterView.navigateToTestResult('${test.id}', '${r.profileIdForNav}')">${dateStr}</a>${yearUncertaintyIcon}` :
+        `<a class="sabbath-test-date-link" title="${jdTooltip}" onclick="SabbathTesterView.navigateToTestResult('${test.id}', '${profileId}')">${dateStr}</a>${yearUncertaintyIcon}` :
         dateStr;
       
       // Calculate alternative score for 30 AD and 33 AD tests
       let altScoreCell = '';
-      if (test.id === 'resurrection-30ad' || test.id === 'resurrection-33ad') {
-        const baseScoreData = baseScoreWithout32AD[r.profile.id];
+      if (hasAltScore) {
+        const baseScoreData = baseScoreWithout32AD[profileId];
         const baseScore = baseScoreData?.totalScore || 0;
         const baseTestResults = baseScoreData?.testResults || [];
         
@@ -943,17 +890,18 @@ const SabbathTesterView = {
       // Build compact date link for mobile
       const dateStrCompact = r.gregorianDate ? this.formatAncientDate(r.gregorianDate, false, true) : 'N/A';
       const dateLinkCompact = r.gregorianDate ? 
-        `<a class="sabbath-test-date-link" title="${jdTooltip}" onclick="SabbathTesterView.navigateToTestResult('${test.id}', '${r.profileIdForNav}')">${dateStrCompact}</a>${yearUncertaintyIcon}` :
+        `<a class="sabbath-test-date-link" title="${jdTooltip}" onclick="SabbathTesterView.navigateToTestResult('${test.id}', '${profileId}')">${dateStrCompact}</a>${yearUncertaintyIcon}` :
         dateStrCompact;
       
       const jdStr = r.jd != null ? Math.floor(r.jd).toString() : 'N/A';
       
       html += `
         <tr>
-          <td data-label="Profile" class="profile-cell">${profileNameShort}</td>
+          <td data-label="Profile" class="profile-cell">${profileName}</td>
           <td data-label="Date" class="date-cell-full">${dateLink}</td>
           <td data-label="Date" class="date-cell-compact">${dateLinkCompact}</td>
-          <td data-label="Day" class="weekday-cell">${weekdayStrShort}</td>
+          <td data-label="Day" class="weekday-cell-full">${weekdayFull}</td>
+          <td data-label="Day" class="weekday-cell-compact">${weekdayShort}</td>
           <td data-label="JD" class="jd-cell" style="font-size:0.8em;color:#888">${jdStr}</td>
           <td data-label="Result" class="${resultClass}">${resultText}</td>
           ${altScoreCell}
@@ -974,69 +922,22 @@ const SabbathTesterView = {
    */
   navigateToTestResult(testId, profileId) {
     const test = BIBLICAL_TESTS.find(t => t.id === testId);
-    const profiles = this.getSabbathTestProfiles();
-    const profile = profiles.find(p => p.id === profileId);
-    
-    if (!test || !profile) {
-      console.error('Test or profile not found:', testId, profileId);
+    if (!test) {
+      console.error('Test not found:', testId);
       return;
     }
     
-    // Create a temporary profile with the test settings
-    // Use a descriptive ID so the URL is meaningful
-    if (!window.PROFILES) {
-      window.PROFILES = {};
-    }
-    
-    const moonLabel = profile.moonPhase === 'full' ? 'Full' : profile.moonPhase === 'dark' ? 'Dark' : 'Crescent';
-    const moonIcon = profile.moonPhase === 'full' ? '🌕' : profile.moonPhase === 'dark' ? '🌑' : '🌒';
-    const dayLabel = profile.dayStartTime === 'morning' ? 'Daybreak' : 'Sunset';
-    const yearLabel = profile.yearStartRule === 'equinox' ? 'equinox-before-month' : 'equinox-before-passover';
-    const yearIcon = profile.yearStartRule === 'equinox' ? '⚖️' : '🐑';
-    const presetSuffix = profile.presetName ? ` (${profile.presetName})` : '';
-    const tempProfileId = `${moonLabel}-${dayLabel}-${yearLabel}`.toLowerCase().replace(/\s+/g, '-');
-
-    window.PROFILES[tempProfileId] = {
-      name: `${moonLabel} ${dayLabel} ${yearIcon}${presetSuffix}`,
-      icon: moonIcon,
-      moonPhase: profile.moonPhase,
-      dayStartTime: profile.dayStartTime,
-      dayStartAngle: profile.dayStartAngle,
-      yearStartRule: profile.yearStartRule,
-      crescentThreshold: profile.crescentThreshold,
-      sabbathMode: profile.sabbathMode,
-      lat: test.location.lat,
-      lon: test.location.lon
-    };
-    
-    // Use AppStore to navigate to calendar with the test profile and date
-    AppStore.dispatch({
-      type: 'SET_PROFILE',
-      profileId: tempProfileId
-    });
-    
-    AppStore.dispatch({
-      type: 'SET_LOCATION',
-      lat: test.location.lat,
-      lon: test.location.lon
-    });
-    
+    // Single atomic dispatch — profile + location + date + view all at once
     AppStore.dispatch({
       type: 'SET_LUNAR_DATETIME',
       year: test.year,
       month: test.month,
-      day: test.day
-    });
-    
-    AppStore.dispatch({
-      type: 'SET_VIEW',
+      day: test.day,
+      profileId: profileId,
+      lat: test.location.lat,
+      lon: test.location.lon,
       view: 'calendar'
     });
-    
-    // Keep the temp profile alive — deleting it caused subsequent interactions
-    // (clicking days, re-renders) to fall back to the default profile since
-    // state.context.profileId still references the temp profile.
-    // The profile is tiny and harmless to keep in memory.
   },
   
   /**

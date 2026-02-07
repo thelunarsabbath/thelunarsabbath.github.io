@@ -895,7 +895,8 @@ const URLRouter = {
       'creators': 'creatorsCalendar',
       'creators-calendar': 'creatorsCalendar',
       'traditional-lunar': 'traditionalLunar',
-      'lunar': 'traditionalLunar'
+      'lunar': 'traditionalLunar',
+      'traditional-saturday': 'traditionalSaturday'
     };
     return mapping[slug.toLowerCase()] || slug;
   },
@@ -907,7 +908,8 @@ const URLRouter = {
       'ancientTraditional': 'ancient',
       'ministries119': '119-ministries',
       'creatorsCalendar': 'creators-calendar',
-      'traditionalLunar': 'traditional-lunar'
+      'traditionalLunar': 'traditional-lunar',
+      'traditionalSaturday': 'traditional-saturday'
     };
     return mapping[profileId] || profileId;
   },

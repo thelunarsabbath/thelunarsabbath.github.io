@@ -620,7 +620,7 @@ function showDayDetail(dayObj, month) {
         } else {
           yearMonthInfo = `Day 1 begins at ${dayStartLabel} (${day1DateStr} at ${day1StartStr}). Using Moon Under Virgo's Feet rule.`;
         }
-      } else if (state.yearStartRule === '13daysBefore') {
+      } else if (state.yearStartRule === '14daysBefore') {
         // Passover rule - use shared function
         virgoExplanationHtml = getPassoverMethodologyHtml({
           showCalculation: true,
@@ -645,7 +645,7 @@ function showDayDetail(dayObj, month) {
       // Determine icon based on rule
       let ruleIcon = '📅';
       if (state.yearStartRule === 'virgoFeet') ruleIcon = '♍';
-      else if (state.yearStartRule === '13daysBefore') ruleIcon = '🐑';
+      else if (state.yearStartRule === '14daysBefore') ruleIcon = '🐑';
       else ruleIcon = '⚖️';
       
       item.innerHTML = `

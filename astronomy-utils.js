@@ -377,7 +377,7 @@ function getYearStartPoint(year, location = null) {
   if (!engine) return null;
   const springEquinox = engine.getSeasons(year).mar_equinox.date;
   
-  if (state.yearStartRule === '13daysBefore') {
+  if (state.yearStartRule === '14daysBefore') {
     // Return 14 days before the equinox (Day 15 must be on or after equinox per Maimonides)
     return new Date(springEquinox.getTime() - 14 * 24 * 60 * 60 * 1000);
   }
@@ -600,7 +600,7 @@ function getMoonEclipticLongitude(date) {
 // Get human-readable label for current year start setting
 function getYearStartLabel() {
   switch (state.yearStartRule) {
-    case '13daysBefore': return 'Passover after Equinox';
+    case '14daysBefore': return 'Passover after Equinox';
     case 'virgoFeet': return 'Moon Under Virgo\'s Feet';
     default: return 'Renewed Moon after Equinox';
   }

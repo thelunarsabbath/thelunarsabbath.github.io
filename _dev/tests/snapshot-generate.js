@@ -28,7 +28,7 @@ const DAY_STARTS = [
 
 const YEAR_RULES = [
   { id: 'equinox', name: 'Equinox' },
-  { id: '13daysBefore', name: 'Lamb' }
+  { id: '14daysBefore', name: 'Lamb' }
 ];
 
 function buildProfiles() {

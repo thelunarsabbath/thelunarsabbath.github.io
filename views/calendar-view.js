@@ -797,7 +797,7 @@ const CalendarView = {
         if (!methodologyHtml) {
           methodologyHtml = `<p>Using Moon Under Virgo's Feet rule. Day 1 begins at ${dayStartLabel} (${day1DateStr} at ${day1StartStr}).</p>`;
         }
-      } else if (yearStartRule === '13daysBefore') {
+      } else if (yearStartRule === '14daysBefore') {
         ruleIcon = '🐑';
         if (typeof getPassoverMethodologyHtml === 'function') {
           methodologyHtml = getPassoverMethodologyHtml({
@@ -2513,7 +2513,7 @@ const CalendarView = {
             <span class="option-label">Renewed Moon after Equinox</span>
             <span class="option-hint">Month 1 starts after spring equinox</span>
           </button>
-          <button class="settings-option-btn" data-yearstart="13daysBefore">
+          <button class="settings-option-btn" data-yearstart="14daysBefore">
             <span class="option-icon">🐑</span>
             <span class="option-label">Passover after Equinox</span>
             <span class="option-hint">Day 15 (Unleavened) on or after equinox</span>

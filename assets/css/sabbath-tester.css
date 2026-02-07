@@ -92,6 +92,76 @@
   color: #d4a574;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   2b. CALENDAR CONFIGURATIONS SECTION
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.sabbath-tester-configs {
+  background: linear-gradient(135deg, rgba(25, 50, 75, 0.6) 0%, rgba(15, 35, 55, 0.8) 100%);
+  padding: 20px 24px;
+  border-radius: 12px;
+  margin-bottom: 28px;
+  border: 1px solid rgba(126, 200, 227, 0.15);
+}
+
+.sabbath-tester-configs h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.1em;
+  color: #7ec8e3;
+  font-weight: 600;
+}
+
+.sabbath-tester-configs .configs-legend {
+  font-size: 0.88em;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.sabbath-tester-configs .configs-legend strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.configs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.config-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  border: 1px solid rgba(126, 200, 227, 0.12);
+}
+
+.config-card-header {
+  font-weight: 600;
+  color: #d4a574;
+  font-size: 0.95em;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(126, 200, 227, 0.1);
+}
+
+.config-card-details {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.82em;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+}
+
+.config-card-details li {
+  margin-bottom: 2px;
+}
+
+.config-year-icons {
+  font-style: normal;
+  letter-spacing: 0.05em;
+}
+
 /* Loading State */
 .sabbath-test-loading {
   text-align: center;
@@ -566,12 +636,20 @@
    9. RESPONSIVE DATE COLUMNS
    ───────────────────────────────────────────────────────────────────────────── */
 
-/* Default: show full date, hide compact date */
+/* Default: show full date/weekday, hide compact */
 .date-cell-full {
   display: table-cell;
 }
 
 .date-cell-compact {
+  display: none;
+}
+
+.weekday-cell-full {
+  display: table-cell;
+}
+
+.weekday-cell-compact {
   display: none;
 }
 
@@ -593,10 +671,15 @@
   }
   
   .sabbath-tester-intro,
+  .sabbath-tester-configs,
   .sabbath-scoreboard,
   .sabbath-test-card {
     padding: 18px;
     border-radius: 10px;
+  }
+  
+  .sabbath-tester-configs .configs-grid {
+    grid-template-columns: 1fr;
   }
   
   .sabbath-tester-legend {
@@ -628,12 +711,20 @@
     padding: 8px 6px;
   }
   
-  /* Switch to compact date column on mobile */
+  /* Switch to compact date/weekday columns on mobile */
   .date-cell-full {
     display: none;
   }
   
   .date-cell-compact {
+    display: table-cell;
+  }
+  
+  .weekday-cell-full {
+    display: none;
+  }
+  
+  .weekday-cell-compact {
     display: table-cell;
   }
   

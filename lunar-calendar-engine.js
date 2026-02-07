@@ -28,7 +28,7 @@ class LunarCalendarEngine {
       moonPhase: 'dark',        // 'dark', 'full', 'crescent'
       dayStartTime: 'evening',  // 'evening', 'morning'
       dayStartAngle: 0,         // Degrees below horizon (0=horizon, 6=civil, 12=nautical, 18=astronomical)
-      yearStartRule: 'equinox', // 'equinox', '13daysBefore', or 'virgoFeet' (Spica/Creator's Calendar)
+      yearStartRule: 'equinox', // 'equinox', '14daysBefore', or 'virgoFeet' (Spica/Creator's Calendar)
       crescentThreshold: 18,    // Hours after conjunction for crescent visibility
     };
     
@@ -232,8 +232,8 @@ class LunarCalendarEngine {
     
     const equinox = this.getSpringEquinox(year);
     
-    if (this.config.yearStartRule === '13daysBefore') {
-      // Day 15 (Unleavened Bread) must be on or after equinox (per Maimonides)
+    if (this.config.yearStartRule === '14daysBefore') {
+      // Day 15 (Unleavened Bread) must be on or after equinox — year start point is 14 days before equinox
       return new Date(equinox.getTime() - 14 * 24 * 60 * 60 * 1000);
     }
     
@@ -706,8 +706,11 @@ class LunarCalendarEngine {
           }
         }
         
-        // Calculate weekday directly from JD (avoid Date object round-trip errors)
-        const weekday = this.jdnToWeekday(Math.floor(dayStartJD));
+        // Calculate weekday from the calendar date, not the day-start JD.
+        // dayStartJD can be before noon for morning mode (sunrise), and since
+        // JD epoch is at noon, Math.floor(dayStartJD) would give JDN-1, shifting
+        // the weekday off by one day. tempDate has the correct calendar date.
+        const weekday = this.getWeekday(tempDate);
         const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         
         days.push({

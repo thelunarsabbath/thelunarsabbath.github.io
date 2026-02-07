@@ -814,9 +814,38 @@ const AppStore = {
         s.context.selectedDate = this._dateToJulian(newDate);
         return true;
         
-      case 'SET_LUNAR_DATETIME':
+      case 'SET_LUNAR_DATETIME': {
         // Navigate to a specific lunar date (year, month, day) with optional time
         // selectedLunarDate is THE source of truth - selectedDate (JD) is computed from it
+        // Optionally accepts profileId, lat/lon, and view to set everything atomically
+        let lunarChanged = false;
+        
+        // Set profile if provided (before location, so location isn't cleared twice)
+        if (event.profileId && s.context.profileId !== event.profileId) {
+          s.context.profileId = event.profileId;
+          lunarChanged = true;
+        }
+        
+        // Set location if provided
+        const lunarLoc = (event.lat != null && event.lon != null) ? { lat: event.lat, lon: event.lon } : null;
+        if (lunarLoc && (s.context.location.lat !== lunarLoc.lat || s.context.location.lon !== lunarLoc.lon)) {
+          s.context.location = lunarLoc;
+          s.context.today = this._getTodayJD();
+          try {
+            localStorage.setItem('userLocation', JSON.stringify(lunarLoc));
+            localStorage.setItem('userLocationSource', 'user');
+          } catch (e) {}
+          lunarChanged = true;
+        }
+        
+        // Set view if provided
+        if (event.view && s.content.view !== event.view) {
+          s.content.view = event.view;
+          s.content.params = event.params || {};
+          lunarChanged = true;
+        }
+        
+        // Set lunar date (the primary purpose of this event)
         const lunarYear = event.year;
         const lunarMonth = event.month ?? 1;  // 1-based (Nisan = 1)
         const lunarDay = event.day ?? 1;
@@ -824,7 +853,6 @@ const AppStore = {
         const newLunarDate = { year: lunarYear, month: lunarMonth, day: lunarDay };
         const oldLunarDate = s.context.selectedLunarDate;
         
-        let lunarChanged = false;
         if (!oldLunarDate || 
             oldLunarDate.year !== lunarYear || 
             oldLunarDate.month !== lunarMonth || 
@@ -848,6 +876,7 @@ const AppStore = {
           lunarChanged = true;
         }
         return lunarChanged;
+      }
         
       case 'SET_GREGORIAN_DATETIME':
         // Set date/time from Gregorian date (used for "Today" button only)
@@ -1540,12 +1569,14 @@ const AppStore = {
         console.log('[AppStore]   New location:', context.location);
         needsRegenerate = true;
         
-        // When location changes, keep the JD (absolute moment in time).
-        // Clear selectedLunarDate so it gets re-resolved from JD in the new calendar.
-        // The same JD may be a different lunar date at a different location.
-        if (context.selectedLunarDate) {
-          console.log('[AppStore] Location changed - clearing selectedLunarDate, keeping JD:', context.selectedDate);
-          context.selectedLunarDate = null;
+        // When location changes and no explicit lunar date is set,
+        // keep the JD (absolute moment) and let it re-resolve in the new calendar.
+        // But if selectedLunarDate is explicitly set (e.g., navigating to a specific
+        // historical lunar date at a new location), honor it — the lunar date is the intent.
+        if (!context.selectedLunarDate) {
+          console.log('[AppStore] Location changed, no selectedLunarDate - will resolve from JD:', context.selectedDate);
+        } else {
+          console.log('[AppStore] Location changed but selectedLunarDate is set - honoring:', context.selectedLunarDate);
         }
       }
       if (configChanged) {
@@ -1554,10 +1585,11 @@ const AppStore = {
         console.log('[AppStore]   New yearStartRule:', profile.yearStartRule);
         needsRegenerate = true;
         
-        // Similarly, clear selectedLunarDate when config changes - re-resolve from JD
-        if (context.selectedLunarDate) {
-          console.log('[AppStore] Config changed - clearing selectedLunarDate, keeping JD:', context.selectedDate);
-          context.selectedLunarDate = null;
+        // Same logic: honor explicit selectedLunarDate, otherwise resolve from JD
+        if (!context.selectedLunarDate) {
+          console.log('[AppStore] Config changed, no selectedLunarDate - will resolve from JD:', context.selectedDate);
+        } else {
+          console.log('[AppStore] Config changed but selectedLunarDate is set - honoring:', context.selectedLunarDate);
         }
       }
       

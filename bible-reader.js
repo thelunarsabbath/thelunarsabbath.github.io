@@ -5378,11 +5378,13 @@ function updateReaderContentSelector(contentType) {
   const symbolSelectors = document.getElementById('symbol-selectors');
   const ttSelectors = document.getElementById('timetested-selectors');
   const numberSelectors = document.getElementById('number-selectors');
+  const classicsSelectors = document.getElementById('classics-selectors');
   
   if (bibleSelectors) bibleSelectors.style.display = (contentType === 'bible' && !hideAllSelectors) ? '' : 'none';
   if (symbolSelectors) symbolSelectors.style.display = (contentType === 'symbols' && !hideAllSelectors) ? '' : 'none';
   if (ttSelectors) ttSelectors.style.display = (contentType === 'timetested' && !hideAllSelectors) ? '' : 'none';
   if (numberSelectors) numberSelectors.style.display = (contentType === 'numbers') ? '' : 'none';
+  if (classicsSelectors) classicsSelectors.style.display = (contentType === 'philo' || contentType === 'josephus') ? '' : 'none';
   
   // Populate symbol dropdown if switching to symbols
   if (contentType === 'symbols') {
@@ -5403,6 +5405,11 @@ function updateReaderContentSelector(contentType) {
     if (numberSelect) {
       numberSelect.value = currentNumber || '';
     }
+  }
+  
+  // Populate classics dropdowns
+  if (contentType === 'philo' || contentType === 'josephus') {
+    populateClassicsDropdowns(contentType);
   }
 }
 
@@ -5494,6 +5501,125 @@ function populateNumberDropdown() {
   }
   html += '</optgroup>';
   select.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CLASSICS (Philo & Josephus) — header dropdown handlers
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Populate the classics work and section dropdowns from Classics data.
+ * Called from updateReaderContentSelector when contentType is philo or josephus.
+ */
+function populateClassicsDropdowns(contentType) {
+  if (typeof Classics === 'undefined') return;
+  const authorId = contentType; // 'philo' or 'josephus'
+  const state = typeof AppStore !== 'undefined' ? AppStore.getState() : {};
+  const params = state?.content?.params || {};
+
+  // --- Work dropdown ---
+  const workSelect = document.getElementById('classics-work-select');
+  if (workSelect) {
+    const works = Classics.getWorks(authorId);
+    let html = `<option value="">📚 ${authorId === 'philo' ? 'Philo' : 'Josephus'} — All Works</option>`;
+    for (const work of works) {
+      const slug = Classics.getWorkSlug(work);
+      html += `<option value="${slug}"${slug === params.work ? ' selected' : ''}>${work}</option>`;
+    }
+    workSelect.innerHTML = html;
+  }
+
+  // --- Section / location dropdown (context-sensitive) ---
+  const sectionInput = document.getElementById('classics-section-input');
+  if (!sectionInput) return;
+
+  if (!params.work) {
+    sectionInput.style.display = 'none';
+    return;
+  }
+  sectionInput.style.display = '';
+
+  // Set placeholder based on author type
+  if (authorId === 'philo') {
+    sectionInput.placeholder = 'Go to §...';
+  } else {
+    sectionInput.placeholder = params.book ? 'e.g. ' + params.book + '.1.1' : 'e.g. 1.1.1';
+  }
+}
+
+/**
+ * Handle work selection from classics dropdown — navigates to that work
+ */
+function onClassicsWorkChange(workSlug) {
+  if (typeof AppStore === 'undefined') return;
+  const state = AppStore.getState();
+  const contentType = state?.content?.params?.contentType;
+  if (!contentType) return;
+
+  if (!workSlug) {
+    // Go to author index
+    AppStore.dispatch({ type: 'SET_VIEW', view: 'reader', params: { contentType } });
+    return;
+  }
+
+  const params = { contentType, work: workSlug };
+  // For Josephus, default to book 1
+  if (contentType === 'josephus' && typeof Classics !== 'undefined') {
+    const workName = Classics.getWorkBySlug(contentType, workSlug);
+    if (workName) {
+      const sections = Classics.getSectionList(contentType, workName);
+      if (sections.length > 0) {
+        const firstBook = parseInt(sections[0].split('|')[1]);
+        params.book = firstBook;
+      }
+    }
+  }
+  AppStore.dispatch({ type: 'SET_VIEW', view: 'reader', params });
+}
+
+/**
+ * Handle section jump from classics dropdown — scrolls to anchor within the page
+ */
+function onClassicsSectionJump(value) {
+  if (!value) return;
+  const state = typeof AppStore !== 'undefined' ? AppStore.getState() : {};
+  const params = state?.content?.params || {};
+  const contentType = params.contentType;
+
+  if (contentType === 'philo') {
+    // Scroll to section anchor within the current work
+    const anchor = document.getElementById('section-' + value);
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Update URL without full re-render
+      if (typeof AppStore !== 'undefined') {
+        const newParams = { ...params, section: value };
+        const url = '/reader/philo/' + params.work + '/' + value;
+        history.replaceState({}, '', url);
+      }
+    } else {
+      // Section not in current view — navigate
+      AppStore.dispatch({ type: 'SET_VIEW', view: 'reader', params: { contentType: 'philo', work: params.work, section: value } });
+    }
+  } else if (contentType === 'josephus') {
+    // Value is "book.chapter.section" or just "book"
+    const parts = value.split('.');
+    if (parts.length === 3) {
+      const [b, c, s] = parts.map(Number);
+      const anchor = document.getElementById('section-' + b + '-' + c + '-' + s);
+      if (anchor) {
+        anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const url = '/reader/josephus/' + params.work + '/' + b + '/' + c + '/' + s;
+        history.replaceState({}, '', url);
+      } else {
+        AppStore.dispatch({ type: 'SET_VIEW', view: 'reader', params: { contentType: 'josephus', work: params.work, book: b, chapter: c, section: s } });
+      }
+    } else {
+      // Just a book number — navigate to that book
+      const b = parseInt(value);
+      AppStore.dispatch({ type: 'SET_VIEW', view: 'reader', params: { contentType: 'josephus', work: params.work, book: b } });
+    }
+  }
 }
 
 /**

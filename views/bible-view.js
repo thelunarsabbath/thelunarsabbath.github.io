@@ -244,14 +244,17 @@ const BibleView = {
     }
     
     // Show/hide selector groups (multiverse shows Bible selectors e.g. translation)
-    const hideAllSelectors = ['words', 'numbers', 'people', 'symbols-article'].includes(displayContentType);
+    const hideAllSelectors = ['words', 'numbers', 'people', 'symbols-article', 'philo', 'josephus'].includes(displayContentType);
     const bibleSelectors = document.getElementById('bible-selectors');
     const symbolSelectors = document.getElementById('symbol-selectors');
     const ttSelectors = document.getElementById('timetested-selectors');
     
+    const classicsSelectors = document.getElementById('classics-selectors');
+    
     if (bibleSelectors) bibleSelectors.style.display = ((contentType === 'bible' || contentType === 'multiverse') && !hideAllSelectors) ? '' : 'none';
     if (symbolSelectors) symbolSelectors.style.display = (contentType === 'symbols' && !hideAllSelectors) ? '' : 'none';
     if (ttSelectors) ttSelectors.style.display = (contentType === 'timetested' && !hideAllSelectors) ? '' : 'none';
+    if (classicsSelectors) classicsSelectors.style.display = (contentType === 'philo' || contentType === 'josephus') ? '' : 'none';
 
     // In multiverse mode, hide book/chapter selectors (translation still active)
     const isMultiverse = contentType === 'multiverse';
@@ -319,15 +322,18 @@ const BibleView = {
       { value: 'words', label: 'Words' },
       { value: 'numbers', label: 'Numbers' },
       { value: 'timetested', label: 'Time Tested Tradition' },
+      { value: 'philo', label: 'Philo' },
+      { value: 'josephus', label: 'Josephus' },
       { value: 'people', label: 'People' } // Future: People studies
     ].map(opt => `<option value="${opt.value}"${opt.value === displayContentType ? ' selected' : ''}>${opt.label}</option>`).join('');
     
     // Selector visibility based on contentType (multiverse shows Bible selectors for translation)
-    const hideAllSelectors = ['words', 'people', 'symbols-article'].includes(displayContentType);
+    const hideAllSelectors = ['words', 'people', 'symbols-article', 'philo', 'josephus'].includes(displayContentType);
     const bibleDisplay = ((contentType === 'bible' || contentType === 'multiverse') && !hideAllSelectors) ? '' : 'display:none;';
     const symbolsDisplay = (contentType === 'symbols' && !hideAllSelectors) ? '' : 'display:none;';
     const ttDisplay = (contentType === 'timetested' && !hideAllSelectors) ? '' : 'display:none;';
     const numbersDisplay = (contentType === 'numbers') ? '' : 'display:none;';
+    const classicsDisplay = (contentType === 'philo' || contentType === 'josephus') ? '' : 'display:none;';
     
     container.innerHTML = `
       <div id="bible-explorer-page" class="bible-explorer-page">
@@ -388,6 +394,18 @@ const BibleView = {
                       onchange="onNumberSelect(this.value)" title="Select number study">
                 <option value="">📚 Index</option>
               </select>
+            </span>
+            
+            <!-- Classics selectors (shown when content=philo or content=josephus) -->
+            <span id="classics-selectors" class="reader-selector-group" style="${classicsDisplay}">
+              <select id="classics-work-select" class="bible-explorer-select"
+                      onchange="onClassicsWorkChange(this.value)" title="Select work">
+                <option value="">Work...</option>
+              </select>
+              <input id="classics-section-input" class="bible-explorer-select classics-section-input"
+                     type="text" placeholder="Go to..." title="Jump to section (e.g. 3.2.1)"
+                     onkeydown="if(event.key==='Enter'){onClassicsSectionJump(this.value);this.value='';}"
+                     style="width:80px;">
             </span>
           </div>
         </div>

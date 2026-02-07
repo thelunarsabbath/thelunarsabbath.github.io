@@ -252,6 +252,13 @@ const BibleView = {
     if (bibleSelectors) bibleSelectors.style.display = ((contentType === 'bible' || contentType === 'multiverse') && !hideAllSelectors) ? '' : 'none';
     if (symbolSelectors) symbolSelectors.style.display = (contentType === 'symbols' && !hideAllSelectors) ? '' : 'none';
     if (ttSelectors) ttSelectors.style.display = (contentType === 'timetested' && !hideAllSelectors) ? '' : 'none';
+
+    // In multiverse mode, hide book/chapter selectors (translation still active)
+    const isMultiverse = contentType === 'multiverse';
+    const bookSelect = document.getElementById('bible-book-select');
+    const chapterSelect = document.getElementById('bible-chapter-select');
+    if (bookSelect) bookSelect.style.display = isMultiverse ? 'none' : '';
+    if (chapterSelect) chapterSelect.style.display = isMultiverse ? 'none' : '';
   },
   
   // Navigate to Bible location once data is loaded

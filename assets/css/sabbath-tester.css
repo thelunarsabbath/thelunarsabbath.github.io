@@ -100,6 +100,24 @@
   font-size: 1.1em;
 }
 
+/* Progress bar for uncached computations */
+.sabbath-progress-bar {
+  width: 80%;
+  max-width: 400px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin: 16px auto 0;
+  overflow: hidden;
+}
+.sabbath-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #7ec8e3, #d4a017);
+  border-radius: 4px;
+  transition: width 0.15s ease;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    3. SCOREBOARD
    ───────────────────────────────────────────────────────────────────────────── */

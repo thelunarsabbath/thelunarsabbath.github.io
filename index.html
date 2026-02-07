@@ -246,12 +246,12 @@
                ondblclick="this.select()">
         <button class="global-search-btn" onclick="GlobalSearch.toggle()" title="Search">🔍</button>
         <button class="global-search-close" onclick="GlobalSearch.close()" title="Close search">✕</button>
-        <div id="search-hints" class="search-hints" style="display: none;">
+        <div id="search-hints" class="search-hints" style="display: none;" onmousedown="event.preventDefault()">
           <div class="search-hints-title">Try searching for...</div>
           <div class="search-hint-item" onclick="GlobalSearch.useHint('Genesis 1:1')"><span class="search-hint-type">Verse</span> Genesis 1:1</div>
           <div class="search-hint-item" onclick="GlobalSearch.useHint('Solomon Temple')"><span class="search-hint-type">Event</span> Solomon Temple</div>
           <div class="search-hint-item" onclick="GlobalSearch.useHint('H430')"><span class="search-hint-type">Strongs</span> H430</div>
-          <div class="search-hint-item" onclick="GlobalSearch.useHint('March 11, 1446 BC')"><span class="search-hint-type">Date</span> March 11, 1446 BC</div>
+          <div class="search-hint-item" onclick="GlobalSearch.useHint('May 14, 1948')"><span class="search-hint-type">Date</span> May 14, 1948</div>
           <div class="search-hint-item" onclick="GlobalSearch.useHint('Nisan 14, 32 AD')"><span class="search-hint-type">Lunar</span> Nisan 14, 32 AD</div>
           <div class="search-hint-footer" onclick="GlobalSearch.hideHints(); AppStore.dispatch({type:'SET_VIEW', view:'help'}); setTimeout(() => HelpView.scrollToSection('search-section'), 300);">Learn more about searching</div>
         </div>

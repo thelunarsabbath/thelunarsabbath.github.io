@@ -241,7 +241,8 @@ const GlobalSearch = {
    * Returns { year, month, day } or null
    */
   parseGregorianDate(query) {
-    const q = query.trim();
+    // Strip periods from abbreviations (e.g., "Nov." → "Nov", "Jan." → "Jan")
+    const q = query.trim().replace(/\./g, '');
     const currentYear = new Date().getFullYear();
     
     // Month names for parsing
@@ -296,28 +297,32 @@ const GlobalSearch = {
       }
     }
     
-    // Month DD, YYYY or Month DD YYYY (e.g., "January 15, 2025" or "Jan 15 2025")
+    // Month DD, YYYY [BC/AD] or Month DD YYYY [BC/AD] (e.g., "March 11, 1446 BC" or "Jan 15 2025")
     if (!match) {
-      match = q.match(/^([a-z]+)\s+(\d{1,2})(?:,?\s+(\d{4}))?$/i);
+      match = q.match(/^([a-z]+)\s+(\d{1,2})(?:,?\s+(\d{1,4})\s*(bc|ad|bce|ce)?)?$/i);
       if (match) {
         const monthStr = match[1].toLowerCase();
         if (monthNames[monthStr]) {
           month = monthNames[monthStr];
           day = parseInt(match[2]);
           year = match[3] ? parseInt(match[3]) : currentYear;
+          const era = (match[4] || '').toLowerCase();
+          if (era === 'bc' || era === 'bce') year = 1 - year; // 1446 BC → astronomical -1445
         }
       }
     }
     
-    // DD Month YYYY (e.g., "15 January 2025" or "15 Jan 2025")
+    // DD Month YYYY [BC/AD] (e.g., "15 January 2025" or "15 Jan 1446 BC")
     if (!match || !month) {
-      match = q.match(/^(\d{1,2})\s+([a-z]+)(?:\s+(\d{4}))?$/i);
+      match = q.match(/^(\d{1,2})\s+([a-z]+)(?:\s+(\d{1,4})\s*(bc|ad|bce|ce)?)?$/i);
       if (match) {
         const monthStr = match[2].toLowerCase();
         if (monthNames[monthStr]) {
           day = parseInt(match[1]);
           month = monthNames[monthStr];
           year = match[3] ? parseInt(match[3]) : currentYear;
+          const era = (match[4] || '').toLowerCase();
+          if (era === 'bc' || era === 'bce') year = 1 - year;
         }
       }
     }
@@ -340,10 +345,8 @@ const GlobalSearch = {
    * Navigate to calendar on a specific date
    */
   navigateToDate(date) {
-    // Close search results
-    this.closeResults();
-    
-    // Navigate using AppStore - use SET_GREGORIAN_DATETIME then SET_VIEW
+    // Close search completely and navigate to calendar for this date
+    this.close();
     if (typeof AppStore !== 'undefined') {
       AppStore.dispatchBatch([
         {
@@ -444,8 +447,7 @@ const GlobalSearch = {
    * Navigate to calendar on a specific lunar date
    */
   navigateToLunarDate(date) {
-    // Close search results
-    this.closeResults();
+    this.close();
     
     // Navigate using AppStore - use SET_LUNAR_DATETIME then SET_VIEW
     if (typeof AppStore !== 'undefined') {
@@ -514,8 +516,7 @@ const GlobalSearch = {
    * Navigate to Strong's panel
    */
   navigateToStrongs(strongsNum) {
-    // Close search results (clears state, subscriber will clear input)
-    this.closeResults();
+    this.close();
     
     // Open Strong's panel
     if (typeof showStrongsPanel === 'function') {
@@ -529,8 +530,7 @@ const GlobalSearch = {
    * Navigate to verse
    */
   navigateToVerse(ref) {
-    // Close search results (clears state, subscriber will clear input)
-    this.closeResults();
+    this.close();
     
     // Navigate using AppStore
     if (typeof AppStore !== 'undefined') {
@@ -1225,6 +1225,9 @@ const GlobalSearch = {
    */
   close() {
     this.closeResults();
+    this.hideHints();
+    const input = document.getElementById('global-search-input');
+    if (input) input.value = '';
     this.collapseInput();
   },
   

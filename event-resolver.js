@@ -1210,6 +1210,13 @@ function resolveEvent(event, profile, epochs, context = null) {
     resolvedEndGreg = julianDayToGregorian(endJD);
   }
   
+  // Reverse-calculate lunar date from JD when no lunar date is available from source/chain
+  // This ensures events with fixed Gregorian dates still show on the calendar
+  let _reverseLunar = null;
+  if (startJD && datePrecision !== 'year' && !calculatedLunar && !event.start?.lunar?.month) {
+    try { _reverseLunar = julianDayToLunar(startJD, profile); } catch(e) { /* ignore */ }
+  }
+  
   const result = {
     // Identity
     id: event.id,
@@ -1225,15 +1232,16 @@ function resolveEvent(event, profile, epochs, context = null) {
     // (e.g., bible-events-loader skips year-only events for calendar anniversaries).
     _datePrecision: datePrecision,
     
-    // Calculated lunar year/month/day (for chain propagation)
+    // Calculated lunar year/month/day (for chain propagation and calendar display)
     // _lunarYear is always set (downstream events need it for year offsets).
     // _lunarMonth/_lunarDay are null for year-only events to prevent false anniversaries.
-    _lunarYear: calculatedLunar?.year ?? (event.start?.lunar?.year),
+    // For events with day precision but no lunar date, reverse-calculate from JD.
+    _lunarYear: calculatedLunar?.year ?? event.start?.lunar?.year ?? _reverseLunar?.year,
     _lunarMonth: datePrecision !== 'year'
-      ? (calculatedLunar?.month ?? (event.start?.lunar?.month))
+      ? (calculatedLunar?.month ?? event.start?.lunar?.month ?? _reverseLunar?.month ?? null)
       : null,
     _lunarDay: datePrecision !== 'year'
-      ? (calculatedLunar?.day ?? (event.start?.lunar?.day))
+      ? (calculatedLunar?.day ?? event.start?.lunar?.day ?? _reverseLunar?.day ?? null)
       : null,
     
     // SOURCE DATA (stipulated - exactly as provided in JSON)

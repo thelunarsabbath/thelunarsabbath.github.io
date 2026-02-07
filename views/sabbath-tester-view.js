@@ -129,18 +129,19 @@ const SabbathTesterView = {
             </div>
           </div>
           <div id="sabbath-tester-loading" class="sabbath-test-loading">
-            Loading tests...
+            <div id="sabbath-progress-text">Loading tests...</div>
+            <div class="sabbath-progress-bar" id="sabbath-progress-bar" style="display:none">
+              <div class="sabbath-progress-fill" id="sabbath-progress-fill"></div>
+            </div>
           </div>
           <div id="sabbath-tester-results"></div>
         </div>
       </div>
     `;
     
-    // Start rendering tests
+    // Start rendering tests (async — yields between computations)
     this._isRendering = true;
-    setTimeout(() => {
-      this.renderTests(container);
-    }, 50);
+    this.renderTests(container);
   },
   
   /**
@@ -457,12 +458,14 @@ const SabbathTesterView = {
   /**
    * Render all tests and results
    */
-  renderTests(container) {
+  async renderTests(container) {
     const loadingEl = container.querySelector('#sabbath-tester-loading');
     const resultsEl = container.querySelector('#sabbath-tester-results');
+    const progressText = container.querySelector('#sabbath-progress-text');
+    const progressBar = container.querySelector('#sabbath-progress-bar');
+    const progressFill = container.querySelector('#sabbath-progress-fill');
     
     if (!loadingEl || !resultsEl) {
-      // User navigated away before render completed - reset flags
       this._isRendering = false;
       return;
     }
@@ -475,46 +478,76 @@ const SabbathTesterView = {
     loadingEl.style.display = 'block';
     resultsEl.innerHTML = '';
     
-    // Use setTimeout to allow UI to update
-    setTimeout(() => {
-      const profiles = this.getSabbathTestProfiles();
-      const allResults = [];
-      
-      // Count cache hits for reporting
-      let cacheHits = 0;
-      let cacheMisses = 0;
-      
-      // Run all tests against all profiles
-      for (const test of BIBLICAL_TESTS) {
-        const testResults = [];
-        for (const profile of profiles) {
-          // Check cache first
-          const cached = this.getCachedResult(test.id, profile.id);
-          let result;
-          
-          if (cached !== null) {
-            cacheHits++;
-            result = cached;
-          } else {
-            cacheMisses++;
-            result = this.runBiblicalTest(test, profile);
-          }
-          
-          testResults.push({
-            profile,
-            ...result
-          });
+    const profiles = this.getSabbathTestProfiles();
+    const allResults = [];
+    const total = BIBLICAL_TESTS.length * profiles.length;
+    let completed = 0;
+    let cacheHits = 0;
+    let cacheMisses = 0;
+    
+    // Check how many need computation
+    let needsComputation = 0;
+    for (const test of BIBLICAL_TESTS) {
+      for (const profile of profiles) {
+        if (this.getCachedResult(test.id, profile.id) === null) needsComputation++;
+      }
+    }
+    
+    // Show progress bar only if there are uncached computations
+    if (needsComputation > 0 && progressBar) {
+      progressBar.style.display = 'block';
+      if (progressText) progressText.textContent = `Computing ${needsComputation} calendars...`;
+    }
+    
+    // Yield once to let the UI render the progress bar
+    await new Promise(r => setTimeout(r, 0));
+    
+    // Run all tests against all profiles — yield between uncached computations
+    for (const test of BIBLICAL_TESTS) {
+      const testResults = [];
+      for (const profile of profiles) {
+        // Check if user navigated away
+        if (!container.querySelector('#sabbath-tester-results')) {
+          this._isRendering = false;
+          return;
         }
-        allResults.push({
-          test,
-          results: testResults
+        
+        const cached = this.getCachedResult(test.id, profile.id);
+        let result;
+        
+        if (cached !== null) {
+          cacheHits++;
+          result = cached;
+        } else {
+          cacheMisses++;
+          result = this.runBiblicalTest(test, profile);
+          
+          // Yield to UI after each heavy computation
+          completed++;
+          if (progressFill) {
+            const pct = Math.round((completed / needsComputation) * 100);
+            progressFill.style.width = pct + '%';
+          }
+          if (progressText) {
+            progressText.textContent = `Computing calendars... ${completed}/${needsComputation}`;
+          }
+          await new Promise(r => setTimeout(r, 0));
+        }
+        
+        testResults.push({
+          profile,
+          ...result
         });
       }
-      
-      // Log cache statistics
-      if (cacheHits > 0 || cacheMisses > 0) {
-        console.log(`[SabbathTester] Cache: ${cacheHits} hits, ${cacheMisses} misses (${Math.round(cacheHits / (cacheHits + cacheMisses) * 100)}% hit rate)`);
-      }
+      allResults.push({
+        test,
+        results: testResults
+      });
+    }
+    
+    if (cacheHits > 0 || cacheMisses > 0) {
+      console.log(`[SabbathTester] Cache: ${cacheHits} hits, ${cacheMisses} misses (${Math.round(cacheHits / (cacheHits + cacheMisses) * 100)}% hit rate)`);
+    }
       
       // Calculate scoreboard
       const scoreboard = {};
@@ -592,12 +625,11 @@ const SabbathTesterView = {
       let html = this.buildScoreboardHTML(sortedScores, testResultsByProfile, BIBLICAL_TESTS);
       html += this.buildTestCardsHTML(allResults, baseScoreWithout32AD, BIBLICAL_TESTS);
       
-      loadingEl.style.display = 'none';
-      resultsEl.innerHTML = html;
-      
-      this._isRendering = false;
-      this._hasRendered = true;
-    }, 50);
+    loadingEl.style.display = 'none';
+    resultsEl.innerHTML = html;
+    
+    this._isRendering = false;
+    this._hasRendered = true;
   },
   
   /**
@@ -951,8 +983,7 @@ const SabbathTesterView = {
     }
     
     // Create a temporary profile with the test settings
-    // Store it in window.PROFILES so it can be used by the calendar
-    const tempProfileId = 'sabbath-test-temp';
+    // Use a descriptive ID so the URL is meaningful
     if (!window.PROFILES) {
       window.PROFILES = {};
     }
@@ -960,8 +991,10 @@ const SabbathTesterView = {
     const moonLabel = profile.moonPhase === 'full' ? 'Full' : profile.moonPhase === 'dark' ? 'Dark' : 'Crescent';
     const moonIcon = profile.moonPhase === 'full' ? '🌕' : profile.moonPhase === 'dark' ? '🌑' : '🌒';
     const dayLabel = profile.dayStartTime === 'morning' ? 'Daybreak' : 'Sunset';
+    const yearLabel = profile.yearStartRule === 'equinox' ? 'equinox-before-month' : 'equinox-before-passover';
     const yearIcon = profile.yearStartRule === 'equinox' ? '⚖️' : '🐑';
     const presetSuffix = profile.presetName ? ` (${profile.presetName})` : '';
+    const tempProfileId = `${moonLabel}-${dayLabel}-${yearLabel}`.toLowerCase().replace(/\s+/g, '-');
 
     window.PROFILES[tempProfileId] = {
       name: `${moonLabel} ${dayLabel} ${yearIcon}${presetSuffix}`,
@@ -1002,7 +1035,7 @@ const SabbathTesterView = {
     
     // Keep the temp profile alive — deleting it caused subsequent interactions
     // (clicking days, re-renders) to fall back to the default profile since
-    // state.context.profileId still references 'sabbath-test-temp'.
+    // state.context.profileId still references the temp profile.
     // The profile is tiny and harmless to keep in memory.
   },
   

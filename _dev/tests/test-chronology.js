@@ -234,6 +234,23 @@ console.log(`  David Death: ${davidGreg.year} → Pentecost: ${pentGreg.year} = 
 assert('David to Pentecost (exclusive)', davidToPent, 1000);
 
 // ═══════════════════════════════════════════════════════════
+// TEST 13: Fixed Gregorian events get reverse-calculated lunar dates
+// ═══════════════════════════════════════════════════════════
+console.log('\nTEST 13: Reverse lunar date calculation');
+const israel = getEvent('israel-independence-1948');
+console.log(`  Israel 1948: lunarYear=${israel._lunarYear}, lunarMonth=${israel._lunarMonth}, lunarDay=${israel._lunarDay}`);
+assert('Israel 1948 has lunar year', israel._lunarYear !== undefined && israel._lunarYear !== null, true);
+assert('Israel 1948 has lunar month', israel._lunarMonth !== undefined && israel._lunarMonth !== null, true);
+assert('Israel 1948 has lunar day', israel._lunarDay !== undefined && israel._lunarDay !== null, true);
+assert('Israel 1948 lunar year is 1948', israel._lunarYear, 1948);
+
+// Eclipse also has fixed gregorian — should get lunar date
+const eclipse = getEvent('bur-sagale-eclipse');
+console.log(`  Bur-Sagale Eclipse: lunarMonth=${eclipse._lunarMonth}, lunarDay=${eclipse._lunarDay}`);
+assert('Eclipse has lunar month', eclipse._lunarMonth !== undefined && eclipse._lunarMonth !== null, true);
+assert('Eclipse has lunar day', eclipse._lunarDay !== undefined && eclipse._lunarDay !== null, true);
+
+// ═══════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════
 console.log(`\n${'═'.repeat(50)}`);

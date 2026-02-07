@@ -68,6 +68,11 @@ const ContentManager = {
       
       this.currentView = viewName;
       
+      // Scroll to top when switching views
+      if (this.contentArea) this.contentArea.scrollTop = 0;
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+      
       // Call init on new view if it exists
       if (view && typeof view.init === 'function') {
         try {

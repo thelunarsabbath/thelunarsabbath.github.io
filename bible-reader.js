@@ -4451,21 +4451,21 @@ function onTranslationChange(translationId) {
 // Select a translation from the welcome screen and open Genesis 1
 async function selectTranslationAndStart(translationId) {
   if (!translationId) return;
-  
+
   // Switch to the selected translation
   await switchTranslation(translationId);
-  
-  // Open Genesis 1 to start reading
-  openBibleExplorerTo('Genesis', 1);
+
+  // Show book index so user can pick a book
+  goToBookIndex();
 }
 
-// Go to Bible home page (translation selector)
-function goToBibleHome() {
+// Show the book index page (all 66 books with descriptions)
+function goToBookIndex() {
   // Clear current book/chapter state
   bibleExplorerState.currentBook = null;
   bibleExplorerState.currentChapter = null;
   bibleExplorerState.highlightedVerse = null;
-  
+
   // Reset dropdowns
   const bookSelect = document.getElementById('bible-book-select');
   const chapterSelect = document.getElementById('bible-chapter-select');
@@ -4474,17 +4474,119 @@ function goToBibleHome() {
     chapterSelect.innerHTML = '<option value="">Ch.</option>';
     chapterSelect.disabled = true;
   }
-  
-  // Show welcome screen
+
+  // Show book index
   const textContainer = document.getElementById('bible-explorer-text');
   if (textContainer) {
-    // Restore welcome content
+    textContainer.innerHTML = buildBookIndexHTML();
+  }
+
+  const titleEl = document.getElementById('bible-chapter-title');
+  if (titleEl) titleEl.textContent = 'Select a book';
+}
+
+// Build HTML for the book index page
+function buildBookIndexHTML() {
+  const trans = Bible.getTranslation(currentTranslation);
+  const transName = trans ? trans.fullName : currentTranslation.toUpperCase();
+  const descriptions = (typeof BOOK_DESCRIPTIONS !== 'undefined') ? BOOK_DESCRIPTIONS : {};
+
+  const otBooks = [
+    'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy',
+    'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel',
+    '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles',
+    'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalms', 'Proverbs',
+    'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah',
+    'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel',
+    'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk',
+    'Zephaniah', 'Haggai', 'Zechariah', 'Malachi'
+  ];
+  const ntBooks = [
+    'Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans',
+    '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians',
+    'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians',
+    '1 Timothy', '2 Timothy', 'Titus', 'Philemon', 'Hebrews',
+    'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John',
+    'Jude', 'Revelation'
+  ];
+
+  function buildCard(book) {
+    const info = descriptions[book] || {};
+    const chapters = info.chapters || Bible.getChapterCount(book) || '?';
+    const desc = info.description || '';
+    const category = info.category || '';
+    const categoryBadge = category ? `<span class="book-card-category">${category}</span>` : '';
+    return `<div class="bible-book-card" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'bible',translation:'${currentTranslation}',book:'${book.replace(/'/g, "\\'")}',chapter:1}})">
+      <div class="book-card-header">
+        <span class="book-card-name">${book}</span>
+        <span class="book-card-chapters">${chapters} ch.</span>
+      </div>
+      ${categoryBadge}
+      <p class="book-card-desc">${desc}</p>
+    </div>`;
+  }
+
+  // Check if current translation is OT-only or NT-only
+  const isLXX = currentTranslation === 'lxx';
+
+  let html = `<div class="bible-book-index">
+    <div class="book-index-header">
+      <h2>${transName}</h2>
+      <p>Select a book to begin reading</p>
+    </div>`;
+
+  // Old Testament
+  if (!isLXX || true) { // LXX has OT
+    html += `<div class="book-index-section">
+      <h3 class="book-index-section-title">Old Testament</h3>
+      <div class="book-index-grid">
+        ${otBooks.map(buildCard).join('')}
+      </div>
+    </div>`;
+  }
+
+  // New Testament (skip for LXX)
+  if (!isLXX) {
+    html += `<div class="book-index-section">
+      <h3 class="book-index-section-title">New Testament</h3>
+      <div class="book-index-grid">
+        ${ntBooks.map(buildCard).join('')}
+      </div>
+    </div>`;
+  }
+
+  html += '</div>';
+  return html;
+}
+
+// Go to Bible home page — show book index if a translation is loaded, else translation picker
+function goToBibleHome() {
+  // If we have a translation loaded, show the book index instead of the translation picker
+  if (Bible.isLoaded(currentTranslation)) {
+    goToBookIndex();
+    return;
+  }
+
+  // No translation loaded yet — show the translation picker welcome
+  bibleExplorerState.currentBook = null;
+  bibleExplorerState.currentChapter = null;
+  bibleExplorerState.highlightedVerse = null;
+
+  const bookSelect = document.getElementById('bible-book-select');
+  const chapterSelect = document.getElementById('bible-chapter-select');
+  if (bookSelect) bookSelect.value = '';
+  if (chapterSelect) {
+    chapterSelect.innerHTML = '<option value="">Ch.</option>';
+    chapterSelect.disabled = true;
+  }
+
+  const textContainer = document.getElementById('bible-explorer-text');
+  if (textContainer) {
     textContainer.innerHTML = getBibleWelcomeHTML();
   }
-  
-  // Update chapter title
+
   const titleEl = document.getElementById('bible-chapter-title');
-  if (titleEl) titleEl.textContent = 'Select a book to begin';
+  if (titleEl) titleEl.textContent = 'Select a translation';
   
   // Disable navigation buttons
   const prevBtn = document.getElementById('bible-prev-chapter');

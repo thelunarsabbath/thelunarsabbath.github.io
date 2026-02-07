@@ -459,6 +459,87 @@ function normalizeCitation(citationStr) {
 
 // ─── Registry ────────────────────────────────────────────────────────────────
 
+// ─── Book Descriptions ───────────────────────────────────────────────────────
+
+const BOOK_DESCRIPTIONS = {
+  // ── Torah / Pentateuch ──
+  'Genesis':          { chapters: 50, category: 'Law', description: 'The book of beginnings: creation, the fall, the flood, and the patriarchs Abraham, Isaac, Jacob, and Joseph. Establishes God\'s covenant promises and the origins of Israel.' },
+  'Exodus':           { chapters: 40, category: 'Law', description: 'Israel\'s deliverance from Egypt, the giving of the Law at Sinai, and the construction of the Tabernacle. Contains the Passover, the Ten Commandments, and the covenant code.' },
+  'Leviticus':        { chapters: 27, category: 'Law', description: 'Instructions for holiness, sacrificial offerings, priesthood, appointed feasts, and ceremonial purity. The manual for approaching a holy God through the Levitical system.' },
+  'Numbers':          { chapters: 36, category: 'Law', description: 'Israel\'s wilderness wanderings from Sinai to the plains of Moab. Census records, rebellion, judgment, and preparation for entering the promised land.' },
+  'Deuteronomy':      { chapters: 34, category: 'Law', description: 'Moses\' farewell addresses restating the Law for the new generation. Contains the Shema, blessings and curses, and the covenant renewal before entering Canaan.' },
+  // ── Historical Books ──
+  'Joshua':           { chapters: 24, category: 'History', description: 'The conquest and division of the promised land under Joshua\'s leadership. Israel crosses the Jordan, takes Jericho, and settles the tribal territories.' },
+  'Judges':           { chapters: 21, category: 'History', description: 'A cycle of apostasy, oppression, and deliverance through judges like Deborah, Gideon, and Samson. Israel\'s repeated failure without faithful leadership.' },
+  'Ruth':             { chapters: 4,  category: 'History', description: 'A Moabite woman\'s loyalty to her mother-in-law Naomi leads to her redemption by Boaz. A story of faithfulness, provision, and the lineage of David.' },
+  '1 Samuel':         { chapters: 31, category: 'History', description: 'The transition from judges to monarchy. Samuel anoints Saul as first king, then David. Chronicles the rise of David and Saul\'s decline.' },
+  '2 Samuel':         { chapters: 24, category: 'History', description: 'David\'s reign as king of Israel: his triumphs, the Davidic covenant, and his failures including Bathsheba. The consequences of sin within the royal house.' },
+  '1 Kings':          { chapters: 22, category: 'History', description: 'Solomon\'s wisdom and temple construction, followed by the kingdom\'s division. Elijah confronts Baal worship in the northern kingdom of Israel.' },
+  '2 Kings':          { chapters: 25, category: 'History', description: 'The decline and fall of both kingdoms. Elisha\'s ministry, Assyria\'s conquest of Israel (722 BC), and Babylon\'s destruction of Judah and the temple (586 BC).' },
+  '1 Chronicles':     { chapters: 29, category: 'History', description: 'Genealogies from Adam to David, then David\'s reign with emphasis on temple worship preparations. A priestly perspective on Israel\'s history.' },
+  '2 Chronicles':     { chapters: 36, category: 'History', description: 'Solomon\'s temple and the kings of Judah from Rehoboam to the Babylonian exile. Emphasizes faithfulness to the temple, the priesthood, and the Law.' },
+  'Ezra':             { chapters: 10, category: 'History', description: 'The return from Babylonian exile under Zerubbabel and Ezra. Rebuilding the temple and restoring the Law. Confronts the crisis of intermarriage.' },
+  'Nehemiah':         { chapters: 13, category: 'History', description: 'Nehemiah rebuilds Jerusalem\'s walls despite opposition. Public reading of the Law, national confession, and covenant renewal after the exile.' },
+  'Esther':           { chapters: 10, category: 'History', description: 'A Jewish queen in Persia saves her people from genocide plotted by Haman. The origin of the feast of Purim. God\'s providence works behind the scenes.' },
+  // ── Wisdom / Poetry ──
+  'Job':              { chapters: 42, category: 'Wisdom', description: 'A righteous man\'s suffering and his dialogue with friends who insist suffering equals guilt. God speaks from the whirlwind, revealing wisdom beyond human comprehension.' },
+  'Psalms':           { chapters: 150, category: 'Wisdom', description: 'Israel\'s hymnal: 150 songs of praise, lament, thanksgiving, and prophecy. Covers the full range of human experience before God, from despair to exaltation.' },
+  'Proverbs':         { chapters: 31, category: 'Wisdom', description: 'Practical wisdom for daily life: relationships, work, speech, and the fear of the Lord. Contrasts the way of wisdom with the way of folly.' },
+  'Ecclesiastes':     { chapters: 12, category: 'Wisdom', description: 'The Preacher explores meaning "under the sun" and finds all earthly pursues are vanity. Concludes: fear God and keep His commandments.' },
+  'Song of Solomon':  { chapters: 8,  category: 'Wisdom', description: 'A poetic celebration of love between a bride and bridegroom. Read as both human romance and an allegory of God\'s love for His people.' },
+  // ── Major Prophets ──
+  'Isaiah':           { chapters: 66, category: 'Major Prophet', description: 'Judgment and redemption on a cosmic scale. Contains messianic prophecies (the virgin birth, suffering servant, new heavens and earth) and visions of Israel\'s restoration.' },
+  'Jeremiah':         { chapters: 52, category: 'Major Prophet', description: 'The weeping prophet warns Judah of coming judgment by Babylon. Proclaims the new covenant and witnesses Jerusalem\'s destruction, yet offers hope of restoration.' },
+  'Lamentations':     { chapters: 5,  category: 'Major Prophet', description: 'Five poetic laments mourning Jerusalem\'s destruction by Babylon. Raw grief, yet affirms God\'s faithfulness: "His mercies are new every morning."' },
+  'Ezekiel':          { chapters: 48, category: 'Major Prophet', description: 'Visions from exile in Babylon: the throne-chariot, the valley of dry bones, and the future temple. Declares God\'s glory will return to a restored Israel.' },
+  'Daniel':           { chapters: 12, category: 'Major Prophet', description: 'Faithfulness in Babylonian captivity (the fiery furnace, the lions\' den) and apocalyptic visions of world empires, the Ancient of Days, and the end times.' },
+  // ── Minor Prophets ──
+  'Hosea':            { chapters: 14, category: 'Minor Prophet', description: 'God commands Hosea to marry an unfaithful wife as a living parable of Israel\'s spiritual adultery. Despite betrayal, God\'s love pursues and restores.' },
+  'Joel':             { chapters: 3,  category: 'Minor Prophet', description: 'A locust plague foreshadows the Day of the Lord. Calls for repentance and promises the outpouring of God\'s Spirit on all flesh.' },
+  'Amos':             { chapters: 9,  category: 'Minor Prophet', description: 'A shepherd-prophet denounces social injustice and religious hypocrisy in prosperous Israel. God demands justice, not empty ritual.' },
+  'Obadiah':          { chapters: 1,  category: 'Minor Prophet', description: 'The shortest OT book: judgment against Edom for pride and violence against brother Jacob. The day of the Lord approaches all nations.' },
+  'Jonah':            { chapters: 4,  category: 'Minor Prophet', description: 'A reluctant prophet flees God\'s call to preach to Nineveh, is swallowed by a great fish, and learns that God\'s mercy extends to all nations.' },
+  'Micah':            { chapters: 7,  category: 'Minor Prophet', description: 'Judgment on corruption and false prophets, yet hope for a ruler from Bethlehem. "What does the Lord require? To do justly, love mercy, walk humbly."' },
+  'Nahum':            { chapters: 3,  category: 'Minor Prophet', description: 'Prophecy of Nineveh\'s destruction, fulfilling the judgment Jonah warned of. God is slow to anger but will not leave the guilty unpunished.' },
+  'Habakkuk':         { chapters: 3,  category: 'Minor Prophet', description: 'A prophet questions why God allows injustice, then why He would use wicked Babylon as judgment. God answers: "The just shall live by faith."' },
+  'Zephaniah':        { chapters: 3,  category: 'Minor Prophet', description: 'The coming Day of the Lord will purge Judah and the nations. After judgment, a humble remnant will be restored and God will rejoice over them with singing.' },
+  'Haggai':           { chapters: 2,  category: 'Minor Prophet', description: 'After the exile, the people neglect the temple to build their own houses. Haggai calls them to rebuild, promising God\'s glory will fill it.' },
+  'Zechariah':        { chapters: 14, category: 'Minor Prophet', description: 'Apocalyptic visions of Israel\'s future: the Branch, the pierced one, living waters from Jerusalem, and the Lord\'s feet on the Mount of Olives.' },
+  'Malachi':          { chapters: 4,  category: 'Minor Prophet', description: 'The final OT prophet rebukes corrupt priests and faithless people. Promises Elijah will come before the great Day of the Lord. Then 400 years of silence.' },
+  // ── Gospels ──
+  'Matthew':          { chapters: 28, category: 'Gospel', description: 'Jesus as the promised King of Israel, descended from Abraham and David. The Sermon on the Mount, parables of the kingdom, and the Great Commission.' },
+  'Mark':             { chapters: 16, category: 'Gospel', description: 'The shortest Gospel: Jesus as the suffering servant, always in action. Emphasizes His deeds, miracles, and the road to the cross. Written for urgency.' },
+  'Luke':             { chapters: 24, category: 'Gospel', description: 'A careful historical account for Theophilus. Jesus as the Son of Man who came to seek and save the lost. Rich in parables, prayer, and compassion for outsiders.' },
+  'John':             { chapters: 21, category: 'Gospel', description: 'Jesus as the divine Word made flesh. Seven signs, seven "I AM" statements, and the Upper Room discourse. "These are written that you might believe."' },
+  // ── Church History ──
+  'Acts':             { chapters: 28, category: 'History', description: 'The birth and spread of the early church from Jerusalem to Rome. The Spirit\'s outpouring at Pentecost, Peter\'s and Paul\'s ministries, and the gospel\'s advance to the nations.' },
+  // ── Pauline Epistles ──
+  'Romans':           { chapters: 16, category: 'Epistle', description: 'Paul\'s systematic theology of salvation: all have sinned, justification by faith, freedom from the law, life in the Spirit, and God\'s plan for Israel and the nations.' },
+  '1 Corinthians':    { chapters: 16, category: 'Epistle', description: 'Paul addresses divisions, immorality, lawsuits, marriage, spiritual gifts, and resurrection in the troubled Corinthian church. Contains the love chapter (13).' },
+  '2 Corinthians':    { chapters: 13, category: 'Epistle', description: 'Paul defends his apostleship, describes the new covenant ministry, and speaks of strength made perfect in weakness. The most personal of his letters.' },
+  'Galatians':        { chapters: 6,  category: 'Epistle', description: 'A passionate defense of justification by faith alone, not works of the law. "If righteousness comes through the law, then Christ died in vain."' },
+  'Ephesians':        { chapters: 6,  category: 'Epistle', description: 'God\'s eternal purpose in Christ: chosen before the foundation of the world, united as one body, and equipped with the whole armor of God.' },
+  'Philippians':      { chapters: 4,  category: 'Epistle', description: 'A letter of joy from prison. Christ\'s humility and exaltation, pressing toward the goal, and the peace of God that surpasses understanding.' },
+  'Colossians':       { chapters: 4,  category: 'Epistle', description: 'The supremacy and sufficiency of Christ over all creation, philosophy, and legalism. "In Him all the fullness of the Godhead dwells bodily."' },
+  '1 Thessalonians':  { chapters: 5,  category: 'Epistle', description: 'Encouragement to a young church: faith, love, holiness, and hope in Christ\'s return. The dead in Christ will rise first, then the living will be caught up.' },
+  '2 Thessalonians':  { chapters: 3,  category: 'Epistle', description: 'Corrects misunderstandings about the Day of the Lord. The man of lawlessness must be revealed first. Stand firm and keep working.' },
+  '1 Timothy':        { chapters: 6,  category: 'Epistle', description: 'Paul instructs his young delegate on church order: qualifications for overseers and deacons, false teaching, prayer, and godliness with contentment.' },
+  '2 Timothy':        { chapters: 4,  category: 'Epistle', description: 'Paul\'s final letter, written facing death. Charges Timothy to guard the faith, endure suffering, preach the word, and finish the race.' },
+  'Titus':            { chapters: 3,  category: 'Epistle', description: 'Instructions for establishing order in the churches of Crete: appoint elders, teach sound doctrine, and live as people zealous for good works.' },
+  'Philemon':         { chapters: 1,  category: 'Epistle', description: 'A personal appeal to Philemon to receive back his runaway slave Onesimus as a brother in Christ. A case study in forgiveness and reconciliation.' },
+  // ── General Epistles ──
+  'Hebrews':          { chapters: 13, category: 'Epistle', description: 'Christ is superior to angels, Moses, and the Levitical priesthood. The old covenant gives way to the new. A hall of faith (ch. 11) and a call to endure.' },
+  'James':            { chapters: 5,  category: 'Epistle', description: 'Practical wisdom for living faith: taming the tongue, caring for the poor, patience in trials. "Faith without works is dead."' },
+  '1 Peter':          { chapters: 5,  category: 'Epistle', description: 'Hope for suffering believers: a living hope through resurrection, holy conduct in a hostile world, and sharing in Christ\'s sufferings before sharing His glory.' },
+  '2 Peter':          { chapters: 3,  category: 'Epistle', description: 'Warns against false teachers and scoffers who deny the Lord\'s return. God is patient, not wanting any to perish. The day of the Lord will come.' },
+  '1 John':           { chapters: 5,  category: 'Epistle', description: 'Tests of genuine faith: walking in the light, loving one another, and believing Jesus came in the flesh. "God is love" and "God is light."' },
+  '2 John':           { chapters: 1,  category: 'Epistle', description: 'A brief letter urging believers to walk in truth and love, and to reject false teachers who deny Christ came in the flesh.' },
+  '3 John':           { chapters: 1,  category: 'Epistle', description: 'Commends Gaius for hospitality to traveling teachers and rebukes Diotrephes for refusing them. A snapshot of early church dynamics.' },
+  'Jude':             { chapters: 1,  category: 'Epistle', description: 'Contend for the faith against false teachers who have crept in. References fallen angels, Sodom, and Balaam. Ends with a magnificent doxology.' },
+  // ── Apocalyptic ──
+  'Revelation':       { chapters: 22, category: 'Prophecy', description: 'The unveiling of Jesus Christ in glory. Letters to seven churches, seals, trumpets, bowls, the fall of Babylon, and the new heaven and earth where God dwells with His people.' }
+};
+
 const BIBLE_REGISTRY = [
   {
     id: 'kjv',

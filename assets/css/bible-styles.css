@@ -9052,39 +9052,28 @@ body.biblical-timeline-open .top-nav-inner {
 /* Translation Cards — one row on desktop when space available */
 .bible-translation-cards {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   justify-content: center;
   margin-bottom: 24px;
   flex-wrap: wrap;
-}
-
-@media (min-width: 920px) {
-  .bible-translation-cards {
-    flex-wrap: nowrap;
-  }
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .bible-translation-card {
   background: linear-gradient(135deg, rgba(30, 30, 50, 0.9) 0%, rgba(20, 20, 35, 0.95) 100%);
   border: 1px solid rgba(126, 200, 227, 0.2);
   border-radius: 12px;
-  padding: 20px;
-  width: 280px;
-  min-width: 0;
+  padding: 16px 18px;
   flex: 1 1 260px;
-  max-width: 320px;
+  max-width: 340px;
+  min-width: 240px;
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: left;
   position: relative;
   overflow: hidden;
-}
-
-@media (min-width: 920px) {
-  .bible-translation-card {
-    flex: 1 1 0;
-    max-width: none;
-  }
 }
 
 .bible-translation-card::before {
@@ -9155,15 +9144,15 @@ body.biblical-timeline-open .top-nav-inner {
 }
 
 /* Responsive translation cards */
-@media (max-width: 640px) {
+@media (max-width: 540px) {
   .bible-translation-cards {
-    flex-direction: column;
-    align-items: center;
+    gap: 10px;
   }
-  
+
   .bible-translation-card {
-    width: 100%;
-    max-width: 320px;
+    flex: 1 1 100%;
+    max-width: none;
+    min-width: 0;
   }
 }
 
@@ -9396,7 +9385,7 @@ body.biblical-timeline-open .top-nav-inner {
 }
 
 .interlinear-display.expanded {
-  max-height: 500px;
+  max-height: none;
   opacity: 1;
   margin-top: 10px;
   padding: 12px 16px;
@@ -9562,6 +9551,114 @@ body.biblical-timeline-open .top-nav-inner {
 .interlinear-trans-greek .interlinear-trans-text {
   font-family: 'SBL Greek', 'Gentium', 'Times New Roman', serif;
   color: #b0c4de;
+}
+
+/* "More translations" expandable section */
+.interlinear-more-section,
+.interlinear-original-section {
+  margin-top: 6px;
+}
+
+.interlinear-more-btn,
+.interlinear-original-btn {
+  background: rgba(126, 200, 227, 0.1);
+  border: 1px solid rgba(126, 200, 227, 0.2);
+  border-radius: 6px;
+  color: #7ec8e3;
+  font-size: 0.8em;
+  padding: 5px 12px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: background 0.2s;
+}
+
+.interlinear-more-btn:hover,
+.interlinear-original-btn:hover {
+  background: rgba(126, 200, 227, 0.2);
+}
+
+.interlinear-more-content,
+.interlinear-original-content {
+  display: none;
+  margin-top: 6px;
+}
+
+.interlinear-more-section.expanded .interlinear-more-content,
+.interlinear-original-section.expanded .interlinear-original-content {
+  display: block;
+}
+
+.interlinear-load-btn {
+  background: rgba(212, 160, 23, 0.15);
+  border: 1px solid rgba(212, 160, 23, 0.3);
+  border-radius: 4px;
+  color: #d4a017;
+  font-size: 0.85em;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.interlinear-load-btn:hover {
+  background: rgba(212, 160, 23, 0.3);
+}
+
+.interlinear-trans-unloaded .interlinear-trans-label {
+  opacity: 0.6;
+}
+
+.interlinear-no-data {
+  color: #666;
+  font-size: 0.85em;
+  padding: 8px 0;
+  font-style: italic;
+}
+
+/* Source text (WLC / Greek NT) in interlinear panel */
+.interlinear-source-text {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  border: 1px solid rgba(126, 200, 227, 0.1);
+}
+
+.il-source-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.il-source-label {
+  font-size: 0.75em;
+  font-weight: 600;
+  color: #7ec8e3;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.il-vowel-toggle {
+  font-size: 0.75em;
+  color: #999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.il-vowel-toggle input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #d4a017;
+}
+
+.il-source-text-content {
+  font-family: 'SBL Hebrew', 'Ezra SIL', 'Times New Roman', serif;
+  font-size: 1.3em;
+  line-height: 1.8;
+  color: #e8d5a0;
+  word-spacing: 4px;
 }
 
 /* Mobile Interlinear */

@@ -16,6 +16,11 @@ const URLRouter = {
   // One path segment per reference: Book.Chapter.VerseSpec (spaces→hyphen, comma→dot, abbrev OK)
   // e.g. Jer.52.12-13 / 2-Kings.25.8-9  or  Jer.52.12.15.19-21 for 12,15,19-21
   _encodeMultiverseSegments(citation) {
+    // Delegate to Bible API — normalizes abbreviations and produces canonical URL segments
+    if (typeof Bible !== 'undefined' && Bible.citationToUrlSegments) {
+      return Bible.citationToUrlSegments(citation);
+    }
+    // Fallback if Bible API not loaded yet
     if (!citation || typeof citation !== 'string') return [];
     const refs = citation.split(/\s*[+;]\s*/).map(s => s.trim()).filter(Boolean);
     const segments = [];
@@ -30,13 +35,17 @@ const URLRouter = {
     return segments;
   },
   _decodeMultiverse(segments) {
+    // Delegate to Bible API — normalizes book names on decode
+    if (typeof Bible !== 'undefined' && Bible.urlSegmentsToCitation) {
+      return Bible.urlSegmentsToCitation(segments);
+    }
+    // Fallback if Bible API not loaded yet
     if (!Array.isArray(segments) || segments.length === 0) return '';
     const refs = [];
     for (const segment of segments) {
       const parts = segment.split('.');
       if (parts.length < 2) continue;
       const verseParts = [];
-      // Need at least 2 parts left for chapter + book. Pop only trailing verse part(s).
       while (parts.length > 2 && /^\d+(-\d+)?$/.test(parts[parts.length - 1])) {
         verseParts.unshift(parts.pop());
       }
@@ -553,9 +562,11 @@ const URLRouter = {
       case 'bible':
         // /bible/kjv/Genesis/1/5 → KJV, Genesis, Chapter 1, Verse 5
         // Check if first part is a valid translation or a book name
-        const knownTranslations = ['kjv', 'asv', 'web', 'ylt', 'drb'];
+        const knownTranslations = typeof Bible !== 'undefined'
+          ? Bible.getTranslations().map(t => t.id)
+          : ['kjv', 'asv', 'akjv', 'ylt', 'dbt', 'drb', 'jps', 'slt', 'wbt', 'lxx'];
         let partIndex = 0;
-        
+
         if (parts[0] && knownTranslations.includes(parts[0].toLowerCase())) {
           params.translation = parts[0].toLowerCase();
           partIndex = 1;
@@ -595,9 +606,11 @@ const URLRouter = {
         if (contentType === 'bible') {
           // Parse bible params: /reader/bible/kjv/Genesis/1
           const bibleParts = parts.slice(1);
-          const knownTranslationsReader = ['kjv', 'asv', 'web', 'ylt', 'drb'];
+          const knownTranslationsReader = typeof Bible !== 'undefined'
+            ? Bible.getTranslations().map(t => t.id)
+            : ['kjv', 'asv', 'akjv', 'ylt', 'dbt', 'drb', 'jps', 'slt', 'wbt', 'lxx'];
           let bibleIdx = 0;
-          
+
           if (bibleParts[0] && knownTranslationsReader.includes(bibleParts[0].toLowerCase())) {
             params.translation = bibleParts[0].toLowerCase();
             bibleIdx = 1;
@@ -629,7 +642,9 @@ const URLRouter = {
           if (parts[1]) params.chapterId = parts[1];
         } else if (contentType === 'multiverse') {
           // Parse multiverse: /reader/multiverse/kjv/Dan.9.23/Daniel.12.11 (translation then ref segments)
-          const knownTranslations = ['kjv', 'asv', 'web', 'ylt', 'drb'];
+          const knownTranslations = typeof Bible !== 'undefined'
+            ? Bible.getTranslations().map(t => t.id)
+            : ['kjv', 'asv', 'akjv', 'ylt', 'dbt', 'drb', 'jps', 'slt', 'wbt', 'lxx'];
           let multiverseParts = parts.slice(1).filter(Boolean);
           if (multiverseParts[0] && knownTranslations.includes(multiverseParts[0].toLowerCase())) {
             params.translation = multiverseParts[0].toLowerCase();

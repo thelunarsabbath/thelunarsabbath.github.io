@@ -208,16 +208,40 @@ const GlobalSearch = {
     }
     
     // Check for multi-verse reference (e.g. "Jer 52:12-13; 2 Kings 25:8-9") - open multiverse view
-    if (typeof isMultiVerseCitation === 'function' && isMultiVerseCitation(query)) {
-      this.navigateToMultiverse(query);
-      return;
-    }
-    
-    // Check for verse reference (John 3:16, Gen 1:1) - navigate directly
-    const verseRef = this.parseVerseReference(query);
-    if (verseRef) {
-      this.navigateToVerse(verseRef);
-      return;
+    // Check for Bible citation — use Bible API for comprehensive parsing
+    // Handles: "Gen 1:1", "Gen 1:1-3", "Gen 1:1; John 3:16", "Gen 1:1 John 3:16",
+    // "Rev 17-18", "Ps 23", "I Cor 13:4 II Tim 3:16", etc.
+    if (typeof Bible !== 'undefined') {
+      const normalized = Bible.normalizeCitation(query);
+      if (normalized) {
+        // Multi-verse (multiple references): navigate to multiverse view
+        if (Bible.isMultiVerseCitation(query)) {
+          this.navigateToMultiverse(normalized);
+          return;
+        }
+        // Single reference: try to parse as a verse/chapter
+        const parsed = Bible.parseRef(normalized);
+        if (parsed) {
+          this.navigateToVerse(parsed);
+          return;
+        }
+        // Chapter range like "Rev 17-18" — parseRef doesn't handle these,
+        // but the citation parser does. If it resolves to verses, navigate.
+        const trans = Bible.getDefaultTranslation();
+        if (Bible.isLoaded(trans)) {
+          const verses = Bible.getVersesForCitation(trans, normalized);
+          const real = verses.filter(v => !v.isSeparator);
+          if (real.length > 0) {
+            // Single range = navigate to first chapter; multi-range = multiverse
+            if (real.length === 1) {
+              this.navigateToVerse({ book: real[0].book, chapter: real[0].chapter, verse: real[0].verse });
+            } else {
+              this.navigateToMultiverse(normalized);
+            }
+            return;
+          }
+        }
+      }
     }
     
     // Check for Gregorian date (1/15/2025, 2025-01-15, January 15, etc.) - navigate to calendar
@@ -590,20 +614,17 @@ const GlobalSearch = {
       content.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--color-text-muted);">Searching...</div>';
     }
     
-    // Check if Bible data is loaded, if not try to load it
-    let bibleData = typeof getBibleData === 'function' ? getBibleData() : null;
-    if (!bibleData || bibleData.length === 0) {
+    // Ensure Bible data is loaded — use state translation if available, else global
+    const state = typeof AppStore !== 'undefined' ? AppStore.getState() : null;
+    const translation = state?.content?.params?.translation || (typeof currentTranslation !== 'undefined' ? currentTranslation : 'kjv');
+    if (!Bible.isLoaded(translation)) {
       if (content) {
         content.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--color-text-muted);">Loading Bible...</div>';
       }
-      
-      // Try to load Bible
-      if (typeof loadBible === 'function') {
-        try {
-          await loadBible(false);
-        } catch (e) {
-          console.error('[GlobalSearch] Failed to load Bible:', e);
-        }
+      try {
+        await Bible.loadTranslation(translation);
+      } catch (e) {
+        console.error('[GlobalSearch] Failed to load Bible:', e);
       }
     }
     
@@ -665,51 +686,34 @@ const GlobalSearch = {
    */
   performTextSearch(query, offset = 0, limit = 50) {
     const wordPattern = new RegExp(`\\b${this.escapeRegex(query)}\\b`, 'gi');
-    
-    // Get Bible data - use getBibleData() function if available (preferred)
-    // or fall back to direct variable access
-    let transData = null;
-    if (typeof getBibleData === 'function') {
-      transData = getBibleData();
-    } else if (typeof bibleTranslations !== 'undefined') {
-      const translation = typeof currentTranslation !== 'undefined' ? currentTranslation : 'kjv';
-      transData = bibleTranslations[translation];
-    }
-    
-    // Debug: log what we found
-    console.log('[GlobalSearch] Bible data status:', {
-      getBibleDataExists: typeof getBibleData === 'function',
-      dataLength: transData ? transData.length : 0
-    });
-    
-    if (!transData || transData.length === 0) {
-      console.warn('[GlobalSearch] No Bible data available for search');
+    const state = typeof AppStore !== 'undefined' ? AppStore.getState() : null;
+    const translation = state?.content?.params?.translation || (typeof currentTranslation !== 'undefined' ? currentTranslation : 'kjv');
+
+    if (!Bible.isLoaded(translation)) {
       return {
-        query: query,
+        query,
         results: [],
         total: 0,
         hasMore: false,
         error: 'Bible not loaded yet. Please wait a moment and try again.'
       };
     }
-    
-    // Find ALL matches first (or use cached if available)
+
+    // Use cached matches for pagination, or run a new search
     let allMatches = this.allMatchesCache?.query === query ? this.allMatchesCache.matches : null;
-    
+
     if (!allMatches) {
-      allMatches = [];
-      for (const verse of transData) {
-        if (verse.text && wordPattern.test(verse.text)) {
-          allMatches.push({
-            ref: `${verse.book} ${verse.chapter}:${verse.verse}`,
-            book: verse.book,
-            chapter: verse.chapter,
-            verse: verse.verse,
-            text: verse.text
-          });
-        }
-      }
-      // Cache all matches for infinite scroll
+      const apiResults = Bible.searchText(translation, wordPattern);
+      allMatches = apiResults.map(r => {
+        const m = r.ref.match(/^(.+?)\s+(\d+):(\d+)$/);
+        return {
+          ref: r.ref,
+          book: m ? m[1] : '',
+          chapter: m ? parseInt(m[2]) : 0,
+          verse: m ? parseInt(m[3]) : 0,
+          text: r.text
+        };
+      });
       this.allMatchesCache = { query, matches: allMatches };
       console.log('[GlobalSearch] Found', allMatches.length, 'total matches for:', query);
     }
@@ -756,7 +760,8 @@ const GlobalSearch = {
       };
     }
     
-    // Search events by title, description, tags, id
+    // Search events by title, description, tags, id — use word boundary matching
+    const wordPattern = new RegExp(`\\b${this.escapeRegex(query)}\\b`, 'i');
     const matchingEvents = events.filter(event => {
       if (event.startJD === null) return false;
       
@@ -765,9 +770,9 @@ const GlobalSearch = {
         event.description || '',
         event.id || '',
         ...(event.tags || [])
-      ].join(' ').toLowerCase();
+      ].join(' ');
       
-      return searchableText.includes(searchLower);
+      return wordPattern.test(searchableText);
     });
     
     // Sort by date (most recent first for now, or by relevance)

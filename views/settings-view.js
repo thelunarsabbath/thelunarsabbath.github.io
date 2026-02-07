@@ -61,15 +61,13 @@ const SettingsView = {
           </select>
         </section>
         
-        <!-- Default Scripture Translation -->
+        <!-- Translation Priority -->
         <section class="settings-section">
-          <h3>📖 Default Scripture Translation</h3>
-          <p class="settings-description">Choose the default Bible translation shown in the Reader.</p>
-          <select id="settings-translation-select" class="settings-select" onchange="SettingsView.saveTranslationPreference(this.value)">
-            <option value="kjv" ${translation === 'kjv' ? 'selected' : ''}>KJV - King James Version</option>
-            <option value="asv" ${translation === 'asv' ? 'selected' : ''}>ASV - American Standard Version</option>
-            <option value="lxx" ${translation === 'lxx' ? 'selected' : ''}>LXX - Septuagint</option>
-          </select>
+          <h3>📖 Translation Priority</h3>
+          <p class="settings-description">Drag to reorder. Translations above the line are shown by default; those below appear when you tap "more translations."</p>
+          <div id="translation-sort-container">
+            ${this._buildTranslationSortList()}
+          </div>
         </section>
         
         <!-- Name Preferences -->
@@ -180,9 +178,10 @@ const SettingsView = {
       </div>
     `;
     
-    // Initialize map after DOM is ready
+    // Initialize map and drag-drop after DOM is ready
     setTimeout(() => {
       this.initLocationMap(container, currentLocation, locationPref.method !== 'gps');
+      this._initTranslationDragDrop();
     }, 0);
   },
   
@@ -303,24 +302,221 @@ const SettingsView = {
     }
   },
   
+  // ── Translation Sort List ──
+
+  /**
+   * Build the HTML for the draggable translation sort list.
+   */
+  _buildTranslationSortList() {
+    const { visible, hidden, visibleCount } = Bible.getOrderedTranslations();
+    const all = [...visible, ...hidden];
+
+    let html = '<div class="translation-sort-list" id="translation-sort-list">';
+    for (let i = 0; i < all.length; i++) {
+      const t = all[i];
+      const isDefault = i === 0;
+      const strongsBadge = t.hasStrongs ? '<span class="ts-badge ts-badge-strongs">Strong\'s</span>' : '';
+      const defaultBadge = isDefault ? '<span class="ts-badge ts-badge-default">Default</span>' : '';
+      const yearStr = t.year ? `<span class="ts-year">${t.year}</span>` : '';
+
+      // Insert divider before first hidden item
+      if (i === visibleCount) {
+        html += `<div class="translation-sort-divider" id="translation-sort-divider">
+          <span class="ts-divider-label">Hidden — tap "more" to see</span>
+        </div>`;
+      }
+
+      html += `<div class="translation-sort-item" data-id="${t.id}" draggable="true">
+        <span class="ts-grip">⠿</span>
+        <span class="ts-name">${t.name}</span>
+        <span class="ts-fullname">${t.fullName}</span>
+        ${yearStr}
+        <span class="ts-badges">${defaultBadge}${strongsBadge}</span>
+      </div>`;
+    }
+
+    // If all are visible, add divider at the end
+    if (visibleCount >= all.length) {
+      html += `<div class="translation-sort-divider" id="translation-sort-divider">
+        <span class="ts-divider-label">Hidden — tap "more" to see</span>
+      </div>`;
+    }
+
+    html += '</div>';
+    return html;
+  },
+
+  /**
+   * Initialize drag-and-drop event handlers on the sort list.
+   * Called after the settings page renders.
+   */
+  _initTranslationDragDrop() {
+    const list = document.getElementById('translation-sort-list');
+    if (!list) return;
+
+    let dragItem = null;
+    let touchClone = null;
+    let touchStartY = 0;
+
+    // --- Mouse / HTML5 drag ---
+    list.addEventListener('dragstart', (e) => {
+      const item = e.target.closest('.translation-sort-item');
+      if (!item) return;
+      dragItem = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', '');
+    });
+
+    list.addEventListener('dragend', (e) => {
+      const item = e.target.closest('.translation-sort-item');
+      if (item) item.classList.remove('dragging');
+      dragItem = null;
+      this._saveTranslationSort();
+    });
+
+    list.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (!dragItem) return;
+      const target = this._getDragTarget(e.clientY, list);
+      if (target && target !== dragItem) {
+        const rect = target.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        if (e.clientY < midY) {
+          list.insertBefore(dragItem, target);
+        } else {
+          list.insertBefore(dragItem, target.nextSibling);
+        }
+      }
+    });
+
+    // --- Touch drag ---
+    list.addEventListener('touchstart', (e) => {
+      const item = e.target.closest('.translation-sort-item');
+      if (!item) return;
+      dragItem = item;
+      touchStartY = e.touches[0].clientY;
+      item.classList.add('dragging');
+
+      // Create visual clone
+      touchClone = item.cloneNode(true);
+      touchClone.classList.add('ts-touch-clone');
+      const rect = item.getBoundingClientRect();
+      touchClone.style.width = rect.width + 'px';
+      touchClone.style.left = rect.left + 'px';
+      touchClone.style.top = rect.top + 'px';
+      document.body.appendChild(touchClone);
+    }, { passive: true });
+
+    list.addEventListener('touchmove', (e) => {
+      if (!dragItem || !touchClone) return;
+      e.preventDefault();
+      const touchY = e.touches[0].clientY;
+      touchClone.style.top = touchY - 20 + 'px';
+
+      const target = this._getDragTarget(touchY, list);
+      if (target && target !== dragItem) {
+        const rect = target.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        if (touchY < midY) {
+          list.insertBefore(dragItem, target);
+        } else {
+          list.insertBefore(dragItem, target.nextSibling);
+        }
+      }
+    }, { passive: false });
+
+    list.addEventListener('touchend', () => {
+      if (dragItem) dragItem.classList.remove('dragging');
+      if (touchClone) { touchClone.remove(); touchClone = null; }
+      dragItem = null;
+      this._saveTranslationSort();
+    });
+  },
+
+  /**
+   * Find the sort item under a Y coordinate (skipping divider).
+   */
+  _getDragTarget(clientY, list) {
+    const items = list.querySelectorAll('.translation-sort-item:not(.dragging)');
+    let closest = null;
+    let closestDist = Infinity;
+    for (const item of items) {
+      const rect = item.getBoundingClientRect();
+      const dist = Math.abs(clientY - (rect.top + rect.height / 2));
+      if (dist < closestDist) {
+        closestDist = dist;
+        closest = item;
+      }
+    }
+    return closest;
+  },
+
+  /**
+   * Read current DOM order + divider position and save to localStorage.
+   */
+  _saveTranslationSort() {
+    const list = document.getElementById('translation-sort-list');
+    if (!list) return;
+
+    const children = Array.from(list.children);
+    const order = [];
+    let visibleCount = 0;
+    let foundDivider = false;
+
+    for (const child of children) {
+      if (child.classList.contains('translation-sort-divider')) {
+        foundDivider = true;
+        visibleCount = order.length;
+        continue;
+      }
+      if (child.dataset.id) {
+        order.push(child.dataset.id);
+      }
+    }
+
+    // If divider is at the end, all are visible
+    if (!foundDivider) visibleCount = order.length;
+    // Enforce at least 1 visible
+    if (visibleCount < 1) visibleCount = 1;
+
+    Bible.saveTranslationOrder(order, visibleCount);
+
+    // Also save the first (default) translation to the legacy preference key
+    if (order[0]) {
+      try { localStorage.setItem('bible_translation_preference', order[0]); } catch (e) {}
+    }
+
+    // Re-render the list to update badges
+    const container = document.getElementById('translation-sort-container');
+    if (container) {
+      container.innerHTML = this._buildTranslationSortList();
+      this._initTranslationDragDrop();
+    }
+  },
+
   /**
    * Get translation preference from localStorage
    */
   getTranslationPreference() {
+    // Use Bible API's ordered list — first item is the default
+    if (typeof Bible !== 'undefined' && Bible.getDefaultTranslation) {
+      return Bible.getDefaultTranslation();
+    }
     try {
       return localStorage.getItem('bible_translation_preference') || 'kjv';
     } catch (e) {
       return 'kjv';
     }
   },
-  
+
   /**
-   * Save translation preference
+   * Save translation preference (legacy — now handled by sort order)
    */
   saveTranslationPreference(translation) {
     try {
       localStorage.setItem('bible_translation_preference', translation);
-      // If currently viewing Bible, update the translation
       const state = AppStore.getState();
       if (state.content.view === 'reader' && state.content.params.contentType === 'bible') {
         AppStore.dispatch({

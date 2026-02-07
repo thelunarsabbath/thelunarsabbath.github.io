@@ -330,9 +330,15 @@ const BibleView = {
             <span id="bible-selectors" class="reader-selector-group" style="${bibleDisplay}">
               <select id="bible-translation-select" class="bible-explorer-select bible-translation-select" 
                       onchange="onTranslationChange(this.value)" title="Select translation">
-                <option value="kjv">KJV</option>
-                <option value="asv">ASV</option>
-                <option value="lxx">LXX</option>
+                ${(() => {
+                  const ord = (typeof Bible !== 'undefined') ? Bible.getOrderedTranslations() : { visible: [{id:'kjv',name:'KJV'},{id:'asv',name:'ASV'},{id:'lxx',name:'LXX'}], hidden: [] };
+                  const trans = state?.content?.params?.translation || 'kjv';
+                  let opts = ord.visible.map(t => `<option value="${t.id}"${t.id === trans ? ' selected' : ''}>${t.name}</option>`).join('');
+                  if (ord.hidden.length > 0) {
+                    opts += '<optgroup label="More">' + ord.hidden.map(t => `<option value="${t.id}"${t.id === trans ? ' selected' : ''}>${t.name}</option>`).join('') + '</optgroup>';
+                  }
+                  return opts;
+                })()}
               </select>
               
               <select id="bible-book-select" class="bible-explorer-select" 
@@ -491,27 +497,48 @@ const BibleView = {
 
 // Helper function to get welcome HTML (used by bible-reader.js)
 function getBibleWelcomeHTML() {
+  // Generate translation cards in user-preferred order
+  const { visible, hidden } = (typeof Bible !== 'undefined') ? Bible.getOrderedTranslations() : { visible: [], hidden: [] };
+  const translations = [...visible, ...hidden];
+  let cardsHTML = '';
+
+  if (translations.length > 0) {
+    for (const t of translations) {
+      const strongsBadge = t.hasStrongs ? '<span class="translation-badge">Strong\'s</span>' : '';
+      const yearStr = t.year ? ` (${t.year})` : '';
+      cardsHTML += `
+        <div class="bible-translation-card" onclick="selectTranslationAndStart('${t.id}')">
+          <h3>${t.fullName}${yearStr} ${strongsBadge}</h3>
+          <p>${t.description || ''}</p>
+          <span class="bible-translation-start">Start Reading →</span>
+        </div>`;
+    }
+  } else {
+    // Fallback if Bible API not loaded
+    cardsHTML = `
+      <div class="bible-translation-card" onclick="selectTranslationAndStart('kjv')">
+        <h3>King James Version</h3>
+        <p>The classic 1611 translation with Strong's numbers for word study.</p>
+        <span class="bible-translation-start">Start Reading →</span>
+      </div>
+      <div class="bible-translation-card" onclick="selectTranslationAndStart('asv')">
+        <h3>American Standard Version</h3>
+        <p>A literal 1901 translation known for accuracy.</p>
+        <span class="bible-translation-start">Start Reading →</span>
+      </div>
+      <div class="bible-translation-card" onclick="selectTranslationAndStart('lxx')">
+        <h3>Septuagint (LXX)</h3>
+        <p>Ancient Greek OT translation quoted by NT authors.</p>
+        <span class="bible-translation-start">Start Reading →</span>
+      </div>`;
+  }
+
   return `
     <div class="bible-explorer-welcome">
       <h2>Welcome to the Bible Explorer</h2>
       <p>Select a translation to begin reading, or use the search bar to find specific verses.</p>
-      
       <div class="bible-translation-cards">
-        <div class="bible-translation-card" onclick="selectTranslationAndStart('kjv')">
-          <h3>King James Version</h3>
-          <p>The classic 1611 translation with Strong's numbers for word study.</p>
-          <span class="bible-translation-start">Start Reading →</span>
-        </div>
-        <div class="bible-translation-card" onclick="selectTranslationAndStart('asv')">
-          <h3>American Standard Version</h3>
-          <p>A literal 1901 translation known for accuracy.</p>
-          <span class="bible-translation-start">Start Reading →</span>
-        </div>
-        <div class="bible-translation-card" onclick="selectTranslationAndStart('lxx')">
-          <h3>Septuagint (LXX)</h3>
-          <p>Ancient Greek OT translation quoted by NT authors.</p>
-          <span class="bible-translation-start">Start Reading →</span>
-        </div>
+        ${cardsHTML}
       </div>
     </div>
   `;

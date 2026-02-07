@@ -232,7 +232,7 @@ const ReaderView = {
         
         <div class="reader-content-grid">
           <!-- Bible -->
-          <div class="reader-content-card" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'bible',translation:'kjv',book:'Genesis',chapter:1}})">
+          <div class="reader-content-card" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'bible'}})">
             <div class="reader-card-icon">📜</div>
             <h2>Bible</h2>
             <p>Read Scripture with interlinear data, Strong's numbers, and symbol highlighting. Multiple translations available.</p>

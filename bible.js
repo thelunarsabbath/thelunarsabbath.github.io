@@ -1412,6 +1412,81 @@ const Bible = {
       worker.terminate();
     }
     this._workers = {};
+  },
+
+  // ── Translation ordering preferences ──
+
+  /** Default visible count if no preference is saved. */
+  _defaultVisibleCount: 4,
+
+  /**
+   * Get translations in user-preferred order, split into visible/hidden.
+   * Reads from localStorage. Falls back to registry order with default visible count.
+   * Excludes source texts (WLC, Greek NT) — those are for interlinear display only.
+   * @returns {{ visible: Object[], hidden: Object[], order: string[], visibleCount: number }}
+   */
+  getOrderedTranslations() {
+    this._ensureInit();
+    const searchable = BIBLE_REGISTRY.filter(t => t.searchable !== false);
+    const defaultOrder = searchable.map(t => t.id);
+    let order = defaultOrder;
+    let visibleCount = this._defaultVisibleCount;
+
+    try {
+      const saved = localStorage.getItem('bible_translation_order');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed.order) && parsed.order.length > 0) {
+          // Validate: keep only ids that still exist in registry, append any new ones
+          const validIds = new Set(defaultOrder);
+          const filtered = parsed.order.filter(id => validIds.has(id));
+          const missing = defaultOrder.filter(id => !filtered.includes(id));
+          order = [...filtered, ...missing];
+        }
+        if (typeof parsed.visibleCount === 'number' && parsed.visibleCount >= 1) {
+          visibleCount = Math.min(parsed.visibleCount, order.length);
+        }
+      }
+    } catch (e) {}
+
+    // Ensure at least 1 visible
+    if (visibleCount < 1) visibleCount = 1;
+    if (visibleCount > order.length) visibleCount = order.length;
+
+    const visible = [];
+    const hidden = [];
+    for (let i = 0; i < order.length; i++) {
+      const reg = this._registryMap[order[i]];
+      if (!reg) continue;
+      if (i < visibleCount) {
+        visible.push(reg);
+      } else {
+        hidden.push(reg);
+      }
+    }
+
+    return { visible, hidden, order, visibleCount };
+  },
+
+  /**
+   * Save translation ordering preference to localStorage.
+   * @param {string[]} order - Translation IDs in priority order
+   * @param {number} visibleCount - How many are shown by default
+   */
+  saveTranslationOrder(order, visibleCount) {
+    try {
+      const vc = Math.max(1, Math.min(visibleCount, order.length));
+      localStorage.setItem('bible_translation_order', JSON.stringify({ order, visibleCount: vc }));
+    } catch (e) {}
+  },
+
+  /**
+   * Get the user's default (first priority) translation ID.
+   * @returns {string}
+   */
+  getDefaultTranslation() {
+    const { order } = this.getOrderedTranslations();
+    return order[0] || 'kjv';
   }
 };
 

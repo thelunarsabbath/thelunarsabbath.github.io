@@ -590,3 +590,146 @@
     padding: 12px 8px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TRANSLATION SORT LIST (Drag-and-Drop Priority)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.translation-sort-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  user-select: none;
+}
+
+.translation-sort-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  cursor: grab;
+  transition: background 0.15s, opacity 0.15s, transform 0.15s;
+  min-height: 44px;
+  touch-action: none;
+}
+
+.translation-sort-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.translation-sort-item:active {
+  cursor: grabbing;
+}
+
+.translation-sort-item.dragging {
+  opacity: 0.4;
+  transform: scale(0.97);
+}
+
+.ts-grip {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 1.2em;
+  flex-shrink: 0;
+  cursor: grab;
+  line-height: 1;
+}
+
+.ts-name {
+  font-weight: 600;
+  color: #e8e8e8;
+  font-size: 0.95em;
+  flex-shrink: 0;
+  min-width: 40px;
+}
+
+.ts-fullname {
+  color: #999;
+  font-size: 0.8em;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ts-year {
+  color: #7ec8e3;
+  font-size: 0.7em;
+  flex-shrink: 0;
+}
+
+.ts-badges {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ts-badge {
+  font-size: 0.65em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.ts-badge-default {
+  background: rgba(212, 160, 23, 0.2);
+  color: #d4a017;
+}
+
+.ts-badge-strongs {
+  background: rgba(126, 200, 227, 0.15);
+  color: #7ec8e3;
+}
+
+/* Divider between visible and hidden */
+.translation-sort-divider {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  margin: 4px 0;
+}
+
+.translation-sort-divider::before,
+.translation-sort-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(212, 160, 23, 0.3);
+}
+
+.ts-divider-label {
+  padding: 0 12px;
+  font-size: 0.7em;
+  color: #d4a017;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Touch drag clone */
+.ts-touch-clone {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.85;
+  transform: scale(1.03);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  background: rgba(30, 60, 90, 0.95);
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .ts-fullname {
+    display: none;
+  }
+  
+  .translation-sort-item {
+    padding: 10px 8px;
+    gap: 6px;
+  }
+}

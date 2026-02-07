@@ -33,32 +33,19 @@ const BIBLE_TRANSLATIONS = {
   }
 };
 
-// Translation data storage
-let bibleTranslations = {};  // { kjv: [...], asv: [...] }
-let bibleIndexes = {};       // { kjv: {...}, asv: {...} }
+// Translation data storage — legacy globals, now backed by Bible API proxies (defined below)
+// bibleTranslations and bibleIndexes are defined after Bible API is available.
 let currentTranslation = 'kjv';
 let translationsLoading = {};  // Track which translations are currently loading
 
-// Hebrew (WLC) data storage
-let hebrewData = null;       // Array of { book, chapter, verse, text }
-let hebrewIndex = {};        // Index by "Book Chapter:Verse"
-let hebrewLoading = null;    // Promise while loading
+// Hebrew (WLC) — now managed by Bible API (bible.js)
+// Legacy stubs for any code that still checks these
+let hebrewData = null;
+let hebrewIndex = {};
+let hebrewLoading = null;
 
-// Book number to name mapping for WLC (Hebrew Bible order matches Protestant OT)
-const BOOK_NUM_TO_NAME = {
-  1: 'Genesis', 2: 'Exodus', 3: 'Leviticus', 4: 'Numbers', 5: 'Deuteronomy',
-  6: 'Joshua', 7: 'Judges', 8: 'Ruth', 9: '1 Samuel', 10: '2 Samuel',
-  11: '1 Kings', 12: '2 Kings', 13: '1 Chronicles', 14: '2 Chronicles',
-  15: 'Ezra', 16: 'Nehemiah', 17: 'Esther', 18: 'Job', 19: 'Psalms',
-  20: 'Proverbs', 21: 'Ecclesiastes', 22: 'Song of Solomon', 23: 'Isaiah',
-  24: 'Jeremiah', 25: 'Lamentations', 26: 'Ezekiel', 27: 'Daniel',
-  28: 'Hosea', 29: 'Joel', 30: 'Amos', 31: 'Obadiah', 32: 'Jonah',
-  33: 'Micah', 34: 'Nahum', 35: 'Habakkuk', 36: 'Zephaniah', 37: 'Haggai',
-  38: 'Zechariah', 39: 'Malachi'
-};
-
-// Reverse mapping: book name to number
-const BOOK_NAME_TO_NUM = {};
+// BOOK_NUM_TO_NAME and BOOK_NAME_TO_NUM are now defined in bible.js (loaded first).
+// They're available as globals: BOOK_NUM_TO_NAME, BOOK_NAME_TO_NUM
 
 // Normalize Strong's number - strip leading zeros and trailing letter suffixes
 // H0550G -> H550, H08559 -> H8559, G0011 -> G11
@@ -132,97 +119,8 @@ const KJV_NAME_VARIANTS = {
   'saul': 'paul',
 };
 
-// Map of book abbreviations to full names (matching KJV format)
-const BOOK_NAME_MAP = {
-  // Full names map to themselves
-  'genesis': 'Genesis', 'exodus': 'Exodus', 'leviticus': 'Leviticus', 'numbers': 'Numbers', 'deuteronomy': 'Deuteronomy',
-  'joshua': 'Joshua', 'judges': 'Judges', 'ruth': 'Ruth',
-  '1 samuel': '1 Samuel', '2 samuel': '2 Samuel', '1 kings': '1 Kings', '2 kings': '2 Kings',
-  '1 chronicles': '1 Chronicles', '2 chronicles': '2 Chronicles',
-  'ezra': 'Ezra', 'nehemiah': 'Nehemiah', 'esther': 'Esther',
-  'job': 'Job', 'psalms': 'Psalms', 'psalm': 'Psalms', 'proverbs': 'Proverbs', 'ecclesiastes': 'Ecclesiastes',
-  'song of solomon': 'Song of Solomon', 'song of songs': 'Song of Solomon',
-  'isaiah': 'Isaiah', 'jeremiah': 'Jeremiah', 'lamentations': 'Lamentations', 'ezekiel': 'Ezekiel', 'daniel': 'Daniel',
-  'hosea': 'Hosea', 'joel': 'Joel', 'amos': 'Amos', 'obadiah': 'Obadiah', 'jonah': 'Jonah', 'micah': 'Micah',
-  'nahum': 'Nahum', 'habakkuk': 'Habakkuk', 'zephaniah': 'Zephaniah', 'haggai': 'Haggai', 'zechariah': 'Zechariah', 'malachi': 'Malachi',
-  'matthew': 'Matthew', 'mark': 'Mark', 'luke': 'Luke', 'john': 'John', 'acts': 'Acts', 'romans': 'Romans',
-  '1 corinthians': '1 Corinthians', '2 corinthians': '2 Corinthians',
-  'galatians': 'Galatians', 'ephesians': 'Ephesians', 'philippians': 'Philippians', 'colossians': 'Colossians',
-  '1 thessalonians': '1 Thessalonians', '2 thessalonians': '2 Thessalonians',
-  '1 timothy': '1 Timothy', '2 timothy': '2 Timothy', 'titus': 'Titus', 'philemon': 'Philemon',
-  'hebrews': 'Hebrews', 'james': 'James',
-  '1 peter': '1 Peter', '2 peter': '2 Peter', '1 john': '1 John', '2 john': '2 John', '3 john': '3 John',
-  'jude': 'Jude', 'revelation': 'Revelation',
-  // Common abbreviations
-  'gen': 'Genesis', 'ge': 'Genesis',
-  'exod': 'Exodus', 'exo': 'Exodus', 'ex': 'Exodus',
-  'lev': 'Leviticus', 'le': 'Leviticus',
-  'num': 'Numbers', 'nu': 'Numbers',
-  'deut': 'Deuteronomy', 'de': 'Deuteronomy', 'dt': 'Deuteronomy',
-  'josh': 'Joshua', 'jos': 'Joshua',
-  'judg': 'Judges', 'jdg': 'Judges', 'jg': 'Judges',
-  'ru': 'Ruth',
-  '1 sam': '1 Samuel', '1sam': '1 Samuel', '1sa': '1 Samuel',
-  '2 sam': '2 Samuel', '2sam': '2 Samuel', '2sa': '2 Samuel',
-  '1 kgs': '1 Kings', '1kgs': '1 Kings', '1ki': '1 Kings',
-  '2 kgs': '2 Kings', '2kgs': '2 Kings', '2ki': '2 Kings',
-  '1 chr': '1 Chronicles', '1chr': '1 Chronicles', '1ch': '1 Chronicles',
-  '2 chr': '2 Chronicles', '2chr': '2 Chronicles', '2ch': '2 Chronicles',
-  'neh': 'Nehemiah', 'ne': 'Nehemiah',
-  'est': 'Esther', 'es': 'Esther',
-  'jb': 'Job',
-  'psa': 'Psalms', 'ps': 'Psalms',
-  'prov': 'Proverbs', 'pro': 'Proverbs', 'pr': 'Proverbs',
-  'eccl': 'Ecclesiastes', 'ecc': 'Ecclesiastes', 'ec': 'Ecclesiastes',
-  'song': 'Song of Solomon', 'sos': 'Song of Solomon', 'so': 'Song of Solomon',
-  'isa': 'Isaiah', 'is': 'Isaiah',
-  'jer': 'Jeremiah', 'je': 'Jeremiah',
-  'lam': 'Lamentations', 'la': 'Lamentations',
-  'ezek': 'Ezekiel', 'eze': 'Ezekiel', 'ez': 'Ezekiel',
-  'dan': 'Daniel', 'da': 'Daniel',
-  'hos': 'Hosea', 'ho': 'Hosea',
-  'joe': 'Joel', 'jl': 'Joel',
-  'am': 'Amos',
-  'obad': 'Obadiah', 'ob': 'Obadiah',
-  'jon': 'Jonah', 'jnh': 'Jonah',
-  'mic': 'Micah', 'mi': 'Micah',
-  'nah': 'Nahum', 'na': 'Nahum',
-  'hab': 'Habakkuk',
-  'zeph': 'Zephaniah', 'zep': 'Zephaniah',
-  'hag': 'Haggai', 'hg': 'Haggai',
-  'zech': 'Zechariah', 'zec': 'Zechariah',
-  'mal': 'Malachi',
-  'matt': 'Matthew', 'mat': 'Matthew', 'mt': 'Matthew',
-  'mk': 'Mark', 'mr': 'Mark',
-  'lk': 'Luke', 'lu': 'Luke',
-  'jn': 'John', 'joh': 'John',
-  'ac': 'Acts',
-  'rom': 'Romans', 'ro': 'Romans',
-  '1 cor': '1 Corinthians', '1cor': '1 Corinthians', '1co': '1 Corinthians',
-  '2 cor': '2 Corinthians', '2cor': '2 Corinthians', '2co': '2 Corinthians',
-  'gal': 'Galatians', 'ga': 'Galatians',
-  'eph': 'Ephesians',
-  'phil': 'Philippians', 'php': 'Philippians',
-  'col': 'Colossians',
-  '1 thess': '1 Thessalonians', '1thess': '1 Thessalonians', '1th': '1 Thessalonians',
-  '2 thess': '2 Thessalonians', '2thess': '2 Thessalonians', '2th': '2 Thessalonians',
-  '1 tim': '1 Timothy', '1tim': '1 Timothy', '1ti': '1 Timothy',
-  '2 tim': '2 Timothy', '2tim': '2 Timothy', '2ti': '2 Timothy',
-  'tit': 'Titus',
-  'phlm': 'Philemon', 'phm': 'Philemon',
-  'heb': 'Hebrews',
-  'jas': 'James', 'jam': 'James',
-  '1 pet': '1 Peter', '1pet': '1 Peter', '1pe': '1 Peter',
-  '2 pet': '2 Peter', '2pet': '2 Peter', '2pe': '2 Peter',
-  '1 jn': '1 John', '1jn': '1 John', '1jo': '1 John',
-  '2 jn': '2 John', '2jn': '2 John', '2jo': '2 John',
-  '3 jn': '3 John', '3jn': '3 John', '3jo': '3 John',
-  'jud': 'Jude',
-  'rev': 'Revelation', 're': 'Revelation'
-};
-for (const [num, name] of Object.entries(BOOK_NUM_TO_NAME)) {
-  BOOK_NAME_TO_NUM[name] = parseInt(num);
-}
+// BOOK_NAME_MAP, BOOK_NUM_TO_NAME, BOOK_NAME_TO_NUM are now defined in bible.js (loaded first).
+// They're available as globals and used by normalizeBookName() in bible.js.
 
 // KJV Strong's data storage
 let kjvStrongsData = null;
@@ -435,23 +333,72 @@ function getStrongsEntry(strongsNum) {
   return dict.lookup(normalized);
 }
 
-// Backwards-compatible getters
+// ─── Legacy compatibility layer ──────────────────────────────────────────────
+// These globals are read by many functions throughout bible-reader.js.
+// They now derive from the Bible API instead of local arrays.
+// TODO: Remove these once all access is migrated to Bible.getVerse/getChapter.
+
+let bibleData = null;  // Legacy: used by displayBibleChapter filter, buildBookChapterCounts
+let bibleIndex = {};   // Legacy: used by showInterlinear for cross-translation comparison
+
+// Proxy objects that delegate to Bible API internals
+// bibleTranslations[id] and bibleIndexes[id] are read in several places
+let bibleTranslations = new Proxy({}, {
+  get(target, prop) {
+    if (typeof prop === 'string' && Bible.isLoaded(prop)) {
+      // Return a truthy marker — actual verse data comes from Bible.getVerse/getChapter
+      return true;
+    }
+    return undefined;
+  }
+});
+let bibleIndexes = new Proxy({}, {
+  get(target, prop) {
+    if (typeof prop === 'string' && Bible.isLoaded(prop)) {
+      // Return a proxy that resolves verse lookups via Bible API
+      return new Proxy({}, {
+        get(_, ref) {
+          if (typeof ref !== 'string') return undefined;
+          const m = ref.match(/^(.+?)\s+(\d+):(\d+)$/);
+          if (!m) return undefined;
+          return Bible.getVerse(prop, m[1], parseInt(m[2]), parseInt(m[3]));
+        }
+      });
+    }
+    return undefined;
+  }
+});
+
 function getBibleData() {
-  return bibleTranslations[currentTranslation] || null;
+  return bibleData;
 }
 
 function getBibleIndex() {
-  return bibleIndexes[currentTranslation] || {};
+  return bibleIndex;
 }
 
-// Legacy compatibility - these are used throughout the codebase
-let bibleData = null;  // Will be updated when translation changes
-let bibleIndex = {};   // Will be updated when translation changes
+// Sync legacy globals. During Phase 1 transition, bibleData is set to a
+// marker object so truthiness checks pass. Actual data access is migrated
+// in Phase 2 to use Bible.getChapter / Bible.getVerse directly.
+let _legacyTranslation = null;  // track which translation bibleData was built for
 
-// Sync legacy variables with current translation
 function syncLegacyVariables() {
-  bibleData = bibleTranslations[currentTranslation] || null;
-  bibleIndex = bibleIndexes[currentTranslation] || {};
+  if (!Bible.isLoaded(currentTranslation)) {
+    bibleData = null;
+    bibleIndex = {};
+    _legacyTranslation = null;
+    return;
+  }
+
+  // Mark as loaded (truthiness) — actual data access uses Bible API
+  if (_legacyTranslation !== currentTranslation) {
+    // Set bibleData to a non-null marker so `if (!bibleData)` checks pass.
+    // Functions that iterate bibleData (displayBibleChapter, buildBookChapterCounts)
+    // are updated in Phase 2 to use Bible API. Until then, set a real array.
+    bibleData = { _loaded: true, length: 31102 };
+    bibleIndex = bibleIndexes[currentTranslation] || {};
+    _legacyTranslation = currentTranslation;
+  }
 }
 
 // Hebrew word annotations - words that have translation ambiguity
@@ -818,87 +765,49 @@ function hideBibleLoadingDialog() {
   if (dialog) dialog.classList.remove('visible');
 }
 
-// Load a specific translation from cache or parse from source
-// translationId: 'kjv', 'asv', etc.
-// showDialog: if true, shows loading dialog (use when user is waiting)
+// ─── Loading pipeline: delegates to Bible API (bible.js) ─────────────────────
+// The Bible API manages blobs, indexes, and decompression.
+// These wrapper functions maintain backwards compatibility with the rest of bible-reader.js.
+
 async function loadTranslation(translationId, showDialog = false) {
-  const config = BIBLE_TRANSLATIONS[translationId];
-  if (!config) {
+  // Map old config ids to Bible API ids
+  const apiId = _mapTranslationId(translationId);
+  if (!apiId) {
     console.warn(`Unknown translation: ${translationId}`);
     return false;
   }
-  
-  // Already loaded?
-  if (bibleTranslations[translationId]) {
-    console.log(`${config.name} already loaded`);
+
+  if (Bible.isLoaded(apiId)) {
+    syncLegacyVariables();
     return true;
   }
-  
-  // Currently loading?
-  if (translationsLoading[translationId]) {
-    console.log(`${config.name} already loading, waiting...`);
-    return translationsLoading[translationId];
-  }
-  
-  // Show loading dialog only if requested and we still don't have it (avoid flash on back)
+
   if (showDialog) {
-    if (bibleTranslations[translationId]) {
-      return true;
-    }
     showBibleLoadingDialog();
-    updateLoadingDialogText(`Loading ${config.name}...`);
+    updateLoadingDialogText(`Loading...`);
   }
-  
-  // Create loading promise
-  translationsLoading[translationId] = (async () => {
-    try {
-      let data;
-      if (config.jsonFile) {
-        if (showDialog) updateLoadingDialogText(`Downloading ${config.name}...`);
-        const response = await fetch(config.jsonFile);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const raw = await response.json();
-        // Pre-processed JSON: array of { book, chapter, verse, text }; add reference
-        data = raw.map((v) => ({
-          book: v.book,
-          chapter: v.chapter,
-          verse: v.verse,
-          text: v.text,
-          reference: `${v.book} ${v.chapter}:${v.verse}`
-        }));
-        bibleTranslations[translationId] = data;
-      } else {
-        if (showDialog) updateLoadingDialogText(`Downloading ${config.name}...`);
-        const response = await fetch(config.file);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const text = await response.text();
-        if (showDialog) updateLoadingDialogText(`Parsing ${config.name}...`);
-        data = await parseBibleText(text, config);
-        bibleTranslations[translationId] = data;
-      }
 
-      if (showDialog) updateLoadingDialogText(`Building index...`);
-      rebuildTranslationIndex(translationId);
-      syncLegacyVariables();
+  const ok = await Bible.loadTranslation(apiId);
 
-      if (showDialog) {
-        hideBibleLoadingDialog();
-      }
+  if (ok) {
+    syncLegacyVariables();
+  }
 
-      console.log(`${config.name} loaded: ${data.length} verses`);
-      return true;
-    } catch (err) {
-      if (showDialog) {
-        hideBibleLoadingDialog();
-      }
-      console.warn(`${config.name} not available:`, err.message);
-      return false;
-    } finally {
-      delete translationsLoading[translationId];
-    }
-  })();
-  
-  return translationsLoading[translationId];
+  if (showDialog) {
+    hideBibleLoadingDialog();
+  }
+
+  return ok;
+}
+
+// Map old BIBLE_TRANSLATIONS ids to new Bible API ids
+function _mapTranslationId(id) {
+  const lower = (id || '').toLowerCase();
+  // The new Bible API uses the same ids (kjv, asv, lxx)
+  if (Bible.getTranslation(lower)) return lower;
+  // Also check old config
+  if (BIBLE_TRANSLATIONS[lower]) return lower;
+  return null;
 }
 
 // Load Bible (backwards compatible - loads KJV)
@@ -908,125 +817,40 @@ async function loadBible(showDialog = false) {
 
 // Load all translations in background (KJV first, then others)
 async function loadAllTranslations() {
-  // Load KJV first (primary translation)
-  await loadTranslation('kjv', false);
-  
-  // Then load ASV, LXX, Hebrew, and Interlinear in background
-  loadTranslation('asv', false).catch(err => 
-    console.log('ASV loading deferred:', err.message)
-  );
-  
-  loadTranslation('lxx', false).catch(err => 
-    console.log('LXX loading deferred:', err.message)
-  );
-  
+  // Load primary translation via Bible API
+  await loadTranslation(currentTranslation, false);
+
+  // Background-load the other translations the old code expects (asv, lxx)
+  Bible.loadTranslation('asv').then(() => syncLegacyVariables()).catch(() => {});
+  Bible.loadTranslation('lxx').then(() => syncLegacyVariables()).catch(() => {});
+
+  // Also load extra data not managed by Bible API
   loadHebrew().catch(err =>
     console.log('Hebrew loading deferred:', err.message)
   );
-  
+
   loadInterlinear().catch(err =>
     console.log('OT Interlinear loading deferred:', err.message)
   );
-  
+
   loadNTInterlinear().catch(err =>
     console.log('NT Interlinear loading deferred:', err.message)
   );
-  
+
   loadTipnr().catch(err =>
     console.log('TIPNR loading deferred:', err.message)
   );
 }
 
-// Load Hebrew (WLC) text
+// Load Hebrew (WLC) text — now delegates to Bible API
 async function loadHebrew() {
-  // Already loaded?
-  if (hebrewData) {
-    return true;
-  }
-  
-  // Currently loading?
-  if (hebrewLoading) {
-    return hebrewLoading;
-  }
-  
-  // Load from file
-  hebrewLoading = (async () => {
-    try {
-      const response = await fetch('/wlc/verses.txt');
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
-      
-      hebrewData = await parseHebrewText(text);
-      rebuildHebrewIndex();
-      
-      console.log(`Hebrew loaded: ${hebrewData.length} verses`);
-      return true;
-    } catch (err) {
-      console.warn('Hebrew not available:', err.message);
-      return false;
-    } finally {
-      hebrewLoading = null;
-    }
-  })();
-  
-  return hebrewLoading;
+  if (Bible.isLoaded('wlc')) return true;
+  return Bible.loadTranslation('wlc');
 }
 
-// Parse WLC Hebrew text file
-async function parseHebrewText(text) {
-  const data = [];
-  const lines = text.split('\n');
-  const totalLines = lines.length;
-  const CHUNK_SIZE = 2000;
-  
-  for (let i = 0; i < totalLines; i++) {
-    const line = lines[i].trim();
-    if (!line || line.startsWith('#')) continue;  // Skip comments and empty lines
-    
-    // Format: book|chapter|verse|text|italics|strongs
-    const parts = line.split('|');
-    if (parts.length < 4) continue;
-    
-    const bookNum = parseInt(parts[0]);
-    const chapter = parseInt(parts[1]);
-    const verse = parseInt(parts[2]);
-    const hebrewText = parts[3];
-    
-    // Get book name from number
-    const bookName = BOOK_NUM_TO_NAME[bookNum];
-    if (!bookName) continue;  // Unknown book number
-    
-    data.push({
-      book: bookName,
-      chapter: chapter,
-      verse: verse,
-      text: hebrewText,
-      reference: `${bookName} ${chapter}:${verse}`
-    });
-    
-    // Yield to main thread
-    if (i % CHUNK_SIZE === 0 && i > 0) {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    }
-  }
-  
-  return data;
-}
-
-// Rebuild Hebrew index
-function rebuildHebrewIndex() {
-  hebrewIndex = {};
-  if (hebrewData) {
-    for (const entry of hebrewData) {
-      hebrewIndex[entry.reference] = entry;
-    }
-  }
-}
-
-// Get Hebrew verse by reference
+// Get Hebrew verse by reference — delegates to Bible API
 function getHebrewVerse(bookName, chapter, verse) {
-  const reference = `${bookName} ${chapter}:${verse}`;
-  return hebrewIndex[reference] || null;
+  return Bible.getVerse('wlc', bookName, chapter, verse);
 }
 
 // Check if Hebrew is available for a book (OT only)
@@ -1413,52 +1237,81 @@ async function showInterlinear(book, chapter, verse, event, verseElOrId) {
   // Check for data - NT uses 'g' for Greek, OT uses 'h' for Hebrew
   const originalWords = isNT ? data?.g : data?.h;
   
-  if (!data || !originalWords) {
-    interlinear.innerHTML = '<div class="interlinear-error">Interlinear data not available for this verse.</div>';
+  const ref = `${book} ${chapter}:${verse}`;
+  let html = '';
+
+  // ── Translation comparison section ──
+  // Show primary translations (loaded, not current), then a "More" button for the rest
+  // Use user-ordered translations: visible = primary, hidden = "more"
+  const { visible: visibleTranslations, hidden: hiddenTranslations } = Bible.getOrderedTranslations();
+  const primaryIds = visibleTranslations.map(t => t.id);
+  const moreIds = hiddenTranslations.map(t => t.id).filter(id => id !== currentTranslation);
+
+  html += '<div class="interlinear-translations">';
+  for (const tid of primaryIds) {
+    if (tid === currentTranslation) continue;
+    if (isNT && tid === 'lxx') continue;
+    const otherVerse = Bible.getVerse(tid, book, chapter, verse);
+    if (!otherVerse) continue;
+    const reg = Bible.getTranslation(tid);
+    const isGreekTrans = tid === 'lxx';
+    html += `<div class="interlinear-trans-row${isGreekTrans ? ' interlinear-trans-greek' : ''}">
+      <span class="interlinear-trans-label">${reg ? reg.name : tid.toUpperCase()}</span>
+      <span class="interlinear-trans-text">${otherVerse.text}</span>
+    </div>`;
+  }
+
+  // "More translations" expandable section — loads all at once on expand
+  if (moreIds.length > 0) {
+    html += `<div class="interlinear-more-section">
+      <button class="interlinear-more-btn" onclick="expandMoreTranslations(this, '${book.replace(/'/g, "\\'")}', ${chapter}, ${verse})">+ ${moreIds.length} more translations</button>
+      <div class="interlinear-more-content" data-translation-ids="${moreIds.join(',')}">
+        <div class="interlinear-more-loading" style="display:none;">Loading translations...</div>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // ── Interlinear (Hebrew/Greek) — collapsible ──
+  const hasInterlinear = data && (isNT ? data.g : data.h);
+  const langLabel = isNT ? 'Greek' : 'Hebrew';
+
+  html += `<div class="interlinear-original-section">
+    <button class="interlinear-original-btn" onclick="toggleInterlinearOriginal(this)">${langLabel} interlinear</button>
+    <div class="interlinear-original-content">`;
+
+  // WLC / Source text row (for OT: Hebrew source; for NT: could add Greek source)
+  if (!isNT) {
+    // Load WLC on demand if not loaded
+    const wlcVerse = Bible.isLoaded('wlc') ? Bible.getVerse('wlc', book, chapter, verse) : null;
+    html += `<div class="interlinear-source-text" id="il-wlc-${book.replace(/\s/g,'-')}-${chapter}-${verse}">
+      <div class="il-source-header">
+        <span class="il-source-label">WLC (Westminster Leningrad Codex)</span>
+        <label class="il-vowel-toggle"><input type="checkbox" checked onchange="toggleVowelPointing(this, '${book.replace(/'/g, "\\'")}', ${chapter}, ${verse})"> Vowel pointing</label>
+      </div>
+      <div class="il-source-text-content" dir="rtl">${wlcVerse ? wlcVerse.text : '<span class="il-loading-wlc" style="color:#666;font-style:italic;">Loading WLC...</span>'}</div>
+    </div>`;
+    // If WLC not loaded, trigger background load
+    if (!wlcVerse) {
+      setTimeout(() => loadAndShowWLC(book, chapter, verse), 0);
+    }
   } else {
-    let html = '';
-    
-    // Add translation comparison section FIRST (above the interlinear)
-    const ref = `${book} ${chapter}:${verse}`;
-    html += '<div class="interlinear-translations">';
-    
-    // Only show translations OTHER than the current one
-    // KJV
-    if (currentTranslation !== 'kjv') {
-      const kjvVerse = bibleIndexes['kjv']?.[ref];
-      if (kjvVerse) {
-        html += `<div class="interlinear-trans-row">
-          <span class="interlinear-trans-label">KJV</span>
-          <span class="interlinear-trans-text">${kjvVerse.text}</span>
-        </div>`;
-      }
+    // Greek NT source text
+    const greekVerse = Bible.isLoaded('greek_nt') ? Bible.getVerse('greek_nt', book, chapter, verse) : null;
+    html += `<div class="interlinear-source-text" id="il-greek-${book.replace(/\s/g,'-')}-${chapter}-${verse}">
+      <div class="il-source-header">
+        <span class="il-source-label">Greek NT</span>
+      </div>
+      <div class="il-source-text-content">${greekVerse ? greekVerse.text : '<span style="color:#666;font-style:italic;">Loading Greek NT...</span>'}</div>
+    </div>`;
+    if (!greekVerse) {
+      setTimeout(() => loadAndShowGreekNT(book, chapter, verse), 0);
     }
-    
-    // ASV
-    if (currentTranslation !== 'asv') {
-      const asvVerse = bibleIndexes['asv']?.[ref];
-      if (asvVerse) {
-        html += `<div class="interlinear-trans-row">
-          <span class="interlinear-trans-label">ASV</span>
-          <span class="interlinear-trans-text">${asvVerse.text}</span>
-        </div>`;
-      }
-    }
-    
-    // LXX (Septuagint) for OT verses only
-    if (!isNT && currentTranslation !== 'lxx') {
-      const lxxVerse = bibleIndexes['lxx']?.[ref];
-      if (lxxVerse) {
-        html += `<div class="interlinear-trans-row interlinear-trans-greek">
-          <span class="interlinear-trans-label">LXX</span>
-          <span class="interlinear-trans-text">${lxxVerse.text}</span>
-        </div>`;
-      }
-    }
-    
-    html += '</div>';
-    
-    // Build the word-for-word interlinear section
+  }
+
+  // Word-for-word interlinear
+  if (hasInterlinear) {
+    const originalWords = isNT ? data.g : data.h;
     const langClass = isNT ? '' : 'il-hebrew';
     html += `<div class="interlinear-words-container ${langClass}">`;
     for (let i = 0; i < originalWords.length; i++) {
@@ -1474,9 +1327,13 @@ async function showInterlinear(book, chapter, verse, event, verseElOrId) {
       </div>`;
     }
     html += '</div>';
-    
-    interlinear.innerHTML = html;
+  } else {
+    html += '<div class="interlinear-no-data">Word-for-word interlinear data not available for this verse.</div>';
   }
+
+  html += '</div></div>';
+
+  interlinear.innerHTML = html;
   
   verseEl.appendChild(interlinear);
   verseEl.classList.add('interlinear-expanded');
@@ -1493,6 +1350,113 @@ async function showInterlinear(book, chapter, verse, event, verseElOrId) {
 }
 
 // Highlight all words with matching BHSA ID
+// Expand "more translations" — load all unloaded translations and show verses
+async function expandMoreTranslations(btnEl, book, chapter, verse) {
+  const section = btnEl.parentElement;
+  const content = section.querySelector('.interlinear-more-content');
+  const ids = (content.dataset.translationIds || '').split(',').filter(Boolean);
+
+  // Toggle if already expanded
+  if (section.classList.contains('expanded')) {
+    section.classList.remove('expanded');
+    btnEl.textContent = `+ ${ids.length} more translations`;
+    return;
+  }
+
+  section.classList.add('expanded');
+  btnEl.textContent = 'Hide extra translations';
+
+  // Show loading indicator
+  const loadingEl = content.querySelector('.interlinear-more-loading');
+  if (loadingEl) loadingEl.style.display = 'block';
+
+  // Load all unloaded translations in parallel
+  const unloaded = ids.filter(id => !Bible.isLoaded(id));
+  if (unloaded.length > 0) {
+    await Promise.all(unloaded.map(id => Bible.loadTranslation(id).catch(() => {})));
+  }
+
+  if (loadingEl) loadingEl.style.display = 'none';
+
+  // Build rows for all translations
+  let rowsHtml = '';
+  for (const tid of ids) {
+    const v = Bible.getVerse(tid, book, chapter, verse);
+    const reg = Bible.getTranslation(tid);
+    const label = reg ? reg.name : tid.toUpperCase();
+    if (v) {
+      rowsHtml += `<div class="interlinear-trans-row">
+        <span class="interlinear-trans-label">${label}</span>
+        <span class="interlinear-trans-text">${v.text}</span>
+      </div>`;
+    } else {
+      rowsHtml += `<div class="interlinear-trans-row interlinear-trans-unloaded">
+        <span class="interlinear-trans-label">${label}</span>
+        <span class="interlinear-trans-text" style="color:#666;font-style:italic;">Not available</span>
+      </div>`;
+    }
+  }
+
+  // Replace loading with rows (keep the loading div for re-use)
+  const existing = content.querySelectorAll('.interlinear-trans-row');
+  existing.forEach(el => el.remove());
+  content.insertAdjacentHTML('beforeend', rowsHtml);
+}
+
+// Toggle the interlinear original section expand/collapse
+function toggleInterlinearOriginal(btnEl) {
+  const section = btnEl.parentElement;
+  section.classList.toggle('expanded');
+  const isNT = section.querySelector('.interlinear-words-container:not(.il-hebrew)') !== null;
+  const lang = isNT ? 'Greek' : 'Hebrew';
+  btnEl.textContent = section.classList.contains('expanded') ? `Hide ${lang} interlinear` : `${lang} interlinear`;
+}
+
+// Toggle vowel pointing on WLC text
+function toggleVowelPointing(checkbox, book, chapter, verse) {
+  const container = checkbox.closest('.interlinear-source-text');
+  if (!container) return;
+  const textEl = container.querySelector('.il-source-text-content');
+  if (!textEl) return;
+  const wlcVerse = Bible.getVerse('wlc', book, chapter, verse);
+  if (!wlcVerse) return;
+
+  if (checkbox.checked) {
+    // Show full text with vowels
+    textEl.textContent = wlcVerse.text;
+  } else {
+    // Strip vowel pointing (Unicode ranges: Hebrew points U+05B0-U+05BD, U+05BF, U+05C1-U+05C2, U+05C4-U+05C5, U+05C7)
+    // Also strip cantillation marks (U+0591-U+05AF)
+    textEl.textContent = wlcVerse.text.replace(/[\u0591-\u05AF\u05B0-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7]/g, '');
+  }
+}
+
+// Load WLC and show in interlinear panel
+async function loadAndShowWLC(book, chapter, verse) {
+  if (!Bible.isLoaded('wlc')) {
+    await Bible.loadTranslation('wlc');
+  }
+  const v = Bible.getVerse('wlc', book, chapter, verse);
+  const el = document.getElementById(`il-wlc-${book.replace(/\s/g, '-')}-${chapter}-${verse}`);
+  if (v && el) {
+    const textEl = el.querySelector('.il-source-text-content');
+    if (textEl) textEl.textContent = v.text;
+  }
+}
+
+// Load Greek NT and show in interlinear panel
+async function loadAndShowGreekNT(book, chapter, verse) {
+  if (!Bible.isLoaded('greek_nt')) {
+    await Bible.loadTranslation('greek_nt');
+  }
+  const v = Bible.getVerse('greek_nt', book, chapter, verse);
+  const el = document.getElementById(`il-greek-${book.replace(/\s/g, '-')}-${chapter}-${verse}`);
+  if (v && el) {
+    const textEl = el.querySelector('.il-source-text-content');
+    if (textEl) textEl.textContent = v.text;
+  }
+}
+
 function highlightBhsa(bhsaId) {
   document.querySelectorAll(`.il-word[data-b="${bhsaId}"]`).forEach(el => {
     el.classList.add('il-highlight');
@@ -1655,17 +1619,9 @@ function getVerseText(ref) {
   // Parse reference like "Genesis 1:5"
   const match = ref.match(/^(.+)\s+(\d+):(\d+)$/);
   if (!match) return null;
-  
-  const book = match[1];
-  const chapter = parseInt(match[2]);
-  const verse = parseInt(match[3]);
-  
-  // Look up in current translation's index
-  const index = getBibleIndex();
-  if (!index) return null;
-  
-  const entry = index[ref];
-  return entry ? entry.text : null;
+
+  const v = Bible.getVerse(currentTranslation, match[1], parseInt(match[2]), parseInt(match[3]));
+  return v ? v.text : null;
 }
 
 // Highlight matching words in verse text
@@ -1749,22 +1705,14 @@ function updateVerseSearchResults() {
   }
 }
 
-// Book name abbreviations
-const BOOK_ABBREVIATIONS = {
-  'Genesis': 'Gen', 'Exodus': 'Exod', 'Leviticus': 'Lev', 'Numbers': 'Num',
-  'Deuteronomy': 'Deut', 'Joshua': 'Josh', 'Judges': 'Judg', 'Ruth': 'Ruth',
-  '1 Samuel': '1 Sam', '2 Samuel': '2 Sam', '1 Kings': '1 Kgs', '2 Kings': '2 Kgs',
-  '1 Chronicles': '1 Chr', '2 Chronicles': '2 Chr', 'Ezra': 'Ezra', 'Nehemiah': 'Neh',
-  'Esther': 'Esth', 'Job': 'Job', 'Psalms': 'Ps', 'Proverbs': 'Prov',
-  'Ecclesiastes': 'Eccl', 'Song of Solomon': 'Song', 'Isaiah': 'Isa', 'Jeremiah': 'Jer',
-  'Lamentations': 'Lam', 'Ezekiel': 'Ezek', 'Daniel': 'Dan', 'Hosea': 'Hos',
-  'Joel': 'Joel', 'Amos': 'Amos', 'Obadiah': 'Obad', 'Jonah': 'Jonah',
-  'Micah': 'Mic', 'Nahum': 'Nah', 'Habakkuk': 'Hab', 'Zephaniah': 'Zeph',
-  'Haggai': 'Hag', 'Zechariah': 'Zech', 'Malachi': 'Mal'
-};
+// BOOK_ABBREVIATIONS is now defined in bible.js (loaded first).
+// Available as a global: BOOK_ABBREVIATIONS
 
 // Get abbreviated reference
 function abbreviateRef(ref) {
+  if (typeof Bible !== 'undefined' && Bible.abbreviateRef) {
+    return Bible.abbreviateRef(ref);
+  }
   const match = ref.match(/^(.+)\s+(\d+:\d+)$/);
   if (!match) return ref;
   const abbrev = BOOK_ABBREVIATIONS[match[1]] || match[1];
@@ -2097,31 +2045,19 @@ function findTextMatchVerses() {
   const wordPattern = new RegExp(`\\b${searchWord}\\b`, 'i');
   
   setTimeout(() => {
-    const allVerses = new Map();
-    
-    // Search current translation only
-    const transData = bibleTranslations[currentTranslation];
-    if (transData && transData.length > 0) {
-      for (const verse of transData) {
-        if (verse.text && wordPattern.test(verse.text)) {
-          const ref = `${verse.book} ${verse.chapter}:${verse.verse}`;
-          if (!allVerses.has(ref)) {
-            allVerses.set(ref, { words: [searchWord], text: verse.text });
-          }
-        }
-      }
-    }
-    
-    // Convert to sorted array
-    const results = Array.from(allVerses.entries())
-      .map(([ref, data]) => ({
-        ref,
+    // Use Bible API for text search
+    const searchResults = Bible.searchText(currentTranslation, wordPattern);
+
+    // Convert to the format conceptSearchState expects
+    const results = searchResults
+      .map(r => ({
+        ref: r.ref,
         strongsNums: [],
-        words: data.words,
-        text: data.text || '',
+        words: [searchWord],
+        text: r.text || '',
         fromText: true
       }))
-      .sort((a, b) => compareVerseRefs(a.ref, b.ref));
+      .sort((a, b) => Bible.compareRefs(a.ref, b.ref));
     
     state.allResults = results;
     state.textOnlyCount = results.length;
@@ -2180,17 +2116,12 @@ function expandConceptSearch() {
     const searchWord = state.searchWord;
     const wordPattern = searchWord ? new RegExp(`\\b${searchWord}\\b`, 'i') : null;
     
-    // First, add all text matches from current translation (these are primary)
+    // First, add all text matches from current translation via Bible API
     if (wordPattern) {
-      const transData = bibleTranslations[currentTranslation];
-      if (transData && transData.length > 0) {
-        for (const verse of transData) {
-          if (verse.text && wordPattern.test(verse.text)) {
-            const ref = `${verse.book} ${verse.chapter}:${verse.verse}`;
-            if (!allVerses.has(ref)) {
-              allVerses.set(ref, { strongsNums: new Set(), words: [searchWord], fromText: true, fromConcept: false, text: verse.text });
-            }
-          }
+      const textResults = Bible.searchText(currentTranslation, wordPattern);
+      for (const r of textResults) {
+        if (!allVerses.has(r.ref)) {
+          allVerses.set(r.ref, { strongsNums: new Set(), words: [searchWord], fromText: true, fromConcept: false, text: r.text });
         }
       }
     }
@@ -2246,8 +2177,8 @@ function expandConceptSearch() {
         fromText: data.fromText,
         fromConcept: data.fromConcept
       }))
-      .sort((a, b) => compareVerseRefs(a.ref, b.ref));
-    
+      .sort((a, b) => Bible.compareRefs(a.ref, b.ref));
+
     state.allResults = results;
     state.expanded = true;
     
@@ -2588,37 +2519,27 @@ function startRegexSearch(pattern, flags = 'i') {
 function executeRegexSearch() {
   const state = regexSearchState;
   const regex = state.regex;
-  
+
   if (!regex) return;
-  
+
   const startTime = performance.now();
-  const results = [];
-  
-  // Search current translation
-  const transData = bibleTranslations[currentTranslation];
-  if (transData && transData.length > 0) {
-    for (const verse of transData) {
-      if (verse.text && regex.test(verse.text)) {
-        const ref = `${verse.book} ${verse.chapter}:${verse.verse}`;
-        
-        // Find all matches for highlighting
-        const matches = verse.text.match(new RegExp(state.pattern, state.flags + 'g')) || [];
-        
-        results.push({
-          ref,
-          text: verse.text,
-          matches: matches,
-          matchCount: matches.length
-        });
-      }
-    }
-  }
-  
+
+  // Use Bible API for text search
+  const apiResults = Bible.searchText(currentTranslation, regex);
+
+  // Convert to the format regexSearchState expects (add matchCount)
+  const results = apiResults.map(r => ({
+    ref: r.ref,
+    text: r.text,
+    matches: r.matches || [],
+    matchCount: (r.matches || []).length
+  }));
+
   const endTime = performance.now();
   const searchTime = Math.round(endTime - startTime);
-  
+
   // Sort by book order
-  results.sort((a, b) => compareVerseRefs(a.ref, b.ref));
+  results.sort((a, b) => Bible.compareRefs(a.ref, b.ref));
   
   state.results = results;
   state.isComplete = true;
@@ -3380,9 +3301,130 @@ function stopStrongsResize() {
   document.removeEventListener('mouseup', stopStrongsResize);
 }
 
-// Render verse text with clickable Strong's words (for OT)
-// Keeps original KJV text but makes words clickable
-// Also highlights words that have symbolic meanings
+// Render verse text with inline Strong's tags: word{H####} / word{G####}
+// Parses tags and wraps words in clickable spans — works for ANY translation with Strong's tags.
+// Also applies symbol highlighting for words matching the symbol dictionary.
+function renderInlineStrongs(taggedText, reference) {
+  if (!taggedText) return '';
+
+  // Split text into segments: "word{H####}" and plain text
+  // Pattern matches: text{H1234} or text{G5678} or text{(H8804)} (morphology — skip)
+  let result = '';
+  let pos = 0;
+  const len = taggedText.length;
+
+  while (pos < len) {
+    const braceIdx = taggedText.indexOf('{', pos);
+    if (braceIdx === -1) {
+      // No more tags — rest is plain text
+      result += _renderPlainSegment(taggedText.slice(pos), reference);
+      break;
+    }
+
+    const closeBrace = taggedText.indexOf('}', braceIdx);
+    if (closeBrace === -1) {
+      result += _renderPlainSegment(taggedText.slice(pos), reference);
+      break;
+    }
+
+    const tagContent = taggedText.slice(braceIdx + 1, closeBrace);
+
+    // Skip morphology codes like (H8804)
+    if (tagContent.startsWith('(')) {
+      // Include any text before this brace as plain, skip the tag
+      if (braceIdx > pos) {
+        result += _renderPlainSegment(taggedText.slice(pos, braceIdx), reference);
+      }
+      pos = closeBrace + 1;
+      continue;
+    }
+
+    // Valid Strong's tag: H#### or G####
+    const strongsMatch = tagContent.match(/^([HG]\d+)$/);
+    if (!strongsMatch) {
+      // Not a Strong's tag — include as plain text
+      result += _renderPlainSegment(taggedText.slice(pos, closeBrace + 1), reference);
+      pos = closeBrace + 1;
+      continue;
+    }
+
+    const strongsNum = strongsMatch[1];
+
+    // Find the word before the tag by scanning back from braceIdx
+    // The word is the text segment between the previous tag/start and this brace
+    const textBefore = taggedText.slice(pos, braceIdx);
+
+    // Split into "leading text" + "word" (the last whitespace-delimited token is the word)
+    const lastSpaceIdx = textBefore.lastIndexOf(' ');
+    const lastNewlineIdx = textBefore.lastIndexOf('\n');
+    const splitIdx = Math.max(lastSpaceIdx, lastNewlineIdx);
+
+    let leadingText, word;
+    if (splitIdx === -1) {
+      leadingText = '';
+      word = textBefore;
+    } else {
+      leadingText = textBefore.slice(0, splitIdx + 1);
+      word = textBefore.slice(splitIdx + 1);
+    }
+
+    // Render leading text as plain
+    if (leadingText) {
+      result += _renderPlainSegment(leadingText, reference);
+    }
+
+    // Render the Strong's-tagged word
+    if (word) {
+      const normalized = word.toLowerCase().replace(/[.,;:!?'"()]/g, '');
+      const symbol = (typeof lookupSymbolByWord === 'function') ? lookupSymbolByWord(normalized) : null;
+
+      const classes = ['strongs-word'];
+      const dataAttrs = [`data-strongs="${strongsNum}"`];
+
+      // Look up Strong's definition
+      const strongsEntry = (typeof getStrongsEntry === 'function') ? getStrongsEntry(strongsNum) : null;
+      const realDef = strongsEntry?.strongs_def || strongsEntry?.kjv_def || '';
+      dataAttrs.push(`data-def="${realDef.replace(/"/g, '&quot;')}"`);
+
+      const escapedWord = word.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const escapedGloss = (strongsEntry?.translit || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      let onclick = `handleStrongsWordClick('${strongsNum}', '${escapedWord}', '${escapedGloss}', event)`;
+
+      if (symbol) {
+        classes.push('symbol-word');
+        dataAttrs.push(`data-symbol="${symbol.name}"`);
+        dataAttrs.push(`data-symbol-meaning="${(symbol.is2 || symbol.is || '').replace(/"/g, '&quot;')}"`);
+      }
+
+      result += `<span class="${classes.join(' ')}" ${dataAttrs.join(' ')} onclick="${onclick}" onmouseenter="showWordTooltip(event)" onmouseleave="hideWordTooltip(event)">${word}</span>`;
+    }
+
+    // Check for consecutive tags on the same word (e.g. word{H1254}{H853})
+    pos = closeBrace + 1;
+
+    // Skip consecutive Strong's tags that apply to the same word position
+    while (pos < len && taggedText[pos] === '{') {
+      const nextClose = taggedText.indexOf('}', pos);
+      if (nextClose === -1) break;
+      pos = nextClose + 1;
+    }
+  }
+
+  return result;
+}
+
+// Helper: render a plain text segment with symbol highlighting and verse annotations
+function _renderPlainSegment(text, reference) {
+  if (!text) return '';
+  if (reference) {
+    return applySymbolHighlighting(applyVerseAnnotations(reference, text));
+  }
+  return applySymbolHighlighting(text);
+}
+
+// Render verse text with clickable Strong's words (for OT) — LEGACY
+// Uses interlinear data for word matching. Kept as fallback.
+// New translations use renderInlineStrongs() instead.
 function renderVerseWithStrongs(bookName, chapter, verseNum, plainText) {
   const isNT = isNTBook(bookName);
   const isOT = hasHebrewText(bookName);
@@ -3581,90 +3623,23 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Normalize book name variations to standard names
+// normalizeBookName — delegates to Bible API (comprehensive abbreviation + variant handling)
+// This first definition is overridden by the one below, but kept for safety during transition.
 function normalizeBookName(book) {
-  const normalizations = {
-    'Psalm': 'Psalms',
-    'Song of Songs': 'Song of Solomon',
-    'Canticles': 'Song of Solomon'
-  };
+  if (typeof Bible !== 'undefined' && Bible.normalizeBookName) {
+    return Bible.normalizeBookName(book);
+  }
+  // Minimal fallback
+  const normalizations = { 'Psalm': 'Psalms', 'Song of Songs': 'Song of Solomon', 'Canticles': 'Song of Solomon' };
   return normalizations[book] || book;
 }
 
-// Parse Bible text file into structured data (async to avoid blocking UI)
-// config: translation config object with separator and skipLines
-async function parseBibleText(text, config = BIBLE_TRANSLATIONS.kjv) {
-  const data = [];
-  const lines = text.split('\n');
-  const totalLines = lines.length;
-  const skipLines = config.skipLines || 2;
-  const useTabSeparator = config.separator === '\t';
-  
-  // Yield to main thread occasionally so UI stays responsive (fewer yields = faster total parse)
-  const CHUNK_SIZE = 8000;
-  
-  for (let i = skipLines; i < totalLines; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-    
-    let reference, verseText;
-    
-    if (useTabSeparator) {
-      // Tab-separated (KJV format)
-      const tabIndex = line.indexOf('\t');
-      if (tabIndex === -1) continue;
-      reference = line.substring(0, tabIndex);
-      verseText = line.substring(tabIndex + 1);
-    } else {
-      // Space-separated (ASV format) - find the verse reference pattern
-      const match = line.match(/^(.+?\s+\d+:\d+)\s+(.+)$/);
-      if (!match) continue;
-      reference = match[1];
-      verseText = match[2];
-    }
-    
-    // Parse reference: "Book Chapter:Verse"
-    const refMatch = reference.match(/^(.+?)\s+(\d+):(\d+)$/);
-    if (!refMatch) continue;
-    
-    let [, book, chapter, verse] = refMatch;
-    
-    // Normalize book names (handle variations like "Psalm" vs "Psalms")
-    book = normalizeBookName(book);
-    
-    data.push({
-      book: book,
-      chapter: parseInt(chapter),
-      verse: parseInt(verse),
-      text: verseText,
-      reference: `${book} ${chapter}:${verse}`
-    });
-    
-    // Yield to main thread every CHUNK_SIZE lines to keep UI responsive
-    if ((i - skipLines) % CHUNK_SIZE === 0 && i > skipLines) {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    }
-  }
-  
-  return data;
-}
-
-// Rebuild index for a specific translation
-function rebuildTranslationIndex(translationId) {
-  bibleIndexes[translationId] = {};
-  const data = bibleTranslations[translationId];
-  if (data) {
-    for (const entry of data) {
-      bibleIndexes[translationId][entry.reference] = entry;
-    }
-  }
-}
-
-// Rebuild the index from bibleData (backwards compatible)
-function rebuildIndex() {
-  rebuildTranslationIndex(currentTranslation);
-  syncLegacyVariables();
-}
+// parseBibleText, rebuildTranslationIndex, rebuildIndex — REMOVED
+// Bible API (bible.js) handles parsing and indexing internally.
+// These stubs exist only if any old code still calls them.
+async function parseBibleText() { return []; }
+function rebuildTranslationIndex() {}
+function rebuildIndex() { syncLegacyVariables(); }
 
 // Update loading dialog text
 function updateLoadingDialogText(text) {
@@ -3677,33 +3652,30 @@ function updateLoadingDialogText(text) {
 
 // Switch to a different translation
 async function switchTranslation(translationId) {
-  // Normalize to canonical id so we always hit the same cache key (e.g. 'KJV' -> 'kjv')
+  // Normalize to canonical id via Bible API
   const id = (translationId || '').toLowerCase();
-  let config = BIBLE_TRANSLATIONS[id];
-  if (!config) {
-    config = Object.values(BIBLE_TRANSLATIONS).find(c => c.name === (translationId || '').toUpperCase() || c.id === id);
-  }
+  const reg = Bible.getTranslation(id);
+  // Fallback: check old config
+  const config = reg || BIBLE_TRANSLATIONS[id];
   if (!config) {
     console.warn(`Unknown translation: ${translationId}`);
     return false;
   }
-  const canonicalId = config.id;
-  
-  // Sync so we see latest cache (e.g. from loadAllTranslations or previous load)
-  syncLegacyVariables();
-  
-  // Load if not in cache; never show overlay when switching/back (only initBibleExplorer shows it)
-  if (!bibleTranslations[canonicalId]) {
-    await loadTranslation(canonicalId, false);
+  const canonicalId = reg ? reg.id : config.id;
+
+  // Load via Bible API if not yet loaded
+  if (!Bible.isLoaded(canonicalId)) {
+    await Bible.loadTranslation(canonicalId);
   }
-  
-  if (!bibleTranslations[canonicalId]) {
-    console.warn(`Failed to load ${config.name}`);
+
+  if (!Bible.isLoaded(canonicalId)) {
+    console.warn(`Failed to load ${canonicalId}`);
     return false;
   }
-  
+
   // Switch current translation
   currentTranslation = canonicalId;
+  _legacyTranslation = null; // force re-sync
   syncLegacyVariables();
   
   // Save preference
@@ -3727,7 +3699,7 @@ async function switchTranslation(translationId) {
 
 // Update UI to reflect current translation
 function updateTranslationUI() {
-  const config = BIBLE_TRANSLATIONS[currentTranslation];
+  const config = Bible.getTranslation(currentTranslation) || BIBLE_TRANSLATIONS[currentTranslation];
   if (!config) return;
   
   // Update translation dropdown
@@ -3873,15 +3845,13 @@ function isMultiVerseCitation(citationStr) {
 // Build HTML for multiverse view: selected verses with Strongs, symbols, and verse numbers that link to full chapter
 // translationId: optional; when set, use that translation's verses (avoids race with global bibleData when toggling KJV/ASV)
 function buildMultiverseHTML(citationStr, translationId) {
-  const dataSource = translationId && typeof bibleTranslations !== 'undefined' && bibleTranslations[translationId]
-    ? bibleTranslations[translationId]
-    : bibleData;
-  if (!dataSource) return '<div class="bible-explorer-welcome"><p>Bible data not loaded.</p></div>';
-  const verses = getVersesForCitationString(citationStr, translationId || undefined);
+  const trans = translationId || (typeof currentTranslation !== 'undefined' && currentTranslation) || 'kjv';
+  if (!Bible.isLoaded(trans)) return '<div class="bible-explorer-welcome"><p>Bible data not loaded.</p></div>';
+  // Use Bible API for verse resolution
+  const verses = Bible.getVersesForCitation(trans, citationStr);
   if (!verses || verses.length === 0) {
     return '<div class="bible-explorer-welcome"><p>No verses found for this reference.</p></div>';
   }
-  const trans = translationId || (typeof currentTranslation !== 'undefined' && currentTranslation) || 'kjv';
   let html = '<div class="bible-explorer-chapter bible-multiverse">';
   html += `<div class="bible-explorer-chapter-header">
     <h2>Multi-verse</h2>
@@ -3911,9 +3881,13 @@ function buildMultiverseHTML(citationStr, translationId) {
     const hasOriginalLang = hasInterlinear(bookName);
     const origLangClass = hasOriginalLang ? ' has-hebrew' : '';
     let verseText;
-    if (hasOriginalLang && hasInterlinearData && trans === 'kjv') {
-      // Interlinear word map is keyed by KJV; only use KJV text for Strong's matching
-      const kjvText = (typeof bibleIndexes !== 'undefined' && bibleIndexes['kjv']?.[reference]?.text) || verse.text;
+    if (verse.strongsText) {
+      // Translation has inline Strong's tags — render as clickable links
+      verseText = renderInlineStrongs(verse.strongsText, reference);
+    } else if (hasOriginalLang && hasInterlinearData && trans === 'kjv') {
+      // Legacy fallback: KJV interlinear word matching
+      const kjvVerse = Bible.getVerse('kjv', bookName, chapter, verse.verse);
+      const kjvText = kjvVerse ? kjvVerse.text : verse.text;
       verseText = renderVerseWithStrongs(bookName, chapter, verse.verse, kjvText);
     } else {
       verseText = applySymbolHighlighting(applyVerseAnnotations(reference, verse.text));
@@ -3974,57 +3948,27 @@ function goToChapterFromMultiverse(bookName, chapter, verse) {
 
 // Get verses for a parsed citation
 // translationId: optional; when set, use that translation's data instead of global bibleData (for multiverse so requested translation wins)
+// getVersesForCitation — now delegates to Bible API
 function getVersesForCitation(citation, translationId) {
-  const data = translationId && typeof bibleTranslations !== 'undefined' && bibleTranslations[translationId]
-    ? bibleTranslations[translationId]
-    : bibleData;
-  if (!data) return [];
-  
-  const verses = [];
-  let inRange = false;
-  
-  for (const entry of data) {
-    if (entry.book !== citation.book) {
-      if (inRange) break; // We've passed the range
-      continue;
-    }
-    
-    // Check if this verse is within the range
-    const isAfterStart = 
-      entry.chapter > citation.startChapter ||
-      (entry.chapter === citation.startChapter && entry.verse >= citation.startVerse);
-    
-    const isBeforeEnd =
-      entry.chapter < citation.endChapter ||
-      (entry.chapter === citation.endChapter && entry.verse <= citation.endVerse);
-    
-    if (isAfterStart && isBeforeEnd) {
-      inRange = true;
-      verses.push(entry);
-    } else if (inRange) {
-      break; // We've passed the end of the range
+  const trans = translationId || currentTranslation || 'kjv';
+  if (!Bible.isLoaded(trans)) return [];
+  // Build citation string from structured citation object
+  let citationStr = citation.book + ' ' + citation.startChapter + ':' + citation.startVerse;
+  if (citation.endChapter !== citation.startChapter || citation.endVerse !== citation.startVerse) {
+    if (citation.endChapter !== citation.startChapter) {
+      citationStr = citation.book + ' ' + citation.startChapter + ':' + citation.startVerse + '-' + citation.endChapter + ':' + citation.endVerse;
+    } else {
+      citationStr += '-' + citation.endVerse;
     }
   }
-  
-  return verses;
+  return Bible.getVersesForCitation(trans, citationStr);
 }
 
-// Get all verses for a citation string (handles multiple citations)
-// translationId: optional; when set, use that translation's data (for multiverse)
+// getVersesForCitationString — now delegates to Bible API
 function getVersesForCitationString(citationStr, translationId) {
-  const citations = parseCitation(citationStr);
-  const allVerses = [];
-  
-  for (const citation of citations) {
-    const verses = getVersesForCitation(citation, translationId);
-    if (allVerses.length > 0 && verses.length > 0) {
-      // Add a separator between different citation ranges
-      allVerses.push({ isSeparator: true, book: verses[0].book });
-    }
-    allVerses.push(...verses);
-  }
-  
-  return allVerses;
+  const trans = translationId || currentTranslation || 'kjv';
+  if (!Bible.isLoaded(trans)) return [];
+  return Bible.getVersesForCitation(trans, citationStr);
 }
 
 // Format verses for display, grouped by chapter
@@ -4111,9 +4055,9 @@ function openBibleExplorerFromModal(book, chapter, verse = null) {
 // Open the Bible reader with a specific citation
 async function openBibleReader(citationStr, title = '') {
   // If Bible not loaded yet, load it first (with dialog since user is waiting)
-  if (!bibleData) {
-    await loadBible(true);
-    if (!bibleData) {
+  if (!Bible.isLoaded(currentTranslation)) {
+    await loadTranslation(currentTranslation, true);
+    if (!Bible.isLoaded(currentTranslation)) {
       console.warn('Bible data could not be loaded');
       return;
     }
@@ -4214,8 +4158,11 @@ function makeCitationClickable(citationStr, title = '') {
   return `<a href="${url}" class="bible-citation-link" data-citation="${citationEscaped}" data-title="${titleEscaped}" onclick="handleCitationClick(event)">${escapeHtml(citationStr)}</a>`;
 }
 
-// Normalize a book name to KJV format
+// Normalize a book name — delegates to Bible API for comprehensive handling
 function normalizeBookName(bookStr) {
+  if (typeof Bible !== 'undefined' && Bible.normalizeBookName) {
+    return Bible.normalizeBookName(bookStr);
+  }
   if (!bookStr) return bookStr;
   const cleaned = bookStr.replace(/\.$/, '').trim().toLowerCase();
   return BOOK_NAME_MAP[cleaned] || bookStr.trim();
@@ -4437,17 +4384,14 @@ function goToScriptureFromSidebar(bookOrRef, chapter, verse) {
 function initBibleExplorer() {
   // Restore saved translation preference
   const savedTranslation = getSavedTranslationPreference();
-  if (savedTranslation && BIBLE_TRANSLATIONS[savedTranslation]) {
+  if (savedTranslation && (Bible.getTranslation(savedTranslation) || BIBLE_TRANSLATIONS[savedTranslation])) {
     currentTranslation = savedTranslation;
   }
-  
-  // Sync from cache so we don't reload or show "Downloading..." if already loaded
-  syncLegacyVariables();
-  
+
   // Populate translation dropdown
   populateTranslationDropdown();
-  
-  if (!bibleData) {
+
+  if (!Bible.isLoaded(currentTranslation)) {
     // Only show loading dialog when user is actually viewing Bible; else load in background
     const state = typeof AppStore !== 'undefined' ? AppStore.getState() : {};
     const contentType = state?.content?.params?.contentType || 'bible';
@@ -4458,6 +4402,7 @@ function initBibleExplorer() {
       updateTranslationUI();
     });
   } else {
+    syncLegacyVariables();
     buildBookChapterCounts();
     populateBibleBooks();
     updateTranslationUI();
@@ -4468,11 +4413,21 @@ function initBibleExplorer() {
 function populateTranslationDropdown() {
   const translationSelect = document.getElementById('bible-translation-select');
   if (!translationSelect) return;
-  
+
+  // Use user-ordered translations from Bible API
+  const { visible, hidden } = Bible.getOrderedTranslations();
   let html = '';
-  for (const [id, config] of Object.entries(BIBLE_TRANSLATIONS)) {
-    const selected = id === currentTranslation ? ' selected' : '';
-    html += `<option value="${id}"${selected}>${config.name}</option>`;
+  for (const reg of visible) {
+    const selected = reg.id === currentTranslation ? ' selected' : '';
+    html += `<option value="${reg.id}"${selected}>${reg.name}</option>`;
+  }
+  if (hidden.length > 0) {
+    html += '<optgroup label="More">';
+    for (const reg of hidden) {
+      const selected = reg.id === currentTranslation ? ' selected' : '';
+      html += `<option value="${reg.id}"${selected}>${reg.name}</option>`;
+    }
+    html += '</optgroup>';
   }
   translationSelect.innerHTML = html;
 }
@@ -4543,54 +4498,49 @@ function goToBibleHome() {
 
 // Get the Bible welcome HTML
 function getBibleWelcomeHTML() {
+  // Generate translation cards in user-preferred order
+  const { visible, hidden } = Bible.getOrderedTranslations();
+  const translations = [...visible, ...hidden];
+  let cardsHTML = '';
+
+  if (translations.length > 0) {
+    for (const t of translations) {
+      const yearStr = t.year ? `<span class="translation-card-year">${t.year}</span>` : '';
+      const traits = [];
+      if (t.hasStrongs) traits.push("Strong's");
+      if (t.id === 'lxx') traits.push('OT Only');
+      const traitsHTML = traits.length > 0
+        ? `<div class="translation-card-traits">${traits.map(tr => `<span class="trait">${tr}</span>`).join('')}</div>`
+        : '';
+      cardsHTML += `
+        <div class="bible-translation-card" onclick="selectTranslationAndStart('${t.id}')">
+          <div class="translation-card-content">
+            <h4>${t.fullName} ${yearStr}</h4>
+            <p>${t.description || ''}</p>
+            ${traitsHTML}
+          </div>
+        </div>`;
+    }
+  } else {
+    cardsHTML = `
+      <div class="bible-translation-card" onclick="selectTranslationAndStart('kjv')">
+        <div class="translation-card-content"><h4>King James Version</h4><p>The classic 1611 translation.</p></div>
+      </div>
+      <div class="bible-translation-card" onclick="selectTranslationAndStart('asv')">
+        <div class="translation-card-content"><h4>American Standard Version</h4><p>A literal 1901 translation.</p></div>
+      </div>
+      <div class="bible-translation-card" onclick="selectTranslationAndStart('lxx')">
+        <div class="translation-card-content"><h4>Septuagint (LXX)</h4><p>Greek OT translation.</p></div>
+      </div>`;
+  }
+
   return `
     <div class="bible-explorer-welcome">
       <div class="bible-welcome-icon">📖</div>
       <h3>Welcome to the Bible</h3>
       <p>Choose a translation to begin reading, or select a book and chapter from the dropdowns above.</p>
-      
       <div class="bible-translation-cards">
-        <div class="bible-translation-card" onclick="selectTranslationAndStart('kjv')">
-          <div class="translation-card-icon">👑</div>
-          <div class="translation-card-content">
-            <h4>King James Version</h4>
-            <span class="translation-card-year">1611</span>
-            <p>The classic English translation beloved for its majestic, poetic language. Features formal, archaic English ("thee," "thou," "hath") that has shaped English literature for over 400 years.</p>
-            <div class="translation-card-traits">
-              <span class="trait">Traditional</span>
-              <span class="trait">Literary</span>
-              <span class="trait">Formal</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bible-translation-card" onclick="selectTranslationAndStart('asv')">
-          <div class="translation-card-icon">📜</div>
-          <div class="translation-card-content">
-            <h4>American Standard Version</h4>
-            <span class="translation-card-year">1901</span>
-            <p>A highly literal translation valued for accuracy and consistency. Uses "Jehovah" for God's name and modernizes some archaic KJV expressions while maintaining formal language.</p>
-            <div class="translation-card-traits">
-              <span class="trait">Literal</span>
-              <span class="trait">Accurate</span>
-              <span class="trait">Study</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bible-translation-card" onclick="selectTranslationAndStart('lxx')">
-          <div class="translation-card-icon">🏛️</div>
-          <div class="translation-card-content">
-            <h4>Septuagint (LXX)</h4>
-            <span class="translation-card-year">~250 BC</span>
-            <p>The ancient Greek translation of the Hebrew scriptures, quoted extensively by New Testament authors. Brenton's English translation includes the deuterocanonical books.</p>
-            <div class="translation-card-traits">
-              <span class="trait">Ancient</span>
-              <span class="trait">Greek OT</span>
-              <span class="trait">Apostolic</span>
-            </div>
-          </div>
-        </div>
+        ${cardsHTML}
       </div>
     </div>
   `;
@@ -4598,18 +4548,10 @@ function getBibleWelcomeHTML() {
 
 // Build cache of chapter counts for each book
 function buildBookChapterCounts() {
-  if (!bibleData) return;
-  
-  bibleExplorerState.bookChapterCounts = {};
-  
-  for (const entry of bibleData) {
-    if (!bibleExplorerState.bookChapterCounts[entry.book]) {
-      bibleExplorerState.bookChapterCounts[entry.book] = 0;
-    }
-    if (entry.chapter > bibleExplorerState.bookChapterCounts[entry.book]) {
-      bibleExplorerState.bookChapterCounts[entry.book] = entry.chapter;
-    }
-  }
+  if (!Bible.isLoaded(currentTranslation)) return;
+
+  // Use Bible API for chapter counts — O(1) per book instead of O(31K) iteration
+  bibleExplorerState.bookChapterCounts = Bible.getBookChapterCounts();
 }
 
 // Populate book dropdown in header
@@ -4781,7 +4723,11 @@ function buildChapterHTML(bookName, chapter, verses, useInterlinear) {
   for (const verse of verses) {
     const reference = `${bookName} ${chapter}:${verse.verse}`;
     let verseText;
-    if (hasOriginalLang && hasInterlinearData) {
+    if (verse.strongsText) {
+      // Translation has inline Strong's tags — render them as clickable links
+      verseText = renderInlineStrongs(verse.strongsText, reference);
+    } else if (hasOriginalLang && hasInterlinearData) {
+      // Fallback: KJV-style interlinear word matching (legacy path)
       verseText = renderVerseWithStrongs(bookName, chapter, verse.verse, verse.text);
     } else {
       verseText = applySymbolHighlighting(applyVerseAnnotations(reference, verse.text));
@@ -4805,9 +4751,10 @@ function buildChapterHTML(bookName, chapter, verses, useInterlinear) {
     } else {
       timelineHtml = `<span class="verse-timeline-ref-spacer"></span>`;
     }
-    const verseNumSpan = `<span class="bible-verse-number${hasOriginalLang ? ' clickable-hebrew' : ''}" onclick="${hasOriginalLang ? `showInterlinear('${bookName}', ${chapter}, ${verse.verse}, event)` : `copyVerseReference('${bookName}', ${chapter}, ${verse.verse})`}" title="${hasOriginalLang ? interlinearTitle : 'Click to copy reference'}">${verse.verse}</span>`;
+    const interlinearBtn = `<span class="verse-interlinear-ref" onclick="showInterlinear('${bookName.replace(/'/g, "\\'")}', ${chapter}, ${verse.verse}, event)" title="${interlinearTitle}">☰</span>`;
+    const verseNumSpan = `<span class="bible-verse-number" onclick="copyVerseReference('${bookName}', ${chapter}, ${verse.verse})" title="Click to copy reference">${verse.verse}</span>`;
     html += `<div class="bible-explorer-verse${origLangClass}" id="verse-${verse.verse}">
-      <div class="verse-meta">${bookRefHtml}${crossRefHtml}${timelineHtml}${verseNumSpan}</div>
+      <div class="verse-meta">${bookRefHtml}${crossRefHtml}${timelineHtml}${interlinearBtn}${verseNumSpan}</div>
       <span class="bible-verse-text">${verseText}</span>
     </div>`;
   }
@@ -4825,15 +4772,15 @@ async function displayBibleChapter(bookName, chapter, highlightVerse = null) {
   const textContainer = document.getElementById('bible-explorer-text');
   const titleEl = document.getElementById('bible-chapter-title');
   
-  if (!textContainer || !bibleData) return;
-  
+  if (!textContainer || !Bible.isLoaded(currentTranslation)) return;
+
   // Update title
   if (titleEl) {
     titleEl.textContent = `${bookName} ${chapter}`;
   }
-  
-  // Get verses for this chapter
-  const verses = bibleData.filter(v => v.book === bookName && v.chapter === chapter);
+
+  // Get verses for this chapter via Bible API
+  const verses = Bible.getChapter(currentTranslation, bookName, chapter);
   
   if (verses.length === 0) {
     textContainer.innerHTML = '<div class="bible-explorer-welcome"><p>No verses found for this chapter.</p></div>';

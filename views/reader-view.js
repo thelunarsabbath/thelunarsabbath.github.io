@@ -120,9 +120,15 @@ const ReaderView = {
       if (contentType === 'philo' && params.work && params.section) {
         const anchor = container.querySelector('#section-' + params.section);
         if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else if (contentType === 'josephus' && params.chapter != null && params.section != null) {
+        // Sync section dropdown
+        const sel = document.getElementById('classics-section-select');
+        if (sel) sel.value = params.section;
+      } else if (contentType === 'josephus' && params.book != null && params.chapter != null && params.section != null) {
         const anchor = container.querySelector('#section-' + params.book + '-' + params.chapter + '-' + params.section);
         if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Sync section dropdown
+        const sel = document.getElementById('classics-section-select');
+        if (sel) sel.value = params.book + '.' + params.chapter + '.' + params.section;
       }
       return;
     }
@@ -1856,8 +1862,9 @@ const ReaderView = {
     html += `</article></div>`;
     textArea.innerHTML = html;
 
-    // Linkify scripture refs in the rendered text
+    // Linkify scripture refs and footnote markers
     this.linkifyScriptureRefs(textArea);
+    this._linkifyFootnoteMarkers(textArea, workName, null);
 
     // Scroll to specific section if requested
     if (scrollToSection) {
@@ -1945,13 +1952,28 @@ const ReaderView = {
   linkifyClassicsRefs(container) {
     if (typeof Classics === 'undefined') return;
 
-    // Josephus patterns: "Antiquities 18.2.2", "Ant. 18.2.2", "Jewish War 2.17.8", etc.
-    const josephusWorks = 'Antiquities(?:\\s+of\\s+the\\s+Jews)?|Jewish\\s+War|Wars\\s+of\\s+the\\s+Jews|Against\\s+Apion|Life(?:\\s+of\\s+Josephus)?|Ant\\.|A\\.J\\.|B\\.J\\.|C\\.\\s*Ap\\.?|Vita';
-    const josephusPattern = new RegExp(`(?:Josephus,?\\s+)?(${josephusWorks})\\s+(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?`, 'g');
+    // Josephus patterns — matches:
+    //   "Antiquities 18.2.2", "Ant. 18.2.2", "Jewish War 2.17.8", "Against Apion 2.282"
+    //   "Josephus, Antiquities 18.2.2", "Flavius Josephus, Jewish War 6.4.5"
+    //   "War 1.33.8" (standalone shorthand)
+    const josephusWorks = 'Antiquities(?:\\s+of\\s+the\\s+Jews)?|(?:The\\s+)?Jewish\\s+War|Wars\\s+of\\s+the\\s+Jews|Against\\s+Apion|War|Life(?:\\s+of\\s+Josephus)?|Ant\\.|A\\.J\\.|B\\.J\\.|C\\.\\s*Ap\\.?|Vita';
+    const josephusPattern = new RegExp(`(?:(?:Flavius\\s+)?Josephus,?\\s+)?(${josephusWorks})\\s+(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?`, 'g');
 
-    // Philo patterns: "On the Creation 42", "Philo, On the Migration of Abraham 89", etc.
-    const philoWorks = Object.values(Classics.PHILO_WORK_MAP).filter((v, i, a) => a.indexOf(v) === i).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-    const philoPattern = new RegExp(`(?:Philo,?\\s+)?(${philoWorks})\\s+(\\d+)`, 'g');
+    // Philo patterns — matches:
+    //   "On the Creation 42", "Special Laws II, XXX", "On Mating with the Preliminary Studies 102"
+    //   "Philo, On the Creation 42", "Philo of Alexandria, ..."
+    // Build pattern from all unique canonical work names
+    const philoWorks = Object.values(Classics.PHILO_WORK_MAP)
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+    // Also match "Special Laws I-IV" with Roman numeral sections: "Special Laws II, XXX"
+    const philoSpecialLaws = 'Special\\s+Laws\\s+(?:I{1,3}V?|IV)';
+    const philoAllWorks = `${philoSpecialLaws}|${philoWorks}`;
+    // Section can be a number OR a Roman numeral (I, II, ... L, etc.) optionally preceded by comma
+    const philoPattern = new RegExp(`(?:(?:Philo(?:\\s+of\\s+Alexandria)?,?\\s+))(${philoAllWorks}),?\\s+([IVXLCDM]+|\\d+)`, 'g');
+    // Also match without "Philo" prefix for known work names + number
+    const philoPatternDirect = new RegExp(`(${philoAllWorks})\\s+(\\d+)`, 'g');
 
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
     const textNodes = [];
@@ -1959,32 +1981,44 @@ const ReaderView = {
       const parent = walker.currentNode.parentNode;
       if (parent && (parent.tagName === 'A' || parent.tagName === 'CODE' || parent.tagName === 'BUTTON' || parent.closest('a, code, button'))) continue;
       const text = walker.currentNode.nodeValue;
-      if (josephusPattern.test(text) || philoPattern.test(text)) {
-        textNodes.push(walker.currentNode);
-      }
       josephusPattern.lastIndex = 0;
       philoPattern.lastIndex = 0;
+      philoPatternDirect.lastIndex = 0;
+      if (josephusPattern.test(text) || philoPattern.test(text) || philoPatternDirect.test(text)) {
+        textNodes.push(walker.currentNode);
+      }
     }
+
+    const makeJosephusLink = (match) => {
+      const parsed = Classics.parseJosephusCitation(match);
+      if (!parsed) return match;
+      const slug = Classics.getWorkSlug(parsed.work);
+      const url = `/reader/josephus/${slug}/${parsed.book}/${parsed.chapter}/${parsed.section}`;
+      return `<a href="${url}" class="classics-citation-link" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'josephus',work:'${slug}',book:${parsed.book},chapter:${parsed.chapter},section:${parsed.section}}}); return false;">${match}</a>`;
+    };
+
+    const makePhiloLink = (match) => {
+      const parsed = Classics.parsePhiloCitation(match);
+      if (!parsed) return match;
+      const slug = Classics.getWorkSlug(parsed.work);
+      const url = `/reader/philo/${slug}/${parsed.section}`;
+      return `<a href="${url}" class="classics-citation-link" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'philo',work:'${slug}',section:'${parsed.section}'}}); return false;">${match}</a>`;
+    };
 
     textNodes.forEach(node => {
       let html = node.nodeValue;
-      // Replace Josephus citations
+      // Replace Josephus citations first (longer patterns)
       josephusPattern.lastIndex = 0;
-      html = html.replace(josephusPattern, (match, work, b, ch, sec) => {
-        const parsed = Classics.parseJosephusCitation(match);
-        if (!parsed) return match;
-        const slug = Classics.getWorkSlug(parsed.work);
-        const url = `/reader/josephus/${slug}/${parsed.book}/${parsed.chapter}/${parsed.section}`;
-        return `<a href="${url}" class="classics-citation-link" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'josephus',work:'${slug}',book:${parsed.book},chapter:${parsed.chapter},section:${parsed.section}}}); return false;">${match}</a>`;
-      });
-      // Replace Philo citations
+      html = html.replace(josephusPattern, (match) => makeJosephusLink(match));
+      // Replace Philo citations with "Philo" prefix (catches Roman numeral sections)
       philoPattern.lastIndex = 0;
-      html = html.replace(philoPattern, (match, work, sec) => {
-        const parsed = Classics.parsePhiloCitation(match);
-        if (!parsed) return match;
-        const slug = Classics.getWorkSlug(parsed.work);
-        const url = `/reader/philo/${slug}/${parsed.section}`;
-        return `<a href="${url}" class="classics-citation-link" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'philo',work:'${slug}',section:'${parsed.section}'}}); return false;">${match}</a>`;
+      html = html.replace(philoPattern, (match) => makePhiloLink(match));
+      // Replace Philo citations without prefix (known work names + number only)
+      philoPatternDirect.lastIndex = 0;
+      html = html.replace(philoPatternDirect, (match) => {
+        // Skip if already wrapped in a link
+        if (html.indexOf(`>${match}</a>`) !== -1) return match;
+        return makePhiloLink(match);
       });
       if (html !== node.nodeValue) {
         const span = document.createElement('span');

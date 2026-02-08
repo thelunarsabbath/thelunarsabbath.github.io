@@ -118,7 +118,56 @@ function main() {
         }
       }
       if (current.length > 0) paragraphs.push(current.join(' '));
-      const text = paragraphs.join('\n').trim();
+      let text = paragraphs.join('\n').trim();
+
+      // Clean garbled OCR scripture references.
+      // Source has patterns like: "27//Genesis 32:10.¿  ¿23//Numbers 21:6.2
+      //   "228) [Exodus 14:13.)  ¿20) (Numbers 12:14.)  !2//Deuteronomy 23:13.)
+      //   "/6//Genesis 29:31.  (21//Genesis 2:16.  "*3/ Genesis 2:2.+
+      // All are footnote number + mangled delimiter + Book Chapter:Verse + trailing junk.
+      // Strategy: match any prefix junk + number + slashes + Book reference, extract clean ref.
+      const BOOK_NAMES = 'Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|(?:[12] )?Samuel|(?:[12] )?Kings|(?:[12] )?Chronicles|Ezra|Nehemiah|Esther|Job|Psalms?|Proverbs|Ecclesiastes|Song of Solomon|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi';
+      const garbledRefRe = new RegExp(
+        '[¿"(!/*]*\\d+[/)¿" ]*[/]+ ?[¿"* ]*(' + BOOK_NAMES + ')( \\d+:\\d+)[.¿);,\\]\\d+*]*',
+        'g'
+      );
+      text = text.replace(garbledRefRe, '($1$2)');
+
+      // Pattern: ¿N) (Book Ch:V.) or "N) [Book Ch:V.)
+      const fnRefRe = new RegExp(
+        '[¿"]\\d+\\) ?[\\(\\[](' + BOOK_NAMES + ')( \\d+:\\d+)[.¿)\\];]*[\\)\\]]?',
+        'g'
+      );
+      text = text.replace(fnRefRe, '($1$2)');
+
+      // Pattern: "*N/ Book Ch:V.+  or  "N/ ¿Book Ch:V.)
+      const altRefRe = new RegExp(
+        '[¿"*]+\\d+/ ?[¿"* ]*(' + BOOK_NAMES + ')( \\d+:\\d+)[.¿);+\\]\\d]*',
+        'g'
+      );
+      text = text.replace(altRefRe, '($1$2)');
+
+      // Final catch-all: any remaining junk + Book Ch:V pattern not already in parens
+      // Matches things like: "/4 (Numbers 6:9.  "20 (Genesis 3:23.)  !15 Genesis 9:21.)  116/ (Genesis 26:2.)
+      const catchAllRe = new RegExp(
+        '[^(a-zA-Z]["\'/!%Y*]*\\d*[/ ]*[( ]*(' + BOOK_NAMES + ')( \\d+:\\d+)[.);\\]\\d]*\\)?',
+        'g'
+      );
+      // Only replace if the match starts with junk (not a clean "(Book")
+      text = text.replace(catchAllRe, (match, book, chv) => {
+        // If it already looks clean like "(Genesis 1:1)", don't touch it
+        if (match.trimStart().startsWith('(' + book)) return match;
+        return ' (' + book + chv + ')';
+      });
+
+      // Clean stray OCR junk before parenthesized refs: "2Y (Genesis" → "(Genesis"
+      // Matches: digits + OCR junk (Y, %, etc.) + optional space before a clean (Book ref)
+      text = text.replace(/\d+[Y%]\s*(\([A-Z])/g, '$1');
+      // Clean stray numbers before clean refs: "577 (Leviticus" → "(Leviticus"
+      text = text.replace(/"\d+\s+(\([12]? ?[A-Z])/g, ' $1');
+      // Clean remaining stray ¿ characters
+      text = text.replace(/¿/g, '');
+
       if (text) {
         const ref = `${currentWork}|${currentSectionNum}`;
         records.push({ ref, text });

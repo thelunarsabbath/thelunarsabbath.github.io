@@ -494,6 +494,133 @@ function stripAllDiacritics(text) {
 }
 
 
+// ── Grammar Help Text ──────────────────────────────────────────────
+// Plain-English explanations of Hebrew grammar terms for translation validation.
+
+const STEM_HELP_HEBREW = {
+  q: 'Simple active — the basic meaning of the verb',
+  N: 'Passive or reflexive — the subject receives the action or acts on itself',
+  p: 'Intensive active — a stronger, more thorough, or repeated form of the action',
+  P: 'Intensive passive — the subject receives an intensified action',
+  h: 'Causative active — the subject causes someone/something else to do the action',
+  H: 'Causative passive — the subject is caused to receive the action',
+  t: 'Reflexive — the subject acts on or for itself, sometimes reciprocal',
+  o: 'Active iterative — repeated or prolonged action',
+  O: 'Passive iterative — receiving repeated action',
+  r: 'Reflexive iterative — repeated reflexive action',
+  Q: 'Simple passive — the subject receives the basic action',
+  D: 'Reflexive passive — passive form with reflexive sense'
+};
+
+const STEM_HELP_ARAMAIC = {
+  q: 'Simple active — basic meaning',
+  Q: 'Simple passive',
+  u: 'Reflexive of simple stem',
+  p: 'Intensive active',
+  P: 'Passive of intensive',
+  M: 'Reflexive of intensive',
+  a: 'Causative active',
+  h: 'Causative active',
+  H: 'Causative passive'
+};
+
+const VERB_TYPE_HELP = {
+  p: 'Completed action — typically past tense ("he did")',
+  q: 'Completed action with consecutive waw — narrative sequence ("and he did")',
+  i: 'Incomplete or future action ("he will do" or "he was doing")',
+  w: 'Imperfect with consecutive waw — narrative past ("and he did", story sequence)',
+  h: 'Wish or self-urging ("let me do")',
+  j: 'Wish or mild command for 3rd person ("let him do", "may he do")',
+  v: 'Direct command ("do!")',
+  r: 'Ongoing action or descriptive state ("doing", "one who does")',
+  s: 'Ongoing action, subject receives ("being done")',
+  a: 'The pure idea of the action, emphatic ("surely do")',
+  c: 'Verbal noun — the action as a concept ("to do", "doing")'
+};
+
+const STATE_HELP = {
+  a: 'Independent form — stands on its own',
+  c: 'Bound form — connected to the following word ("X of Y")',
+  d: 'Definite — has the article or is made specific'
+};
+
+const POS_HELP = {
+  A: 'Describes or modifies a noun',
+  C: 'Connects words or clauses (and, or, but)',
+  D: 'Modifies a verb, adjective, or other adverb',
+  N: 'A person, place, thing, or concept',
+  P: 'Stands in place of a noun (he, she, this, who)',
+  R: 'Shows relationship between words (in, on, to, from)',
+  S: 'Attached ending that adds meaning (pronoun, direction)',
+  T: 'Small function word (not, also, behold, O)',
+  V: 'An action or state of being'
+};
+
+/**
+ * Get a short grammar help string for a decoded morphology.
+ * Returns a compact note like "causative, future" for use in tooltips.
+ * @param {object} decoded - Result of decodeMorphology()
+ * @returns {string} Short help string, or ''
+ */
+function getMorphHelp(decoded) {
+  if (!decoded || !decoded.parts) return '';
+  
+  // Find the main word part (not prefix/suffix)
+  const main = decoded.parts.find(p => p.role === 'word') || decoded.parts[decoded.parts.length - 1];
+  if (!main) return '';
+  
+  const hints = [];
+  
+  if (main.posCode === 'V') {
+    // Verb: stem help + type help
+    const lang = decoded.language === 'Aramaic' ? 'A' : 'H';
+    const stemHelp = lang === 'A' ? STEM_HELP_ARAMAIC[main.stemCode] : STEM_HELP_HEBREW[main.stemCode];
+    if (stemHelp) {
+      // Extract just the first phrase before the dash
+      const short = stemHelp.split('—')[0].trim().toLowerCase();
+      hints.push(short);
+    }
+    if (main.typeCode && VERB_TYPE_HELP[main.typeCode]) {
+      const short = VERB_TYPE_HELP[main.typeCode].split('—')[0].trim().toLowerCase();
+      hints.push(short);
+    }
+  } else {
+    if (main.state && STATE_HELP[main.state?.charAt(0)?.toLowerCase()]) {
+      // Only mention construct state since it affects meaning
+      const stateCode = Object.keys(STATE).find(k => STATE[k] === main.state);
+      if (stateCode === 'c') hints.push('bound form (of)');
+    }
+  }
+  
+  return hints.join(', ');
+}
+
+/**
+ * Get detailed help text for a specific morph part.
+ * Returns an object with help strings for each grammar component.
+ * @param {object} part - A single decoded segment from decodeMorphology().parts
+ * @param {string} lang - 'H' or 'A'
+ * @returns {object} { stem, type, state, pos }
+ */
+function getMorphPartHelp(part, lang) {
+  if (!part) return {};
+  const result = {};
+  
+  if (part.posCode === 'V') {
+    const stemTable = lang === 'A' ? STEM_HELP_ARAMAIC : STEM_HELP_HEBREW;
+    if (part.stemCode && stemTable[part.stemCode]) result.stem = stemTable[part.stemCode];
+    if (part.typeCode && VERB_TYPE_HELP[part.typeCode]) result.type = VERB_TYPE_HELP[part.typeCode];
+  }
+  
+  const stateCode = part.state ? Object.keys(STATE).find(k => STATE[k] === part.state) : null;
+  if (stateCode && STATE_HELP[stateCode]) result.state = STATE_HELP[stateCode];
+  
+  if (part.posCode && POS_HELP[part.posCode]) result.pos = POS_HELP[part.posCode];
+  
+  return result;
+}
+
+
 // ── Exports ────────────────────────────────────────────────────────
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -505,10 +632,13 @@ if (typeof module !== 'undefined' && module.exports) {
     primaryStrongsFromLemma,
     stripCantillation,
     stripAllDiacritics,
+    getMorphHelp,
+    getMorphPartHelp,
     // Export tables for testing/inspection
     LANGUAGE, PART_OF_SPEECH, VERB_STEM_HEBREW, VERB_STEM_ARAMAIC,
     VERB_TYPE, ADJECTIVE_TYPE, NOUN_TYPE, PRONOUN_TYPE,
     PREPOSITION_TYPE, SUFFIX_TYPE, PARTICLE_TYPE,
-    PERSON, GENDER, NUMBER, STATE
+    PERSON, GENDER, NUMBER, STATE,
+    STEM_HELP_HEBREW, STEM_HELP_ARAMAIC, VERB_TYPE_HELP, STATE_HELP, POS_HELP
   };
 }

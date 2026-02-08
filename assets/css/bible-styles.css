@@ -12122,3 +12122,458 @@ details.concept-strongs-section[open] .concept-expand-icon {
   font-size: 0.88em;
   line-height: 1.4;
 }
+
+.morph-part-help {
+  width: 100%;
+  padding: 3px 0 2px 30px;
+  font-size: 0.82em;
+  color: #8a9ab0;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.morph-tip-help {
+  color: #8a9ab0;
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   CONSONANTAL ROOT CONNECTIONS (Strong's sidebar)
+   ════════════════════════════════════════════════════════════════════ */
+
+.strongs-root-connections {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(30, 40, 55, 0.5);
+  border: 1px solid rgba(100, 140, 200, 0.2);
+  border-radius: 8px;
+}
+
+.root-connections-header {
+  font-size: 0.85em;
+  font-weight: 700;
+  color: #6db3f2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(100, 140, 200, 0.2);
+}
+
+.root-connections-consonants {
+  font-size: 0.9em;
+  color: #c8d0e0;
+  margin-bottom: 6px;
+}
+
+.root-consonants-hebrew {
+  font-size: 1.3em;
+  direction: rtl;
+  font-family: 'SBL Hebrew', 'Ezra SIL', 'Times New Roman', serif;
+  color: #d4a017;
+}
+
+.root-connections-note {
+  font-size: 0.8em;
+  color: #6a7a8a;
+  font-style: italic;
+}
+
+.root-connections-subtitle {
+  font-size: 0.82em;
+  color: #8aa8c8;
+  margin-bottom: 8px;
+}
+
+.root-connections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.root-connection-entry {
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.root-connection-entry:hover {
+  background: rgba(100, 140, 200, 0.1);
+}
+
+.root-connection-current {
+  background: rgba(100, 160, 220, 0.1);
+  border-left: 2px solid #6db3f2;
+}
+
+.root-connection-link {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 6px;
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  min-width: 0;
+}
+
+.root-connection-num {
+  font-size: 0.78em;
+  color: #7ec8e3;
+  font-weight: 600;
+  flex-shrink: 0;
+  min-width: 48px;
+}
+
+.root-connection-lemma {
+  font-size: 1.15em;
+  direction: rtl;
+  font-family: 'SBL Hebrew', 'Ezra SIL', 'Times New Roman', serif;
+  color: #e0d8c8;
+  flex-shrink: 0;
+  min-width: 40px;
+  text-align: center;
+}
+
+.root-connection-gloss {
+  font-size: 0.82em;
+  color: #8aa8c8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.root-connection-marker {
+  font-size: 0.7em;
+  color: #6db3f2;
+  background: rgba(100, 140, 200, 0.15);
+  padding: 1px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.root-connections-footer {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(100, 140, 200, 0.1);
+  font-size: 0.75em;
+  color: #6a7a8a;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   BDB LEXICON SECTION (Strong's sidebar — structured AI data)
+   ════════════════════════════════════════════════════════════════════ */
+
+.strongs-bdb-section {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(25, 35, 50, 0.5);
+  border: 1px solid rgba(100, 140, 200, 0.2);
+  border-radius: 8px;
+}
+
+.bdb-header {
+  font-size: 0.85em;
+  font-weight: 700;
+  color: #6db3f2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(100, 140, 200, 0.2);
+}
+
+.bdb-content-raw {
+  font-size: 0.88em;
+  color: #c8d0e0;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.bdb-sub-header {
+  font-size: 0.78em;
+  font-weight: 600;
+  color: #8aa8c8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 10px 0 6px;
+}
+
+.bdb-sense {
+  margin-bottom: 12px;
+  padding-left: 10px;
+  border-left: 2px solid rgba(100, 140, 200, 0.25);
+}
+
+.bdb-sense-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bdb-sense-num {
+  color: #d4a017;
+  font-weight: 700;
+}
+
+.bdb-sense-meaning {
+  color: #e0d8c8;
+  font-weight: 600;
+  font-size: 0.92em;
+}
+
+.bdb-sense-detail {
+  color: #b0b8c8;
+  font-size: 0.88em;
+  margin-top: 3px;
+  line-height: 1.5;
+}
+
+/* Ref chips */
+.bdb-refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.bdb-ref-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(15, 25, 40, 0.6);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+.bdb-verse-ref {
+  color: #7ec8e3;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(126, 200, 227, 0.3);
+}
+
+.bdb-verse-ref:hover {
+  text-decoration-color: #7ec8e3;
+}
+
+.bdb-stem-badge {
+  background: rgba(212, 160, 23, 0.2);
+  color: #d4a017;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.bdb-trans-word {
+  color: #a0b0c0;
+  font-style: italic;
+  font-size: 0.92em;
+}
+
+.bdb-strongs-link {
+  color: #6db3f2;
+  font-size: 0.85em;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(100, 140, 200, 0.3);
+}
+
+.bdb-strongs-link:hover {
+  text-decoration-color: #6db3f2;
+}
+
+/* Callout boxes */
+.bdb-callout {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.88em;
+  line-height: 1.5;
+}
+
+.bdb-callout-distinction {
+  background: rgba(212, 160, 23, 0.08);
+  border-left: 3px solid #d4a017;
+}
+
+.bdb-callout-translation {
+  background: rgba(126, 200, 227, 0.06);
+  border-left: 3px solid #7ec8e3;
+  color: #b0c8d8;
+}
+
+.bdb-callout-insight {
+  background: rgba(168, 85, 247, 0.06);
+  border-left: 3px solid #a855f7;
+  color: #c8b0e0;
+}
+
+.bdb-callout-root {
+  background: rgba(100, 200, 150, 0.06);
+  border-left: 3px solid #5cb885;
+  color: #b0d8c0;
+}
+
+.bdb-callout-label {
+  font-size: 0.72em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+  opacity: 0.6;
+}
+
+/* Evidence section */
+.bdb-evidence-btn {
+  display: block;
+  margin-top: 10px;
+  background: rgba(100, 140, 200, 0.1);
+  border: 1px solid rgba(100, 140, 200, 0.25);
+  color: #6db3f2;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.84em;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: background 0.2s;
+}
+
+.bdb-evidence-btn:hover {
+  background: rgba(100, 140, 200, 0.25);
+}
+
+.bdb-evidence {
+  display: none;
+  margin-top: 8px;
+}
+
+.bdb-evidence.open {
+  display: block;
+}
+
+.bdb-evidence-point {
+  padding: 8px 10px;
+  background: rgba(15, 25, 40, 0.5);
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.bdb-evidence-text {
+  color: #b0b8c8;
+  font-size: 0.88em;
+  line-height: 1.6;
+}
+
+/* Key verses */
+.bdb-key-verses {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(100, 140, 200, 0.15);
+}
+
+.bdb-kv-label {
+  font-size: 0.72em;
+  color: #555;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.bdb-kv-item {
+  margin-bottom: 3px;
+  font-size: 0.88em;
+}
+
+.bdb-kv-note {
+  color: #8a9ab0;
+  font-size: 0.9em;
+}
+
+/* Active/collapsed stem filtering */
+.bdb-sense-active {
+  border-left-color: #d4a017;
+  background: rgba(212, 160, 23, 0.05);
+}
+
+.bdb-sense-collapsed .bdb-sense-detail,
+.bdb-sense-collapsed .bdb-refs {
+  display: none;
+}
+
+.bdb-sense-collapsed {
+  cursor: pointer;
+  opacity: 0.6;
+  border-left-color: rgba(100, 140, 200, 0.15);
+}
+
+.bdb-sense-collapsed:hover {
+  opacity: 0.85;
+}
+
+.bdb-expand-hint {
+  font-size: 0.72em;
+  color: #556;
+  font-style: italic;
+  margin-left: 8px;
+}
+
+.bdb-form-label {
+  color: #7ec8e3;
+  font-weight: 500;
+}
+
+/* Raw BDB source view */
+.bdb-raw-btn {
+  display: block;
+  margin-top: 10px;
+  background: none;
+  border: 1px solid rgba(100, 140, 200, 0.15);
+  color: #556;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.78em;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.bdb-raw-btn:hover {
+  color: #7ec8e3;
+  border-color: rgba(100, 140, 200, 0.3);
+}
+
+.bdb-raw-content {
+  display: none;
+  margin-top: 8px;
+  padding: 10px;
+  background: rgba(10, 15, 25, 0.6);
+  border-radius: 6px;
+  font-size: 0.82em;
+  color: #8a9ab0;
+  line-height: 1.5;
+  max-height: 400px;
+  overflow-y: auto;
+  word-wrap: break-word;
+}
+
+.bdb-raw-content.open {
+  display: block;
+}
+
+/* Attribution */
+.bdb-attribution {
+  margin-top: 10px;
+  font-size: 0.7em;
+  color: #445;
+  text-align: center;
+  font-style: italic;
+}

@@ -63,6 +63,8 @@ const DATA_ASSETS = [
   '/data/morphhb.json',
   '/data/nt-interlinear.json',
   '/data/tipnr.json',
+  '/data/bdb-ai.json',
+  '/data/bdb.json',
   '/docs/temple-chronology-verification.md'
 ];
 

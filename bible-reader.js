@@ -146,6 +146,27 @@ function getStrongsDict() {
 }
 
 // ============================================
+// CONSONANTAL ROOT INDEX
+// ============================================
+
+// Maps consonantal forms (vowels stripped) → array of Strong's numbers
+// Built lazily from strongsHebrewDictionary on first use
+let consonantalRootIndex = null;
+
+function buildConsonantalRootIndex() {
+  if (consonantalRootIndex) return;
+  if (typeof strongsHebrewDictionary === 'undefined') return;
+  consonantalRootIndex = {};
+  for (const [key, entry] of Object.entries(strongsHebrewDictionary)) {
+    if (!key.startsWith('H') || !entry.lemma) continue;
+    const consonants = stripAllDiacritics(entry.lemma.replace(/[\u05BE\/]/g, ''));
+    if (consonants.length < 2) continue;
+    if (!consonantalRootIndex[consonants]) consonantalRootIndex[consonants] = [];
+    consonantalRootIndex[consonants].push(key);
+  }
+}
+
+// ============================================
 // GEMATRIA DATA AND FUNCTIONS
 // ============================================
 
@@ -797,9 +818,12 @@ function showMorphTooltip(el, event) {
     }
   }
   
-  // Morphology description
+  // Morphology description + grammar help
   if (morphDesc) {
-    html += `<div class="morph-tip-desc">${morphDesc}</div>`;
+    const morphCode = el.dataset.morphCode || '';
+    const decoded = morphCode && typeof decodeMorphology === 'function' ? decodeMorphology(morphCode) : null;
+    const helpNote = decoded && typeof getMorphHelp === 'function' ? getMorphHelp(decoded) : '';
+    html += `<div class="morph-tip-desc">${morphDesc}${helpNote ? `<span class="morph-tip-help"> (${helpNote})</span>` : ''}</div>`;
   }
   
   // Symbol meaning if available — pass the English gloss for word-based matching too
@@ -1002,6 +1026,34 @@ let morphhbLoading = null;
 
 // Current morphology context (set when clicking a word from interlinear, cleared on panel nav)
 let currentMorphContext = null;
+
+// BDB Lexicon data (lazy-loaded on first Strong's panel open)
+let bdbData = null;
+let bdbLoading = null;
+
+async function loadBDB() {
+  if (bdbData) return true;
+  if (bdbLoading) return bdbLoading;
+  
+  bdbLoading = (async () => {
+    try {
+      const response = await fetch('/data/bdb-ai.json');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      bdbData = await response.json();
+      console.log(`BDB lexicon loaded: ${Object.keys(bdbData).length} entries`);
+      // Also load raw BDB in background for verification view
+      loadBDBRaw();
+      return true;
+    } catch (err) {
+      console.warn('BDB lexicon not available:', err.message);
+      return false;
+    } finally {
+      bdbLoading = null;
+    }
+  })();
+  
+  return bdbLoading;
+}
 
 // NT interlinear data (Greek)
 let ntInterlinearData = null;
@@ -3249,74 +3301,38 @@ function abbreviateReference(ref) {
 let strongsHistory = [];
 let strongsHistoryIndex = -1;
 
-// Single source of truth: find symbol for a Strong's entry so panel always shows symbol when associated
+// Single source of truth: find symbol for a Strong's entry.
+// Three reliable matching paths only:
+//   1. Direct Strong's match — word's number is explicitly in a symbol's strongs array
+//   2. Forward derivation — word derives FROM a symbol word
+//   3. English word match — the actual translation word (passed by caller) matches a symbol word
+// Removed: reverse derivation scan (inverted logic) and KJV def word scan (too many false positives)
 function getSymbolForStrongsEntry(strongsNum, entry, englishWord) {
+  // 1. Direct Strong's number match (curated association)
   let symbol = (typeof lookupSymbolByStrongs === 'function') ? lookupSymbolByStrongs(strongsNum) : null;
+  if (symbol) return symbol;
 
-  if (!symbol && typeof SYMBOL_DICTIONARY !== 'undefined' && typeof getStrongsEntry === 'function') {
-    for (const [symbolKey, sym] of Object.entries(SYMBOL_DICTIONARY)) {
-      if (sym.strongs) {
-        for (const symStrongs of sym.strongs) {
-          const symEntry = getStrongsEntry(symStrongs);
-          if (symEntry && symEntry.derivation) {
-            const normalized = normalizeStrongsNum(strongsNum);
-            if (symEntry.derivation.includes(normalized) || symEntry.derivation.includes(strongsNum)) {
-              symbol = sym;
-              break;
-            }
-          }
-        }
-        if (symbol) break;
-      }
-    }
-  }
-
-  if (!symbol && entry && entry.derivation && typeof lookupSymbolByStrongs === 'function') {
+  // 2. Forward derivation: this word derives FROM a symbol word
+  if (entry && entry.derivation && typeof lookupSymbolByStrongs === 'function') {
     const derivationMatch = entry.derivation.match(/H\d+|G\d+/g);
     if (derivationMatch) {
       for (const derivedStrongs of derivationMatch) {
         symbol = lookupSymbolByStrongs(derivedStrongs);
-        if (symbol) break;
+        if (symbol) return symbol;
       }
     }
   }
 
-  if (!symbol && typeof lookupSymbolByWord !== 'function') return symbol;
-
-  // Collect all candidate words (passed word, lemma, KJV def words) and try each + variations
-  const candidates = new Set();
-  if (englishWord) {
-    const w = String(englishWord).toLowerCase().replace(/[.,;:!?'"()]/g, '');
-    if (w.length > 1) candidates.add(w);
-  }
-  if (entry && entry.lemma) {
-    const w = String(entry.lemma).toLowerCase().replace(/[.,;:!?'"()]/g, '');
-    if (w.length > 1) candidates.add(w);
-  }
-  if (entry && entry.kjv_def) {
-    const kjvDefLower = entry.kjv_def.toLowerCase();
-    const words = kjvDefLower.replace(/[^\w\s-]/g, ' ').split(/[\s-]+/).filter(w => w.length > 2);
-    words.forEach(w => candidates.add(w));
+  // 3. English word match — only the actual translation word passed by caller
+  if (englishWord && typeof lookupSymbolByWord === 'function') {
+    const w = String(englishWord).toLowerCase().replace(/[.,;:!?'"()]/g, '').trim();
+    if (w.length > 1) {
+      symbol = lookupSymbolByWord(w);
+      if (symbol) return symbol;
+    }
   }
 
-  for (const word of candidates) {
-    symbol = lookupSymbolByWord(word);
-    if (symbol) return symbol;
-    const base = word.replace(/(ful|less|ly|ing|ed|s)$/, '');
-    if (base.length > 2 && base !== word) {
-      symbol = lookupSymbolByWord(base);
-      if (symbol) return symbol;
-    }
-    if (word.endsWith('s') && word.length > 3) {
-      symbol = lookupSymbolByWord(word.slice(0, -1));
-      if (symbol) return symbol;
-    }
-    if (!word.endsWith('s') && word.length > 2) {
-      symbol = lookupSymbolByWord(word + 's');
-      if (symbol) return symbol;
-    }
-  }
-  return symbol;
+  return null;
 }
 
 // Linkify Strong's references in text (H#### or G####)
@@ -3462,11 +3478,296 @@ function renderMorphParsingHtml() {
       html += `<span class="morph-part-role">${roleLabel}</span>`;
     }
     html += `<span class="morph-part-detail">${detail}${meaning}</span>`;
+    
+    // Grammar help text for this part
+    if (role !== 'prefix' && typeof getMorphPartHelp === 'function') {
+      const help = getMorphPartHelp(part, lang);
+      if (help.stem || help.type) {
+        let helpHtml = '';
+        if (help.stem) helpHtml += `<div>${help.stem}</div>`;
+        if (help.type) helpHtml += `<div>${help.type}</div>`;
+        html += `<div class="morph-part-help">${helpHtml}</div>`;
+      }
+    }
+    
     html += '</div>';
   }
   
   html += '</div>';
   return html;
+}
+
+// Render Consonantal Root Connections section for the Strong's sidebar
+// Shows all Strong's entries that share the same consonantal skeleton
+function renderConsonantalRootSection(strongsNum) {
+  if (!strongsNum || !strongsNum.startsWith('H')) return '';
+  
+  // Build the index lazily on first use
+  buildConsonantalRootIndex();
+  if (!consonantalRootIndex) return '';
+  
+  // Get the lemma for this Strong's number
+  const entry = getStrongsEntry(strongsNum);
+  if (!entry || !entry.lemma) return '';
+  
+  // Also use the interlinear Hebrew form if available (from currentMorphContext)
+  let consonants = stripAllDiacritics(entry.lemma.replace(/[\u05BE\/]/g, ''));
+  
+  // Try morph context form too — the inflected form in the text may differ from the lemma
+  let contextConsonants = null;
+  if (currentMorphContext && currentMorphContext.hebrewText) {
+    contextConsonants = stripAllDiacritics(currentMorphContext.hebrewText.replace(/[\u05BE\/]/g, ''));
+  }
+  
+  // Look up matches — try the lemma's consonants first, then the context form
+  let matches = consonantalRootIndex[consonants] || [];
+  let displayConsonants = consonants;
+  
+  // If context form yields more matches, prefer it
+  if (contextConsonants && contextConsonants !== consonants) {
+    const contextMatches = consonantalRootIndex[contextConsonants] || [];
+    if (contextMatches.length > matches.length) {
+      matches = contextMatches;
+      displayConsonants = contextConsonants;
+    }
+  }
+  
+  // Only show when there are multiple readings (the interesting cases)
+  if (matches.length < 2) return '';
+  
+  let html = '<div class="strongs-root-connections">';
+  html += '<div class="root-connections-header">Root Connections</div>';
+  html += `<div class="root-connections-consonants">Consonants: <span class="root-consonants-hebrew">${displayConsonants}</span> <span class="root-connections-note">(without vowel marks)</span></div>`;
+  html += '<div class="root-connections-subtitle">These consonants can be read as:</div>';
+  html += '<div class="root-connections-list">';
+  
+  for (const matchNum of matches) {
+    const matchEntry = getStrongsEntry(matchNum);
+    if (!matchEntry) continue;
+    
+    const isCurrent = matchNum === strongsNum;
+    const gloss = matchEntry.strongs_def
+      ? matchEntry.strongs_def.replace(/<[^>]*>/g, '').substring(0, 80)
+      : '';
+    
+    html += `<div class="root-connection-entry${isCurrent ? ' root-connection-current' : ''}">`;
+    html += `<a href="#" class="root-connection-link" onclick="navigateToStrongs('${matchNum}', event)">`;
+    html += `<span class="root-connection-num">${matchNum}</span>`;
+    html += `<span class="root-connection-lemma">${matchEntry.lemma || ''}</span>`;
+    html += `<span class="root-connection-gloss">${gloss}</span>`;
+    html += '</a>';
+    if (isCurrent) html += '<span class="root-connection-marker">current</span>';
+    html += '</div>';
+  }
+  
+  html += '</div>';
+  html += '<div class="root-connections-footer">The vowel pointing (added ~600–900 AD) selects one reading. The consonantal text allows other interpretations.</div>';
+  html += '</div>';
+  return html;
+}
+
+// Render a single ref chip (verse + stem badge + translation + Strong's links)
+function renderBDBRef(ref) {
+  if (!ref) return '';
+  const parts = [];
+  if (ref.verse) {
+    const escaped = ref.verse.replace(/'/g, "\\'");
+    parts.push(`<span class="bdb-verse-ref" onclick="navigateToBDBVerse('${escaped}', event)">${ref.verse}</span>`);
+  }
+  if (ref.stem) parts.push(`<span class="bdb-stem-badge">${ref.stem}</span>`);
+  if (ref.translation) parts.push(`<span class="bdb-trans-word">"${ref.translation}"</span>`);
+  if (ref.strongs && ref.strongs.length) {
+    for (const sn of ref.strongs) {
+      if (sn !== bdbCurrentStrongs) {
+        parts.push(`<span class="bdb-strongs-link" onclick="navigateToStrongs('${sn}', event)">${sn}</span>`);
+      }
+    }
+  }
+  return parts.length ? `<span class="bdb-ref-chip">${parts.join(' ')}</span>` : '';
+}
+
+// Track which Strong's entry the BDB section is currently showing (to avoid self-links)
+let bdbCurrentStrongs = '';
+
+// Navigate to a verse from BDB ref
+function navigateToBDBVerse(verseRef, event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  const match = verseRef.match(/^(\d?\s?[A-Za-z]+)\s+(\d+):(\d+)/);
+  if (!match) return;
+  // Map abbreviations to full book names
+  const abbrevMap = {
+    'Gen': 'Genesis', 'Exod': 'Exodus', 'Lev': 'Leviticus', 'Num': 'Numbers',
+    'Deut': 'Deuteronomy', 'Josh': 'Joshua', 'Judg': 'Judges', 'Ruth': 'Ruth',
+    '1Sam': '1 Samuel', '2Sam': '2 Samuel', '1Kgs': '1 Kings', '1Kin': '1 Kings',
+    '2Kgs': '2 Kings', '2Kin': '2 Kings', '1Chr': '1 Chronicles', '2Chr': '2 Chronicles',
+    'Ezra': 'Ezra', 'Neh': 'Nehemiah', 'Esth': 'Esther', 'Est': 'Esther',
+    'Job': 'Job', 'Psa': 'Psalms', 'Prov': 'Proverbs', 'Pro': 'Proverbs',
+    'Eccl': 'Ecclesiastes', 'Song': 'Song of Solomon', 'Isa': 'Isaiah',
+    'Jer': 'Jeremiah', 'Lam': 'Lamentations', 'Ezek': 'Ezekiel', 'Eze': 'Ezekiel',
+    'Dan': 'Daniel', 'Hos': 'Hosea', 'Joel': 'Joel', 'Amos': 'Amos',
+    'Obad': 'Obadiah', 'Jon': 'Jonah', 'Jonah': 'Jonah', 'Mic': 'Micah',
+    'Nah': 'Nahum', 'Hab': 'Habakkuk', 'Zeph': 'Zephaniah', 'Hag': 'Haggai',
+    'Zech': 'Zechariah', 'Mal': 'Malachi',
+    'Matt': 'Matthew', 'Mark': 'Mark', 'Luke': 'Luke', 'John': 'John',
+    'Acts': 'Acts', 'Rom': 'Romans', '1Cor': '1 Corinthians', '2Cor': '2 Corinthians',
+    'Gal': 'Galatians', 'Eph': 'Ephesians', 'Phil': 'Philippians', 'Col': 'Colossians',
+    '1Thess': '1 Thessalonians', '2Thess': '2 Thessalonians', '1Tim': '1 Timothy',
+    '2Tim': '2 Timothy', 'Tit': 'Titus', 'Phlm': 'Philemon', 'Heb': 'Hebrews',
+    'Jas': 'James', '1Pet': '1 Peter', '2Pet': '2 Peter', '1John': '1 John',
+    '2John': '2 John', '3John': '3 John', 'Jude': 'Jude', 'Rev': 'Revelation'
+  };
+  const bookAbbr = match[1].trim();
+  const book = abbrevMap[bookAbbr] || bookAbbr;
+  const chapter = parseInt(match[2]);
+  const verse = parseInt(match[3]);
+  closeStrongsPanel();
+  if (typeof openBibleExplorerTo === 'function') {
+    openBibleExplorerTo(book, chapter, verse);
+  }
+}
+
+// Render BDB lexicon section from structured AI data
+function renderBDBSection(strongsNum) {
+  if (!bdbData || !strongsNum) return '';
+  
+  const entry = bdbData[strongsNum];
+  const baseNum = strongsNum.replace(/[a-z]$/, '');
+  const e = entry || bdbData[baseNum];
+  if (!e) return '';
+  
+  // If it's a raw string (old format), fall back to simple display
+  if (typeof e === 'string') {
+    return `<div class="strongs-bdb-section"><div class="bdb-header">BDB Lexicon</div><div class="bdb-content-raw">${e.substring(0, 800).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div></div>`;
+  }
+  
+  bdbCurrentStrongs = strongsNum;
+  
+  // Determine the current stem from morph context (for auto-expanding relevant section)
+  let activeStem = null;
+  if (currentMorphContext && currentMorphContext.morphCode) {
+    const decoded = typeof decodeMorphology === 'function' ? decodeMorphology(currentMorphContext.morphCode) : null;
+    if (decoded && decoded.parts) {
+      const verbPart = decoded.parts.find(p => p.posCode === 'V' && p.role !== 'prefix');
+      if (verbPart && verbPart.stem) activeStem = verbPart.stem;
+    }
+  }
+  
+  let html = '<div class="strongs-bdb-section">';
+  html += '<div class="bdb-header">Hebrew Lexicon</div>';
+  
+  // Stems (for verbs) — auto-expand matching stem, collapse others
+  if (e.stems && e.stems.length > 0) {
+    html += '<div class="bdb-stems">';
+    html += '<div class="bdb-sub-header">Verb Stems</div>';
+    for (const s of e.stems) {
+      const isActive = activeStem && s.stem === activeStem;
+      const collapsed = activeStem && !isActive;
+      html += `<div class="bdb-sense ${isActive ? 'bdb-sense-active' : ''} ${collapsed ? 'bdb-sense-collapsed' : ''}" ${collapsed ? 'onclick="this.classList.remove(\'bdb-sense-collapsed\')"' : ''}>`;
+      html += `<div class="bdb-sense-head"><span class="bdb-stem-badge">${s.stem}</span> <span class="bdb-sense-meaning">${s.meaning || ''}</span>${collapsed ? '<span class="bdb-expand-hint">tap to expand</span>' : ''}</div>`;
+      if (s.detail) html += `<div class="bdb-sense-detail">${s.detail}</div>`;
+      if (s.refs && s.refs.length) {
+        html += `<div class="bdb-refs">${s.refs.map(renderBDBRef).join('')}</div>`;
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  
+  // Senses (for nouns/particles)
+  if (e.senses && e.senses.length > 0) {
+    html += '<div class="bdb-senses">';
+    html += '<div class="bdb-sub-header">Senses</div>';
+    for (const s of e.senses) {
+      html += '<div class="bdb-sense">';
+      html += `<div class="bdb-sense-head"><span class="bdb-sense-num">${s.number}.</span> <span class="bdb-sense-meaning">${s.meaning || ''}</span></div>`;
+      if (s.detail) html += `<div class="bdb-sense-detail">${s.detail}</div>`;
+      if (s.refs && s.refs.length) {
+        html += `<div class="bdb-refs">${s.refs.map(renderBDBRef).join('')}</div>`;
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  
+  // Callout boxes
+  if (e.keyDistinction) {
+    html += `<div class="bdb-callout bdb-callout-distinction"><div class="bdb-callout-label">Key Distinction</div>${e.keyDistinction}</div>`;
+  }
+  if (e.translationNote) {
+    html += `<div class="bdb-callout bdb-callout-translation"><div class="bdb-callout-label">Translation Note</div>${e.translationNote}</div>`;
+  }
+  if (e.insight) {
+    html += `<div class="bdb-callout bdb-callout-insight"><div class="bdb-callout-label">Insight</div>${e.insight}</div>`;
+  }
+  if (e.rootNote) {
+    html += `<div class="bdb-callout bdb-callout-root"><div class="bdb-callout-label">Consonantal Root</div>${e.rootNote}</div>`;
+  }
+  
+  // Evidence (expandable)
+  if (e.evidence && e.evidence.length > 0) {
+    html += `<button class="bdb-evidence-btn" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'Hide evidence':'Show evidence'">Show evidence</button>`;
+    html += '<div class="bdb-evidence">';
+    for (const ev of e.evidence) {
+      html += '<div class="bdb-evidence-point">';
+      html += `<div class="bdb-evidence-text">${ev.point || ''}</div>`;
+      if (ev.refs && ev.refs.length) {
+        html += `<div class="bdb-refs">${ev.refs.map(renderBDBRef).join('')}</div>`;
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  
+  // Key verses
+  if (e.keyVerses && e.keyVerses.length > 0) {
+    html += '<div class="bdb-key-verses">';
+    html += '<div class="bdb-kv-label">Key Verses</div>';
+    for (const kv of e.keyVerses) {
+      const escaped = (kv.verse || '').replace(/'/g, "\\'");
+      html += `<div class="bdb-kv-item"><span class="bdb-verse-ref" onclick="navigateToBDBVerse('${escaped}', event)">${kv.verse}</span>`;
+      if (kv.note) html += ` <span class="bdb-kv-note">${kv.note}</span>`;
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  
+  // Raw BDB source (expandable, for verification)
+  const rawBdb = bdbRawData ? (bdbRawData[strongsNum] || bdbRawData[baseNum]) : null;
+  if (rawBdb) {
+    html += `<button class="bdb-raw-btn" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'Hide original BDB':'Show original BDB (1906)'">Show original BDB (1906)</button>`;
+    html += `<div class="bdb-raw-content">${formatRawBDB(rawBdb)}</div>`;
+  }
+  
+  // Attribution
+  html += '<div class="bdb-attribution">Based on Brown-Driver-Briggs (1906). Enhanced with modern analysis.</div>';
+  
+  html += '</div>';
+  return html;
+}
+
+// Format raw BDB text for display (formatting only, no rewriting)
+function formatRawBDB(text) {
+  if (!text) return '';
+  let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Highlight stem labels
+  html = html.replace(/\b(Qal|Niph[`']?al|Pi[`']?el|Pu[`']?al|Hiph[`']?il|Hoph[`']?al|Hithpa[`']?el|Pe[`']?al|Pa[`']?el|Aph[`']?el)\b/g,
+    '<span class="bdb-stem-badge">$1</span>');
+  // Highlight grammatical forms
+  html = html.replace(/\b(Perfect|Imperfect|Imperative|Infinitive|Participle)\b/g,
+    '<span class="bdb-form-label">$1</span>');
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
+
+// Raw BDB data (loaded alongside AI data for verification)
+let bdbRawData = null;
+
+async function loadBDBRaw() {
+  if (bdbRawData) return;
+  try {
+    const response = await fetch('/data/bdb.json');
+    if (response.ok) bdbRawData = await response.json();
+  } catch (e) {}
 }
 
 // Update Strong's panel content (without adding to history)
@@ -3503,6 +3804,12 @@ function updateStrongsPanelContent(strongsNum, isNavigation = false) {
   
   // Add Hebrew morphology parsing (only present when opened from interlinear word)
   html += renderMorphParsingHtml();
+  
+  // Add consonantal root connections (Hebrew words sharing the same consonants)
+  html += renderConsonantalRootSection(strongsNum);
+  
+  // Add BDB lexicon section (if loaded)
+  html += renderBDBSection(strongsNum);
   
   // Add person/place info if available
   const allPersonInfo = getAllPersonInfo(strongsNum);
@@ -3569,6 +3876,20 @@ function updateStrongsPanelContent(strongsNum, isNavigation = false) {
         const verseSearch = contentEl.querySelector('.strongs-verse-search');
         if (verseSearch) {
           verseSearch.insertAdjacentHTML('beforebegin', gematriaSection);
+        }
+      }
+    });
+  }
+  
+  // Load BDB data if not loaded, then inject section
+  if (!bdbData) {
+    loadBDB().then(() => {
+      if (contentEl.querySelector('.strongs-bdb-section')) return;
+      const bdbHtml = renderBDBSection(strongsNum);
+      if (bdbHtml) {
+        const insertBefore = contentEl.querySelector('.person-info-section, .strongs-symbol-info, .strongs-word-study, .strongs-gematria-section, .strongs-verse-search');
+        if (insertBefore) {
+          insertBefore.insertAdjacentHTML('beforebegin', bdbHtml);
         }
       }
     });
@@ -3651,6 +3972,12 @@ function showStrongsPanel(strongsNum, englishWord, gloss, event, skipDispatch = 
   // Add Hebrew morphology parsing (only present when opened from interlinear word)
   html += renderMorphParsingHtml();
   
+  // Add consonantal root connections (Hebrew words sharing the same consonants)
+  html += renderConsonantalRootSection(strongsNum);
+  
+  // Add BDB lexicon section (if loaded)
+  html += renderBDBSection(strongsNum);
+  
   // Add symbolic meaning when this Strong's is associated with a symbol (same logic for all entry paths)
   const symbol = getSymbolForStrongsEntry(strongsNum, entry, englishWord);
   if (symbol) {
@@ -3716,6 +4043,21 @@ function showStrongsPanel(strongsNum, englishWord, gloss, event, skipDispatch = 
         const verseSearch = contentEl.querySelector('.strongs-verse-search');
         if (verseSearch) {
           verseSearch.insertAdjacentHTML('beforebegin', gematriaSection);
+        }
+      }
+    });
+  }
+  
+  // Load BDB data if not loaded, then inject section
+  if (!bdbData) {
+    loadBDB().then(() => {
+      if (contentEl.querySelector('.strongs-bdb-section')) return;
+      const bdbHtml = renderBDBSection(strongsNum);
+      if (bdbHtml) {
+        // Insert before person info or symbolic meaning
+        const insertBefore = contentEl.querySelector('.strongs-symbol-info, .person-info-section, .strongs-word-study, .strongs-gematria-section, .strongs-verse-search');
+        if (insertBefore) {
+          insertBefore.insertAdjacentHTML('beforebegin', bdbHtml);
         }
       }
     });

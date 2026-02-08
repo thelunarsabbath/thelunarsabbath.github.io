@@ -147,6 +147,15 @@ const BibleView = {
       });
     }
     
+    // Sync gematria expanded state with DOM
+    const gematriaRelated = document.getElementById('gematria-related');
+    if (gematriaRelated) {
+      const expanded = !!ui.gematriaExpanded;
+      gematriaRelated.style.display = expanded ? 'block' : 'none';
+      const expandIcon = gematriaRelated.closest('.strongs-gematria-section')?.querySelector('.strongs-gematria-expand');
+      if (expandIcon) expandIcon.textContent = expanded ? '▲' : '▼';
+    }
+    
     // Sync search state
     if (ui.searchQuery !== this._lastSearchQuery) {
       this._lastSearchQuery = ui.searchQuery;

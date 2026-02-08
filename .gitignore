@@ -1,3 +1,17 @@
+# Environment / secrets
+.env
+
+# Node
+node_modules/
+package-lock.json
+
+# AI pipeline temp files
+data/bdb-ai-checkpoint.json
+data/bdb-ai-run.log
+data/bdb-ai-errors.json
+data/bdb-fmt-checkpoint.json
+data/bdb-preview.html
+
 # OS
 .DS_Store
 Thumbs.db

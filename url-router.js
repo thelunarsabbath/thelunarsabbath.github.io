@@ -634,6 +634,16 @@ const URLRouter = {
         } else if (contentType === 'timetested') {
           // Parse book chapter: /reader/timetested/chapter-slug
           if (parts[1]) params.chapterId = parts[1];
+        } else if (contentType === 'philo') {
+          // Parse philo: /reader/philo/{work-slug}/{section}
+          if (parts[1]) params.work = parts[1]; // work slug
+          if (parts[2]) params.section = parts[2];
+        } else if (contentType === 'josephus') {
+          // Parse josephus: /reader/josephus/{work-slug}/{book}/{chapter}/{section}
+          if (parts[1]) params.work = parts[1]; // work slug
+          if (parts[2]) params.book = parseInt(parts[2]);
+          if (parts[3]) params.chapter = parseInt(parts[3]);
+          if (parts[4]) params.section = parseInt(parts[4]);
         } else if (contentType === 'multiverse') {
           // Parse multiverse: /reader/multiverse/kjv/Dan.9.23/Daniel.12.11 (translation then ref segments)
           const knownTranslations = typeof Bible !== 'undefined'
@@ -855,6 +865,14 @@ const URLRouter = {
           if (params.number) readerPath += '/' + params.number;
         } else if (contentType === 'timetested') {
           if (params.chapterId) readerPath += '/' + params.chapterId;
+        } else if (contentType === 'philo') {
+          if (params.work) readerPath += '/' + params.work;
+          if (params.section) readerPath += '/' + params.section;
+        } else if (contentType === 'josephus') {
+          if (params.work) readerPath += '/' + params.work;
+          if (params.book != null) readerPath += '/' + params.book;
+          if (params.chapter != null) readerPath += '/' + params.chapter;
+          if (params.section != null) readerPath += '/' + params.section;
         } else if (contentType === 'multiverse') {
           readerPath += '/' + (params.translation || 'kjv');
           const segments = this._encodeMultiverseSegments(params.multiverse);

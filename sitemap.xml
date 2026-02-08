@@ -26,6 +26,13 @@
   <url><loc>https://lunarsabbath.net/reader/timetested/18_Appointed_Times</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://lunarsabbath.net/reader/timetested/19_Miscellaneous_Commands</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
+  <!-- Classics (Philo & Josephus) -->
+  <url><loc>https://lunarsabbath.net/reader/philo</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/josephus</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/philo/on-the-creation</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/josephus/antiquities</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://lunarsabbath.net/reader/josephus/jewish-war</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+
   <!-- Bible reader entry points -->
   <url><loc>https://lunarsabbath.net/reader/bible/kjv/Genesis/1</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
   <url><loc>https://lunarsabbath.net/reader/bible/kjv/Exodus/1</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>

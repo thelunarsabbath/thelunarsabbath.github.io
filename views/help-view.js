@@ -25,6 +25,7 @@ const HelpView = {
             <li><a href="#search-section" onclick="HelpView.scrollToSection('search-section')">🔍 Search Guide</a></li>
             <li><a href="#navigation-section" onclick="HelpView.scrollToSection('navigation-section')">🧭 Navigation</a></li>
             <li><a href="#calendar-section" onclick="HelpView.scrollToSection('calendar-section')">📅 Calendar</a></li>
+            <li><a href="#classics-section" onclick="HelpView.scrollToSection('classics-section')">🏛️ Classics (Philo & Josephus)</a></li>
             <li><a href="#keyboard-section" onclick="HelpView.scrollToSection('keyboard-section')">⌨️ Keyboard Shortcuts</a></li>
           </ul>
         </nav>
@@ -347,6 +348,27 @@ const HelpView = {
               <li><strong>Traditional Lunar:</strong> Crescent moon, evening start, lunar sabbaths</li>
               <li><strong>Custom:</strong> Configure your own settings</li>
             </ul>
+          </div>
+        </section>
+
+        <!-- Classics (Philo & Josephus) -->
+        <section id="classics-section" class="help-section">
+          <h2>🏛️ Classics (Philo & Josephus)</h2>
+          <div class="help-card">
+            <h3>Browse Primary Sources</h3>
+            <p>The Reader includes the complete works of <strong>Philo of Alexandria</strong> and <strong>Josephus</strong> — key primary sources for Second Temple period history and biblical calendar evidence.</p>
+            <div class="help-examples">
+              <div class="help-example">
+                <code>Antiquities 18.2.2</code>
+                <span>→ Jump to Josephus, Antiquities book 18, chapter 2, section 2</span>
+              </div>
+              <div class="help-example">
+                <code>On the Creation 42</code>
+                <span>→ Jump to Philo, On the Creation section 42</span>
+              </div>
+            </div>
+            <p>Citations in the book chapters are automatically linked — click any Philo or Josephus reference to read the source passage. You can also type citations directly into the search bar.</p>
+            <p>Open from the Reader landing page or use the content-type dropdown in the Reader header.</p>
           </div>
         </section>
 

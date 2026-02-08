@@ -832,3 +832,154 @@ code {
   text-align: center;
   color: var(--color-text-muted);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CLASSICS READER (Philo & Josephus) — continuous-scroll reading view
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Author index */
+.classics-index {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  max-width: 700px;
+  margin: 0 auto;
+}
+.classics-index-title {
+  font-size: 1.6rem;
+  color: var(--color-accent, #d4a017);
+  margin-bottom: var(--spacing-sm);
+}
+.classics-index-intro {
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: var(--spacing-lg);
+}
+.classics-works-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.classics-work-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--color-text);
+  text-decoration: none;
+  border-radius: var(--radius-sm, 4px);
+  transition: background 0.15s;
+}
+.classics-work-item:hover {
+  background: rgba(212, 160, 23, 0.1);
+}
+.classics-work-name {
+  font-size: 1rem;
+  font-weight: 500;
+}
+.classics-work-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  margin-left: var(--spacing-md);
+}
+
+/* Continuous-scroll reading view */
+.classics-reader {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: var(--spacing-md) var(--spacing-xl) var(--spacing-xxl);
+}
+.classics-reader-header {
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid rgba(212, 160, 23, 0.2);
+}
+.classics-reader-header h1 {
+  font-size: 1.4rem;
+  color: var(--color-accent, #d4a017);
+  margin-bottom: var(--spacing-xs);
+}
+.classics-reader-meta {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.classics-reader-body {
+  line-height: 1.75;
+  color: var(--color-text);
+  font-size: 1.05rem;
+}
+
+/* Chapter headings (Josephus) */
+.classics-chapter-heading {
+  font-size: 1.15rem;
+  color: var(--color-accent, #d4a017);
+  margin: var(--spacing-xl) 0 var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Individual passage/section */
+.classics-passage {
+  margin-bottom: var(--spacing-md);
+  position: relative;
+  scroll-margin-top: 80px; /* offset for sticky header */
+}
+.classics-passage p {
+  margin: 0 0 0.5em;
+}
+.classics-section-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-accent, #d4a017);
+  opacity: 0.7;
+  margin-right: 0.4em;
+  cursor: default;
+  user-select: none;
+}
+
+/* Book navigation (prev/next book) */
+.classics-book-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+}
+.classics-book-nav-bottom {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.classics-book-nav-btn {
+  color: var(--color-accent, #d4a017);
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm, 4px);
+  transition: background 0.15s;
+}
+.classics-book-nav-btn:hover {
+  background: rgba(212, 160, 23, 0.15);
+}
+
+/* Citation links inside classics text */
+.classics-citation-link {
+  color: var(--color-accent, #d4a017);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(212, 160, 23, 0.4);
+}
+.classics-citation-link:hover {
+  border-bottom-style: solid;
+}
+
+@media (max-width: 768px) {
+  .classics-reader,
+  .classics-index {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  .classics-reader-header h1 {
+    font-size: 1.2rem;
+  }
+  .classics-reader-body {
+    font-size: 1rem;
+  }
+}

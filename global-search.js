@@ -244,6 +244,15 @@ const GlobalSearch = {
       }
     }
     
+    // Check for classics citation (Philo/Josephus) — e.g. "Antiquities 18.2.2", "On the Creation 42"
+    if (typeof Classics !== 'undefined') {
+      const classicsParsed = Classics.parseCitation(query);
+      if (classicsParsed) {
+        this.navigateToClassics(classicsParsed);
+        return;
+      }
+    }
+
     // Check for Gregorian date (1/15/2025, 2025-01-15, January 15, etc.) - navigate to calendar
     const dateRef = this.parseGregorianDate(query);
     if (dateRef) {
@@ -589,6 +598,29 @@ const GlobalSearch = {
         type: 'SET_VIEW',
         view: 'reader',
         params: { contentType: 'multiverse', multiverse: citationStr }
+      });
+    }
+  },
+
+  /**
+   * Navigate to a classics passage (Philo or Josephus)
+   * @param {Object} parsed - Result from Classics.parseCitation()
+   */
+  navigateToClassics(parsed) {
+    this.close();
+    if (typeof AppStore === 'undefined' || typeof Classics === 'undefined') return;
+    const slug = Classics.getWorkSlug(parsed.work);
+    if (parsed.author === 'philo') {
+      AppStore.dispatch({
+        type: 'SET_VIEW',
+        view: 'reader',
+        params: { contentType: 'philo', work: slug, section: String(parsed.section) }
+      });
+    } else if (parsed.author === 'josephus') {
+      AppStore.dispatch({
+        type: 'SET_VIEW',
+        view: 'reader',
+        params: { contentType: 'josephus', work: slug, book: parsed.book, chapter: parsed.chapter, section: parsed.section }
       });
     }
   },

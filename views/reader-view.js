@@ -98,6 +98,14 @@ const ReaderView = {
       case 'timetested':
         currentKey = `timetested:${params.chapterId || 'index'}`;
         break;
+      case 'philo':
+        // Key only on work — section changes scroll within the same rendered page
+        currentKey = `philo:${params.work || 'index'}`;
+        break;
+      case 'josephus':
+        // Key on work + book — section changes scroll within the same rendered book
+        currentKey = `josephus:${params.work || 'index'}:${params.book || ''}`;
+        break;
       default:
         currentKey = 'unknown';
     }
@@ -108,7 +116,14 @@ const ReaderView = {
     const fullKey = `${currentKey}:ui:${uiKey}`;
     
     if (this._lastRenderKey === fullKey && container.querySelector('#bible-explorer-page')) {
-      // Content hasn't changed, skip re-render to preserve scroll position
+      // Content hasn't changed — but for classics, check if section changed (scroll to it)
+      if (contentType === 'philo' && params.work && params.section) {
+        const anchor = container.querySelector('#section-' + params.section);
+        if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (contentType === 'josephus' && params.chapter != null && params.section != null) {
+        const anchor = container.querySelector('#section-' + params.book + '-' + params.chapter + '-' + params.section);
+        if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       return;
     }
     
@@ -188,6 +203,26 @@ const ReaderView = {
         }, 50);
         break;
         
+      case 'philo':
+        this.renderClassicsInBibleFrame(state, derived, container, 'philo', params);
+        this.syncUIState(state.ui);
+        setTimeout(() => {
+          if (typeof updateReaderContentSelector === 'function') {
+            updateReaderContentSelector('philo');
+          }
+        }, 50);
+        break;
+        
+      case 'josephus':
+        this.renderClassicsInBibleFrame(state, derived, container, 'josephus', params);
+        this.syncUIState(state.ui);
+        setTimeout(() => {
+          if (typeof updateReaderContentSelector === 'function') {
+            updateReaderContentSelector('josephus');
+          }
+        }, 50);
+        break;
+
       case 'people':
         // Future: People studies - for now, show landing page
         this.renderLandingPage(state, derived, container);
@@ -282,6 +317,26 @@ const ReaderView = {
             <div class="reader-card-meta">${chapterCount} chapters</div>
             <button class="reader-card-btn">
               Read Book →
+            </button>
+          </div>
+          
+          <!-- Classics: Philo -->
+          <div class="reader-content-card" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'philo'}})">
+            <div class="reader-card-icon">🏛️</div>
+            <h2>Philo of Alexandria</h2>
+            <p>First-century Jewish philosopher. Allegorical commentaries on the Torah, referenced throughout the book for calendar and Sabbath evidence.</p>
+            <button class="reader-card-btn">
+              Browse Philo →
+            </button>
+          </div>
+          
+          <!-- Classics: Josephus -->
+          <div class="reader-content-card" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'josephus'}})">
+            <div class="reader-card-icon">🏛️</div>
+            <h2>Josephus</h2>
+            <p>First-century Jewish historian. Antiquities, Jewish War, Against Apion, and Life — primary sources for Second Temple period history.</p>
+            <button class="reader-card-btn">
+              Browse Josephus →
             </button>
           </div>
         </div>
@@ -1136,6 +1191,7 @@ const ReaderView = {
           textArea.innerHTML = this._chapterCache.get(chapterId);
           this.linkifyScriptureRefs(textArea);
           this.linkifySymbolRefs(textArea);
+          this.linkifyClassicsRefs(textArea);
           if (section) {
             setTimeout(() => this.scrollToSection(section, textArea), 100);
           }
@@ -1411,6 +1467,9 @@ const ReaderView = {
       // Make symbol references interactive (links + tooltips)
       this.linkifySymbolRefs(container);
       
+      // Make Philo/Josephus citations clickable
+      this.linkifyClassicsRefs(container);
+      
       // Scroll to section if specified
       if (section) {
         setTimeout(() => {
@@ -1667,6 +1726,271 @@ const ReaderView = {
     } else {
       container.innerHTML = '<div class="reader-error">Book reader not available</div>';
     }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // CLASSICS (Philo & Josephus)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * Render Classics content (Philo or Josephus) within the Bible frame.
+   * Shows index → work → section with lazy loading of data.
+   */
+  renderClassicsInBibleFrame(state, derived, container, authorId, params) {
+    // Ensure Bible structure exists
+    const existingPage = container.querySelector('#bible-explorer-page');
+    if (!existingPage && typeof BibleView !== 'undefined') {
+      BibleView.renderStructure(container, { content: { params: { contentType: authorId } } });
+    } else if (existingPage && typeof BibleView !== 'undefined' && BibleView.syncSelectorVisibility) {
+      BibleView.syncSelectorVisibility({ content: { params: { contentType: authorId } } });
+    }
+
+    const textArea = container.querySelector('#bible-explorer-text');
+    if (!textArea) return;
+
+    const workSlug = params.work;
+    const authorName = authorId === 'philo' ? 'Philo' : 'Josephus';
+
+    // Lazy-load data, then render
+    if (typeof Classics !== 'undefined' && !Classics.isLoaded(authorId)) {
+      textArea.innerHTML = `<div class="symbol-study-loading">Loading ${authorName}...</div>`;
+      Classics.loadAuthor(authorId).then(() => {
+        this._renderClassicsContent(textArea, container, authorId, authorName, workSlug, params);
+      });
+    } else {
+      this._renderClassicsContent(textArea, container, authorId, authorName, workSlug, params);
+    }
+
+    // Update title
+    const titleEl = container.querySelector('#bible-chapter-title');
+    if (titleEl) titleEl.textContent = authorName;
+    this.hideChapterNav(container);
+  },
+
+  /**
+   * Internal: render classics content once data is loaded.
+   * Continuous-scroll design: entire work (Philo) or entire book (Josephus) rendered at once.
+   */
+  _renderClassicsContent(textArea, container, authorId, authorName, workSlug, params) {
+    if (!workSlug) {
+      this._renderClassicsIndex(textArea, authorId, authorName);
+      return;
+    }
+
+    const workName = typeof Classics !== 'undefined' ? Classics.getWorkBySlug(authorId, workSlug) : null;
+    if (!workName) {
+      textArea.innerHTML = `<div class="reader-error">Work "${workSlug}" not found for ${authorName}. <a href="#" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'${authorId}'}}); return false;">Back to index</a></div>`;
+      return;
+    }
+
+    if (authorId === 'philo') {
+      this._renderPhiloWork(textArea, workName, workSlug, params.section);
+    } else {
+      const book = params.book;
+      if (book == null) {
+        // No book selected — default to book 1
+        const sections = Classics.getSectionList('josephus', workName);
+        const firstBook = sections.length > 0 ? parseInt(sections[0].split('|')[1]) : 1;
+        AppStore.dispatch({ type: 'SET_VIEW', view: 'reader', params: { contentType: 'josephus', work: workSlug, book: firstBook } });
+        return;
+      }
+      this._renderJosephusBook(textArea, workName, workSlug, book, params.chapter, params.section);
+    }
+  },
+
+  /**
+   * Render author index — clean list of works (not button grids)
+   */
+  _renderClassicsIndex(textArea, authorId, authorName) {
+    const works = typeof Classics !== 'undefined' ? Classics.getWorks(authorId) : [];
+    const intro = authorId === 'philo'
+      ? 'Philo of Alexandria (c. 20 BC – c. 50 AD). Hellenistic Jewish philosopher whose allegorical Torah commentaries provide key evidence for Second Temple calendar and Sabbath practices.'
+      : 'Flavius Josephus (37 – c. 100 AD). First-century Jewish historian and our primary extra-biblical source for Second Temple period history.';
+
+    textArea.innerHTML = `
+      <div class="classics-index">
+        <h1 class="classics-index-title">${authorName}</h1>
+        <p class="classics-index-intro">${intro}</p>
+        <div class="classics-works-list">
+          ${works.map(work => {
+            const slug = Classics.getWorkSlug(work);
+            const count = Classics.getSectionList(authorId, work).length;
+            const onclick = authorId === 'josephus'
+              ? `onClassicsWorkChange('${slug}')`
+              : `AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'${authorId}',work:'${slug}'}})`;
+            return `
+              <a href="/reader/${authorId}/${slug}" class="classics-work-item" onclick="${onclick}; return false;">
+                <span class="classics-work-name">${work}</span>
+                <span class="classics-work-meta">${count} sections</span>
+              </a>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  },
+
+  /**
+   * Render an entire Philo work as continuous scrollable text.
+   * Each section gets an anchor; section dropdown scrolls to anchor.
+   */
+  _renderPhiloWork(textArea, workName, workSlug, scrollToSection) {
+    const sections = typeof Classics !== 'undefined' ? Classics.getSectionList('philo', workName) : [];
+    if (sections.length === 0) {
+      textArea.innerHTML = `<div class="reader-error">No sections found for "${workName}".</div>`;
+      return;
+    }
+
+    let html = `<div class="classics-reader">`;
+    html += `<header class="classics-reader-header"><h1>${workName}</h1><p class="classics-reader-meta">${sections.length} sections</p></header>`;
+    html += `<article class="classics-reader-body">`;
+
+    for (const ref of sections) {
+      const sec = ref.split('|')[1];
+      const text = Classics.getSection('philo', workName, sec);
+      html += `<section id="section-${sec}" class="classics-passage">`;
+      html += `<span class="classics-section-num" title="§${sec}">§${sec}</span>`;
+      html += `<p>${(text || '').replace(/\n/g, '</p><p>')}</p>`;
+      html += `</section>`;
+    }
+
+    html += `</article></div>`;
+    textArea.innerHTML = html;
+
+    // Linkify scripture refs in the rendered text
+    this.linkifyScriptureRefs(textArea);
+
+    // Scroll to specific section if requested
+    if (scrollToSection) {
+      setTimeout(() => {
+        const anchor = textArea.querySelector('#section-' + scrollToSection);
+        if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  },
+
+  /**
+   * Render an entire Josephus book as continuous scrollable text.
+   * Grouped by chapter with section anchors.
+   */
+  _renderJosephusBook(textArea, workName, workSlug, book, scrollChapter, scrollSection) {
+    const allSections = typeof Classics !== 'undefined' ? Classics.getSectionList('josephus', workName) : [];
+    const bookSections = allSections.filter(ref => parseInt(ref.split('|')[1]) === book);
+
+    // Find prev/next book for navigation
+    const allBooks = [...new Set(allSections.map(ref => parseInt(ref.split('|')[1])))].sort((a, b) => a - b);
+    const bookIdx = allBooks.indexOf(book);
+    const prevBook = bookIdx > 0 ? allBooks[bookIdx - 1] : null;
+    const nextBook = bookIdx >= 0 && bookIdx < allBooks.length - 1 ? allBooks[bookIdx + 1] : null;
+
+    if (bookSections.length === 0) {
+      textArea.innerHTML = `<div class="reader-error">No sections found for "${workName}" Book ${book}.</div>`;
+      return;
+    }
+
+    // Group by chapter
+    const byChapter = {};
+    for (const ref of bookSections) {
+      const parts = ref.split('|');
+      const ch = parseInt(parts[2]);
+      if (!byChapter[ch]) byChapter[ch] = [];
+      byChapter[ch].push({ chapter: ch, section: parseInt(parts[3]), ref });
+    }
+    const chapters = Object.keys(byChapter).map(Number).sort((a, b) => a - b);
+
+    let html = `<div class="classics-reader">`;
+    html += `<header class="classics-reader-header">`;
+    html += `<h1>${workName} — Book ${book}</h1>`;
+    html += `<p class="classics-reader-meta">${bookSections.length} sections across ${chapters.length} chapter${chapters.length !== 1 ? 's' : ''}</p>`;
+    html += `<nav class="classics-book-nav">`;
+    if (prevBook != null) html += `<a href="/reader/josephus/${workSlug}/${prevBook}" class="classics-book-nav-btn" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'josephus',work:'${workSlug}',book:${prevBook}}}); return false;">◀ Book ${prevBook}</a>`;
+    if (nextBook != null) html += `<a href="/reader/josephus/${workSlug}/${nextBook}" class="classics-book-nav-btn" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'josephus',work:'${workSlug}',book:${nextBook}}}); return false;">Book ${nextBook} ▶</a>`;
+    html += `</nav></header>`;
+    html += `<article class="classics-reader-body">`;
+
+    for (const ch of chapters) {
+      html += `<h2 id="chapter-${book}-${ch}" class="classics-chapter-heading">Chapter ${ch}</h2>`;
+      for (const item of byChapter[ch]) {
+        const text = Classics.getSection('josephus', item.ref);
+        html += `<section id="section-${book}-${ch}-${item.section}" class="classics-passage">`;
+        html += `<span class="classics-section-num" title="${book}.${ch}.${item.section}">${book}.${ch}.${item.section}</span>`;
+        html += `<p>${(text || '').replace(/\n/g, '</p><p>')}</p>`;
+        html += `</section>`;
+      }
+    }
+
+    html += `</article>`;
+    // Bottom nav
+    html += `<nav class="classics-book-nav classics-book-nav-bottom">`;
+    if (prevBook != null) html += `<a href="/reader/josephus/${workSlug}/${prevBook}" class="classics-book-nav-btn" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'josephus',work:'${workSlug}',book:${prevBook}}}); return false;">◀ Book ${prevBook}</a>`;
+    if (nextBook != null) html += `<a href="/reader/josephus/${workSlug}/${nextBook}" class="classics-book-nav-btn" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'josephus',work:'${workSlug}',book:${nextBook}}}); return false;">Book ${nextBook} ▶</a>`;
+    html += `</nav></div>`;
+
+    textArea.innerHTML = html;
+    this.linkifyScriptureRefs(textArea);
+
+    // Scroll to specific section if requested
+    if (scrollChapter != null && scrollSection != null) {
+      setTimeout(() => {
+        const anchor = textArea.querySelector('#section-' + book + '-' + scrollChapter + '-' + scrollSection);
+        if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  },
+
+  /**
+   * Make Philo/Josephus citations clickable in chapter content.
+   * Call after linkifyScriptureRefs and linkifySymbolRefs.
+   */
+  linkifyClassicsRefs(container) {
+    if (typeof Classics === 'undefined') return;
+
+    // Josephus patterns: "Antiquities 18.2.2", "Ant. 18.2.2", "Jewish War 2.17.8", etc.
+    const josephusWorks = 'Antiquities(?:\\s+of\\s+the\\s+Jews)?|Jewish\\s+War|Wars\\s+of\\s+the\\s+Jews|Against\\s+Apion|Life(?:\\s+of\\s+Josephus)?|Ant\\.|A\\.J\\.|B\\.J\\.|C\\.\\s*Ap\\.?|Vita';
+    const josephusPattern = new RegExp(`(?:Josephus,?\\s+)?(${josephusWorks})\\s+(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?`, 'g');
+
+    // Philo patterns: "On the Creation 42", "Philo, On the Migration of Abraham 89", etc.
+    const philoWorks = Object.values(Classics.PHILO_WORK_MAP).filter((v, i, a) => a.indexOf(v) === i).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    const philoPattern = new RegExp(`(?:Philo,?\\s+)?(${philoWorks})\\s+(\\d+)`, 'g');
+
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    while (walker.nextNode()) {
+      const parent = walker.currentNode.parentNode;
+      if (parent && (parent.tagName === 'A' || parent.tagName === 'CODE' || parent.tagName === 'BUTTON' || parent.closest('a, code, button'))) continue;
+      const text = walker.currentNode.nodeValue;
+      if (josephusPattern.test(text) || philoPattern.test(text)) {
+        textNodes.push(walker.currentNode);
+      }
+      josephusPattern.lastIndex = 0;
+      philoPattern.lastIndex = 0;
+    }
+
+    textNodes.forEach(node => {
+      let html = node.nodeValue;
+      // Replace Josephus citations
+      josephusPattern.lastIndex = 0;
+      html = html.replace(josephusPattern, (match, work, b, ch, sec) => {
+        const parsed = Classics.parseJosephusCitation(match);
+        if (!parsed) return match;
+        const slug = Classics.getWorkSlug(parsed.work);
+        const url = `/reader/josephus/${slug}/${parsed.book}/${parsed.chapter}/${parsed.section}`;
+        return `<a href="${url}" class="classics-citation-link" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'josephus',work:'${slug}',book:${parsed.book},chapter:${parsed.chapter},section:${parsed.section}}}); return false;">${match}</a>`;
+      });
+      // Replace Philo citations
+      philoPattern.lastIndex = 0;
+      html = html.replace(philoPattern, (match, work, sec) => {
+        const parsed = Classics.parsePhiloCitation(match);
+        if (!parsed) return match;
+        const slug = Classics.getWorkSlug(parsed.work);
+        const url = `/reader/philo/${slug}/${parsed.section}`;
+        return `<a href="${url}" class="classics-citation-link" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'philo',work:'${slug}',section:'${parsed.section}'}}); return false;">${match}</a>`;
+      });
+      if (html !== node.nodeValue) {
+        const span = document.createElement('span');
+        span.innerHTML = html;
+        node.parentNode.replaceChild(span, node);
+      }
+    });
   }
 };
 

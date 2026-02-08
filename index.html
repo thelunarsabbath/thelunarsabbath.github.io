@@ -572,6 +572,8 @@
   <script src="/verse-event-links.js"></script>
   <script src="/bible.js"></script>
   <script src="/classics.js"></script>
+  <script src="/morphology-decoder.js"></script>
+  <script src="/morphhb-gloss.js"></script>
   <script src="/bible-reader.js"></script>
   <script src="/views/bible-view.js"></script>
   <script src="/views/symbols-view.js"></script>
@@ -925,11 +927,13 @@
       // PWA Install handling
       setupInstallPrompt();
       
-      // Hide tooltips when scrolling (they use position: fixed so they don't move with content)
-      let scrollTimeout;
+      // Hide fixed-position tooltips when scrolling (they don't move with content).
+      // On mobile (touch devices), skip — user taps to open and scrolls to read.
       window.addEventListener('scroll', () => {
-        // Remove tooltips immediately on scroll
-        document.querySelectorAll('.symbol-tooltip, .word-hover-tooltip, .hebrew-tooltip, .book-ref-popup').forEach(el => el.remove());
+        const isMobile = window.matchMedia('(pointer: coarse)').matches;
+        if (!isMobile) {
+          document.querySelectorAll('.symbol-tooltip, .word-hover-tooltip, .hebrew-tooltip, .book-ref-popup').forEach(el => el.remove());
+        }
       }, { passive: true });
     });
     

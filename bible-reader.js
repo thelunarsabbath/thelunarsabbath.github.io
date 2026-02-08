@@ -760,6 +760,131 @@ function hideWordTooltip(event) {
   if (tooltip) tooltip.remove();
 }
 
+// ── MorphHB hover tooltip for interlinear Hebrew words ──
+
+function showMorphTooltip(el, event) {
+  hideMorphTooltip(); // Remove any existing
+  
+  const strongs = el.dataset.strongs || '';
+  const morphDesc = el.dataset.morphDesc || '';
+  
+  if (!strongs && !morphDesc) return;
+  
+  const tooltip = document.createElement('div');
+  tooltip.id = 'morph-hover-tooltip';
+  tooltip.className = 'morph-hover-tooltip';
+  
+  let html = '';
+  const entry = strongs ? getStrongsEntry(strongs) : null;
+  
+  // Strong's number + root word
+  if (strongs) {
+    const rootWord = entry ? (entry.lemma || '') : '';
+    html += `<div class="morph-tip-strongs"><strong>${strongs}</strong>${rootWord ? ' — ' + rootWord : ''}</div>`;
+  }
+  
+  // Strong's definition (short)
+  if (entry) {
+    const def = entry.strongs_def || '';
+    if (def) {
+      const shortDef = def.length > 120 ? def.substring(0, 120) + '...' : def;
+      html += `<div class="morph-tip-def">${shortDef}</div>`;
+    }
+    // KJV usage (alternatives)
+    if (entry.kjv_def) {
+      const kjvShort = entry.kjv_def.length > 100 ? entry.kjv_def.substring(0, 100) + '...' : entry.kjv_def;
+      html += `<div class="morph-tip-kjv"><strong>KJV:</strong> ${kjvShort}</div>`;
+    }
+  }
+  
+  // Morphology description
+  if (morphDesc) {
+    html += `<div class="morph-tip-desc">${morphDesc}</div>`;
+  }
+  
+  // Symbol meaning if available — pass the English gloss for word-based matching too
+  if (strongs || el) {
+    const glossText = el.querySelector('.il-gloss')?.textContent || '';
+    const symbol = typeof getSymbolForStrongsEntry === 'function' ? getSymbolForStrongsEntry(strongs, entry, glossText) : null;
+    if (symbol) {
+      html += `<div class="morph-tip-symbol">📖 <strong>${symbol.is}${symbol.is2 ? ' / ' + symbol.is2 : ''}</strong>`;
+      if (symbol.does) {
+        html += ` — ${symbol.does}${symbol.does2 ? ' / ' + symbol.does2 : ''}`;
+      }
+      html += `</div>`;
+    }
+  }
+  
+  // Tap hint on mobile
+  if (isBibleReaderMobile()) {
+    html += `<div class="morph-tip-hint">Tap again for full details</div>`;
+  }
+  
+  tooltip.innerHTML = html;
+  document.body.appendChild(tooltip);
+  
+  // Position using absolute coords (scrollY offset) so tooltip scrolls with page on mobile
+  const rect = el.getBoundingClientRect();
+  const tipRect = tooltip.getBoundingClientRect();
+  let left = rect.left + (rect.width / 2) - (tipRect.width / 2);
+  let top = rect.top + window.scrollY - tipRect.height - 8;
+  
+  // Keep on screen horizontally
+  if (left < 8) left = 8;
+  if (left + tipRect.width > window.innerWidth - 8) left = window.innerWidth - tipRect.width - 8;
+  // Flip below if too high
+  if (top < window.scrollY + 8) top = rect.bottom + window.scrollY + 8;
+  
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+  
+  // On mobile: tap tooltip to open Strong's panel
+  tooltip.addEventListener('click', function(e) {
+    e.stopPropagation();
+    hideMorphTooltip();
+    if (typeof showStrongsPanelFromMorphhb === 'function') {
+      showStrongsPanelFromMorphhb(el, e);
+    }
+  });
+}
+
+function hideMorphTooltip() {
+  const tooltip = document.getElementById('morph-hover-tooltip');
+  if (tooltip) tooltip.remove();
+}
+
+// Close morph tooltip when tapping outside (mobile)
+document.addEventListener('click', function(e) {
+  const tooltip = document.getElementById('morph-hover-tooltip');
+  if (!tooltip) return;
+  // Don't close if tapping the tooltip itself or an interlinear word block
+  if (tooltip.contains(e.target) || e.target.closest('.il-word-block')) return;
+  hideMorphTooltip();
+}, true);
+
+// Open Strong's panel with morphology context from a morphhb interlinear word block
+function showStrongsPanelFromMorphhb(el, event) {
+  event.stopPropagation();
+  hideMorphTooltip();
+  
+  const strongs = el.dataset.strongs || '';
+  const gloss = (el.querySelector('.il-gloss')?.textContent || '').trim();
+  const morphCode = el.dataset.morphCode || '';
+  const lemma = el.dataset.lemma || '';
+  const hebrew = el.dataset.hebrew || '';
+  
+  if (!strongs) return;
+  
+  // Store morph context for the parsing panel
+  currentMorphContext = {
+    hebrewText: hebrew,
+    morphCode: morphCode,
+    lemma: lemma
+  };
+  
+  showStrongsPanel(strongs, gloss, gloss, event);
+}
+
 // Show/hide Bible loading dialog
 function showBibleLoadingDialog() {
   const dialog = document.getElementById('bible-loading-dialog');
@@ -838,8 +963,8 @@ async function loadAllTranslations() {
     console.log('Hebrew loading deferred:', err.message)
   );
 
-  loadInterlinear().catch(err =>
-    console.log('OT Interlinear loading deferred:', err.message)
+  loadMorphhb().catch(err =>
+    console.log('MorphHB loading deferred:', err.message)
   );
 
   loadNTInterlinear().catch(err =>
@@ -871,11 +996,13 @@ function hasHebrewText(bookName) {
 // INTERLINEAR DATA AND DISPLAY
 // ============================================================================
 
-// Interlinear data storage - contains Hebrew words and English words with BHSA IDs
-let interlinearData = null;
-let interlinearLoading = null;
+// MorphHB data storage - Hebrew words with morphology and Strong's (replaces interlinear.json for OT)
+let morphhbData = null;
+let morphhbLoading = null;
 
-// Load interlinear data
+// Current morphology context (set when clicking a word from interlinear, cleared on panel nav)
+let currentMorphContext = null;
+
 // NT interlinear data (Greek)
 let ntInterlinearData = null;
 let ntInterlinearLoading = null;
@@ -1102,26 +1229,42 @@ function renderPersonInfoHtml(allPersonInfo) {
   return html;
 }
 
-async function loadInterlinear() {
-  if (interlinearData) return true;
-  if (interlinearLoading) return interlinearLoading;
+async function loadMorphhb() {
+  if (morphhbData) return true;
+  if (morphhbLoading) return morphhbLoading;
   
-  interlinearLoading = (async () => {
+  morphhbLoading = (async () => {
     try {
-      const response = await fetch('/data/interlinear.json');
+      const response = await fetch('/data/morphhb.json');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      interlinearData = await response.json();
-      console.log(`OT Interlinear data loaded: ${Object.keys(interlinearData).length} verses`);
+      morphhbData = await response.json();
+      const bookCount = Object.keys(morphhbData).length;
+      console.log(`MorphHB data loaded: ${bookCount} OT books`);
       return true;
     } catch (err) {
-      console.warn('OT Interlinear data not available:', err.message);
+      console.warn('MorphHB data not available:', err.message);
       return false;
     } finally {
-      interlinearLoading = null;
+      morphhbLoading = null;
     }
   })();
   
-  return interlinearLoading;
+  return morphhbLoading;
+}
+
+// Get morphhb word data for a verse: returns array of [hebrewText, lemma, morphCode] or null
+function getMorphhbVerse(bookName, chapter, verse) {
+  if (!morphhbData) return null;
+  const book = morphhbData[bookName];
+  if (!book) return null;
+  const ch = book[chapter];
+  if (!ch) return null;
+  return ch[verse] || null;
+}
+
+// Get the language code for a morphhb word's morph code ('H' or 'A')
+function getMorphhbLang(morphCode) {
+  return (morphCode && morphCode[0] === 'A') ? 'A' : 'H';
 }
 
 async function loadNTInterlinear() {
@@ -1161,20 +1304,118 @@ function isNTBook(bookName) {
   return NT_BOOKS.has(bookName);
 }
 
+// Derive a subject pronoun from Hebrew verb morphology.
+// Finite verbs (perfect, imperfect, etc.) encode person/gender/number → "he", "she", "they", etc.
+// Participles, infinitives, and non-verbs return '' (no pronoun needed).
+function getVerbPronoun(decoded) {
+  if (!decoded || !decoded.parts) return '';
+  // Find the main verb part (role 'word' or the only part)
+  const verb = decoded.parts.find(p => p.posCode === 'V' && p.role !== 'prefix') || 
+               decoded.parts.find(p => p.posCode === 'V');
+  if (!verb) return '';
+  // Only finite verbs have a subject pronoun (not participles/infinitives)
+  const tc = verb.typeCode;
+  if (!tc || tc === 'r' || tc === 's' || tc === 'a' || tc === 'c') return ''; // participle/infinitive
+  
+  const person = verb.person;
+  const gender = verb.gender;
+  const number = verb.number;
+  if (!person) return '';
+  
+  if (person === '1st') {
+    return number === 'Plural' ? 'we ' : 'I ';
+  } else if (person === '2nd') {
+    if (number === 'Plural') return 'you ';
+    return gender === 'Feminine' ? 'you(f) ' : 'you ';
+  } else if (person === '3rd') {
+    if (number === 'Plural') return 'they ';
+    return gender === 'Feminine' ? 'she ' : 'he ';
+  }
+  return '';
+}
+
 // Check if interlinear is available for a book
 function hasInterlinear(bookName) {
   return hasHebrewText(bookName) || isNTBook(bookName);
 }
 
-// Get interlinear data for a verse (OT or NT)
+// Get interlinear data for a verse (NT only — OT uses getMorphhbVerse directly)
 function getInterlinearVerse(bookName, chapter, verse) {
-  const ref = `${bookName} ${chapter}:${verse}`;
-  
   if (isNTBook(bookName)) {
+    const ref = `${bookName} ${chapter}:${verse}`;
     return ntInterlinearData ? ntInterlinearData[ref] : null;
-  } else {
-    return interlinearData ? interlinearData[ref] : null;
   }
+  return null;
+}
+
+// Build a map of Strong's number → queue of English phrases from a Strong's-tagged verse text.
+// In KJV tagged format, ALL text between two Strong's tags belongs to the tag at the END.
+// e.g. "and to bring in{H935}" → H935 maps to "bring in" (strip leading conjunctions/punctuation).
+// Returns a Map: strongsNum → [phrase1, phrase2, ...] consumed as a queue.
+function buildStrongsGlossMap(strongsText) {
+  const map = new Map();
+  if (!strongsText) return map;
+  
+  // Strip morphology tags {(H####)} first so they don't interfere
+  const cleaned = strongsText.replace(/\{\([HG]\d+\)\}/g, '');
+  
+  // Split on Strong's tags, capturing the tag content
+  const parts = cleaned.split(/\{([HG]\d+)\}/);
+  // parts alternates: [text0, tag0, text1, tag1, text2, tag2, ...]
+  
+  for (let i = 1; i < parts.length; i += 2) {
+    const strongsNum = parts[i];
+    const textBefore = parts[i - 1] || '';
+    
+    // Clean the phrase: strip leading punctuation and common function words
+    // that typically come from Hebrew prefixes or absorbed prepositions
+    let phrase = textBefore
+      .replace(/\{[^}]*\}/g, '')           // strip any remaining brace tags
+      .replace(/^[\s.,;:!?'"()\[\]]+/, '') // strip leading punctuation
+      .trim();
+    // If there's a clause boundary (;:) keep only text AFTER it — that's closer to the tag
+    if (/[;:]/.test(phrase)) {
+      phrase = phrase.replace(/^.*[;:]/, '').trim();
+    }
+    // Strip leading function words (conjunctions, prepositions, articles, pronouns)
+    // These come from Hebrew prefixes or absorbed grammar — the Hebrew morphology
+    // provides these more accurately via getPrefixMeanings().
+    // BUT: if stripping would empty the phrase, keep it — the function word IS the translation.
+    const beforeStrip = phrase;
+    // Strip: conjunctions, prepositions, articles, pronouns (handled by Hebrew prefixes/suffixes)
+    // Keep: auxiliary verbs (shall, was, are, is, be, have, hath) — they encode Hebrew verb
+    // tense/voice/aspect. Keep: "not" — semantically critical.
+    const funcWords = /^\s*(?:and|or|but|for|to|that|which|upon|unto|in|on|with|from|by|of|at|into|the|a|an|he|she|it|I|we|ye|they|me|my|thy|his|her|our|their|thee|him|them|us|its)\s+/i;
+    while (funcWords.test(phrase)) {
+      phrase = phrase.replace(funcWords, '');
+    }
+    phrase = phrase.trim();
+    // If stripping emptied the phrase, the function word(s) ARE the translation
+    if (!phrase) phrase = beforeStrip;
+    
+    if (!phrase) continue;
+    if (!map.has(strongsNum)) map.set(strongsNum, []);
+    map.get(strongsNum).push(phrase);
+  }
+  return map;
+}
+
+// Get the best Strong's-tagged verse text for gloss derivation.
+// Prefers the user's current translation, then falls back to any loaded tagged translation.
+function getStrongsTaggedVerse(book, chapter, verse) {
+  // Try current translation first
+  const v = Bible.getVerse(currentTranslation, book, chapter, verse);
+  if (v && v.strongsText) return v.strongsText;
+  
+  // Fall back to any loaded translation that has Strong's tags
+  const fallbacks = ['kjv', 'asv'];
+  for (const tid of fallbacks) {
+    if (tid === currentTranslation) continue;
+    if (!Bible.isLoaded(tid)) continue;
+    const fv = Bible.getVerse(tid, book, chapter, verse);
+    if (fv && fv.strongsText) return fv.strongsText;
+  }
+  return null;
 }
 
 // Show interlinear display for a verse
@@ -1225,7 +1466,7 @@ async function showInterlinear(book, chapter, verse, event, verseElOrId) {
     
     await loadNTInterlinear();
     placeholder.remove();
-  } else if (!isNT && !interlinearData) {
+  } else if (!isNT && !morphhbData) {
     const placeholder = document.createElement('div');
     placeholder.className = 'interlinear-display';
     placeholder.innerHTML = '<div class="interlinear-loading">Loading Hebrew interlinear data...</div>';
@@ -1233,18 +1474,17 @@ async function showInterlinear(book, chapter, verse, event, verseElOrId) {
     verseEl.classList.add('interlinear-expanded');
     requestAnimationFrame(() => placeholder.classList.add('expanded'));
     
-    await loadInterlinear();
+    await loadMorphhb();
     placeholder.remove();
   }
   
-  const data = getInterlinearVerse(book, chapter, verse);
+  // Get data — OT from morphhb, NT from nt-interlinear
+  const ntData = isNT ? getInterlinearVerse(book, chapter, verse) : null;
+  const otWords = !isNT ? getMorphhbVerse(book, chapter, verse) : null;
   
   // Create interlinear element
   const interlinear = document.createElement('div');
   interlinear.className = 'interlinear-display';
-  
-  // Check for data - NT uses 'g' for Greek, OT uses 'h' for Hebrew
-  const originalWords = isNT ? data?.g : data?.h;
   
   const ref = `${book} ${chapter}:${verse}`;
   let html = '';
@@ -1282,28 +1522,24 @@ async function showInterlinear(book, chapter, verse, event, verseElOrId) {
   html += '</div>';
 
   // ── Interlinear (Hebrew/Greek) — collapsible ──
-  const hasInterlinear = data && (isNT ? data.g : data.h);
+  const hasOTInterlinear = !isNT && otWords && otWords.length > 0;
+  const hasNTInterlinear = isNT && ntData && ntData.g;
+  const hasInterlinearWords = hasOTInterlinear || hasNTInterlinear;
   const langLabel = isNT ? 'Greek' : 'Hebrew';
 
-  html += `<div class="interlinear-original-section">
-    <button class="interlinear-original-btn" onclick="toggleInterlinearOriginal(this)">${langLabel} interlinear</button>
+  html += `<div class="interlinear-original-section expanded">
+    <button class="interlinear-original-btn" onclick="toggleInterlinearOriginal(this)">Hide ${langLabel} interlinear</button>
     <div class="interlinear-original-content">`;
 
-  // WLC / Source text row (for OT: Hebrew source; for NT: could add Greek source)
+  // Read vowel pointing preference (used for OT toggle and word rendering)
+  const showVowels = getVowelPointingSetting();
+  
+  // Source text row: OT shows vowel toggle only (word blocks ARE the Hebrew text);
+  // NT shows full Greek source text
   if (!isNT) {
-    // Load WLC on demand if not loaded
-    const wlcVerse = Bible.isLoaded('wlc') ? Bible.getVerse('wlc', book, chapter, verse) : null;
-    html += `<div class="interlinear-source-text" id="il-wlc-${book.replace(/\s/g,'-')}-${chapter}-${verse}">
-      <div class="il-source-header">
-        <span class="il-source-label">WLC (Westminster Leningrad Codex)</span>
-        <label class="il-vowel-toggle"><input type="checkbox" checked onchange="toggleVowelPointing(this, '${book.replace(/'/g, "\\'")}', ${chapter}, ${verse})"> Vowel pointing</label>
-      </div>
-      <div class="il-source-text-content" dir="rtl">${wlcVerse ? wlcVerse.text : '<span class="il-loading-wlc" style="color:#666;font-style:italic;">Loading WLC...</span>'}</div>
+    html += `<div class="il-vowel-toggle-bar">
+      <label class="il-vowel-toggle"><input type="checkbox" ${showVowels ? 'checked' : ''} onchange="toggleVowelPointing(this)"> Vowel pointing</label>
     </div>`;
-    // If WLC not loaded, trigger background load
-    if (!wlcVerse) {
-      setTimeout(() => loadAndShowWLC(book, chapter, verse), 0);
-    }
   } else {
     // Greek NT source text
     const greekVerse = Bible.isLoaded('greek_nt') ? Bible.getVerse('greek_nt', book, chapter, verse) : null;
@@ -1319,17 +1555,108 @@ async function showInterlinear(book, chapter, verse, event, verseElOrId) {
   }
 
   // Word-for-word interlinear
-  if (hasInterlinear) {
-    const originalWords = isNT ? data.g : data.h;
-    const langClass = isNT ? '' : 'il-hebrew';
-    html += `<div class="interlinear-words-container ${langClass}">`;
+  if (hasOTInterlinear) {
+    // ── OT: MorphHB word-for-word with morphology ──
+    // Build gloss map from the user's preferred translation (or any loaded tagged translation)
+    const taggedText = getStrongsTaggedVerse(book, chapter, verse);
+    const glossMap = buildStrongsGlossMap(taggedText);
+    // Track consumption index per Strong's number (queue approach for duplicate numbers)
+    const glossIdx = new Map();
+    
+    html += '<div class="interlinear-words-container il-hebrew">';
+    for (let i = 0; i < otWords.length; i++) {
+      const [hebrewText, lemma, morphCode] = otWords[i];
+      const lang = getMorphhbLang(morphCode);
+      const strongsNum = typeof primaryStrongsFromLemma === 'function' ? primaryStrongsFromLemma(lemma, lang) : '';
+      
+      // Get English gloss: prefer the actual translation word, fall back to dictionary
+      // MorphHB has variant suffixes (H5921a) but KJV tags use base numbers (H5921)
+      let gloss = '';
+      const baseStrongs = strongsNum ? strongsNum.replace(/[a-z]$/, '') : '';
+      const glossKey = glossMap.has(strongsNum) ? strongsNum : (glossMap.has(baseStrongs) ? baseStrongs : '');
+      if (glossKey) {
+        const words = glossMap.get(glossKey);
+        const idx = glossIdx.get(glossKey) || 0;
+        if (idx < words.length) {
+          gloss = words[idx];
+          glossIdx.set(glossKey, idx + 1);
+        } else {
+          // All queue entries consumed; reuse the first
+          gloss = words[0];
+        }
+      }
+      // Fall back to dictionary gloss if no translation match
+      if (!gloss && strongsNum && typeof getWordGloss === 'function') {
+        gloss = getWordGloss(lemma, lang, typeof strongsHebrewDictionary !== 'undefined' ? strongsHebrewDictionary : {});
+      }
+      
+      const decoded = typeof decodeMorphology === 'function' ? decodeMorphology(morphCode) : null;
+      const morphDesc = decoded ? decoded.description : '';
+      
+      // Get Hebrew prefix meanings (derived from morphology, not English)
+      const prefixes = typeof getPrefixMeanings === 'function' ? getPrefixMeanings(lemma) : [];
+      const prefixLabel = prefixes.length > 0 ? prefixes.join('+') + '+' : '';
+      
+      // Derive subject pronoun from verb morphology (he/she/they/I/we/you)
+      const verbPronoun = getVerbPronoun(decoded);
+      
+      // Display Hebrew text: color prefix letters differently to match the blue gloss prefix
+      // The "/" in morphhb text separates prefix from root (e.g. "בְּ/רֵאשִׁית")
+      const hebrewParts = hebrewText.split('/');
+      let displayHebrew;
+      if (hebrewParts.length > 1) {
+        // Last part is the root, everything before is prefix
+        const prefixHebrew = hebrewParts.slice(0, -1).join('');
+        const rootHebrew = hebrewParts[hebrewParts.length - 1];
+        displayHebrew = `<span class="il-hebrew-prefix">${prefixHebrew}</span>${rootHebrew}`;
+      } else {
+        displayHebrew = hebrewText;
+      }
+      
+      // Build display gloss: Hebrew-derived prefixes + verb pronoun + English root word
+      let displayGloss = gloss || '—';
+      if (verbPronoun || prefixLabel) {
+        const prefix = prefixLabel ? `<span class="il-prefix">${prefixLabel}</span>` : '';
+        const pronoun = verbPronoun ? `<span class="il-prefix">${verbPronoun}</span>` : '';
+        displayGloss = prefix + pronoun + (gloss || '—');
+      }
+      
+      // Escape for HTML attributes (use plain text for data attributes, not HTML)
+      const plainHebrew = hebrewText.replace(/\//g, '');
+      const escapedGloss = gloss.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const escapedMorphDesc = morphDesc.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const escapedHebrew = plainHebrew.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const escapedMorphCode = (morphCode || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const escapedLemma = (lemma || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      
+      // Apply vowel stripping at render time if preference is off
+      const renderedHebrew = showVowels ? displayHebrew : displayHebrew.replace(HEBREW_DIACRITICS_RE, '');
+      
+      html += `<div class="il-word-block il-clickable"
+        data-strongs="${strongsNum || ''}"
+        data-morph-desc="${escapedMorphDesc}"
+        data-morph-code="${escapedMorphCode}"
+        data-lemma="${escapedLemma}"
+        data-hebrew="${escapedHebrew}"
+        onclick="showStrongsPanelFromMorphhb(this, event)"
+        onmouseenter="showMorphTooltip(this, event)"
+        onmouseleave="hideMorphTooltip()">
+        <span class="il-original" data-voweled="${displayHebrew.replace(/"/g, '&quot;')}">${renderedHebrew}</span>
+        <span class="il-gloss">${displayGloss}</span>
+      </div>`;
+    }
+    html += '</div>';
+  } else if (hasNTInterlinear) {
+    // ── NT: existing interlinear format ──
+    const originalWords = ntData.g;
+    html += '<div class="interlinear-words-container">';
     for (let i = 0; i < originalWords.length; i++) {
       const word = originalWords[i];
-      const engWord = data.e[i];
+      const engWord = ntData.e[i];
       const strongs = engWord?.s || '';
       const gloss = engWord?.g || engWord?.e || '';
       const escapedGloss = gloss.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-      const originalText = isNT ? word.g : word.h;
+      const originalText = word.g;
       html += `<div class="il-word-block il-clickable" onclick="showStrongsPanel('${strongs}', '${escapedGloss}', '${escapedGloss}', event)">
         <span class="il-original">${originalText}</span>
         <span class="il-gloss">${gloss}</span>
@@ -1421,23 +1748,32 @@ function toggleInterlinearOriginal(btnEl) {
   btnEl.textContent = section.classList.contains('expanded') ? `Hide ${lang} interlinear` : `${lang} interlinear`;
 }
 
-// Toggle vowel pointing on WLC text
-function toggleVowelPointing(checkbox, book, chapter, verse) {
-  const container = checkbox.closest('.interlinear-source-text');
-  if (!container) return;
-  const textEl = container.querySelector('.il-source-text-content');
-  if (!textEl) return;
-  const wlcVerse = Bible.getVerse('wlc', book, chapter, verse);
-  if (!wlcVerse) return;
+// Regex to strip Hebrew vowel pointing and cantillation marks
+const HEBREW_DIACRITICS_RE = /[\u0591-\u05AF\u05B0-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7]/g;
 
-  if (checkbox.checked) {
-    // Show full text with vowels
-    textEl.textContent = wlcVerse.text;
-  } else {
-    // Strip vowel pointing (Unicode ranges: Hebrew points U+05B0-U+05BD, U+05BF, U+05C1-U+05C2, U+05C4-U+05C5, U+05C7)
-    // Also strip cantillation marks (U+0591-U+05AF)
-    textEl.textContent = wlcVerse.text.replace(/[\u0591-\u05AF\u05B0-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7]/g, '');
-  }
+// Get saved vowel pointing preference (defaults to true / vowels shown)
+function getVowelPointingSetting() {
+  try {
+    const saved = localStorage.getItem('hebrew_vowel_pointing');
+    return saved === null ? true : saved === 'true';
+  } catch (e) { return true; }
+}
+
+// Toggle vowel pointing on interlinear Hebrew word blocks and save preference
+function toggleVowelPointing(checkbox) {
+  const showVowels = checkbox.checked;
+  
+  // Save preference
+  try { localStorage.setItem('hebrew_vowel_pointing', String(showVowels)); } catch (e) {}
+  
+  // Apply to all visible interlinear word blocks
+  const interlinearDisplay = checkbox.closest('.interlinear-display');
+  if (!interlinearDisplay) return;
+  
+  interlinearDisplay.querySelectorAll('.il-original').forEach(el => {
+    const voweled = el.dataset.voweled || el.innerHTML;
+    el.innerHTML = showVowels ? voweled : voweled.replace(HEBREW_DIACRITICS_RE, '');
+  });
 }
 
 // Load WLC and show in interlinear panel
@@ -1487,13 +1823,49 @@ function unhighlightBhsa() {
 // Search state
 let verseSearchState = {
   strongsNum: null,
-  verseRefs: null,      // Array of all verse references (keys of interlinearData)
+  verseRefs: null,      // Array of all verse references
   currentIndex: 0,      // Current position in scan
   results: [],          // Found verse references
   isSearching: false,
   isComplete: false,
   batchSize: 20         // Results per batch
 };
+
+// Build flat array of "Book Ch:V" references from morphhb data
+function buildMorphhbVerseRefs() {
+  if (!morphhbData) return [];
+  const refs = [];
+  for (const bookName of Object.keys(morphhbData)) {
+    const book = morphhbData[bookName];
+    for (let ch = 1; ch < book.length; ch++) {
+      if (!book[ch]) continue;
+      for (let v = 1; v < book[ch].length; v++) {
+        if (book[ch][v]) refs.push(`${bookName} ${ch}:${v}`);
+      }
+    }
+  }
+  return refs;
+}
+
+// Check if a morphhb verse contains a given Strong's number
+// Returns array of matching glosses (for word highlighting), or empty array
+function searchMorphhbVerse(bookName, chapter, verse, targetStrongs) {
+  const words = getMorphhbVerse(bookName, chapter, verse);
+  if (!words) return [];
+  const matches = [];
+  for (const [hebrewText, lemma, morphCode] of words) {
+    const lang = getMorphhbLang(morphCode);
+    const sn = typeof primaryStrongsFromLemma === 'function' ? primaryStrongsFromLemma(lemma, lang) : null;
+    if (sn === targetStrongs) {
+      // Get gloss for word highlighting in the result
+      const gloss = (typeof getWordGloss === 'function')
+        ? getWordGloss(lemma, lang, typeof strongsHebrewDictionary !== 'undefined' ? strongsHebrewDictionary : {})
+        : '';
+      matches.push(gloss.toLowerCase().replace(/[.,;:!?'"()]/g, '') || hebrewText);
+    }
+  }
+  return matches;
+}
 
 // Start or continue searching for verses with a Strong's number
 function searchVersesWithStrongs(strongsNum) {
@@ -1502,16 +1874,17 @@ function searchVersesWithStrongs(strongsNum) {
   
   // Determine which dataset to use based on Strong's prefix
   const isGreek = normalizedNum && normalizedNum.startsWith('G');
-  const primaryData = isGreek ? ntInterlinearData : interlinearData;
-  const secondaryData = isGreek ? interlinearData : ntInterlinearData;
   
-  if (!primaryData) {
-    console.warn(`${isGreek ? 'NT' : 'OT'} Interlinear data not loaded`);
+  if (isGreek && !ntInterlinearData) {
+    console.warn('NT Interlinear data not loaded');
+    return;
+  }
+  if (!isGreek && !morphhbData) {
+    console.warn('MorphHB data not loaded');
     return;
   }
   
   // For Greek numbers, find Hebrew origin to search OT too
-  // For Hebrew numbers, we'd need a reverse lookup (future enhancement)
   let relatedStrongs = null;
   if (isGreek) {
     const entry = getStrongsEntry(normalizedNum);
@@ -1525,23 +1898,27 @@ function searchVersesWithStrongs(strongsNum) {
   
   // Reset if searching for a different Strong's number
   if (verseSearchState.strongsNum !== normalizedNum) {
-    // Build combined verse refs: primary testament first, then secondary if we have a related number
-    let allRefs = Object.keys(primaryData);
-    if (relatedStrongs && secondaryData) {
-      allRefs = allRefs.concat(Object.keys(secondaryData));
+    // Build combined verse refs: primary testament first, then secondary
+    let primaryRefs, secondaryRefs = [];
+    if (isGreek) {
+      primaryRefs = Object.keys(ntInterlinearData);
+      if (relatedStrongs && morphhbData) secondaryRefs = buildMorphhbVerseRefs();
+    } else {
+      primaryRefs = buildMorphhbVerseRefs();
+      // Future: could add NT secondary for Hebrew→Greek cross-refs
     }
     
     verseSearchState = {
       strongsNum: normalizedNum,
       relatedStrongs: relatedStrongs,
-      verseRefs: allRefs,
+      verseRefs: primaryRefs.concat(secondaryRefs),
       currentIndex: 0,
       results: [],
       isSearching: false,
       isComplete: false,
       batchSize: 20,
       isGreek: isGreek,
-      primaryCount: Object.keys(primaryData).length
+      primaryCount: primaryRefs.length
     };
   }
   
@@ -1563,17 +1940,12 @@ function findNextBatch() {
   }
   
   const startIndex = state.currentIndex;
-  const endIndex = Math.min(startIndex + 500, state.verseRefs.length); // Scan 500 verses at a time
+  const endIndex = Math.min(startIndex + 500, state.verseRefs.length);
   let foundCount = 0;
   
   for (let i = startIndex; i < endIndex && foundCount < state.batchSize; i++) {
     const ref = state.verseRefs[i];
-    
-    // Determine which dataset and Strong's number to use based on position in refs
     const inSecondary = i >= state.primaryCount;
-    const searchData = inSecondary 
-      ? (state.isGreek ? interlinearData : ntInterlinearData)
-      : (state.isGreek ? ntInterlinearData : interlinearData);
     const targetStrongs = inSecondary ? state.relatedStrongs : state.strongsNum;
     
     if (!targetStrongs) {
@@ -1581,28 +1953,39 @@ function findNextBatch() {
       continue;
     }
     
-    const data = searchData ? searchData[ref] : null;
+    // Parse the reference to determine search method
+    const refMatch = ref.match(/^(.+)\s+(\d+):(\d+)$/);
+    if (!refMatch) { state.currentIndex = i + 1; continue; }
+    const [, bookName, chStr, vStr] = refMatch;
+    const ch = parseInt(chStr, 10);
+    const v = parseInt(vStr, 10);
+    const isNTRef = isNTBook(bookName);
     
-    if (data && data.e) {
-      // Collect all matching words in this verse
-      const matchingWords = [];
-      for (const word of data.e) {
-        if (word.s === targetStrongs) {
-          matchingWords.push(word.e.toLowerCase().replace(/[.,;:!?'"()]/g, ''));
+    let matchingWords = [];
+    
+    if (isNTRef) {
+      // Search NT interlinear data
+      const data = ntInterlinearData ? ntInterlinearData[ref] : null;
+      if (data && data.e) {
+        for (const word of data.e) {
+          if (word.s === targetStrongs) {
+            matchingWords.push(word.e.toLowerCase().replace(/[.,;:!?'"()]/g, ''));
+          }
         }
       }
-      
-      if (matchingWords.length > 0) {
-        // Get the verse text from Bible data
-        const verseText = getVerseText(ref);
-        
-        state.results.push({
-          ref: ref,
-          matchingWords: matchingWords,
-          text: verseText || '(verse text not loaded)'
-        });
-        foundCount++;
-      }
+    } else {
+      // Search morphhb data
+      matchingWords = searchMorphhbVerse(bookName, ch, v, targetStrongs);
+    }
+    
+    if (matchingWords.length > 0) {
+      const verseText = getVerseText(ref);
+      state.results.push({
+        ref: ref,
+        matchingWords: matchingWords,
+        text: verseText || '(verse text not loaded)'
+      });
+      foundCount++;
     }
     state.currentIndex = i + 1;
   }
@@ -1775,46 +2158,68 @@ let conceptSearchState = {
 };
 
 // Find all Strong's numbers that match an English word
+// Searches Strong's dictionaries directly (for both OT and NT) plus NT interlinear
 function findStrongsForWord(word) {
   const normalizedWord = word.toLowerCase().trim();
   const strongsMatches = new Map(); // strongsNum -> { count, exactGlossMatch, fromGloss }
   const wordPattern = new RegExp(`\\b${normalizedWord}\\b`, 'i');
   
-  // Helper to process interlinear data
-  function processInterlinear(data) {
+  // Helper to process NT interlinear data (still used for Greek)
+  function processNTInterlinear(data) {
     for (const ref in data) {
       const verse = data[ref];
       if (verse.e) {
         for (const entry of verse.e) {
           if (!entry.s) continue;
-          
           const eng = (entry.e || '').toLowerCase();
           const gloss = (entry.g || '').toLowerCase().trim();
-          
           if (wordPattern.test(eng) || wordPattern.test(gloss)) {
             if (!strongsMatches.has(entry.s)) {
               strongsMatches.set(entry.s, { count: 0, exactGlossMatch: false, fromGloss: false });
             }
             const match = strongsMatches.get(entry.s);
             match.count++;
-            
-            if (wordPattern.test(gloss)) {
-              match.fromGloss = true;
-            }
-            
-            // Check for EXACT gloss match (gloss is exactly the search word)
-            if (gloss === normalizedWord || gloss === normalizedWord + 's') {
-              match.exactGlossMatch = true;
-            }
+            if (wordPattern.test(gloss)) match.fromGloss = true;
+            if (gloss === normalizedWord || gloss === normalizedWord + 's') match.exactGlossMatch = true;
           }
         }
       }
     }
   }
   
-  // Search both testaments
-  if (interlinearData) processInterlinear(interlinearData);
-  if (ntInterlinearData) processInterlinear(ntInterlinearData);
+  // Search Strong's dictionaries directly for definitions matching the word
+  function processDictionary(dict, prefix) {
+    if (!dict) return;
+    for (const key of Object.keys(dict)) {
+      if (!key.startsWith(prefix)) continue;
+      const entry = dict[key];
+      if (!entry) continue;
+      const kjvDef = (entry.kjv_def || '').toLowerCase();
+      const strongsDef = (entry.strongs_def || '').toLowerCase();
+      if (wordPattern.test(kjvDef) || wordPattern.test(strongsDef)) {
+        if (!strongsMatches.has(key)) {
+          strongsMatches.set(key, { count: 0, exactGlossMatch: false, fromGloss: false });
+        }
+        const match = strongsMatches.get(key);
+        match.fromGloss = true;
+        // Check derived gloss (first meaning)
+        const gloss = (typeof extractGloss === 'function' ? extractGloss(entry) : '').toLowerCase();
+        if (gloss === normalizedWord || gloss === normalizedWord + 's') {
+          match.exactGlossMatch = true;
+          match.count += 10; // Boost exact gloss matches
+        } else {
+          match.count += 1;
+        }
+      }
+    }
+  }
+  
+  // Search Hebrew dictionary
+  if (typeof strongsHebrewDictionary !== 'undefined') processDictionary(strongsHebrewDictionary, 'H');
+  // Search Greek dictionary
+  if (typeof strongsGreekDictionary !== 'undefined') processDictionary(strongsGreekDictionary, 'G');
+  // Also search NT interlinear for frequency/usage data
+  if (ntInterlinearData) processNTInterlinear(ntInterlinearData);
   
   // Filter and score results
   const filteredResults = [];
@@ -1823,10 +2228,7 @@ function findStrongsForWord(word) {
     const def = entry ? (entry.strongs_def || '').toLowerCase() : '';
     const kjvDef = entry ? (entry.kjv_def || '').toLowerCase() : '';
     
-    // Check if word appears in dictionary definition
     const defMatches = wordPattern.test(def);
-    
-    // Check for exact match in definition (word is THE primary meaning)
     const exactDefMatch = def.startsWith(normalizedWord + ',') || 
                           def.startsWith(normalizedWord + '.') ||
                           def.startsWith(normalizedWord + ';') ||
@@ -1834,15 +2236,13 @@ function findStrongsForWord(word) {
                           def === normalizedWord ||
                           kjvDef.startsWith(normalizedWord);
     
-    // Include if: gloss matches, OR definition contains the word, OR appears frequently (5+ times)
     if (data.fromGloss || defMatches || data.count >= 5) {
-      // Calculate relevance score (higher = more relevant)
       let score = 0;
-      if (data.exactGlossMatch) score += 1000;  // Exact gloss match in interlinear
-      if (exactDefMatch) score += 500;           // Word is primary meaning in dictionary
-      if (defMatches) score += 100;              // Word appears in definition
-      if (data.fromGloss) score += 50;           // Word appears in some gloss
-      score += Math.min(data.count, 100);        // Frequency (capped)
+      if (data.exactGlossMatch) score += 1000;
+      if (exactDefMatch) score += 500;
+      if (defMatches) score += 100;
+      if (data.fromGloss) score += 50;
+      score += Math.min(data.count, 100);
       
       filteredResults.push({
         strongsNum,
@@ -1852,12 +2252,8 @@ function findStrongsForWord(word) {
     }
   }
   
-  // Sort by score (highest first)
   filteredResults.sort((a, b) => b.score - a.score);
-  
-  // Store the scored results for UI display
   conceptSearchState.scoredStrongs = filteredResults;
-  
   return filteredResults.map(r => r.strongsNum);
 }
 
@@ -2137,19 +2533,30 @@ function expandConceptSearch() {
     
     // Then add Strong's concept matches (only for selected Strong's)
     if (selectedStrongs.length > 0) {
-      // Search OT interlinear
-      if (interlinearData) {
-        for (const ref in interlinearData) {
-          const verse = interlinearData[ref];
-          if (verse.e) {
-            for (const entry of verse.e) {
-              if (entry.s && selectedStrongs.includes(entry.s)) {
-                if (!allVerses.has(ref)) {
-                  allVerses.set(ref, { strongsNums: new Set(), words: [], fromText: false, fromConcept: true });
+      // Search OT via morphhb
+      if (morphhbData) {
+        for (const bookName of Object.keys(morphhbData)) {
+          const book = morphhbData[bookName];
+          for (let ch = 1; ch < book.length; ch++) {
+            if (!book[ch]) continue;
+            for (let v = 1; v < book[ch].length; v++) {
+              const words = book[ch][v];
+              if (!words) continue;
+              for (const [hebrewText, lemma, morphCode] of words) {
+                const lang = getMorphhbLang(morphCode);
+                const sn = typeof primaryStrongsFromLemma === 'function' ? primaryStrongsFromLemma(lemma, lang) : null;
+                if (sn && selectedStrongs.includes(sn)) {
+                  const ref = `${bookName} ${ch}:${v}`;
+                  if (!allVerses.has(ref)) {
+                    allVerses.set(ref, { strongsNums: new Set(), words: [], fromText: false, fromConcept: true });
+                  }
+                  const gloss = typeof getWordGloss === 'function'
+                    ? getWordGloss(lemma, lang, typeof strongsHebrewDictionary !== 'undefined' ? strongsHebrewDictionary : {})
+                    : '';
+                  allVerses.get(ref).strongsNums.add(sn);
+                  allVerses.get(ref).words.push(gloss || hebrewText);
+                  allVerses.get(ref).fromConcept = true;
                 }
-                allVerses.get(ref).strongsNums.add(entry.s);
-                allVerses.get(ref).words.push(entry.e || entry.g || '');
-                allVerses.get(ref).fromConcept = true;
               }
             }
           }
@@ -2959,6 +3366,9 @@ function navigateToStrongs(strongsNum, event) {
     event.stopPropagation();
   }
   
+  // Clear morph context — it was specific to the originally tapped interlinear word
+  currentMorphContext = null;
+  
   // Dispatch to AppStore - this updates state, which triggers URL update
   if (typeof AppStore !== 'undefined') {
     AppStore.dispatch({ type: 'SET_STRONGS_ID', strongsId: strongsNum });
@@ -2984,10 +3394,88 @@ function strongsGoForward() {
   }
 }
 
+// Render Hebrew Parsing section for the Strong's sidebar
+// Uses currentMorphContext (set when clicking from interlinear, cleared on navigation)
+function renderMorphParsingHtml() {
+  if (!currentMorphContext) return '';
+  const { hebrewText, morphCode, lemma } = currentMorphContext;
+  if (!morphCode || typeof decodeMorphology !== 'function') return '';
+  
+  const decoded = decodeMorphology(morphCode);
+  if (!decoded || !decoded.parts || decoded.parts.length === 0) return '';
+  
+  const lang = getMorphhbLang(morphCode);
+  const prefixMeanings = typeof getPrefixMeanings === 'function' ? getPrefixMeanings(lemma) : [];
+  
+  // Get the root word from the dictionary for comparison with inflected form
+  const strongsNum = typeof primaryStrongsFromLemma === 'function' ? primaryStrongsFromLemma(lemma, lang) : null;
+  const rootWord = (strongsNum && typeof getRootWord === 'function')
+    ? getRootWord(strongsNum, typeof strongsHebrewDictionary !== 'undefined' ? strongsHebrewDictionary : {})
+    : '';
+  
+  let html = '<div class="strongs-morph-parsing">';
+  html += '<div class="morph-parsing-header">Hebrew Parsing</div>';
+  
+  // Inflected form vs root form
+  if (hebrewText) {
+    html += `<div class="morph-parsing-row"><span class="morph-label">Form in text</span><span class="morph-value morph-hebrew">${hebrewText}</span></div>`;
+  }
+  if (rootWord && rootWord !== hebrewText) {
+    html += `<div class="morph-parsing-row"><span class="morph-label">Root</span><span class="morph-value morph-hebrew">${rootWord}</span></div>`;
+  }
+  
+  // Breakdown of each part (prefixes + root + suffixes)
+  const hebrewParts = hebrewText ? hebrewText.split('/') : [];
+  let prefixIdx = 0;
+  
+  for (let i = 0; i < decoded.parts.length; i++) {
+    const part = decoded.parts[i];
+    const partHebrew = hebrewParts[i] || '';
+    const role = part.role || 'word';
+    
+    // Build the detail line
+    let detail = part.partOfSpeech || '';
+    const extras = [];
+    if (part.type) extras.push(part.type);
+    if (part.stem) extras.push(part.stem);
+    if (part.person) extras.push(part.person + ' person');
+    if (part.gender) extras.push(part.gender.toLowerCase());
+    if (part.number) extras.push(part.number.toLowerCase());
+    if (part.state) extras.push(part.state.toLowerCase());
+    if (extras.length > 0) detail += ': ' + extras.join(', ');
+    
+    // Prefix meaning
+    let meaning = '';
+    if (role === 'prefix' && prefixIdx < prefixMeanings.length) {
+      meaning = ` "${prefixMeanings[prefixIdx]}"`;
+      prefixIdx++;
+    }
+    
+    const roleClass = role === 'prefix' ? 'morph-role-prefix' : role === 'suffix' ? 'morph-role-suffix' : 'morph-role-root';
+    const roleLabel = role === 'prefix' ? 'Prefix' : role === 'suffix' ? 'Suffix' : decoded.parts.length > 1 ? 'Root' : '';
+    
+    html += `<div class="morph-parsing-part ${roleClass}">`;
+    if (partHebrew) {
+      html += `<span class="morph-part-hebrew">${partHebrew}</span>`;
+    }
+    if (roleLabel) {
+      html += `<span class="morph-part-role">${roleLabel}</span>`;
+    }
+    html += `<span class="morph-part-detail">${detail}${meaning}</span>`;
+    html += '</div>';
+  }
+  
+  html += '</div>';
+  return html;
+}
+
 // Update Strong's panel content (without adding to history)
 function updateStrongsPanelContent(strongsNum, isNavigation = false) {
   const sidebar = document.getElementById('strongs-sidebar');
   if (!sidebar) return;
+  
+  // Clear morph context when navigating within the panel (it was specific to the tapped word)
+  if (isNavigation) currentMorphContext = null;
   
   const entry = getStrongsEntry(strongsNum);
   
@@ -3012,6 +3500,9 @@ function updateStrongsPanelContent(strongsNum, isNavigation = false) {
   } else {
     html += `<div class="strongs-gloss">No definition available for ${strongsNum}</div>`;
   }
+  
+  // Add Hebrew morphology parsing (only present when opened from interlinear word)
+  html += renderMorphParsingHtml();
   
   // Add person/place info if available
   const allPersonInfo = getAllPersonInfo(strongsNum);
@@ -3156,6 +3647,9 @@ function showStrongsPanel(strongsNum, englishWord, gloss, event, skipDispatch = 
   } else {
     html += `<div class="strongs-gloss">${gloss || 'No definition available'}</div>`;
   }
+  
+  // Add Hebrew morphology parsing (only present when opened from interlinear word)
+  html += renderMorphParsingHtml();
   
   // Add symbolic meaning when this Strong's is associated with a symbol (same logic for all entry paths)
   const symbol = getSymbolForStrongsEntry(strongsNum, entry, englishWord);
@@ -3461,20 +3955,19 @@ function _renderPlainSegment(text, reference) {
   return html;
 }
 
-// Render verse text with clickable Strong's words (for OT) — LEGACY
-// Uses interlinear data for word matching. Kept as fallback.
-// New translations use renderInlineStrongs() instead.
+// Render verse text with clickable Strong's words — LEGACY
+// Uses NT interlinear data for word matching. OT uses inline tags via renderInlineStrongs().
+// Kept as fallback for non-tagged translations.
 function renderVerseWithStrongs(bookName, chapter, verseNum, plainText) {
   const isNT = isNTBook(bookName);
-  const isOT = hasHebrewText(bookName);
   
-  // Build Strong's lookup map if we have interlinear data
+  // Build Strong's lookup map from NT interlinear data (OT path not applicable — uses inline tags)
   const wordMap = new Map();
   let hasStrongsData = false;
   
-  if ((isNT && ntInterlinearData) || (isOT && interlinearData)) {
+  if (isNT && ntInterlinearData) {
     const ref = `${bookName} ${chapter}:${verseNum}`;
-    const data = isNT ? ntInterlinearData[ref] : interlinearData[ref];
+    const data = ntInterlinearData[ref];
     
     if (data && data.e && data.e.length > 0) {
       hasStrongsData = true;
@@ -3916,15 +4409,15 @@ function buildMultiverseHTML(citationStr, translationId) {
     }
     const reference = `${bookName} ${chapter}:${verse.verse}`;
     const isNT = isNTBook(bookName);
-    const hasInterlinearData = (isNT ? ntInterlinearData : interlinearData);
+    const hasOrigLangData = (isNT ? ntInterlinearData : morphhbData);
     const hasOriginalLang = hasInterlinear(bookName);
     const origLangClass = hasOriginalLang ? ' has-hebrew' : '';
     let verseText;
     if (verse.strongsText) {
       // Translation has inline Strong's tags — render as clickable links
       verseText = renderInlineStrongs(verse.strongsText, reference);
-    } else if (hasOriginalLang && hasInterlinearData && trans === 'kjv') {
-      // Legacy fallback: KJV interlinear word matching
+    } else if (hasOriginalLang && hasOrigLangData && trans === 'kjv') {
+      // Legacy fallback: KJV interlinear word matching (NT only — OT uses inline tags)
       const kjvVerse = Bible.getVerse('kjv', bookName, chapter, verse.verse);
       const kjvText = kjvVerse ? kjvVerse.text : verse.text;
       verseText = renderVerseWithStrongs(bookName, chapter, verse.verse, kjvText);
@@ -4862,7 +5355,7 @@ function selectBibleChapter(chapter, addToHistory = true) {
 // Build chapter HTML (sync, for LCP: call with useInterlinear=false to paint immediately)
 function buildChapterHTML(bookName, chapter, verses, useInterlinear) {
   const isNT = isNTBook(bookName);
-  const hasInterlinearData = useInterlinear && (isNT ? ntInterlinearData : interlinearData);
+  const hasInterlinearData = useInterlinear && (isNT ? ntInterlinearData : morphhbData);
   const hasOriginalLang = hasInterlinear(bookName);
   const origLangClass = hasOriginalLang ? ' has-hebrew' : '';
   const interlinearTitle = isNTBook(bookName) ? 'Click to show interlinear Greek' : 'Click to show interlinear Hebrew';
@@ -4947,8 +5440,8 @@ async function displayBibleChapter(bookName, chapter, highlightVerse = null) {
   const cacheKey = `${currentTranslation}:${bookName}:${chapter}`;
   let html = chapterHTMLCache.get(cacheKey);
   const isNT = isNTBook(bookName);
-  const hasInterlinearData = isNT ? ntInterlinearData : interlinearData;
-  const needsInterlinear = (isNT && !ntInterlinearData) || (!isNT && hasHebrewText(bookName) && !interlinearData);
+  const hasInterlinearData = isNT ? ntInterlinearData : morphhbData;
+  const needsInterlinear = (isNT && !ntInterlinearData) || (!isNT && hasHebrewText(bookName) && !morphhbData);
   
   if (!html) {
     // Paint immediately for LCP: build with or without Strong's based on what we have (do not await interlinear)
@@ -4972,7 +5465,7 @@ async function displayBibleChapter(bookName, chapter, highlightVerse = null) {
       bibleExplorerState.currentBook = bookName;
       bibleExplorerState.currentChapter = chapter;
       bibleExplorerState.highlightedVerse = highlightVerse;
-      const loadPromise = isNT ? loadNTInterlinear() : loadInterlinear();
+      const loadPromise = isNT ? loadNTInterlinear() : loadMorphhb();
       loadPromise.then(() => {
         if (bibleExplorerState.currentBook !== bookName || bibleExplorerState.currentChapter !== chapter) return;
         const fullHtml = buildChapterHTML(bookName, chapter, verses, true);
@@ -5303,23 +5796,32 @@ function updateBibleExplorerURL(book, chapter, verse = null) {
   }
 }
 
-// Copy verse reference to clipboard
+// Copy verse reference to clipboard and update URL to focus this verse
 function copyVerseReference(book, chapter, verse) {
   const reference = `${book} ${chapter}:${verse}`;
   
+  // Update URL verse param directly (replaceState) — NOT via AppStore dispatch
+  // which would trigger a full re-render and destroy the interlinear display.
+  try {
+    const url = new URL(window.location);
+    url.searchParams.set('verse', verse);
+    window.history.replaceState({}, '', url);
+    // Also update AppStore state silently so it stays in sync
+    if (typeof AppStore !== 'undefined') {
+      const s = AppStore.getState();
+      if (s.content?.params) s.content.params.verse = verse;
+    }
+    bibleExplorerState.highlightedVerse = verse;
+  } catch (e) {}
+  
+  // Update visual highlight: remove old, apply new (persistent, not temporary)
+  document.querySelectorAll('.bible-explorer-verse.highlighted').forEach(el => el.classList.remove('highlighted'));
+  const verseEl = document.getElementById(`verse-${verse}`);
+  if (verseEl) verseEl.classList.add('highlighted');
+  
+  // Copy to clipboard
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(reference).then(() => {
-      // Brief visual feedback
-      const verseEl = document.getElementById(`verse-${verse}`);
-      if (verseEl) {
-        verseEl.classList.add('highlighted');
-        setTimeout(() => {
-          if (!bibleExplorerState.highlightedVerse || bibleExplorerState.highlightedVerse !== verse) {
-            verseEl.classList.remove('highlighted');
-          }
-        }, 1000);
-      }
-    });
+    navigator.clipboard.writeText(reference).catch(() => {});
   }
 }
 

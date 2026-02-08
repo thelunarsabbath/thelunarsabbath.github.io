@@ -40,6 +40,8 @@ const CORE_ASSETS = [
   '/strongs-greek-dictionary.js',
   '/calendar-export.js',
   '/global-search.js',
+  '/morphology-decoder.js',
+  '/morphhb-gloss.js',
   '/lib/marked.min.js'
 ];
 
@@ -58,7 +60,7 @@ const DATA_ASSETS = [
   '/TorahReadingCycle.json',
   '/torah-special-readings.json',
   '/data/eclipses.json',
-  '/data/interlinear.json',
+  '/data/morphhb.json',
   '/data/nt-interlinear.json',
   '/data/tipnr.json',
   '/docs/temple-chronology-verification.md'
@@ -72,7 +74,6 @@ const CONTENT_ASSETS = [
   '/kjv.txt',
   '/asv.txt',
   '/lxx.txt',
-  '/wlc/verses.txt',
   '/media/time-tested-tradition.pdf'
 ];
 

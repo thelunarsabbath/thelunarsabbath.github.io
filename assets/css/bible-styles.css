@@ -9611,6 +9611,22 @@ body.biblical-timeline-open .top-nav-inner {
   text-align: center;
 }
 
+.il-prefix {
+  color: #7ec8e3;
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+.il-hebrew-prefix {
+  color: #7ec8e3;
+}
+
+.il-vowel-toggle-bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 2px 4px 4px;
+}
+
 /* Legacy single-line styles */
 .il-word:hover,
 .il-word.il-highlight {
@@ -11943,4 +11959,166 @@ details.concept-strongs-section[open] .concept-expand-icon {
 
 .strongs-gematria-word:last-child::after {
   content: "";
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MORPHHB HOVER TOOLTIP
+   ════════════════════════════════════════════════════════════════════ */
+
+.morph-hover-tooltip {
+  position: absolute;
+  z-index: 10200;
+  max-width: 340px;
+  background: rgba(20, 25, 35, 0.97);
+  border: 1px solid rgba(212, 160, 23, 0.5);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #e8e0d0;
+  font-size: 0.85em;
+  line-height: 1.5;
+  pointer-events: auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.morph-tip-strongs {
+  color: #d4a017;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.morph-tip-def {
+  color: #c8d8e8;
+  font-size: 0.9em;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.morph-tip-kjv {
+  color: #a0b0c0;
+  font-size: 0.85em;
+  margin-bottom: 4px;
+}
+
+.morph-tip-desc {
+  color: #7ec8e3;
+  font-size: 0.88em;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(126, 200, 227, 0.2);
+}
+
+.morph-tip-symbol {
+  color: #d4a017;
+  font-size: 0.88em;
+  margin-top: 4px;
+}
+
+.morph-tip-hint {
+  color: #666;
+  font-size: 0.8em;
+  margin-top: 6px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   HEBREW PARSING SECTION (Strong's sidebar)
+   ════════════════════════════════════════════════════════════════════ */
+
+.strongs-morph-parsing {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(30, 40, 60, 0.5);
+  border: 1px solid rgba(100, 140, 200, 0.25);
+  border-radius: 8px;
+}
+
+.morph-parsing-header {
+  font-size: 0.85em;
+  font-weight: 700;
+  color: #6db3f2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(100, 140, 200, 0.2);
+}
+
+.morph-parsing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 4px 0;
+}
+
+.morph-label {
+  color: #8aa8c8;
+  font-size: 0.82em;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.morph-value {
+  color: #e0d8c8;
+  text-align: right;
+}
+
+.morph-hebrew {
+  font-size: 1.4em;
+  direction: rtl;
+  font-family: 'SBL Hebrew', 'Ezra SIL', 'Times New Roman', serif;
+}
+
+.morph-parsing-part {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 1px solid rgba(100, 140, 200, 0.1);
+}
+
+.morph-parsing-part:first-of-type {
+  border-top: none;
+}
+
+.morph-part-hebrew {
+  font-size: 1.15em;
+  direction: rtl;
+  color: #d4a017;
+  font-family: 'SBL Hebrew', 'Ezra SIL', 'Times New Roman', serif;
+  flex-shrink: 0;
+  min-width: 30px;
+  text-align: center;
+}
+
+.morph-part-role {
+  font-size: 0.75em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.morph-role-prefix .morph-part-role {
+  color: #7ec8e3;
+  background: rgba(100, 180, 220, 0.15);
+}
+
+.morph-role-root .morph-part-role {
+  color: #d4a017;
+  background: rgba(212, 160, 23, 0.15);
+}
+
+.morph-role-suffix .morph-part-role {
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.15);
+}
+
+.morph-part-detail {
+  color: #b8c8d8;
+  font-size: 0.88em;
+  line-height: 1.4;
 }

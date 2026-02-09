@@ -1,10 +1,70 @@
 {
   "patches": [
     {
+      "id": "daniel-9-25-seventy-sevens",
+      "verse": "Daniel 9:25",
+      "default": true,
+      "summary": "Reversed word order, שבעים repeated with different function, Hebrew would say 69 if that's what was meant, and 490 years (not 483) lands precisely at Messiah. H8147 means 'twofold, again' — the decree done a second time.",
+      "study": "/reader/verse-studies/DANIEL-9",
+      "section": "#structural-problem",
+      "find": {
+        "kjv": "shall be seven{H7651} weeks{H7620}, and threescore{H8346} and two{H8147} weeks{H7620}:",
+        "akjv": "shall be seven{H7651} weeks{H7620}, and three score{H8346} and two{H8147} weeks{H7620}:",
+        "asv": "shall be seven{H7651} weeks{H7620}, and threescore{H8346} and two{H8147} weeks{H7620}:",
+        "dbt": "shall be seven weeks, and sixty-two weeks.",
+        "drb": "shall be seven weeks, and sixty-two weeks:",
+        "jps": "shall be seven weeks, and threescore and two weeks;",
+        "slt": "shall be seven weeks, and sixty and two weeks.",
+        "wbt": "shall be seven weeks, and sixty and two weeks:",
+        "ylt": "are weeks seven, and weeks sixty and two"
+      },
+      "replace": {
+        "kjv": "seventy{H7651} sevened{H7620} (70\u00d77). Then jubilee{H8346} sixty{H8147} and again{H7620} (a second time):",
+        "akjv": "seventy{H7651} sevened{H7620} (70\u00d77). Then jubilee{H8346} sixty{H8147} and again{H7620} (a second time):",
+        "asv": "seventy{H7651} sevened{H7620} (70\u00d77). Then jubilee{H8346} sixty{H8147} and again{H7620} (a second time):",
+        "dbt": "seventy sevened (70\u00d77). Then jubilee sixty and again (a second time).",
+        "drb": "seventy sevened (70\u00d77). Then jubilee sixty and again (a second time):",
+        "jps": "seventy sevened (70\u00d77). Then jubilee sixty and again (a second time);",
+        "slt": "seventy sevened (70\u00d77). Then jubilee sixty and again (a second time).",
+        "wbt": "seventy sevened (70\u00d77). Then jubilee sixty and again (a second time):",
+        "ylt": "seventy sevened (70\u00d77). Then jubilee sixty and again (a second time)"
+      }
+    },
+    {
+      "id": "daniel-9-25-return-tribulation",
+      "verse": "Daniel 9:25",
+      "default": true,
+      "summary": "תשוב is a separate verb 'they will return' — not part of 'built again.' חרוץ (H2742) means moat/trench, not wall. העתים has the definite article — the times, not just any times.",
+      "study": "/reader/verse-studies/DANIEL-9",
+      "section": "#word-tashub",
+      "find": {
+        "kjv": "the street{H7339} shall be built{H1129}{(H8738)} again{H7725}{(H8799)}, and the wall{H2742}, even in troublous{H6695} times{H6256}.",
+        "akjv": "the street{H7339} shall be built{H1129} again{H7725}, and the wall{H2742}, even in troublous{H6695} times{H6256}.",
+        "asv": "it shall be built{H1129} again{H7725}, with street{H7339} and moat{H2742}, even in troublous{H6695} times{H6256}.",
+        "dbt": "the street shall be built again, and the moat, even in troublous times.",
+        "drb": "the street shall be built again, and the walls, even in straitness of times.",
+        "jps": "it shall be built again, with broad place and moat, but in troublous times.",
+        "slt": "it shall be built again with street and trench, even in the narrow of times.",
+        "wbt": "the street shall be built again, and the wall, even in troublous times.",
+        "ylt": "turned back and built hath been a broad place, and switch, even in the distress of the times"
+      },
+      "replace": {
+        "kjv": "they will return{H7725}, and it will be built{H1129}: the plaza{H7339} and the moat{H2742}. Then in tribulation{H6695}, the times{H6256} (end).",
+        "akjv": "they will return{H7725}, and it will be built{H1129}: the plaza{H7339} and the moat{H2742}. Then in tribulation{H6695}, the times{H6256} (end).",
+        "asv": "they will return{H7725}, and it will be built{H1129}: the plaza{H7339} and the moat{H2742}. Then in tribulation{H6695}, the times{H6256} (end).",
+        "dbt": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times.",
+        "drb": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times.",
+        "jps": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times.",
+        "slt": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times.",
+        "wbt": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times.",
+        "ylt": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times"
+      }
+    },
+    {
       "id": "daniel-9-26-cut-vanish",
       "verse": "Daniel 9:26",
       "default": true,
-      "summary": "The consonantal כרת is the standard covenant verb — 'cut a covenant,' not 'be cut off.' Messiah vanishes like Enoch (Gen 5:24), not killed.",
+      "summary": "Consonantal כרת is the standard covenant verb — 'cut a covenant,' not 'be cut off.' אין means 'vanish,' as with Enoch: 'he was not, for God took him' (Gen 5:24).",
       "study": "/reader/verse-studies/DANIEL-9",
       "section": "#word-cut",
       "find": {
@@ -19,24 +79,24 @@
         "ylt": "cut off is Messiah, and the city and the holy place are not his, the Leader who hath come doth destroy the people"
       },
       "replace": {
-        "kjv": "shall Messiah{H4899} cut{H3772} [a covenant] and vanish{H369} to himself;",
-        "akjv": "shall Messiah{H4899} cut{H3772} [a covenant] and vanish{H369} to himself;",
-        "asv": "shall the anointed{H4899} one cut{H3772} [a covenant] and vanish{H369} to himself;",
-        "dbt": "shall Messiah cut [a covenant] and vanish to himself;",
-        "drb": "Christ shall cut [a covenant] and vanish to himself;",
-        "jps": "shall an anointed one cut [a covenant] and vanish;",
-        "slt": "Messiah shall cut [a covenant] and vanish to himself;",
-        "wbt": "shall Messiah cut [a covenant] and vanish to himself;",
-        "ylt": "Messiah cuts [a covenant] and vanishes — to himself, and the city, and the holy place; he will destroy the people of the coming ruler"
+        "kjv": "shall Messiah{H4899} cut{H3772} (a covenant) and vanish{H369} — to himself,",
+        "akjv": "shall Messiah{H4899} cut{H3772} (a covenant) and vanish{H369} — to himself,",
+        "asv": "shall the anointed{H4899} one cut{H3772} (a covenant) and vanish{H369} — to himself,",
+        "dbt": "shall Messiah cut (a covenant) and vanish — to himself,",
+        "drb": "Christ shall cut (a covenant) and vanish — to himself,",
+        "jps": "shall an anointed one cut (a covenant) and vanish — to himself,",
+        "slt": "Messiah shall cut (a covenant) and vanish — to himself,",
+        "wbt": "shall Messiah cut (a covenant) and vanish — to himself,",
+        "ylt": "Messiah cuts (a covenant) and vanishes — to himself,"
       }
     },
     {
-      "id": "daniel-9-26-destroy",
+      "id": "daniel-9-26-city-holy",
       "verse": "Daniel 9:26",
       "default": true,
-      "summary": "The Hebrew verb ישחית is singular — 'he will destroy,' not 'they.' Traditional translations rearrange the Hebrew word order.",
+      "summary": "Hebrew עיר (city) derives from 'to be watchful' — a watchful people. והקדש can be read as both 'the holy' (noun) and 'he will sanctify them' (verb). The singular verb ישחית means 'he will destroy,' not 'they.'",
       "study": "/reader/verse-studies/DANIEL-9",
-      "section": "#word-destroy",
+      "section": "#word-city-sanctuary",
       "find": {
         "kjv": "the people{H5971} of the prince{H5057} that shall come{H935}{(H8802)} shall destroy{H7843}{(H8686)} the city{H5892} and the sanctuary{H6944}",
         "akjv": "the people{H5971} of the prince{H5057} that shall come{H935} shall destroy{H7843} the city{H5892} and the sanctuary{H6944}",
@@ -48,14 +108,14 @@
         "wbt": "the people of the prince that shall come shall destroy the city and the sanctuary"
       },
       "replace": {
-        "kjv": "the city{H5892} and the holy place{H6944}; he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
-        "akjv": "the city{H5892} and the holy place{H6944}; he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
-        "asv": "the city{H5892} and the holy place;{H6944} he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
-        "dbt": "the city and the holy place; he will destroy the people of the coming ruler",
-        "drb": "the city and the holy place; he will destroy the people of the coming ruler",
-        "jps": "the city and the holy place; he will destroy the people of the coming ruler",
-        "slt": "the city and the holy place; he will destroy the people of the coming ruler",
-        "wbt": "the city and the holy place; he will destroy the people of the coming ruler"
+        "kjv": "the city{H5892} (the watchful people of the kingdom) and the holy{H6944} (the set-apart; or: and he will sanctify them); he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
+        "akjv": "the city{H5892} (the watchful people of the kingdom) and the holy{H6944} (the set-apart; or: and he will sanctify them); he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
+        "asv": "the city{H5892} (the watchful people of the kingdom) and the holy{H6944} (the set-apart; or: and he will sanctify them); he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
+        "dbt": "the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them); he will destroy the people of the coming ruler",
+        "drb": "the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them); he will destroy the people of the coming ruler",
+        "jps": "the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them); he will destroy the people of the coming ruler",
+        "slt": "the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them); he will destroy the people of the coming ruler",
+        "wbt": "the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them); he will destroy the people of the coming ruler"
       }
     },
     {
@@ -76,14 +136,14 @@
         "ylt": "Seventy weeks"
       },
       "replace": {
-        "kjv": "Seventy{H7657} seventy{H7620} [jubilees]",
-        "akjv": "Seventy{H7657} seventy{H7620} [jubilees]",
-        "asv": "Seventy{H7657} seventy{H7620} [jubilees]",
-        "dbt": "Seventy seventy [jubilees]",
-        "drb": "Seventy seventy [jubilees]",
-        "jps": "Seventy seventy [jubilees]",
-        "wbt": "Seventy seventy [jubilees]",
-        "ylt": "Seventy seventy [jubilees]"
+        "kjv": "Seventy{H7657} seventy{H7620} (or jubilees)",
+        "akjv": "Seventy{H7657} seventy{H7620} (or jubilees)",
+        "asv": "Seventy{H7657} seventy{H7620} (or jubilees)",
+        "dbt": "Seventy seventy (or jubilees)",
+        "drb": "Seventy seventy (or jubilees)",
+        "jps": "Seventy seventy (or jubilees)",
+        "wbt": "Seventy seventy (or jubilees)",
+        "ylt": "Seventy seventy (or jubilees)"
       }
     }
   ]

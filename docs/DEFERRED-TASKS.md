@@ -35,7 +35,7 @@ A central tracking document for tasks identified during development that are not
 - [ ] **Daniel 9:25 deep dive** — The two-decree / two-timeline reading needs more development. Currently a placeholder section.
 - [ ] **Daniel 9:27 week-and-a-half calculation** — From the video transcript: "week of 1 and 1/2 weeks or 7 x 1.5 x 7 = 73.5 years" from John the Baptist's conception to 70 AD. Not yet incorporated.
 - [ ] **Jeremiah second witness** — Section exists but could be expanded with more parallel verses and color-coded connections (future parallel passage view).
-- [ ] **Ottoman rebuilding of Jerusalem (1535 AD)** — The 60th jubilee connection from the video transcript. Not yet incorporated into the study.
+- [x] **Ottoman rebuilding of Jerusalem (1535 AD)** — The 60th jubilee connection. Incorporated into Daniel 9 study under the definite article analysis (#the-definite-article) with full word-by-word breakdown.
 
 ## Scripture Reference Parser (linkifyScriptureRefs)
 

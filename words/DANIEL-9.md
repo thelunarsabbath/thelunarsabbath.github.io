@@ -317,31 +317,189 @@ This is the Ezra/Nehemiah rebuilding: Israelites doing it themselves, armed, in 
 
 This was not fulfilled by any of the BC-era rebuildings — Jews built their own walls under Nehemiah. But in **1535 AD**, the Ottoman Sultan Suleiman ordered Jerusalem's walls rebuilt. The walls, gates, and the plaza (the Temple Mount platform as it exists today) were constructed by **foreign workers under a foreign king** — exactly as Isaiah prophesied. A stone plaque commemorating this construction is still visible in Jerusalem today.
 
-### Two Counts in Daniel 9:25 {#two-counts}
+### The Structural Problem: Why Not Just Say 69? {#structural-problem}
 
-The verse gives two numbers separated by a distinct break:
+Before interpreting, consider three red flags in the traditional "7 weeks + 62 weeks = 69 weeks" reading:
 
-1. **Seven שבעים** — from the decree to restore Jerusalem **until Messiah the Prince**
-2. **Sixty-two שבעים** — and it will be rebuilt "with plaza and moat, in troubled times"
+**1. Reversed word order.** Normal Hebrew puts the number before the noun: שבעה שבעים ("seven weeks"). But Daniel 9:25 says שבעים שבעה ("weeks seven" / "seventy seven"). This reversal is unusual and demands explanation.
 
-The traditional reading collapses these into one continuous count (7 + 62 = 69). But the Hebrew separates them with distinct clauses. They may be **two different periods triggered by two different decrees**:
+**2. Why repeat the unit?** If both numbers count the same unit, why say "weeks seven, and weeks sixty and two"? Hebrew would naturally say "weeks: seven and sixty-two." The repetition of שבעים suggests the two instances serve **different functions** — not the same counting unit restated.
 
-- **Seven שבעים from a BC decree → Messiah** — whichever unit and starting point places this at Jesus' anointing
-- **Sixty שבעים and a second [decree] → Jerusalem rebuilt by foreigners** — the 60th jubilee from the Jordan crossing (1406 BC + 60 x 49 = 1534 AD) lands precisely at Suleiman's order in 1535 AD
+**3. Why not sixty-nine?** Hebrew has a perfectly natural way to say 69: ששים ותשע (*shishim ve-tesha*). If the point is 7 + 62 = 69 weeks, there is no reason to split them. You would just say "sixty-nine weeks" — as Hebrew does everywhere else with compound numbers. The split into "seven" and "sixty and two" serves no purpose in the traditional reading. Unless they were never meant to be added together.
 
-If the second rebuilding is by foreigners (Isaiah 60:10), and the 60th jubilee from the Jordan crossing falls in 1534 AD, and Suleiman's order is historically documented at exactly that date — the convergence is striking.
+These three oddities — reversed word order, repeated unit, and inexplicable split — suggest the traditional compound-number reading is forcing a structure onto the text that isn't there.
+
+### Two Independent Clauses, Two שבעים {#two-counts}
+
+The alternative reading treats each שבעים independently:
+
+| Hebrew | Traditional (forced compound) | Alternative (independent clauses) |
+|--------|-------------------------------|----------------------------------|
+| שבעים שבעה | "seven weeks" (word order reversed, awkward) | "seventy sevens" = 490 years (echoing v24's שבעים שבעים) |
+| ושבעים ששים ושנים | "and sixty-two weeks" (why not say 69?) | "and [at] jubilee 60, and the second [decree]" |
+
+**First clause:** שבעים שבעה = "seventy sevens" — the same 490-year period from verse 24, confirming the timeframe: **"from the decree to restore Jerusalem until Messiah the Prince: 490 [years]."**
+
+The reversed word order now makes sense. It's not "seven weeks" (number-noun); it's "seventy-seven" or "seventy × seven" — a mathematical expression, not a counted duration. The same consonants שבעים that opened verse 24 reappear here as the same concept.
+
+**History confirms this reading.** From the decree of Artaxerxes to Ezra (457 BC) to Messiah's ministry and crucifixion (~27-33 AD) is approximately **490 years** — not 483. The traditional "69 weeks × 7 = 483 years" falls short by 7 years, forcing interpreters to debate which decree to count from and whether to use prophetic (360-day) years to make the math work. But 70 × 7 = 490 prophetic years from 457 BC lands precisely at Messiah — no adjustments needed. The time itself has been tested, and it favors "seventy sevens" over "sixty-nine weeks."
+
+**Second clause:** ושבעים ששים ושנים = "and jubilee sixty, and second" — a separate timestamp identifying a specific jubilee and a second event. The vav (ו) conjunction introduces a new clause, not a continuation of the first.
+
+This reading explains all three anomalies:
+- The reversed word order → it's "seventy-seven," not "seven weeks"
+- The repeated שבעים → different function each time (timeframe vs. jubilee)
+- The split numbers → they aren't a compound. "Sixty" and "second" are independent values
+
+### The 60th Jubilee and the Second Decree {#sixtieth-jubilee-v25}
+
+With שבעים understood as "jubilee," ששים ("sixty") identifies a specific one — the **60th jubilee** from when the count began.
+
+The jubilee cycle is 49 years. Counting from the **Jordan crossing** (approximately 1406 BC, when Israel entered the land and the jubilee count began):
+
+> 1406 BC + (60 × 49 years) = **1534 AD**
+
+In **1535 AD**, Sultan Suleiman ordered Jerusalem's walls rebuilt — the walls, gates, and the Temple Mount plaza that stand in Jerusalem today. A stone plaque commemorating this construction is still visible.
+
+And ושנים ("and second") marks this as the **second decree** to rebuild Jerusalem — distinct from Nehemiah's earlier rebuilding. Two rebuildings, each prophesied differently (see [Two Rebuildings](#two-rebuildings) above).
+
+### Verse 25 Word-by-Word: The Second Half {#verse-25-words}
+
+The second half of Daniel 9:25 (after the two שבעים clauses) contains several words whose traditional translation obscures the meaning:
+
+#### תשוב — "They Will Return" {#word-tashub}
+
+**Hebrew:** תָּשׁוּב (*tashub*)
+**Strong's:** H7725 — שׁוּב (*shub*, to return/come back)
+**Morphology prefix:** ת (*tav*) — 3rd person plural or 2nd person prefix
+
+The KJV renders this as part of "shall be **built again**" — combining תשוב with the next word ונבנתה. But תשוב is its own verb: "they will return" or "they will come back." The next word ונבנתה is separately "and it will be built."
+
+Reading them independently: **"They will return, and it [Jerusalem] will be built"** — the people come back first, then the city is rebuilt. This matches the historical pattern: Jews returned to Jerusalem before Suleiman rebuilt the walls around them.
+
+#### חרוץ — "Moat/Trench," Not "Wall" {#word-charuts}
+
+**Hebrew:** חָרוּץ (*charuts*)
+**Strong's:** H2742 — from חרץ (*charats*, to cut, to sharpen)
+**Meaning:** a trench, moat, or cut thing
+
+The KJV translates this as "wall" — but H2742 does not mean wall. It means something **cut** — a trench, a moat, a sharp cut. The ASV, RSV, and NASB all translate it as "moat." Suleiman's rebuilding included the moat/trench system around Jerusalem's walls, still visible today.
+
+#### ובצוק העתים — "And in Tribulation, THE Times" {#word-troublous-times}
+
+**Hebrew:** וּבְצוֹק הָעִתִּים (*u-ve-tsoq ha-'ittim*)
+**Strong's:** H6695 צוֹק (*tsoq*, anguish/tribulation) + H6256 עֵת (*'et*, time) with definite article
+
+The KJV renders this as "even in troublous times" — a vague description of difficult circumstances. But two features demand attention:
+
+1. **צוק** (*tsoq*) is the same root used in passages about the **great tribulation** — anguish, distress, pressure. This is not generic difficulty; it is eschatological tribulation.
+
+2. **העתים** has the **definite article הַ** — "**THE** times," not just "times." The article points to specific, previously known times — **the end times** that Daniel has been asking about since the beginning of chapter 9.
+
+Reading with these features: **"and in tribulation, THE times [will end]"** — a statement about the conclusion of the eschatological timeline, not merely a description of Nehemiah's building conditions.
+
+### Verse 25 — The Two Translations {#verse-25-summary}
+
+#### Traditional (KJV)
+> "Know therefore and understand, that from the going forth of the commandment to restore and to build Jerusalem unto the Messiah the Prince shall be **seven weeks, and threescore and two weeks**: the street **shall be built again, and the wall**, even in **troublous times**."
+
+#### Alternative
+> "Know therefore and understand, that from the going forth of the commandment to restore and to build Jerusalem unto the Messiah the Prince: **seventy sevens**. Then **jubilee sixty and the second** (decree) — **they will return**, and it will be built: the plaza and the moat. Then in **tribulation, THE times** (end)."
+
+#### What Changed and Why
+
+| Traditional | Alternative | Why |
+|-------------|-------------|-----|
+| "seven weeks" (reversed word order) | "seventy sevens" = 490 (echoing v24) | Normal Hebrew puts number first; שבעים שבעה reads as "70 × 7." History confirms: 457 BC + 490 = ~33 AD (Messiah). 69 × 7 = 483 falls short. |
+| "and threescore and two weeks" (why not say 69?) | "and jubilee 60, and again [the decree]" | שבעים repeated = different function; H8147 itself means "twofold/second/again" per Strong's; split = independent values |
+| "shall be built again" | "they will return, and it will be built" | תשוב is a separate verb: "they will return" (not part of "built again") |
+| "and the wall" | "and the moat" | H2742 חרוץ = trench/moat (from חרץ "to cut"), not wall. ASV/RSV agree. |
+| "even in troublous times" | "then in tribulation, THE times [end]" | צוק = tribulation; definite article הַ on עתים = specific end times |
 
 ### What This Means for Verse 26
 
-Daniel 9:26 opens with "**and after** the sixty-two [שבעים] **and the second**..." — traditionally read as "after the sixty-two weeks." But if verse 25 established two separate counts, verse 26 is picking up after the **second** count — after the 60th jubilee, after the foreign rebuilding. What follows (Messiah cuts a covenant, vanishes, destroys the enemy) would then be **near-future or end-times events**, not events from 33 AD.
+Daniel 9:26 opens with "**and after** **הַ**שבעים ששים ושנים" — traditionally read as "after the sixty-two weeks." But there is a grammatical key hidden in plain sight: the **definite article הַ** on שבעים. Verse 25 uses שבעים twice without the article. Verse 26 adds it. Why?
 
-*The detailed chronological calculations are discussed in the [Timeline](/timeline) section. This study focuses on establishing that the text supports two separate decrees and two separate timelines, not one collapsed count.*
+Because verse 26 is not counting generic "weeks." It is referencing **THE** שבעים system established in verse 24 — the jubilee cycles. The opening clause identifies a specific moment: the 60th jubilee, the second decree to rebuild. What follows (Messiah cuts a covenant, vanishes, gathers the holy nation, destroys the enemy) occurs **after that second decree**.
+
+The full analysis of this definite article — and its stunning connection to the historically documented 60th jubilee (Suleiman's 1535 AD rebuilding of Jerusalem by foreign workers, exactly as Isaiah 60:10 prophesied) — is presented in the [word-by-word section below](#the-definite-article).
 
 ---
 
 ## Daniel 9:26 — Word by Word {#verse-26}
 
-This is where careful attention to each word matters most. We'll take it one word at a time.
+This is where careful attention to each word matters most. We'll take it one word at a time, starting with the opening clause that sets the timeline.
+
+---
+
+### The Opening Clause: "And after THE seventy, sixty, and second" {#the-definite-article}
+
+> **Traditional:** "And after threescore and two weeks..."
+> **Hebrew:** ואחרי **הַ**שבעים ששים ושנים
+
+The traditional rendering treats "sixty and two weeks" as a compound number (62) modifying "weeks." But the Hebrew contains a grammatical signal that every translation ignores: **the definite article הַ on שבעים.**
+
+| Word | Hebrew | Traditional | With definite article |
+|------|--------|-------------|----------------------|
+| ואחרי | וְאַחֲרֵי | "and after" | "and after" |
+| **הַ**שבעים | **הַ**שָּׁבֻעִים | "...weeks" (article ignored) | "**THE** seventy/jubilee" |
+| ששים | שִׁשִּׁים | "threescore (60)..." | "sixty" [the 60th] |
+| ושנים | וּשְׁנַיִם | "...and two" | "and the second" |
+
+#### Why the Article Matters
+
+In Hebrew, the definite article הַ means **"the specific one already known."** It's how Hebrew says "the X we've been talking about."
+
+Compare verse 25 and verse 26:
+
+- **Verse 25:** שָׁבֻעִים שִׁבְעָה וְשָׁבֻעִים שִׁשִּׁים — "weeks seven, and weeks sixty" — **NO** definite article. These are generic counting units.
+- **Verse 26:** **הַ**שָּׁבֻעִים שִׁשִּׁים — "**THE** weeks/seventy, sixty" — **WITH** definite article. This points back to a specific, previously established reference.
+
+If Daniel 9:26 simply meant "sixty-two weeks" as a compound number, there would be no reason for the article. Verse 25 counts "weeks" without it. The article in verse 26 is grammatically unnecessary for a simple number — unless **שבעים here is not a counting unit but a reference to THE שבעים שבעים (seventy-seventy) system established in verse 24.**
+
+The article says: "after **THE** [previously discussed] jubilee-cycle."
+
+#### "Sixty" as the 60th Jubilee {#sixtieth-jubilee}
+
+With שבעים understood as a reference to the jubilee system (not a generic "weeks"), ששים ("sixty") becomes a specific jubilee count — the **60th jubilee.**
+
+The jubilee cycle is 49 years. Counting from the **Jordan crossing** (approximately 1406 BC, when Israel entered the land and the jubilee count began):
+
+> 1406 BC + (60 × 49 years) = **1534 AD**
+
+In **1535 AD**, the Ottoman Sultan Suleiman ordered the rebuilding of Jerusalem's walls, gates, and the Temple Mount plaza. The walls standing in Jerusalem today are Suleiman's walls. A stone plaque commemorating the construction is still visible.
+
+This was the **second decree to rebuild Jerusalem** — and it was fulfilled exactly as Isaiah prophesied:
+
+> "And the **sons of strangers** shall build up thy walls, and **their kings** shall minister unto thee." — Isaiah 60:10
+
+Not Jews building their own walls (Nehemiah), but **a foreign king** sending **foreign workers** to rebuild — exactly at the 60th jubilee.
+
+#### "And Again / Twofold" — The Decree Done Twice {#and-second}
+
+The word שְׁנַיִם (*shnayim*, H8147) is typically translated "two." But Strong's own definition includes: **"two; also (as ordinal) twofold."** The KJV itself translates H8147 as "second, double, twice" in other passages. The word is derived from H8145 שֵׁנִי (*sheni*) — which IS "second."
+
+So שנים doesn't just mean the cardinal number 2. It carries the attested sense of **"a second time," "again," "twofold."** In context: "jubilee sixty, and again" = the 60th jubilee and [the decree done] **a second time**.
+
+This isn't a substitution of a different word — it's using an acknowledged meaning of the SAME word, straight from the lexicon.
+
+The context tells us what was done twice. Verse 25 established [two separate decrees to rebuild Jerusalem](#two-counts) — one by Israel's own people, one by foreigners. Daniel 9:26 picks up the timeline **after the decree done a second time:**
+
+> "And after **THE** jubilee [cycle] — the sixtieth — and [the decree done] again, Messiah shall cut (a covenant)..."
+
+#### The Convergence
+
+The grammatical evidence (definite article) and the historical evidence (Suleiman's 1535 order) converge on the same point:
+
+| Evidence | Points to |
+|----------|-----------|
+| **הַ** on שבעים | Not a generic number — a reference to the jubilee system of v24 |
+| **ששים** (sixty) | The 60th jubilee: 1406 BC + 2940 years = 1534 AD |
+| **ושנים** (and second) | The second decree to rebuild — by foreigners (Isaiah 60:10) |
+| **Suleiman's order** (1535 AD) | Historically documented: foreign king rebuilds Jerusalem's walls |
+| **The walls today** | The physical walls of Jerusalem are Suleiman's — not Nehemiah's |
+
+One ignored definite article. One shifted word boundary. And the entire timeline unlocks.
 
 ---
 
@@ -417,26 +575,82 @@ When the Septuagint (the ancient Greek translation of the Old Testament) transla
 **Hebrew:** לו (*lo*)
 **Meaning:** to him / for him / to himself
 
-In the traditional reading, this is part of "have nothing" — "nothing to him."
+The preposition ל (*lamed*) with a pronominal suffix carries several senses simultaneously:
 
-In the alternative reading, this indicates **where** Messiah vanishes *to*: He returns to Himself, to His own place. Compare John 14:2 — "I go to prepare a place for you."
+- **Direction:** "to himself" — He returns to His own place (John 14:2: "I go to prepare a place for you")
+- **Purpose/benefit:** "for himself" — He does this for His own purpose
+- **Possession:** "belonging to him" — He claims what follows as His own
+
+In the traditional reading, this is part of "have nothing" — "nothing to him." But in the alternative reading, **this preposition does not end the clause — it opens it.** What follows tells you *what* He gathers to Himself.
+
+Notice the vav (ו, "and") conjunctions that chain the next words directly to this phrase: "to himself, **and** the city **and** the holy." These are not a separate thought — they are the objects of the gathering.
 
 ---
 
-### Words 5-6: "and the city and the holy place" {#word-city-sanctuary}
+### Words 5-6: "the city and the holy" {#word-city-sanctuary}
 
 **Hebrew consonants:** והעיר והקדש (*v-h-'-y-r v-h-q-d-sh*)
-**Strong's:** H5892 עִיר (*'ir*, city) and H6944 קֹדֶשׁ (*qodesh*, holy place/sanctuary)
+**Strong's:** H5892 עִיר (*'ir*, city) and H6944 קֹדֶשׁ (*qodesh*, holy/set-apart)
 
-In the traditional reading, "the city and the sanctuary" are the **objects** that get destroyed in the next clause.
+In the traditional reading, "the city and the sanctuary" are the **objects** that get destroyed in the next clause by "the people of the prince."
 
-In the alternative reading, "the city and the holy place" belong to the **previous** clause — they are part of what becomes אַיִן (vanishes/is gone):
+In the alternative reading, "the city and the holy" belong to the **previous** clause — they are what Messiah gathers to Himself when He vanishes:
 
-> "Messiah shall cut [a covenant] and vanish — to himself, **and the city, and the holy place**"
+> "Messiah shall cut (a covenant) and vanish — to himself, **the city** (the watchful people of the kingdom) **and the holy** (the set-apart; or: and he will sanctify them)"
 
-All three become אַיִן. Messiah vanishes (the ascension). The city and the holy place also vanish — fulfilled in 70 AD when Jerusalem and the temple were destroyed.
+This is not about buildings. It is about **people**. Here's why:
 
-**A possible additional layer:** The consonants הקדש can also be read as a verb meaning "he will sanctify" (attested in Judges 17:3 with these exact consonants). If this verbal resonance is intended, it adds: "and he will sanctify [those taken]." Hebrew prophetic texts often pack multiple meanings into the same consonants. The primary reading ("the holy place") stands on its own; the verbal echo ("sanctify") is a possible enrichment.
+#### עיר (*'ir*) — "City" or "The Watchful"? {#city-as-watchful}
+
+The Hebrew word עִיר (H5892, "city") derives from the root עוּר (*'ur*, H5782) meaning **"to rouse, to be awake, to be watchful."** A city, in its deepest Hebrew sense, is a **community of the watchful** — people who are alert, vigilant, guarding.
+
+This is not just etymology. The connection is active throughout Scripture:
+
+- **Isaiah 52:1, 8** — "Awake, awake... **thy watchmen** shall lift up the voice... they shall see eye to eye, when the LORD shall bring again **Zion**." The watchmen (*tsophim*) and the city (Zion) are interchangeable — the city IS its watchers.
+- **Daniel 4:13, 17, 23** — The word עִיר appears in Aramaic as a title: "a **watcher** (*'ir*) and a holy one came down from heaven." Here the same root explicitly means "a watcher" — a heavenly being who is alert and vigilant. Daniel uses the SAME WORD for both "city" and "watcher."
+- **Psalm 127:1** — "Except the LORD keep the city, **the watchman** waketh but in vain." The city and its watchers are inseparable.
+
+So "the city" (העיר) carries the layered sense of: **the watchful community, the vigilant people of the kingdom, the wakeful assembly.**
+
+When Scripture speaks of "Jerusalem the holy city," it is not primarily describing real estate. It is describing a **people** who are alert, watching, and waiting — the covenant community (see [JERUSALEM symbol study](/reader/symbols/JERUSALEM)).
+
+#### קֹדֶשׁ (*qodesh*) — "The Holy" and "He Will Sanctify" {#holy-dual-reading}
+
+The word קֹדֶשׁ (H6944) means **"holiness, the set-apart, the sacred."** As a noun, "the holy" or "the holy ones" — those who are consecrated, separated from the ordinary.
+
+But the consonants **הקדש** carry a profound dual reading. They can be parsed as:
+
+1. **Noun:** הַקֹּדֶשׁ — "the holy [place/thing/ones]" — the set-apart
+2. **Verb (Hiphil):** הִקְדִּישׁ — "**he will sanctify**" / "he will make holy" — attested with these exact consonants in Judges 17:3
+
+Both readings are simultaneously true. Messiah gathers to Himself the holy, set-apart people — and **in the act of gathering them, He sanctifies them.** The noun tells you WHO they are; the verb tells you WHAT happens to them.
+
+This is the rapture described in covenantal language: the Bridegroom comes for His bride — the watchful, set-apart community — and takes them to Himself.
+
+#### The Combined Picture
+
+Read as a continuous clause:
+
+> "Messiah shall cut (a covenant) and vanish — **to himself, the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them)**"
+
+The meaning layers build simultaneously:
+
+| Hebrew | Literal | Deeper Sense |
+|--------|---------|-------------|
+| **לו** | to himself | for his purpose, gathering to his presence |
+| **והעיר** | and the city | the watchful, vigilant community |
+| **והקדש** | and the holy | the set-apart ones; and he will sanctify them |
+
+Messiah cuts a covenant (the *kiddushin*, the betrothal — see [Marriage Pattern](#marriage-pattern) below). Then He vanishes — ascending to prepare a place — **taking with Him** the watchful, holy nation. A holy people gathered, sanctified, and brought into the presence of their King.
+
+This is not the destruction of a physical city. It is the **gathering of a kingdom.**
+
+Compare:
+- **1 Peter 2:9** — "But ye are a chosen generation, a royal priesthood, **a holy nation**, a peculiar people"
+- **1 Thessalonians 4:17** — "Then we which are alive and remain shall be **caught up** together with them in the clouds, to meet the Lord in the air: and so shall we **ever be with the Lord**"
+- **John 14:3** — "I will come again, and **receive you unto myself**; that where I am, there ye may be also"
+
+The Hebrew of Daniel 9:26 encodes all of this in four words: ואין לו והעיר והקדש.
 
 ---
 
@@ -483,7 +697,18 @@ In the alternative reading, they are the **object** — they are what gets destr
 > "And after threescore and two weeks shall Messiah **be cut off**, **but not for himself**: and **the people of the prince that shall come shall destroy the city and the sanctuary**; and the end thereof shall be with a flood, and unto the end of the war desolations are determined."
 
 ### Alternative
-> "And after the sixty-two [jubilees] and the second [decree], Messiah **shall cut** [a covenant] **and vanish** — to himself, and the city, and the holy place. **He will destroy the people of the coming ruler**. The end thereof with a flood, and unto the end of the war, desolations are decreed."
+> "And after **THE** jubilee (cycle) — the sixtieth — and the second (decree), Messiah **shall cut** (a covenant) **and vanish** — to himself, **the city** (the watchful people of the kingdom) **and the holy** (the set-apart; or: and he will sanctify them); **he will destroy the people of the coming ruler**. The end thereof with a flood, and unto the end of the war, desolations are decreed."
+
+### What Changed and Why
+
+| Traditional | Alternative | Why |
+|-------------|-------------|-----|
+| "threescore and two weeks" (compound number) | "THE jubilee, the sixtieth, and again [the decree]" | Definite article הַ on שבעים — absent in v25, present in v26. H8147 = "twofold/again" per Strong's. Points back to v24's jubilee system. |
+| "be cut off" (passive — Messiah is killed) | "cut (a covenant)" (active — Messiah initiates) | Same consonants יכרת; כרת is THE covenant verb (78x with בְּרִית) |
+| "but not for himself" / "have nothing" | "and vanish" | אין applied to persons = divine removal (Gen 5:24, Gen 37:30) |
+| "to himself" ends the clause | "to himself" opens the clause — what follows is what He gathers | ל as benefactive/possessive; vav conjunctions chain forward |
+| "the city and sanctuary" destroyed by Rome | "the city (watchful nation) and the holy (set-apart)" gathered by Messiah | עיר from עור "to watch"; הקדש as both noun and verb |
+| "people of the prince shall destroy" (plural) | "he will destroy the people of the coming ruler" (singular) | Verb ישחית is 3ms — "he will destroy," not "they" |
 
 ---
 

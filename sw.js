@@ -112,7 +112,8 @@ const CHAPTER_ASSETS = [
 // Word / verse study files
 const WORD_ASSETS = [
   '/words/DANIEL-9.md',
-  '/words/H369.md'
+  '/words/H369.md',
+  '/words/H6256.md'
 ];
 
 // Symbol study files

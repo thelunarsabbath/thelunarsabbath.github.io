@@ -49,15 +49,45 @@
         "ylt": "turned back and built hath been a broad place, and switch, even in the distress of the times"
       },
       "replace": {
-        "kjv": "they will return{H7725}, and it will be built{H1129}: the plaza{H7339} and the moat{H2742}. Then in tribulation{H6695}, the times{H6256} (end).",
-        "akjv": "they will return{H7725}, and it will be built{H1129}: the plaza{H7339} and the moat{H2742}. Then in tribulation{H6695}, the times{H6256} (end).",
-        "asv": "they will return{H7725}, and it will be built{H1129}: the plaza{H7339} and the moat{H2742}. Then in tribulation{H6695}, the times{H6256} (end).",
+        "kjv": "they will return{H7725}, and it will be built{H1129}: the plaza{H7339} and the moat{H2742}. Then in tribulation{H6695}, the (end) times{H6256}.",
+        "akjv": "they will return{H7725}, and it will be built{H1129}: the plaza{H7339} and the moat{H2742}. Then in tribulation{H6695}, the (end) times{H6256}.",
+        "asv": "they will return{H7725}, and it will be built{H1129}: the plaza{H7339} and the moat{H2742}. Then in tribulation{H6695}, the (end) times{H6256}.",
         "dbt": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times.",
         "drb": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times.",
         "jps": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times.",
         "slt": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times.",
         "wbt": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times.",
         "ylt": "they will return, and it will be built: the plaza and the moat. Then in tribulation, the times"
+      }
+    },
+    {
+      "id": "daniel-9-26-opening",
+      "verse": "Daniel 9:26",
+      "default": true,
+      "summary": "Same pattern as v25: definite article הַ on שבעים points back to the jubilee system of v24 — not a generic 'weeks.' H8147 means 'twofold, again' per Strong's.",
+      "study": "/reader/verse-studies/DANIEL-9",
+      "section": "#the-definite-article",
+      "find": {
+        "kjv": "And after{H310} threescore{H8346} and two{H8147} weeks{H7620}",
+        "akjv": "And after{H310} three score{H8346} and two{H8147} weeks{H7620}",
+        "asv": "And after{H310} the threescore{H8346} and two{H8147} weeks{H7620}",
+        "dbt": "And after the sixty-two weeks",
+        "drb": "And after sixty-two weeks",
+        "jps": "And after the threescore and two weeks",
+        "slt": "And after sixty and two weeks,",
+        "wbt": "And after sixty and two weeks",
+        "ylt": "And after the sixty and two weeks,"
+      },
+      "replace": {
+        "kjv": "And after{H310} the jubilee{H7620} sixty{H8346} and second{H8147} (twofold) [orders followed by 70\u00d77]",
+        "akjv": "And after{H310} the jubilee{H7620} sixty{H8346} and second{H8147} (twofold) [orders followed by 70\u00d77]",
+        "asv": "And after{H310} the jubilee{H7620} sixty{H8346} and second{H8147} (twofold) [orders followed by 70\u00d77]",
+        "dbt": "And after the jubilee sixty and second (twofold) [orders followed by 70\u00d77]",
+        "drb": "And after the jubilee sixty and second (twofold) [orders followed by 70\u00d77]",
+        "jps": "And after the jubilee sixty and second (twofold) [orders followed by 70\u00d77]",
+        "slt": "And after the jubilee sixty and second (twofold) [orders followed by 70\u00d77]",
+        "wbt": "And after the jubilee sixty and second (twofold) [orders followed by 70\u00d77]",
+        "ylt": "And after the jubilee sixty and second (twofold) [orders followed by 70\u00d77]"
       }
     },
     {
@@ -108,14 +138,14 @@
         "wbt": "the people of the prince that shall come shall destroy the city and the sanctuary"
       },
       "replace": {
-        "kjv": "the city{H5892} (the watchful people of the kingdom) and the holy{H6944} (the set-apart; or: and he will sanctify them); he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
-        "akjv": "the city{H5892} (the watchful people of the kingdom) and the holy{H6944} (the set-apart; or: and he will sanctify them); he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
-        "asv": "the city{H5892} (the watchful people of the kingdom) and the holy{H6944} (the set-apart; or: and he will sanctify them); he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
-        "dbt": "the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them); he will destroy the people of the coming ruler",
-        "drb": "the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them); he will destroy the people of the coming ruler",
-        "jps": "the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them); he will destroy the people of the coming ruler",
-        "slt": "the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them); he will destroy the people of the coming ruler",
-        "wbt": "the city (the watchful people of the kingdom) and the holy (the set-apart; or: and he will sanctify them); he will destroy the people of the coming ruler"
+        "kjv": "the city{H5892} (the watchful people of the kingdom) and the holy{H6944} (the set-apart people; or: and he will sanctify them); he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
+        "akjv": "the city{H5892} (the watchful people of the kingdom) and the holy{H6944} (the set-apart people; or: and he will sanctify them); he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
+        "asv": "the city{H5892} (the watchful people of the kingdom) and the holy{H6944} (the set-apart people; or: and he will sanctify them); he will destroy{H7843} the people{H5971} of the coming{H935} ruler{H5057}",
+        "dbt": "the city (the watchful people of the kingdom) and the holy (the set-apart people; or: and he will sanctify them); he will destroy the people of the coming ruler",
+        "drb": "the city (the watchful people of the kingdom) and the holy (the set-apart people; or: and he will sanctify them); he will destroy the people of the coming ruler",
+        "jps": "the city (the watchful people of the kingdom) and the holy (the set-apart people; or: and he will sanctify them); he will destroy the people of the coming ruler",
+        "slt": "the city (the watchful people of the kingdom) and the holy (the set-apart people; or: and he will sanctify them); he will destroy the people of the coming ruler",
+        "wbt": "the city (the watchful people of the kingdom) and the holy (the set-apart people; or: and he will sanctify them); he will destroy the people of the coming ruler"
       }
     },
     {

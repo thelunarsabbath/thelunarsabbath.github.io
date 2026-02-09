@@ -996,6 +996,30 @@ body.view-help .content-area {
   padding-top: var(--spacing-sm);
 }
 
+/* Blog view - body scrolls, not content-area (same as tutorial) */
+html:has(body.view-blog),
+html:has(body.view-blog) body.view-blog {
+  height: auto !important;
+  min-height: 100%;
+}
+body.view-blog {
+  overflow-y: auto !important;
+}
+body.view-blog .app-container {
+  flex: none !important;
+  height: auto !important;
+}
+body.view-blog .main-layout {
+  min-height: auto !important;
+  overflow: visible !important;
+  height: auto !important;
+}
+body.view-blog .content-area {
+  overflow: visible !important;
+  height: auto !important;
+  padding-top: var(--spacing-sm);
+}
+
 /* Help view component styles */
 .help-view {
   max-width: 800px;

@@ -269,7 +269,7 @@ const URLRouter = {
   // ═══════════════════════════════════════════════════════════════════════
   
   // Known view names for URL parsing
-  VIEW_NAMES: ['calendar', 'reader', 'bible', 'timeline', 'book', 'symbols', 'priestly', 'sabbath-tester', 'settings', 'tutorial', 'help', 'feasts', 'events'],
+  VIEW_NAMES: ['calendar', 'reader', 'bible', 'timeline', 'book', 'symbols', 'priestly', 'sabbath-tester', 'settings', 'tutorial', 'help', 'feasts', 'events', 'blog'],
   
   /**
    * Parse URL into state
@@ -350,6 +350,8 @@ const URLRouter = {
       result.content.params = this._parseViewParams(result.content.view, parts.slice(idx));
       // Parse query params
       this._parseQueryParams(searchParams, result);
+      // Apply view redirects (e.g. /priestly → calendar with panel open)
+      this._applyViewRedirects(result);
       console.log('[URLRouter] parseURL: Matched view name, returning view =', result.content.view);
       return result;
     }
@@ -426,6 +428,9 @@ const URLRouter = {
     
     // Parse query params (UI state)
     this._parseQueryParams(searchParams, result);
+    
+    // Apply view redirects (e.g. /priestly → calendar with panel open)
+    this._applyViewRedirects(result);
     
     return result;
   },
@@ -554,6 +559,22 @@ const URLRouter = {
           else if (match[2] === 'dy') result.ui.calcDays = val;
         }
       }
+    }
+  },
+  
+  /**
+   * Redirect shortcut views to their canonical view + UI state.
+   * e.g. /priestly → calendar with priestly panel open
+   */
+  _applyViewRedirects(result) {
+    if (result.content.view === 'priestly') {
+      result.content.view = 'calendar';
+      result.content.params = {};
+      result.ui.priestlyPanel = true;
+    } else if (result.content.view === 'feasts') {
+      result.content.view = 'calendar';
+      result.content.params = {};
+      result.ui.feastsPanel = true;
     }
   },
   
@@ -701,6 +722,11 @@ const URLRouter = {
         
       case 'tutorial':
         // No additional params
+        break;
+        
+      case 'blog':
+        // Optional post ID: /blog/v100-major-refactor
+        if (parts[0]) params.postId = parts[0];
         break;
     }
     
@@ -903,6 +929,10 @@ const URLRouter = {
         
       case 'settings':
         if (params.tab) return '/' + params.tab;
+        return '';
+      
+      case 'blog':
+        if (params.postId) return '/' + params.postId;
         return '';
         
       default:

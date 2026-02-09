@@ -1130,6 +1130,8 @@ async function loadBDB() {
       console.log(`BDB lexicon loaded: ${Object.keys(bdbData).length} entries`);
       // Also load raw BDB in background for verification view
       loadBDBRaw();
+      // If user prefers original BDB, preload formatted data
+      if (getBDBViewMode() === 'original') loadBDBFormatted();
       return true;
     } catch (err) {
       console.warn('BDB lexicon not available:', err.message);
@@ -3899,7 +3901,61 @@ function navigateToBDBVerse(verseRef, event) {
   }
 }
 
-// Render BDB lexicon section from structured AI data
+// BDB view mode: 'ai' or 'original' — persisted in localStorage
+function getBDBViewMode() {
+  try { return localStorage.getItem('bdb-view-mode') || 'ai'; } catch (e) { return 'ai'; }
+}
+
+function setBDBViewMode(mode) {
+  try { localStorage.setItem('bdb-view-mode', mode); } catch (e) {}
+}
+
+// Toggle between AI Summary and Original BDB views
+function toggleBDBView(strongsNum) {
+  const section = document.querySelector('.strongs-bdb-section');
+  if (!section) return;
+  
+  const currentMode = getBDBViewMode();
+  const newMode = currentMode === 'ai' ? 'original' : 'ai';
+  setBDBViewMode(newMode);
+  
+  if (newMode === 'original') {
+    // Load formatted data if not loaded yet
+    if (!bdbFormattedData) {
+      const toggleLink = section.querySelector('.bdb-view-toggle');
+      if (toggleLink) toggleLink.textContent = 'Loading...';
+      loadBDBFormatted().then(ok => {
+        if (ok) {
+          swapBDBContent(section, strongsNum, 'original');
+        } else {
+          setBDBViewMode('ai');
+          if (toggleLink) toggleLink.textContent = 'Show Original BDB';
+        }
+      });
+    } else {
+      swapBDBContent(section, strongsNum, 'original');
+    }
+  } else {
+    swapBDBContent(section, strongsNum, 'ai');
+  }
+}
+
+// Swap the BDB section content between AI and original views
+function swapBDBContent(section, strongsNum, mode) {
+  const bodyEl = section.querySelector('.bdb-body');
+  const toggleLink = section.querySelector('.bdb-view-toggle');
+  if (!bodyEl) return;
+  
+  if (mode === 'original') {
+    bodyEl.innerHTML = renderBDBOriginalContent(strongsNum);
+    if (toggleLink) toggleLink.textContent = 'Show AI Summary';
+  } else {
+    bodyEl.innerHTML = renderBDBAIContent(strongsNum);
+    if (toggleLink) toggleLink.textContent = 'Show Original BDB';
+  }
+}
+
+// Render BDB lexicon section — wrapper with toggle
 function renderBDBSection(strongsNum) {
   if (!bdbData || !strongsNum) return '';
   
@@ -3915,6 +3971,39 @@ function renderBDBSection(strongsNum) {
   
   bdbCurrentStrongs = strongsNum;
   
+  const viewMode = getBDBViewMode();
+  const escaped = strongsNum.replace(/'/g, "\\'");
+  // Actual displayed mode: only show original if data is loaded
+  const showOriginal = viewMode === 'original' && bdbFormattedData;
+  
+  let html = '<div class="strongs-bdb-section">';
+  html += '<div class="bdb-header-row">';
+  html += '<div class="bdb-header">Hebrew Lexicon</div>';
+  html += `<span class="bdb-view-toggle" onclick="toggleBDBView('${escaped}')">${showOriginal ? 'Show AI Summary' : 'Show Original BDB'}</span>`;
+  html += '</div>';
+  
+  // Body container — render the active view
+  html += '<div class="bdb-body">';
+  if (showOriginal) {
+    html += renderBDBOriginalContent(strongsNum);
+  } else {
+    html += renderBDBAIContent(strongsNum);
+  }
+  html += '</div>';
+  
+  html += '</div>';
+  return html;
+}
+
+// Render AI summary content (the existing bdb-ai.json content)
+function renderBDBAIContent(strongsNum) {
+  if (!bdbData || !strongsNum) return '';
+  
+  const entry = bdbData[strongsNum];
+  const baseNum = strongsNum.replace(/[a-z]$/, '');
+  const e = entry || bdbData[baseNum];
+  if (!e || typeof e === 'string') return '';
+  
   // Determine the current stem from morph context (for auto-expanding relevant section)
   let activeStem = null;
   if (currentMorphContext && currentMorphContext.morphCode) {
@@ -3925,8 +4014,7 @@ function renderBDBSection(strongsNum) {
     }
   }
   
-  let html = '<div class="strongs-bdb-section">';
-  html += '<div class="bdb-header">Hebrew Lexicon</div>';
+  let html = '';
   
   // Stems (for verbs) — active stem first and expanded, others behind "See all stems"
   if (e.stems && e.stems.length > 0) {
@@ -4033,17 +4121,73 @@ function renderBDBSection(strongsNum) {
     html += '</div>';
   }
   
-  // Raw BDB source (expandable, for verification)
-  const rawBdb = bdbRawData ? (bdbRawData[strongsNum] || bdbRawData[baseNum]) : null;
-  if (rawBdb) {
-    html += `<button class="bdb-raw-btn" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'Hide original BDB':'Show original BDB (1906)'">Show original BDB (1906)</button>`;
-    html += `<div class="bdb-raw-content">${formatRawBDB(rawBdb)}</div>`;
-  }
-  
   // Attribution
   html += '<div class="bdb-attribution">Based on Brown-Driver-Briggs (1906). Enhanced with modern analysis.</div>';
   
+  return html;
+}
+
+// Render formatted original BDB content (from bdb-formatted.json)
+function renderBDBOriginalContent(strongsNum) {
+  const baseNum = strongsNum.replace(/[a-z]$/, '');
+  const e = bdbFormattedData ? (bdbFormattedData[strongsNum] || bdbFormattedData[baseNum]) : null;
+  
+  // Fall back to raw text display if formatted data unavailable
+  if (!e) {
+    const rawBdb = bdbRawData ? (bdbRawData[strongsNum] || bdbRawData[baseNum]) : null;
+    if (rawBdb) {
+      return `<div class="bdb-original-content">${formatRawBDB(rawBdb)}</div><div class="bdb-attribution">Brown-Driver-Briggs Hebrew Lexicon (1906)</div>`;
+    }
+    return '<div class="bdb-original-empty">Original BDB entry not available for this word.</div>';
+  }
+  
+  let html = '<div class="bdb-original-content">';
+  
+  // Intro / etymology
+  if (e.intro) {
+    html += `<div class="bdb-original-intro">${escapeHtml(e.intro)}</div>`;
+  }
+  
+  // Sections (stems or General)
+  if (e.sections && e.sections.length > 0) {
+    for (const sec of e.sections) {
+      html += '<div class="bdb-original-section">';
+      if (sec.label && sec.label !== 'General') {
+        html += `<div class="bdb-original-section-label"><span class="bdb-stem-badge">${escapeHtml(sec.label)}</span></div>`;
+      }
+      if (sec.text) {
+        html += `<div class="bdb-original-section-text">${formatOriginalBDBText(sec.text)}</div>`;
+      }
+      // Verse reference chips
+      if (sec.verses && sec.verses.length > 0) {
+        html += '<div class="bdb-refs bdb-original-refs">';
+        for (const v of sec.verses) {
+          const escaped = v.replace(/'/g, "\\'");
+          html += `<span class="bdb-verse-ref" onclick="navigateToBDBVerse('${escaped}', event)">${escapeHtml(v)}</span> `;
+        }
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+  }
+  
   html += '</div>';
+  html += '<div class="bdb-attribution">Brown-Driver-Briggs Hebrew Lexicon (1906). Text preserved verbatim; structure added for readability.</div>';
+  
+  return html;
+}
+
+// Format original BDB text with minimal markup (highlight stems, verse refs)
+function formatOriginalBDBText(text) {
+  if (!text) return '';
+  let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Highlight stem labels
+  html = html.replace(/\b(Qal|Niph[`']?al|Pi[`']?el|Pu[`']?al|Hiph[`']?il|Hoph[`']?al|Hithpa[`']?el|Pe[`']?al|Pa[`']?el|Aph[`']?el)\b/g,
+    '<span class="bdb-stem-badge">$1</span>');
+  // Highlight grammatical forms
+  html = html.replace(/\b(Perfect|Imperfect|Imperative|Infinitive|Participle)\b/g,
+    '<span class="bdb-form-label">$1</span>');
+  html = html.replace(/\n/g, '<br>');
   return html;
 }
 
@@ -4070,6 +4214,32 @@ async function loadBDBRaw() {
     const response = await fetch('/data/bdb.json');
     if (response.ok) bdbRawData = await response.json();
   } catch (e) {}
+}
+
+// Formatted BDB data (structured original text, lazy-loaded on demand)
+let bdbFormattedData = null;
+let bdbFormattedLoading = null;
+
+async function loadBDBFormatted() {
+  if (bdbFormattedData) return true;
+  if (bdbFormattedLoading) return bdbFormattedLoading;
+  
+  bdbFormattedLoading = (async () => {
+    try {
+      const response = await fetch('/data/bdb-formatted.json');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      bdbFormattedData = await response.json();
+      console.log(`BDB formatted lexicon loaded: ${Object.keys(bdbFormattedData).length} entries`);
+      return true;
+    } catch (err) {
+      console.warn('BDB formatted lexicon not available:', err.message);
+      return false;
+    } finally {
+      bdbFormattedLoading = null;
+    }
+  })();
+  
+  return bdbFormattedLoading;
 }
 
 // Update Strong's panel content (without adding to history)

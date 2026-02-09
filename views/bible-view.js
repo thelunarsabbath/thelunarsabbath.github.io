@@ -496,25 +496,34 @@ const BibleView = {
   applyMobileReaderHeight() {
     const page = document.getElementById('bible-explorer-page');
     const contentArea = document.getElementById('content-area');
+    const mainLayout = contentArea?.closest('.main-layout');
     if (!page || !contentArea) return;
     const isMobile = window.innerWidth <= 768;
     const nav = document.getElementById('top-nav');
     const navHeight = nav ? nav.offsetHeight : 56;
     const availableHeight = window.innerHeight - navHeight;
     if (isMobile && availableHeight > 0) {
-      contentArea.style.height = availableHeight + 'px';
-      contentArea.style.minHeight = availableHeight + 'px';
-      contentArea.style.maxHeight = availableHeight + 'px';
-      page.style.height = availableHeight + 'px';
-      page.style.minHeight = '0';
-      page.style.maxHeight = availableHeight + 'px';
+      const h = availableHeight + 'px';
+      // Use setProperty with !important to override CSS !important rules
+      if (mainLayout) {
+        mainLayout.style.setProperty('height', h, 'important');
+      }
+      contentArea.style.setProperty('height', h, 'important');
+      contentArea.style.setProperty('min-height', h, 'important');
+      contentArea.style.setProperty('max-height', h, 'important');
+      page.style.setProperty('height', h, 'important');
+      page.style.setProperty('min-height', '0', 'important');
+      page.style.setProperty('max-height', h, 'important');
     } else {
-      contentArea.style.height = '';
-      contentArea.style.minHeight = '';
-      contentArea.style.maxHeight = '';
-      page.style.height = '';
-      page.style.minHeight = '';
-      page.style.maxHeight = '';
+      if (mainLayout) {
+        mainLayout.style.removeProperty('height');
+      }
+      contentArea.style.removeProperty('height');
+      contentArea.style.removeProperty('min-height');
+      contentArea.style.removeProperty('max-height');
+      page.style.removeProperty('height');
+      page.style.removeProperty('min-height');
+      page.style.removeProperty('max-height');
     }
   },
 

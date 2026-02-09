@@ -64,7 +64,7 @@ const TutorialView = {
             
             ${this.renderFeatureCard('🎺', 'Feast Days', 
               'View all biblical appointed times for any year with explanations and Scripture references.',
-              'calendar', null)}
+              'feasts', null)}
           </div>
         </section>
 
@@ -298,7 +298,7 @@ const TutorialView = {
       : `<span class="feature-icon">${icon}</span>`;
     
     const onclick = params 
-      ? `AppStore.dispatch({type:'SET_VIEW',view:'${view}',params:${JSON.stringify(params)}})`
+      ? `AppStore.dispatch({type:'SET_VIEW',view:'${view}',params:${JSON.stringify(params).replace(/"/g, '&quot;')}})`
       : `AppStore.dispatch({type:'SET_VIEW',view:'${view}'})`;
     
     return `

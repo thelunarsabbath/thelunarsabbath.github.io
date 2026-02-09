@@ -80,7 +80,7 @@ async function formatEntry(strongsNum, rawText) {
     try {
       const response = await client.messages.create({
         model: MODEL,
-        max_tokens: 4096,
+        max_tokens: 8192,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: `Format this BDB entry for ${strongsNum}:\n\n${rawText.substring(0, 5000)}` }]
       });

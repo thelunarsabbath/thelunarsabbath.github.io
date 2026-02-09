@@ -412,7 +412,7 @@ const SYMBOL_DICTIONARY = {
   
   'oil': {
     name: 'OIL',
-    words: ['oil', 'ointment', 'anoint', 'anointed', 'anointing'],
+    words: ['oil', 'ointment'],
     strongs: ['H8081', 'H4888', 'G1637', 'G5548'],
     is: 'Works',
     is2: 'Proven Works',

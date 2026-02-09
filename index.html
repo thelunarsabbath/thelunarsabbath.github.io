@@ -105,6 +105,7 @@
   <link rel="stylesheet" href="/assets/css/reader.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/sabbath-tester.css">
+  <link rel="stylesheet" href="/assets/css/blog.css">
   
   <!-- CRITICAL MOBILE FIX: Inline to bypass cache issues and body class dependencies -->
   <style>
@@ -131,7 +132,9 @@
       body.view-calendar .main-layout,
       body.view-calendar #content-area,
       body.view-tutorial .main-layout,
-      body.view-tutorial #content-area {
+      body.view-tutorial #content-area,
+      body.view-blog .main-layout,
+      body.view-blog #content-area {
         overflow: auto !important;
         -webkit-overflow-scrolling: touch;
       }
@@ -431,6 +434,11 @@
           <span class="menu-label">About</span>
         </button>
 
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'blog'}])">
+          <span class="menu-icon">📰</span>
+          <span class="menu-label">What's New</span>
+        </button>
+
         <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'help'}])">
           <span class="menu-icon">❓</span>
           <span class="menu-label">Help</span>
@@ -595,6 +603,7 @@
   <script src="/views/help-view.js"></script>
   <script src="/views/priestly-view.js"></script>
   <script src="/views/sabbath-tester-view.js"></script>
+  <script src="/views/blog-view.js"></script>
   <script src="/views/settings-view.js"></script>
   
   <!-- Initialize App -->
@@ -871,6 +880,7 @@
       if (typeof HelpView !== 'undefined') ContentManager.registerView('help', HelpView);
       if (typeof PriestlyView !== 'undefined') ContentManager.registerView('priestly', PriestlyView);
       if (typeof SabbathTesterView !== 'undefined') ContentManager.registerView('sabbath-tester', SabbathTesterView);
+      if (typeof BlogView !== 'undefined') ContentManager.registerView('blog', BlogView);
       if (typeof SettingsView !== 'undefined') ContentManager.registerView('settings', SettingsView);
       // EventsView removed — was unreachable (no menu entry)
       
@@ -900,7 +910,7 @@
           if (pathname === '/' || pathname.startsWith('/reader') || pathname.startsWith('/calendar') ||
               pathname.startsWith('/bible') || pathname.startsWith('/timeline') ||
               pathname.startsWith('/symbols') || pathname.startsWith('/book') || pathname.startsWith('/settings') ||
-              pathname.startsWith('/tutorial') || pathname.startsWith('/help') || pathname.startsWith('/feasts') ||
+              pathname.startsWith('/tutorial') || pathname.startsWith('/help') || pathname.startsWith('/blog') || pathname.startsWith('/feasts') ||
               pathname.startsWith('/priestly') || pathname.startsWith('/sabbath-tester') ||
               /^\/[^/]+\/[^/]+\/\d{4}-\d{2}-\d{2}\//.test(pathname)) {
             e.preventDefault();

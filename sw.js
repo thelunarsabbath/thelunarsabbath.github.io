@@ -66,6 +66,7 @@ const DATA_ASSETS = [
   '/data/nt-interlinear.json',
   '/data/tipnr.json',
   '/data/bdb-ai.json',
+  '/data/bdb-formatted.json',
   '/data/bdb.json',
   '/docs/temple-chronology-verification.md'
 ];
@@ -191,7 +192,8 @@ const VIEW_ASSETS = [
   '/views/settings-view.js',
   '/views/symbols-view.js',
   '/views/timeline-view.js',
-  '/views/tutorial-view.js'
+  '/views/tutorial-view.js',
+  '/views/blog-view.js'
 ];
 
 // CSS assets
@@ -203,6 +205,7 @@ const CSS_ASSETS = [
   '/assets/css/reader.css',
   '/assets/css/components.css',
   '/assets/css/sabbath-tester.css',
+  '/assets/css/blog.css',
   '/components/world-map.css',
   '/components/dateline-map.css'
 ];

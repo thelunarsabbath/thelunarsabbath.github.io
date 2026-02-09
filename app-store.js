@@ -1025,6 +1025,16 @@ const AppStore = {
       
       // ─── Content Events ───
       case 'SET_VIEW':
+        // Redirect shortcut views to calendar with panel open
+        if (event.view === 'priestly') {
+          event.view = 'calendar';
+          event.params = {};
+          s.ui.priestlyPanel = true;
+        } else if (event.view === 'feasts') {
+          event.view = 'calendar';
+          event.params = {};
+          s.ui.feastsPanel = true;
+        }
         s.content.view = event.view;
         // Replace params entirely when switching views (don't merge old params)
         s.content.params = event.params || {};

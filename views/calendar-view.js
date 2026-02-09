@@ -1560,8 +1560,8 @@ const CalendarView = {
   },
   
   showPriestlyView() {
-    // Navigate to the priestly view
-    AppStore.dispatch({ type: 'SET_VIEW', view: 'priestly' });
+    // Toggle the priestly panel on the calendar view
+    AppStore.dispatch({ type: 'TOGGLE_PRIESTLY_PANEL' });
   },
   
   openPriestlyPanel() {

@@ -12519,6 +12519,49 @@ details.concept-strongs-section[open] .concept-expand-icon {
 
 .bdb-verse-ref:hover {
   text-decoration-color: #7ec8e3;
+  background: rgba(126, 200, 227, 0.1);
+  border-radius: 2px;
+}
+
+/* Verse hover tooltip (scripture reference preview) */
+.verse-hover-tooltip {
+  position: fixed;
+  z-index: 10200;
+  max-width: 360px;
+  min-width: 200px;
+  padding: 10px 14px;
+  background: rgba(13, 40, 64, 0.98);
+  border: 1px solid rgba(126, 200, 227, 0.4);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.verse-tooltip-ref {
+  color: #7ec8e3;
+  font-size: 0.85em;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.verse-tooltip-text {
+  color: #c5cdd8;
+  font-size: 0.88em;
+  line-height: 1.5;
+}
+
+.verse-tooltip-unavailable {
+  color: #6a7a8a;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .verse-hover-tooltip {
+    max-width: calc(100vw - 20px);
+  }
 }
 
 .bdb-stem-badge {

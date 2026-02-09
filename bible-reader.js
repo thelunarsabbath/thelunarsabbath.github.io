@@ -3901,6 +3901,130 @@ function navigateToBDBVerse(verseRef, event) {
   }
 }
 
+// Verse tooltip for BDB scripture references — shows verse text on hover
+let _verseTooltipTimer = null;
+
+function showVerseTooltip(el, event) {
+  // Clear any pending hide
+  if (_verseTooltipTimer) { clearTimeout(_verseTooltipTimer); _verseTooltipTimer = null; }
+  
+  const ref = el.dataset.ref;
+  if (!ref) return;
+  
+  // Parse the reference to get normalized book + chapter:verse
+  const match = ref.match(/^(\d?\s?[A-Za-z][A-Za-z ]*)\s+(\d+):(\d+)/);
+  if (!match) return;
+  
+  // Reuse the BDB abbreviation map
+  const abbrevMap = {
+    'Gen': 'Genesis', 'Exod': 'Exodus', 'Exo': 'Exodus', 'Lev': 'Leviticus', 'Num': 'Numbers',
+    'Deut': 'Deuteronomy', 'Josh': 'Joshua', 'Judg': 'Judges', 'Ruth': 'Ruth',
+    '1Sam': '1 Samuel', '2Sam': '2 Samuel', '1Kgs': '1 Kings', '1Kin': '1 Kings',
+    '2Kgs': '2 Kings', '2Kin': '2 Kings', '1Chr': '1 Chronicles', '2Chr': '2 Chronicles',
+    'Ezra': 'Ezra', 'Neh': 'Nehemiah', 'Esth': 'Esther', 'Est': 'Esther',
+    'Job': 'Job', 'Psa': 'Psalms', 'Ps': 'Psalms', 'Prov': 'Proverbs', 'Pro': 'Proverbs',
+    'Eccl': 'Ecclesiastes', 'Song': 'Song of Solomon', 'Isa': 'Isaiah', 'Is': 'Isaiah',
+    'Jer': 'Jeremiah', 'Lam': 'Lamentations', 'Ezek': 'Ezekiel', 'Eze': 'Ezekiel',
+    'Dan': 'Daniel', 'Hos': 'Hosea', 'Joel': 'Joel', 'Amos': 'Amos',
+    'Obad': 'Obadiah', 'Jon': 'Jonah', 'Jonah': 'Jonah', 'Mic': 'Micah',
+    'Nah': 'Nahum', 'Hab': 'Habakkuk', 'Zeph': 'Zephaniah', 'Hag': 'Haggai',
+    'Zech': 'Zechariah', 'Mal': 'Malachi',
+    'Matt': 'Matthew', 'Mark': 'Mark', 'Luke': 'Luke', 'John': 'John',
+    'Acts': 'Acts', 'Rom': 'Romans', '1Cor': '1 Corinthians', '2Cor': '2 Corinthians',
+    'Gal': 'Galatians', 'Eph': 'Ephesians', 'Phil': 'Philippians', 'Col': 'Colossians',
+    '1Thess': '1 Thessalonians', '2Thess': '2 Thessalonians', '1Tim': '1 Timothy',
+    '2Tim': '2 Timothy', 'Tit': 'Titus', 'Phlm': 'Philemon', 'Heb': 'Hebrews',
+    'Jas': 'James', '1Pet': '1 Peter', '2Pet': '2 Peter', '1John': '1 John',
+    '2John': '2 John', '3John': '3 John', 'Jude': 'Jude', 'Rev': 'Revelation'
+  };
+  
+  const bookAbbr = match[1].trim();
+  const book = abbrevMap[bookAbbr] || bookAbbr;
+  const chapter = parseInt(match[2]);
+  const verse = parseInt(match[3]);
+  const fullRef = `${book} ${chapter}:${verse}`;
+  
+  // Remove any existing verse tooltip
+  hideVerseTooltip(true);
+  
+  // Try to get verse text
+  let verseText = null;
+  if (typeof getVerseText === 'function') {
+    verseText = getVerseText(fullRef);
+  }
+  if (!verseText && typeof Bible !== 'undefined') {
+    const trans = (typeof currentTranslation !== 'undefined') ? currentTranslation : 'kjv';
+    const v = Bible.getVerse(trans, book, chapter, verse);
+    if (v) verseText = v.text;
+  }
+  
+  // Create tooltip
+  const tooltip = document.createElement('div');
+  tooltip.id = 'verse-hover-tooltip';
+  tooltip.className = 'verse-hover-tooltip';
+  
+  let html = `<div class="verse-tooltip-ref">${escapeHtml(fullRef)}</div>`;
+  if (verseText) {
+    html += `<div class="verse-tooltip-text">${escapeHtml(verseText)}</div>`;
+  } else {
+    html += `<div class="verse-tooltip-text verse-tooltip-unavailable">Verse text not loaded</div>`;
+  }
+  
+  tooltip.innerHTML = html;
+  getBibleTooltipPortal().appendChild(tooltip);
+  
+  // Position tooltip below the reference (viewport coords for position:fixed)
+  const rect = el.getBoundingClientRect();
+  const tooltipRect = tooltip.getBoundingClientRect();
+  
+  let left = rect.left;
+  let top = rect.bottom + 5;
+  
+  // Keep within viewport
+  if (left + tooltipRect.width > window.innerWidth - 10) {
+    left = window.innerWidth - tooltipRect.width - 10;
+  }
+  if (left < 10) left = 10;
+  // If it would go below viewport, show above instead
+  if (top + tooltipRect.height > window.innerHeight - 10) {
+    top = rect.top - tooltipRect.height - 5;
+  }
+  if (top < 10) top = 10;
+  
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+  tooltip.style.opacity = '1';
+  
+  // Click tooltip to navigate
+  tooltip.addEventListener('click', function(e) {
+    e.stopPropagation();
+    hideVerseTooltip(true);
+    navigateToBDBVerse(ref, e);
+  });
+  
+  // Keep tooltip visible while mouse is on it
+  tooltip.addEventListener('mouseenter', function() {
+    if (_verseTooltipTimer) { clearTimeout(_verseTooltipTimer); _verseTooltipTimer = null; }
+  });
+  tooltip.addEventListener('mouseleave', function() {
+    hideVerseTooltip(true);
+  });
+}
+
+function hideVerseTooltip(immediate) {
+  if (_verseTooltipTimer) { clearTimeout(_verseTooltipTimer); _verseTooltipTimer = null; }
+  if (immediate) {
+    const tooltip = document.getElementById('verse-hover-tooltip');
+    if (tooltip) tooltip.remove();
+  } else {
+    // Small delay so mouse can move to the tooltip
+    _verseTooltipTimer = setTimeout(() => {
+      const tooltip = document.getElementById('verse-hover-tooltip');
+      if (tooltip) tooltip.remove();
+    }, 150);
+  }
+}
+
 // BDB view mode: 'ai' or 'original' — persisted in localStorage
 function getBDBViewMode() {
   try { return localStorage.getItem('bdb-view-mode') || 'ai'; } catch (e) { return 'ai'; }
@@ -4177,7 +4301,7 @@ function renderBDBOriginalContent(strongsNum) {
   return html;
 }
 
-// Format original BDB text with minimal markup (highlight stems, verse refs)
+// Format original BDB text with minimal markup (highlight stems, verse refs, linkify scripture)
 function formatOriginalBDBText(text) {
   if (!text) return '';
   let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -4187,6 +4311,8 @@ function formatOriginalBDBText(text) {
   // Highlight grammatical forms
   html = html.replace(/\b(Perfect|Imperfect|Imperative|Infinitive|Participle)\b/g,
     '<span class="bdb-form-label">$1</span>');
+  // Linkify scripture references (Gen 1:1, Exodus 20:3, 1Sam 9:1, etc.)
+  html = linkifyBDBScriptureRefs(html);
   html = html.replace(/\n/g, '<br>');
   return html;
 }
@@ -4201,8 +4327,50 @@ function formatRawBDB(text) {
   // Highlight grammatical forms
   html = html.replace(/\b(Perfect|Imperfect|Imperative|Infinitive|Participle)\b/g,
     '<span class="bdb-form-label">$1</span>');
+  // Linkify scripture references
+  html = linkifyBDBScriptureRefs(html);
   html = html.replace(/\n/g, '<br>');
   return html;
+}
+
+// Linkify scripture references in BDB text (both formatted and raw)
+// Wraps references like "Gen 1:1", "Exodus 20:3", "1Sam 9:1" in clickable/hoverable spans
+function linkifyBDBScriptureRefs(html) {
+  // Book name patterns (abbreviated and full, with optional numbers prefix)
+  const bookNames = [
+    'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy',
+    'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel', '1 Kings', '2 Kings',
+    '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah', 'Esther',
+    'Job', 'Psalms?', 'Proverbs', 'Ecclesiastes', 'Song of Solomon',
+    'Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel',
+    'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah',
+    'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi',
+    'Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans',
+    '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 'Philippians',
+    'Colossians', '1 Thessalonians', '2 Thessalonians',
+    '1 Timothy', '2 Timothy', 'Titus', 'Philemon',
+    'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John',
+    'Jude', 'Revelation',
+    // Common BDB abbreviations
+    'Gen', 'Exod?', 'Lev', 'Num', 'Deut',
+    'Josh', 'Judg', 'Sam', 'Kgs', 'Kin', 'Chr', 'Neh', 'Esth?',
+    'Psa?', 'Prov?', 'Eccl', 'Song', 'Isa', 'Jer', 'Lam', 'Ezek?', 'Eze', 'Dan',
+    'Hos', 'Obad', 'Jon', 'Mic', 'Nah', 'Hab', 'Zeph', 'Hag', 'Zech', 'Mal',
+    'Matt?', 'Mk', 'Lk', 'Jn', 'Rom', 'Cor', 'Gal', 'Eph', 'Phil', 'Col',
+    'Thess', 'Tim', 'Tit', 'Phlm', 'Heb', 'Jas', 'Pet', 'Rev'
+  ];
+  const bookPattern = bookNames.join('|');
+  // Match: "Book Chapter:Verse" with optional verse ranges/lists
+  // e.g. "Gen 1:1", "Exodus 20:3-5", "1Sam 9:1,3", "Ps 119:1"
+  const refPattern = new RegExp(
+    `((?:1|2|3|I{1,3})?\\s*(?:${bookPattern})\\.?)\\s+(\\d+):(\\d+(?:[-–,]\\s*\\d+)*)`,
+    'g'
+  );
+  return html.replace(refPattern, (match, book, chapter, verses) => {
+    const ref = match.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    const escaped = ref.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    return `<span class="bdb-verse-ref" data-ref="${escaped}" onclick="navigateToBDBVerse('${escaped}', event)" onmouseenter="showVerseTooltip(this, event)" onmouseleave="hideVerseTooltip()">${match}</span>`;
+  });
 }
 
 // Raw BDB data (loaded alongside AI data for verification)

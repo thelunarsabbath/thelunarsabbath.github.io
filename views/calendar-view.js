@@ -357,8 +357,8 @@ const CalendarView = {
         <div class="calendar-nav-row">
           <span class="nav-arrow year-nav" data-action="prev-year" title="Previous Year"><svg viewBox="0 0 24 16" fill="currentColor"><rect x="0" y="1" width="3" height="14" rx="1"/><path d="M22 1L11 8l11 7V1z"/></svg></span>
           <span class="nav-arrow month-nav" data-action="prev-month" title="Previous Month"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M13 1L4 8l9 7V1z"/></svg></span>
-          <button class="feast-toggle-btn" data-action="toggle-feasts" title="Show Appointed Times">🎉 Feasts</button>
-          <button class="priestly-toggle-btn" data-action="toggle-priestly" title="Show Priestly Courses">👨‍🦳 Priests</button>
+          <button class="feast-toggle-btn" data-action="toggle-feasts" title="Show Appointed Times"><span class="btn-icon">🎉</span><span class="btn-label">Feasts</span></button>
+          <button class="priestly-toggle-btn" data-action="toggle-priestly" title="Show Priestly Courses"><span class="btn-icon">👨‍🦳</span><span class="btn-label">Priests</span></button>
           <button class="today-btn" data-action="go-to-today" title="Go to Today">Today</button>
           <span class="nav-arrow month-nav" data-action="next-month" title="Next Month"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1l9 7-9 7V1z"/></svg></span>
           <span class="nav-arrow year-nav" data-action="next-year" title="Next Year"><svg viewBox="0 0 24 16" fill="currentColor"><path d="M2 1l11 7-11 7V1z"/><rect x="21" y="1" width="3" height="14" rx="1"/></svg></span>

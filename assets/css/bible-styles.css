@@ -2219,9 +2219,8 @@ body.sabbath-tester-open {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   background: var(--calendar-grid-line);
+  gap: 1px;
   border-top: 2px solid var(--calendar-grid-line);
-  border-left: 1px solid var(--calendar-grid-line);
-  border-right: 1px solid var(--calendar-grid-line);
 }
 
 .week-header .day-label {
@@ -2229,11 +2228,7 @@ body.sabbath-tester-open {
   text-align: center;
   color: var(--text-primary);
   font-size: 0.85em;
-  border-right: 1px solid var(--calendar-grid-line);
-}
-
-.week-header .day-label:last-child {
-  border-right: none;
+  /* Grid lines handled by gap + background — no cell border */
 }
 
 .week-header .day-label.sabbath-header {
@@ -2265,6 +2260,7 @@ body.sabbath-tester-open {
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(5, 1fr);
   background: var(--calendar-grid-line);
+  gap: 1px;
   aspect-ratio: 7 / 5;
 }
 
@@ -2273,7 +2269,7 @@ body.sabbath-tester-open {
   min-height: 70px;
   padding: 5px;
   background: var(--calendar-cell-bg);
-  border: 1px solid var(--calendar-grid-line);
+  /* Grid lines handled by .calendar-grid gap + background — no cell border */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2339,7 +2335,7 @@ body.sabbath-tester-open {
 /* Sabbath Days - gold-tinted background for more contrast */
 .day-cell.sabbath {
   background: linear-gradient(135deg, var(--calendar-sabbath-dark) 0%, var(--calendar-sabbath-light) 100%);
-  border: 1px solid var(--accent-gold-muted);
+  box-shadow: inset 0 0 0 1px var(--accent-gold-muted);
 }
 
 .day-cell.sabbath .lunar-day {
@@ -2383,7 +2379,7 @@ body.sabbath-tester-open {
 /* Today's date - moderate warm highlight */
 .day-cell.today {
   background: linear-gradient(135deg, #4a5535 0%, #3a4528 100%);
-  border: 1px solid #7a9050;
+  box-shadow: inset 0 0 0 1px #7a9050;
 }
 
 .day-cell.today .gregorian {
@@ -2393,7 +2389,7 @@ body.sabbath-tester-open {
 /* When today is also a sabbath - combine both highlights */
 .day-cell.today.sabbath {
   background: linear-gradient(135deg, #4a5535 0%, #3a4020 100%);
-  border: 1px solid #7a9050;
+  box-shadow: inset 0 0 0 1px #7a9050;
 }
 
 .day-cell .feast-icons {
@@ -5149,12 +5145,18 @@ body.torah-info-open {
     font-size: 1.1em;
   }
   
-  .new-moon-box .feast-icons {
+  .new-moon-box .feast-icons,
+  .new-moon-box .day-icons-right {
     font-size: 0.7em;
   }
   
-  .day-cell .day-event-icon {
+  .day-cell .day-event-icon,
+  .day-cell .day-icons-left {
     font-size: 0.7em;
+  }
+  
+  .day-cell .day-icons-right {
+    font-size: 0.75em;
   }
   
   .week-header {
@@ -5164,10 +5166,6 @@ body.torah-info-open {
   
   .week-header > div {
     padding: 5px 2px;
-  }
-  
-  .calendar-grid {
-    gap: 2px;
   }
   
   .day-cell {
@@ -5344,12 +5342,20 @@ body.torah-info-open {
     font-size: 1em;
   }
   
-  .new-moon-box .feast-icons {
+  .new-moon-box .feast-icons,
+  .new-moon-box .day-icons-right {
     font-size: 0.6em;
   }
   
   .feast-icons {
     font-size: 0.7em !important;
+  }
+  
+  .day-cell .day-icons-left,
+  .day-cell .day-icons-right,
+  .new-moon-box .day-icons-left,
+  .new-moon-box .day-icons-right {
+    font-size: 0.55em;
   }
   
   .week-header {

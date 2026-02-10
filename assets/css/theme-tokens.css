@@ -65,6 +65,7 @@
   /* ── Semantic Colors ───────────────────────────────────────────────────── */
   --color-success: #4caf50;
   --color-success-muted: rgba(76, 175, 80, 0.2);
+  --color-success-strong: rgba(76, 175, 80, 0.5);
   --color-warning: #ff9800;
   --color-warning-muted: rgba(255, 152, 0, 0.2);
   --color-error: #f44336;
@@ -74,6 +75,7 @@
   --color-purple-light: #e0c0f0;
   --color-purple-muted: rgba(155, 89, 182, 0.2);
   --color-purple-subtle: rgba(155, 89, 182, 0.08);
+  --color-purple-strong: rgba(155, 89, 182, 0.4);
 
   /* ── Shadows ───────────────────────────────────────────────────────────── */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -206,6 +208,7 @@
   /* ── Semantic Colors ───────────────────────────────────────────────────── */
   --color-success: #2e7d32;
   --color-success-muted: rgba(46, 125, 50, 0.15);
+  --color-success-strong: rgba(46, 125, 50, 0.4);
   --color-warning: #e65100;
   --color-warning-muted: rgba(230, 81, 0, 0.15);
   --color-error: #c62828;
@@ -215,6 +218,7 @@
   --color-purple-light: #9b4dae;
   --color-purple-muted: rgba(123, 45, 142, 0.15);
   --color-purple-subtle: rgba(123, 45, 142, 0.06);
+  --color-purple-strong: rgba(123, 45, 142, 0.4);
 
   /* ── Shadows ───────────────────────────────────────────────────────────── */
   --shadow-sm: 0 1px 3px rgba(44, 36, 22, 0.1);

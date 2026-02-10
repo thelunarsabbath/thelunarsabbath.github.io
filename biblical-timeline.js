@@ -1680,8 +1680,8 @@ function injectTimelineStyles() {
       bottom: 0;
       right: 0;
       width: 500px;
-      background: #1a1a2e;
-      border-left: 1px solid rgba(126, 200, 227, 0.2);
+      background: var(--surface-raised);
+      border-left: 1px solid var(--border-accent);
       transition: transform 0.3s ease, visibility 0.3s;
       transform: translateX(100%);
       visibility: hidden;
@@ -1689,7 +1689,7 @@ function injectTimelineStyles() {
       flex-direction: row;
       overflow: hidden;
       z-index: 9500;
-      color: #e0e0e0;
+      color: var(--text-primary);
     }
     .detail-slideout.open {
       transform: translateX(0);
@@ -1699,19 +1699,19 @@ function injectTimelineStyles() {
     .detail-resize-handle {
       width: 6px;
       cursor: ew-resize;
-      background: linear-gradient(180deg, rgba(126, 200, 227, 0.2), rgba(126, 200, 227, 0.4), rgba(126, 200, 227, 0.2));
+      background: var(--border-accent);
       flex-shrink: 0;
       transition: background 0.15s;
     }
     .detail-resize-handle:hover {
-      background: linear-gradient(180deg, rgba(126, 200, 227, 0.4), rgba(126, 200, 227, 0.6), rgba(126, 200, 227, 0.4));
+      background: var(--accent-primary-strong);
     }
     
     .detail-slideout-content {
       flex: 1;
       overflow-y: auto;
       padding: 48px 20px 20px 20px;  /* Extra top padding for close button */
-      color: #e0e0e0;
+      color: var(--text-primary);
     }
     
     .detail-close-btn {
@@ -1720,10 +1720,10 @@ function injectTimelineStyles() {
       right: 8px;
       width: 32px;
       height: 32px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: var(--surface-hover);
+      border: 1px solid var(--border-default);
       border-radius: 50%;
-      color: #e0e0e0;
+      color: var(--text-primary);
       font-size: 20px;
       line-height: 1;
       cursor: pointer;
@@ -1734,8 +1734,8 @@ function injectTimelineStyles() {
       transition: all 0.2s;
     }
     .detail-close-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
+      background: var(--surface-active);
+      color: var(--text-primary);
     }
     
     /* Mobile: full screen overlay */
@@ -1764,12 +1764,12 @@ function injectTimelineStyles() {
     .event-hover-tooltip {
       position: absolute;
       z-index: 9000;
-      background: linear-gradient(180deg, #1a3a5c 0%, #0d2840 100%);
-      border: 1px solid rgba(126, 200, 227, 0.4);
+      background: var(--surface-overlay);
+      border: 1px solid var(--border-accent);
       border-radius: 10px;
       padding: 12px 16px;
       max-width: 280px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      box-shadow: var(--shadow-lg);
       animation: tooltipFadeIn 0.2s ease-out;
       pointer-events: none; /* Don't block touches on events below */
     }
@@ -1802,13 +1802,13 @@ function injectTimelineStyles() {
       pointer-events: auto;
       cursor: pointer;
       padding: 6px 10px;
-      background: rgba(126, 200, 227, 0.15);
+      background: var(--accent-primary-muted);
       border-radius: 4px;
       text-align: center;
       transition: background 0.2s;
     }
     .tooltip-link:hover {
-      background: var(--border-accent);
+      background: var(--accent-primary-strong);
     }
     
     /* Detail panel sections and content styling */
@@ -1824,7 +1824,7 @@ function injectTimelineStyles() {
       font-size: 1.2em;
     }
     .detail-section {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--surface-hover);
       border-radius: 8px;
       padding: 15px;
       margin-bottom: 15px;
@@ -1860,7 +1860,7 @@ function injectTimelineStyles() {
       font-size: 1em;
     }
     .source-item {
-      background: rgba(20, 40, 60, 0.5);
+      background: var(--surface-sunken);
       border-radius: 6px;
       padding: 12px;
       margin-bottom: 10px;
@@ -1881,7 +1881,7 @@ function injectTimelineStyles() {
       gap: 8px;
     }
     .tag-item {
-      background: rgba(126, 200, 227, 0.15);
+      background: var(--accent-primary-muted);
       color: var(--accent-primary);
       padding: 4px 10px;
       border-radius: 12px;
@@ -1902,14 +1902,14 @@ function injectTimelineStyles() {
       align-items: center;
       gap: 10px;
       padding: 10px;
-      background: rgba(20, 40, 60, 0.5);
+      background: var(--surface-sunken);
       border-radius: 6px;
       margin-bottom: 8px;
       cursor: pointer;
       transition: background 0.15s;
     }
     .search-result-item:hover {
-      background: rgba(126, 200, 227, 0.2);
+      background: var(--accent-primary-muted);
     }
     .search-result-icon {
       font-size: 1.2em;
@@ -1917,7 +1917,7 @@ function injectTimelineStyles() {
     }
     .search-result-title {
       flex: 1;
-      color: #e0e0e0;
+      color: var(--text-primary);
     }
     .search-result-year {
       color: var(--accent-primary);
@@ -1938,7 +1938,7 @@ function injectTimelineStyles() {
     }
     .lunar-date-link:hover {
       background: var(--color-success-muted);
-      color: #8fd68f;
+      color: var(--color-success);
     }
     
     /* Detail source styling */
@@ -1959,10 +1959,10 @@ function injectTimelineStyles() {
     }
     .detail-source-quote {
       font-style: italic;
-      border-left: 3px solid #7ec8e3;
+      border-left: 3px solid var(--accent-primary);
       padding-left: 15px;
       margin: 8px 0;
-      color: #c0c0c0;
+      color: var(--text-secondary);
     }
     .detail-source-quote strong {
       color: var(--accent-primary);
@@ -2005,7 +2005,7 @@ function injectTimelineStyles() {
     .detail-nav-section {
       margin-top: 20px;
       padding-top: 20px;
-      border-top: 1px solid rgba(126, 200, 227, 0.2);
+      border-top: 1px solid var(--border-accent);
     }
     .detail-prev-next {
       display: flex;
@@ -2015,15 +2015,15 @@ function injectTimelineStyles() {
     .detail-nav-event {
       flex: 1;
       background: var(--accent-primary-subtle);
-      border: 1px solid rgba(126, 200, 227, 0.2);
+      border: 1px solid var(--border-accent);
       border-radius: 8px;
       padding: 12px;
       cursor: pointer;
       transition: background 0.2s, border-color 0.2s;
     }
     .detail-nav-event:hover {
-      background: rgba(126, 200, 227, 0.2);
-      border-color: rgba(126, 200, 227, 0.4);
+      background: var(--accent-primary-muted);
+      border-color: var(--accent-primary-strong);
     }
     .detail-nav-placeholder {
       background: transparent;
@@ -2062,7 +2062,7 @@ function injectTimelineStyles() {
       gap: 6px;
     }
     .detail-event-link:hover {
-      background: rgba(126, 200, 227, 0.2);
+      background: var(--accent-primary-muted);
     }
   `;
   document.head.appendChild(style);

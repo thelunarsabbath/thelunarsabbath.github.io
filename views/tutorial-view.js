@@ -12,31 +12,34 @@ const TutorialView = {
   render(state, derived, container) {
     container.innerHTML = `
       <div class="tutorial-view">
-        <!-- Hero Section -->
-        <header class="tutorial-hero">
-          <div class="hero-background"></div>
-          <div class="hero-content">
-            <div class="hero-moon-phases">
-              <span class="phase-icon">🌑</span>
-              <span class="phase-icon active">🌕</span>
-              <span class="phase-icon">🌘</span>
+        <!-- Hero: Book Feature -->
+        <section class="book-section" style="margin-top: 30px;">
+          <div class="book-card">
+            <div class="book-cover">
+              <img src="/assets/img/TimeTestedBookFront.jpg" alt="Time-Tested Tradition Book Cover" class="book-cover-img">
             </div>
-            <h1>The Time-Tested Tradition</h1>
-            <p class="hero-subtitle">Rediscovering the Biblical Lunar Calendar</p>
-            <p class="hero-description">
-              A comprehensive tool for calculating Sabbaths and appointed times 
-              based on celestial signs, as established at creation.
-            </p>
-            <div class="hero-actions">
-              <button class="hero-btn primary" onclick="AppStore.dispatch({type:'SET_VIEW',view:'calendar'})">
-                <span>📅</span> View Calendar
-              </button>
-              <button class="hero-btn secondary" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'timetested',chapterId:'01_Introduction'}})">
-                <span>📖</span> Read the Book
-              </button>
+            <div class="book-info">
+              <h3>A Time-Tested Tradition</h3>
+              <p class="book-author">The Renewed Biblical Calendar — by Daniel Larimer</p>
+              <p class="book-description">
+                A comprehensive examination of the biblical calendar with historical evidence, 
+                scriptural analysis, and astronomical verification. Explore the calendar, 
+                read the book online, or download the free PDF.
+              </p>
+              <div class="book-actions">
+                <button class="book-btn primary" onclick="AppStore.dispatch({type:'SET_VIEW',view:'calendar'})">
+                  <span>📅</span> View Calendar
+                </button>
+                <button class="book-btn secondary" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'timetested'}})">
+                  <span>📖</span> Read Online
+                </button>
+                <a href="/media/time-tested-tradition.pdf" class="book-btn secondary" download onclick="trackBookDownload()">
+                  <span>⬇️</span> Download PDF
+                </a>
+              </div>
             </div>
           </div>
-        </header>
+        </section>
 
         <!-- Key Features Grid -->
         <section class="features-section">
@@ -67,6 +70,9 @@ const TutorialView = {
               'feasts', null)}
           </div>
         </section>
+
+        <!-- Install App / Offline -->
+        ${this.renderInstallSection()}
 
         <!-- Core Principles -->
         <section class="principles-section">
@@ -164,32 +170,6 @@ const TutorialView = {
               <button class="step-btn" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'bible'}})">
                 Open Bible
               </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Book Download -->
-        <section class="book-section">
-          <div class="book-card">
-            <div class="book-cover">
-              <img src="/assets/img/TimeTestedBookFront.jpg" alt="Time-Tested Tradition Book Cover" class="book-cover-img">
-            </div>
-            <div class="book-info">
-              <h3>The Complete Book</h3>
-              <p class="book-author">by Daniel Larimer</p>
-              <p class="book-description">
-                A comprehensive examination of the biblical calendar with historical evidence, 
-                scriptural analysis, and astronomical verification. Available free as a PDF 
-                or read online chapter by chapter.
-              </p>
-              <div class="book-actions">
-                <a href="/media/time-tested-tradition.pdf" class="book-btn primary" download onclick="trackBookDownload()">
-                  <span>⬇️</span> Download PDF
-                </a>
-                <button class="book-btn secondary" onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'timetested'}})">
-                  <span>📖</span> Read Online
-                </button>
-              </div>
             </div>
           </div>
         </section>
@@ -370,6 +350,60 @@ const TutorialView = {
   /**
    * Navigate to calendar and open profile editor
    */
+  /**
+   * Render the PWA install section, adapting to current install state
+   */
+  renderInstallSection() {
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                  window.navigator.standalone === true;
+
+    // Already installed — show a brief confirmation instead of the full pitch
+    if (isPWA) {
+      return `
+        <section class="install-section installed">
+          <div class="install-card">
+            <div class="install-icon">✅</div>
+            <div class="install-info">
+              <h3>App Installed — Works Offline</h3>
+              <p>You're running the installed app. All data is stored locally on your device — Bible translations, the Hebrew lexicon, the timeline, and calendar calculations all work without an internet connection.</p>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    const canInstall = !!TutorialView._deferredInstallPrompt;
+    const installBtnStyle = canInstall ? '' : 'style="display:none"';
+    const hint = canInstall ? '' : 'On iOS, tap the Share button and then "Add to Home Screen." On desktop Chrome/Edge, look for the install icon in the address bar.';
+
+    return `
+      <section class="install-section" id="install-section">
+        <div class="install-card">
+          <div class="install-icon">📲</div>
+          <div class="install-info">
+            <h3>Install the App — Works Offline</h3>
+            <p>
+              This is a <strong>Progressive Web App</strong>. Install it on your phone, tablet, or desktop 
+              and use it anytime — even without an internet connection. All 10 Bible translations, the Hebrew 
+              lexicon, the historical timeline, and full calendar calculations are stored locally on your device. 
+              No account required, no ads, no server dependency.
+            </p>
+            <div class="install-features">
+              <span class="install-feature"><span class="install-check">✓</span> Works offline</span>
+              <span class="install-feature"><span class="install-check">✓</span> Instant search</span>
+              <span class="install-feature"><span class="install-check">✓</span> No account needed</span>
+              <span class="install-feature"><span class="install-check">✓</span> No ads</span>
+            </div>
+            <button class="install-btn" id="install-btn" ${installBtnStyle} onclick="TutorialView.installApp()">
+              Install App
+            </button>
+            <p class="install-hint" id="install-hint">${hint}</p>
+          </div>
+        </div>
+      </section>
+    `;
+  },
+
   openProfileEditor() {
     // First navigate to calendar
     AppStore.dispatch({type: 'SET_VIEW', view: 'calendar'});
@@ -381,8 +415,45 @@ const TutorialView = {
         CalendarView.showProfileEditor({ stopPropagation: () => {} });
       }
     }, 100);
-  }
+  },
+
+  /**
+   * Handle PWA install button click
+   */
+  installApp() {
+    if (TutorialView._deferredInstallPrompt) {
+      TutorialView._deferredInstallPrompt.prompt();
+      TutorialView._deferredInstallPrompt.userChoice.then(choice => {
+        if (choice.outcome === 'accepted') {
+          const btn = document.getElementById('install-btn');
+          if (btn) btn.style.display = 'none';
+          const hint = document.getElementById('install-hint');
+          if (hint) hint.textContent = 'App installed successfully!';
+        }
+        TutorialView._deferredInstallPrompt = null;
+      });
+    }
+  },
+
+  /** Stored deferred prompt from beforeinstallprompt event */
+  _deferredInstallPrompt: null
 };
+
+// Capture the browser's install prompt so we can trigger it from our button
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  TutorialView._deferredInstallPrompt = e;
+  // If install button exists on page, make sure it's visible
+  const btn = document.getElementById('install-btn');
+  if (btn) btn.style.display = '';
+});
+
+// Hide install section if already installed as PWA
+window.addEventListener('appinstalled', () => {
+  TutorialView._deferredInstallPrompt = null;
+  const section = document.getElementById('install-section');
+  if (section) section.style.display = 'none';
+});
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {

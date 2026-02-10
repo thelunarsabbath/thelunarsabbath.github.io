@@ -55,7 +55,7 @@
 }
 
 .settings-page-overlay.visible {
-  opacity: 1;
+  opacity: 0;
   visibility: visible;
 }
 
@@ -386,6 +386,22 @@
 }
 
 /* Theme preview swatches — each button shows a preview of its theme */
+.settings-option-btn[data-theme="auto"] {
+  background: linear-gradient(135deg, #1a3a5c 50%, #f5f0e8 50%);
+  border-color: #6a8aac;
+  color: #ffffff;
+}
+.settings-option-btn[data-theme="auto"] .option-label {
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.settings-option-btn[data-theme="auto"]:hover {
+  border-color: #7ec8e3;
+}
+.settings-option-btn[data-theme="auto"].selected {
+  border-color: #d4a017;
+  box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.3);
+}
+
 .settings-option-btn[data-theme="dark"] {
   background: #1a3a5c;
   border-color: #2a5a8c;
@@ -498,7 +514,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--surface-sunken);
+  background: var(--surface-scrim);
   z-index: 1200;
   display: flex;
   align-items: center;
@@ -639,18 +655,13 @@
   background: var(--surface-hover);
   border: 1px solid var(--surface-hover);
   border-radius: 8px;
-  cursor: grab;
+  cursor: default;
   transition: background 0.15s, opacity 0.15s, transform 0.15s;
   min-height: 44px;
-  touch-action: none;
 }
 
 .translation-sort-item:hover {
   background: var(--border-subtle);
-}
-
-.translation-sort-item:active {
-  cursor: grabbing;
 }
 
 .translation-sort-item.dragging {
@@ -664,6 +675,14 @@
   flex-shrink: 0;
   cursor: grab;
   line-height: 1;
+  /* Make a generous 44px touch target */
+  padding: 8px 4px;
+  margin: -8px -4px;
+  touch-action: none;
+}
+
+.ts-grip:active {
+  cursor: grabbing;
 }
 
 .ts-name {

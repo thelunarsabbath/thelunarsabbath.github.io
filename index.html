@@ -100,9 +100,27 @@
   <!-- Prevent flash-of-wrong-theme: apply theme before first paint -->
   <script>
     (function() {
-      var saved = null;
-      try { saved = localStorage.getItem('userThemePreference'); } catch(e) {}
-      var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      var pref = null;
+      try { pref = localStorage.getItem('userThemePreference'); } catch(e) {}
+      // Default to 'auto' for new users
+      if (!pref) pref = 'auto';
+      var theme;
+      if (pref === 'auto') {
+        // OS preference first, then time-of-day fallback
+        var mq = window.matchMedia('(prefers-color-scheme: light)');
+        var mqDark = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          theme = 'light';
+        } else if (mqDark.matches) {
+          theme = 'dark';
+        } else {
+          // No OS preference — use time of day (dark 8pm–6am)
+          var hour = new Date().getHours();
+          theme = (hour >= 6 && hour < 20) ? 'light' : 'dark';
+        }
+      } else {
+        theme = pref;
+      }
       document.documentElement.setAttribute('data-theme', theme);
       document.documentElement.classList.add('no-theme-transition');
       // Update PWA theme-color meta for status bar
@@ -166,15 +184,22 @@
         background: var(--surface-raised, #0d2840) !important;
       }
       
-      /* Sticky header: top:0 works because the nav is also sticky and covers it */
+      /* Sticky header: sits below the top-nav (which is also sticky).
+         When nav auto-hides on scroll-down, header slides up to top: 0. */
       body.view-bible .bible-explorer-header,
       body.view-reader:not(.reader-landing) .bible-explorer-header {
         position: sticky !important;
-        top: 0 !important;
+        top: var(--top-nav-height) !important;
         z-index: 100 !important;
         margin: 0 !important;
         padding: 6px 10px !important;
         background: var(--gradient-nav, #0d2840) !important;
+        transition: top 0.25s ease !important;
+      }
+      /* When nav is hidden, header slides up to the very top */
+      body.nav-hidden.view-bible .bible-explorer-header,
+      body.nav-hidden.view-reader:not(.reader-landing) .bible-explorer-header {
+        top: 0 !important;
       }
       
       /* Text area: NO contained scroll — body handles scrolling */
@@ -229,13 +254,43 @@
       </div>
     </div>
     
-    <div class="top-nav-center">
-      <!-- PWA Navigation Buttons (hidden by default) -->
-      <div id="pwa-nav-buttons" class="pwa-nav-buttons" style="display: none;">
-        <button id="pwa-back-btn" class="pwa-nav-btn" title="Go back"><span class="icon icon-chevron-left"></span></button>
-        <button id="pwa-forward-btn" class="pwa-nav-btn" title="Go forward"><span class="icon icon-chevron-right"></span></button>
+    <!-- Desktop Navigation Links (hidden on mobile) -->
+    <nav class="top-nav-links">
+      <!-- Bible Study dropdown -->
+      <div class="nav-dropdown" id="bible-study-dropdown">
+        <button class="nav-link nav-dropdown-trigger" onclick="Layout.toggleDropdown('bible-study-dropdown')">
+          Bible Study <span class="nav-dropdown-arrow">▾</span>
+        </button>
+        <div class="nav-dropdown-menu">
+          <button class="nav-dropdown-item" onclick="Layout.closeDropdown(); AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'bible'}})">
+            <span class="nav-dropdown-icon">📖</span> Study Bible
+          </button>
+          <button class="nav-dropdown-item" onclick="Layout.closeDropdown(); AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'symbols'}})">
+            <span class="nav-dropdown-icon">🔣</span> Symbol Studies
+          </button>
+          <button class="nav-dropdown-item" onclick="Layout.closeDropdown(); AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'verse-studies'}})">
+            <span class="nav-dropdown-icon">📜</span> Verse Studies
+          </button>
+          <button class="nav-dropdown-item" onclick="Layout.closeDropdown(); AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'numbers'}})">
+            <span class="nav-dropdown-icon">🔢</span> Number Studies
+          </button>
+          <button class="nav-dropdown-item" onclick="Layout.closeDropdown(); AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'words'}})">
+            <span class="nav-dropdown-icon">📝</span> Word Studies
+          </button>
+          <div class="nav-dropdown-divider"></div>
+          <button class="nav-dropdown-item" onclick="Layout.closeDropdown(); AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'philo'}})">
+            <span class="nav-dropdown-icon">📚</span> Philo
+          </button>
+          <button class="nav-dropdown-item" onclick="Layout.closeDropdown(); AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'josephus'}})">
+            <span class="nav-dropdown-icon">📚</span> Josephus
+          </button>
+        </div>
       </div>
-    </div>
+      
+      <button class="nav-link" onclick="AppStore.dispatch({type:'SET_VIEW',view:'timeline'})">Timeline</button>
+      <button class="nav-link" onclick="AppStore.dispatchBatch([{type:'GO_TO_TODAY'},{type:'SET_VIEW',view:'calendar'}])">Calendar</button>
+      <button class="nav-link" onclick="AppStore.dispatch({type:'SET_VIEW',view:'blog'})">Blog</button>
+    </nav>
     
     <div class="top-nav-right">
       <!-- Global Search -->
@@ -248,6 +303,7 @@
                onfocus="GlobalSearch.onFocus()"
                onblur="GlobalSearch.onBlur(event)"
                ondblclick="this.select()">
+        <button class="global-search-submit" onclick="GlobalSearch.hideHints(); GlobalSearch.search(document.getElementById('global-search-input').value);" title="Search">🔍</button>
         <button class="global-search-btn" onclick="GlobalSearch.toggle()" title="Search">🔍</button>
         <button class="global-search-close" onclick="GlobalSearch.close()" title="Close search">✕</button>
         <div id="search-hints" class="search-hints" style="display: none;" onmousedown="event.preventDefault()">
@@ -262,18 +318,16 @@
         </div>
       </div>
       
-      <!-- Navigation History Buttons - use browser history directly -->
+      <!-- Navigation History Buttons - only visible in PWA mode -->
       <div class="nav-history-buttons">
         <button id="nav-back-btn" class="nav-btn" onclick="history.back()" title="Go back"><span class="icon icon-chevron-left"></span></button>
         <button id="nav-forward-btn" class="nav-btn" onclick="history.forward()" title="Go forward"><span class="icon icon-chevron-right"></span></button>
       </div>
       
-      <!-- Today Button (calendar icon = changes calendar focus time) -->
-      <button id="today-btn" class="today-btn" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'GO_TO_TODAY'},{type:'SET_VIEW',view:'calendar'}])">
-        <span class="today-icon">📅</span> Today
-      </button>
+      <!-- Settings gear (desktop only) -->
+      <button class="nav-settings-btn" onclick="AppStore.dispatch({type:'SET_VIEW',view:'settings'})" title="Settings">⚙️</button>
       
-      <!-- Hamburger Menu Button (mobile only, iOS style - right side) -->
+      <!-- Hamburger Menu Button -->
       <button id="hamburger-btn" class="hamburger-btn" aria-label="Open menu">
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
@@ -386,31 +440,90 @@
     </div>
     
     <!-- ─────────────────────────────────────────────────────────────────── -->
-    <!-- SIDEBAR MENU (Desktop: fixed right, Mobile: slide-in) -->
+    <!-- SIDEBAR MENU (hamburger slide-in, all screen sizes) -->
     <!-- ─────────────────────────────────────────────────────────────────── -->
     <aside id="sidebar-menu" class="sidebar-menu">
       <div class="sidebar-header">
+        <span class="sidebar-header-title">Menu</span>
         <button class="sidebar-close-btn" onclick="AppStore.dispatch({type:'CLOSE_MENU'})">✕</button>
       </div>
       
       <nav class="sidebar-nav">
-        <!-- Today button - visible only on mobile -->
-        <button class="menu-item menu-today-btn" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'GO_TO_TODAY'},{type:'SET_VIEW',view:'calendar'}])">
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'GO_TO_TODAY'},{type:'SET_VIEW',view:'calendar'}])">
           <span class="menu-icon">📅</span>
-          <span class="menu-label">Today</span>
-        </button>
-        
-        <div class="menu-divider menu-today-btn"></div>
-        
-        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'reader',params:{}}])">
-          <span class="menu-icon">📖</span>
-          <span class="menu-label">Reader</span>
+          <span class="menu-label">Calendar</span>
         </button>
         
         <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'timeline'}])">
           <img src="/assets/img/timeline_icon.png" alt="" class="menu-icon-img">
           <span class="menu-label">Timeline</span>
         </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'sabbath-tester'}])">
+          <span class="menu-icon">🔬</span>
+          <span class="menu-label">Sabbath Tester</span>
+        </button>
+        
+        <div class="menu-divider"></div>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'reader',params:{contentType:'bible'}}])">
+          <span class="menu-icon">📖</span>
+          <span class="menu-label">Study Bible</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'reader',params:{contentType:'symbols'}}])">
+          <span class="menu-icon">🔣</span>
+          <span class="menu-label">Symbol Studies</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'reader',params:{contentType:'verse-studies'}}])">
+          <span class="menu-icon">📜</span>
+          <span class="menu-label">Verse Studies</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'reader',params:{contentType:'numbers'}}])">
+          <span class="menu-icon">🔢</span>
+          <span class="menu-label">Number Studies</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'reader',params:{contentType:'words'}}])">
+          <span class="menu-icon">📝</span>
+          <span class="menu-label">Word Studies</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'reader',params:{contentType:'philo'}}])">
+          <span class="menu-icon">📚</span>
+          <span class="menu-label">Philo</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'reader',params:{contentType:'josephus'}}])">
+          <span class="menu-icon">📚</span>
+          <span class="menu-label">Josephus</span>
+        </button>
+        
+        <div class="menu-divider"></div>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'blog'}])">
+          <span class="menu-icon">📰</span>
+          <span class="menu-label">Blog (What's New)</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'tutorial'}])">
+          <span class="menu-icon">🧭</span>
+          <span class="menu-label">Explore</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'settings'}])">
+          <span class="menu-icon">⚙️</span>
+          <span class="menu-label">Settings</span>
+        </button>
+        
+        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'help'}])">
+          <span class="menu-icon">❓</span>
+          <span class="menu-label">Help</span>
+        </button>
+        
+        <div class="menu-divider"></div>
         
         <div class="menu-book-promo">
           <a href="#" class="menu-book-link" onclick="event.preventDefault(); AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'reader',params:{contentType:'timetested'}}])">
@@ -422,45 +535,13 @@
           </a>
         </div>
         
-        <div class="menu-divider"></div>
-        
-        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'sabbath-tester'}])">
-          <span class="menu-icon">🔬</span>
-          <span class="menu-label">Sabbath Tester</span>
-        </button>
-        
-        <div class="menu-divider"></div>
-        
-        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'settings'}])">
-          <span class="menu-icon">⚙️</span>
-          <span class="menu-label">Settings</span>
-        </button>
-        
-        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'tutorial'}])">
-          <span class="menu-icon">ℹ️</span>
-          <span class="menu-label">About</span>
-        </button>
-
-        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'blog'}])">
-          <span class="menu-icon">📰</span>
-          <span class="menu-label">What's New</span>
-        </button>
-
-        <button class="menu-item" onclick="AppStore.dispatchBatch([{type:'CLOSE_MENU'},{type:'SET_VIEW',view:'help'}])">
-          <span class="menu-icon">❓</span>
-          <span class="menu-label">Help</span>
-        </button>
-
-        <div class="menu-divider"></div>
-        
         <button class="menu-item" id="install-app-btn" style="display: none;" onclick="handleInstallClick()">
           <span class="menu-icon">📲</span>
           <span class="menu-label">Install App</span>
         </button>
         
       </nav>
-      
-      </aside>
+    </aside>
   </div>
   
   <!-- iOS Install Instructions Modal -->

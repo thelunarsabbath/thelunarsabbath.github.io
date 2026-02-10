@@ -4439,10 +4439,6 @@ function updateStrongsPanelContent(strongsNum, isNavigation = false) {
   
   const entry = getStrongsEntry(strongsNum);
   
-  // Update inline header badge
-  const badge = document.getElementById('research-id-badge');
-  if (badge) badge.textContent = strongsNum;
-  
   // Update content
   const contentEl = sidebar.querySelector('.research-panel-content');
   if (!contentEl) return;
@@ -4596,10 +4592,6 @@ function showStrongsPanel(strongsNum, englishWord, gloss, event, skipDispatch = 
     strongsHistoryIndex = strongsHistory.length - 1;
   }
   
-  // Update the inline header badge (desktop: visible in bible-explorer-header row)
-  const badge = document.getElementById('research-id-badge');
-  if (badge) badge.textContent = strongsNum;
-  
   // Update content
   const entry = getStrongsEntry(strongsNum);
   const personInfo = getPersonInfo(strongsNum);
@@ -4752,9 +4744,6 @@ function closeStrongsPanel(skipDispatch = false) {
       contentEl.innerHTML = '<div class="research-panel-welcome">Click on words to dig deeper</div>';
     }
   }
-  // Clear inline header badge
-  const badge = document.getElementById('research-id-badge');
-  if (badge) badge.textContent = '';
   // Clear interlinear word highlight
   highlightInterlinearWord(null);
   // Reset history

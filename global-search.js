@@ -786,18 +786,18 @@ const GlobalSearch = {
     if (eventResults.events.length > 0 && content) {
       const eventsHtml = this._buildEventsSectionHtml(eventResults);
       
-      // Insert events above Bible results (or replace empty-state message)
-      const bibleSection = content.querySelector('.search-bible-section');
-      if (bibleSection) {
-        bibleSection.insertAdjacentHTML('beforebegin', eventsHtml);
+      // Insert events at the top of results (before studies/strongs/bible)
+      const firstSection = content.querySelector('.search-section');
+      if (firstSection) {
+        firstSection.insertAdjacentHTML('beforebegin', eventsHtml);
       } else {
-        // No Bible results — prepend events (may replace "searching timeline" message)
+        // No other sections — replace content entirely
         content.innerHTML = eventsHtml;
       }
       
       this.displayedEventCount = eventResults.events.length;
-    } else if (!content?.querySelector('.search-bible-section') && content) {
-      // No events AND no Bible results — show "no results"
+    } else if (!content?.querySelector('.search-section') && content) {
+      // No events AND no other results — show "no results"
       content.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--color-text-muted);">No results found for "${this.escapeHtml(query)}"</div>`;
     }
     
@@ -811,10 +811,13 @@ const GlobalSearch = {
       cached.events = eventResults;
       delete cached._timelinePending;
     } else {
+      const filters = this._getFilters();
       const combinedResults = {
         query: query,
-        bible: this.performTextSearch(query, 0, 50),
+        bible: filters.bible ? this.performTextSearch(query, 0, 50) : { results: [], total: 0, hasMore: false },
         events: eventResults,
+        studies: filters.studies ? this.performStudiesSearch(query) : { results: [], total: 0 },
+        strongs: filters.strongs ? this.performStrongsSearch(query) : { results: [], total: 0 },
         error: null
       };
       this._cacheResult(query, combinedResults);
@@ -1652,8 +1655,8 @@ const GlobalSearch = {
    * Apply collapsed state from AppStore to the UI
    */
   applyCollapsedState(collapsedState) {
-    ['events', 'bible'].forEach(section => {
-      const listId = section === 'events' ? 'events-results-list' : 'bible-results-list';
+    ['events', 'bible', 'studies', 'strongs'].forEach(section => {
+      const listId = section + '-results-list';
       const toggleId = section + '-toggle';
       
       const list = document.getElementById(listId);
@@ -1675,6 +1678,8 @@ const GlobalSearch = {
     if (container) {
       container.classList.add('open');
       container.style.height = this.resultsHeight + 'px';
+      // Sync filter bar buttons with current state
+      this.syncFilterBar();
       // On mobile, if the research panel is also open, scroll to top so both are visible
       // (search results sit above the research panel in the DOM)
       if (window.innerWidth <= 768 && document.body.classList.contains('research-panel-open')) {

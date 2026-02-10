@@ -62,6 +62,22 @@ const CalendarView = {
       return;
     }
     
+    // If calendar is recomputing (async profile switch), show loading overlay on existing calendar
+    if (derived.recomputing) {
+      const existing = container.querySelector('.calendar-recomputing-overlay');
+      if (!existing) {
+        const overlay = document.createElement('div');
+        overlay.className = 'calendar-recomputing-overlay';
+        overlay.innerHTML = '<div class="loading-spinner"></div><p>Recalculating calendar...</p>';
+        const calApp = container.querySelector('.calendar-app');
+        if (calApp) {
+          calApp.style.position = 'relative';
+          calApp.appendChild(overlay);
+        }
+      }
+      return;
+    }
+    
     container.innerHTML = this.renderCalendar(state, derived, month, monthIndex, selectedDay);
     this.attachEventListeners(container, month);
     
@@ -332,15 +348,18 @@ const CalendarView = {
     const profileName = profile.name || 'Time-Tested';
     html += `
       <div class="calendar-nav-bar">
+        <div class="calendar-profile-row" data-action="profile-editor" title="Edit Profile Settings">
+          <span class="profile-label">Profile</span>
+          <span class="profile-icon">${profile.icon || '🌕'}</span>
+          <span class="profile-name">${profileName}</span>
+          <svg class="profile-gear" viewBox="0 0 20 20" fill="currentColor"><path d="M11.078 0l.855 3.424a7.16 7.16 0 011.852.765l3.193-1.38 1.076 1.078-1.38 3.193c.326.588.58 1.21.765 1.852L20.863 10l-.002 1.078-3.424.855a7.16 7.16 0 01-.765 1.852l1.38 3.193-1.078 1.076-3.193-1.38a7.16 7.16 0 01-1.852.765L11.074 20.863 9.996 20.86l-.855-3.424a7.16 7.16 0 01-1.852-.765l-3.193 1.38-1.076-1.078 1.38-3.193a7.16 7.16 0 01-.765-1.852L.211 11.074l.002-1.078.855-.855h.001l2.567-.001a7.16 7.16 0 01.766-1.851L3.022 4.096l1.078-1.076 3.193 1.38a7.16 7.16 0 011.852-.765L10 .211l1.078.002zM10.5 7a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"/></svg>
+        </div>
         <div class="calendar-nav-row">
           <span class="nav-arrow year-nav" data-action="prev-year" title="Previous Year"><svg viewBox="0 0 24 16" fill="currentColor"><rect x="0" y="1" width="3" height="14" rx="1"/><path d="M22 1L11 8l11 7V1z"/></svg></span>
           <span class="nav-arrow month-nav" data-action="prev-month" title="Previous Month"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M13 1L4 8l9 7V1z"/></svg></span>
-          <div class="profile-display" data-action="profile-editor" title="Edit Profile Settings">
-            <span class="profile-icon">${profile.icon || '🌕'}</span>
-            <span class="profile-name">${profileName}</span>
-          </div>
           <button class="feast-toggle-btn" data-action="toggle-feasts" title="Show Appointed Times">🎉 Feasts</button>
           <button class="priestly-toggle-btn" data-action="toggle-priestly" title="Show Priestly Courses">👨‍🦳 Priests</button>
+          <button class="today-btn" data-action="go-to-today" title="Go to Today">Today</button>
           <span class="nav-arrow month-nav" data-action="next-month" title="Next Month"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1l9 7-9 7V1z"/></svg></span>
           <span class="nav-arrow year-nav" data-action="next-year" title="Next Year"><svg viewBox="0 0 24 16" fill="currentColor"><path d="M2 1l11 7-11 7V1z"/><rect x="21" y="1" width="3" height="14" rx="1"/></svg></span>
         </div>
@@ -1543,6 +1562,7 @@ const CalendarView = {
         else if (action === 'profile-editor') this.showProfileEditor(e);
         else if (action === 'toggle-feasts') this.toggleFeastSidebar();
         else if (action === 'toggle-priestly') this.togglePriestlyPanel();
+        else if (action === 'go-to-today') AppStore.dispatch({ type: 'GO_TO_TODAY' });
         else if (action === 'show-priestly') this.showPriestlyView();
       });
     });
@@ -2614,6 +2634,11 @@ const CalendarView = {
         if (id === currentProfileId) opt.selected = true;
         select.appendChild(opt);
       }
+      // Add "Custom..." option that triggers clone flow
+      const customOpt = document.createElement('option');
+      customOpt.value = '__custom__';
+      customOpt.textContent = '✨ Custom...';
+      select.appendChild(customOpt);
       
       // Modern Jewish (Hebcal) is not cloneable or customizable
       const isHebcalProfile = currentProfile.calendarBackend === 'hebcal';
@@ -2682,10 +2707,23 @@ const CalendarView = {
     renderProfileEditor();
     const unsubscribe = AppStore.subscribe(renderProfileEditor);
     
+    // Track whether profile settings were modified during this editing session.
+    // Stored on `this` so updateProfileSetting() can access them.
+    this._profileEditorOpen = true;
+    this._profileDirty = false;
+    this._renderProfileEditor = renderProfileEditor;
+    
     const closePage = () => {
       unsubscribe();
       overlay.remove();
       page.remove();
+      this._profileEditorOpen = false;
+      this._renderProfileEditor = null;
+      // Single recompute on close if settings were changed
+      if (this._profileDirty) {
+        this._profileDirty = false;
+        AppStore.dispatch({ type: 'REFRESH' });
+      }
     };
     
     // Close handlers
@@ -2694,7 +2732,14 @@ const CalendarView = {
     
     // Profile select change
     page.querySelector('.profile-select').addEventListener('change', (e) => {
-      AppStore.dispatch({ type: 'SET_PROFILE', profileId: e.target.value });
+      if (e.target.value === '__custom__') {
+        // Reset dropdown to current profile while modal is open
+        const state = AppStore.getState();
+        e.target.value = state.context.profileId;
+        this.showProfileNameModal('create', closePage);
+      } else {
+        AppStore.dispatch({ type: 'SET_PROFILE', profileId: e.target.value });
+      }
     });
     
     // Moon phase buttons
@@ -2773,8 +2818,16 @@ const CalendarView = {
     if (window.PROFILES?.[profileId]) {
       window.PROFILES[profileId][key] = value;
       if (typeof saveCustomProfiles === 'function') saveCustomProfiles();
-      // Trigger re-render by dispatching a no-op or force recompute
-      AppStore.dispatch({ type: 'SET_PROFILE', profileId });
+      
+      if (this._profileEditorOpen) {
+        // Defer expensive calendar recompute until editor is closed.
+        // Re-render editor UI so button highlights update immediately.
+        this._profileDirty = true;
+        if (this._renderProfileEditor) this._renderProfileEditor();
+      } else {
+        // Editor not open (shouldn't normally happen) — recompute immediately
+        AppStore.dispatch({ type: 'REFRESH' });
+      }
     }
   },
   
@@ -2852,6 +2905,7 @@ const CalendarView = {
       }
       
       closeModal();
+      if (typeof onClose === 'function') onClose();
     };
     
     modal.querySelector('.cancel').onclick = closeModal;

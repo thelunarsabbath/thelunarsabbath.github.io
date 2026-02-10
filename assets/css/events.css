@@ -13,12 +13,7 @@
   overflow-x: hidden;
 }
 
-/* Desktop: Account for right sidebar when visible */
-@media (min-width: 1200px) {
-  body.desktop-layout .view-events .events-page {
-    right: var(--sidebar-width);
-  }
-}
+/* (sidebar offset removed — no fixed right sidebar) */
 
 .view-events .content-area {
   overflow: hidden;
@@ -41,11 +36,10 @@
   align-items: center;
 }
 
-/* Center content between window left and sidebar left on wide screens */
+/* Center content on wide screens */
 @media (min-width: 1200px) {
   .events-header-inner {
-    margin-left: calc((100% - var(--sidebar-width) - 800px) / 2);
-    margin-right: auto;
+    margin: 0 auto;
   }
 }
 
@@ -81,13 +75,7 @@
   margin: 0 auto;
 }
 
-/* Desktop: Ensure events content doesn't go under right sidebar when open */
-@media (min-width: 1200px) {
-  body.desktop-layout .events-page-content {
-    max-width: calc(100% - var(--sidebar-width) - 40px);
-    margin-right: calc(var(--sidebar-width) + 20px);
-  }
-}
+/* (sidebar offset removed — no fixed right sidebar) */
 
 .events-intro {
   background: var(--surface-sunken);

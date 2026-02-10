@@ -7,7 +7,10 @@ This app has a dark/light theme system. **All colors must use CSS custom propert
 - Token definitions live in `/assets/css/theme-tokens.css`
 - Tokens are scoped to `[data-theme="dark"]` and `[data-theme="light"]`  
 - The `data-theme` attribute is set on `<html>` before first paint (no FOUC)
-- Theme state is managed by `AppStore` via `SET_THEME` action
+- Theme state is managed by `AppStore` via `SET_THEME` action (accepts `'auto'`, `'dark'`, or `'light'`)
+- `state.ui.themePreference` stores the user's choice (`'auto'`/`'dark'`/`'light'`)
+- `state.ui.theme` stores the resolved effective theme (`'dark'`/`'light'`)
+- Auto mode: respects OS `prefers-color-scheme`, falls back to time-of-day (dark 8pm–6am)
 
 ## Rules
 

@@ -28,7 +28,7 @@ const AppStore = {
     
     // Content - which view is displayed
     content: {
-      view: 'calendar',         // Current view name
+      view: 'tutorial',         // Current view name (landing page)
       params: {}                // View-specific parameters
     },
     
@@ -49,7 +49,8 @@ const AppStore = {
       eventsType: 'all',        // Events page type filter
       eventsEra: 'all',         // Events page era filter
       eventsViewMode: 'list',   // Events page view mode (list/timeline)
-      theme: null,              // 'dark' or 'light' (null = use OS preference)
+      themePreference: 'auto',  // 'auto', 'dark', or 'light' — user's choice
+      theme: null,              // 'dark' or 'light' — resolved effective theme
       menuOpen: false,          // Mobile menu state
       profilePickerOpen: false,
       locationPickerOpen: false,
@@ -490,6 +491,10 @@ const AppStore = {
     'SET_THEME'
   ]),
   
+  // Events that should defer expensive calendar recomputation to keep UI responsive
+  _deferRecomputeEvents: new Set(['SET_PROFILE', 'REFRESH']),
+  _pendingRecompute: null,
+
   dispatch(event) {
     if (window.DEBUG_STORE) {
       console.log('[AppStore] dispatch:', event.type, event);
@@ -499,8 +504,10 @@ const AppStore = {
     const changed = this._reduce(event);
     
     if (changed) {
+      const shouldDefer = this._deferRecomputeEvents.has(event.type);
+      
       // Skip expensive calendar recomputation for UI-only state changes
-      if (!this._uiOnlyEvents.has(event.type)) {
+      if (!this._uiOnlyEvents.has(event.type) && !shouldDefer) {
         this._recomputeDerived();
       }
       
@@ -509,6 +516,18 @@ const AppStore = {
       }
       
       this._notify();
+      
+      // For deferred events, schedule recompute after the UI has had a chance to repaint
+      if (shouldDefer) {
+        if (this._pendingRecompute) cancelAnimationFrame(this._pendingRecompute);
+        this._derived.recomputing = true;
+        this._pendingRecompute = requestAnimationFrame(() => {
+          this._pendingRecompute = null;
+          this._recomputeDerived();
+          this._derived.recomputing = false;
+          this._notify();
+        });
+      }
     }
     this._isDispatching = false;
   },
@@ -561,6 +580,35 @@ const AppStore = {
   },
   
   /**
+   * Resolve the effective theme ('light' or 'dark') from a preference.
+   * @param {'auto'|'light'|'dark'} pref
+   * @returns {'light'|'dark'}
+   */
+  _resolveTheme(pref) {
+    if (pref === 'light' || pref === 'dark') return pref;
+    // 'auto': check OS preference first
+    const mqLight = window.matchMedia('(prefers-color-scheme: light)');
+    const mqDark = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mqLight.matches) return 'light';
+    if (mqDark.matches) return 'dark';
+    // No OS preference — use time of day (dark 8pm–6am)
+    const hour = new Date().getHours();
+    return (hour >= 6 && hour < 20) ? 'light' : 'dark';
+  },
+
+  /**
+   * Apply the resolved theme to the DOM and PWA meta tag.
+   * @param {'light'|'dark'} resolved
+   */
+  _applyThemeToDOM(resolved) {
+    document.documentElement.setAttribute('data-theme', resolved);
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.content = resolved === 'light' ? '#f5f0e8' : '#1a3a5c';
+    }
+  },
+
+  /**
    * Initialize the store
    * @param {Object} options - { astroEngine, profiles }
    */
@@ -572,11 +620,25 @@ const AppStore = {
     
     // Initialize theme state from what the inline <script> already set
     try {
-      const savedTheme = localStorage.getItem('userThemePreference');
-      this._state.ui.theme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      const savedPref = localStorage.getItem('userThemePreference');
+      this._state.ui.themePreference = savedPref || 'auto';
+      this._state.ui.theme = this._resolveTheme(this._state.ui.themePreference);
     } catch(e) {
+      this._state.ui.themePreference = 'auto';
       this._state.ui.theme = 'dark';
     }
+    
+    // Listen for OS color scheme changes (affects 'auto' mode)
+    try {
+      window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+        if (this._state.ui.themePreference === 'auto') {
+          const resolved = this._resolveTheme('auto');
+          if (resolved !== this._state.ui.theme) {
+            this.dispatch({ type: 'SET_THEME', theme: 'auto' });
+          }
+        }
+      });
+    } catch(e) { /* older browsers */ }
     
     // STEP 1: Parse URL FIRST - before generating any calendar
     // This tells us what location, profile, and date we actually need
@@ -1449,18 +1511,18 @@ const AppStore = {
       
       // ─── Theme ───
       case 'SET_THEME': {
-        const newTheme = event.theme; // 'dark' or 'light'
-        if (!newTheme || s.ui.theme === newTheme) return false;
-        s.ui.theme = newTheme;
+        const pref = event.theme; // 'auto', 'dark', or 'light'
+        if (!pref) return false;
+        const resolved = this._resolveTheme(pref);
+        const prefChanged = s.ui.themePreference !== pref;
+        const themeChanged = s.ui.theme !== resolved;
+        if (!prefChanged && !themeChanged) return false;
+        s.ui.themePreference = pref;
+        s.ui.theme = resolved;
         // Apply to DOM immediately (CSS variables swap via [data-theme])
-        document.documentElement.setAttribute('data-theme', newTheme);
-        // Update PWA theme-color meta tag
-        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-        if (metaThemeColor) {
-          metaThemeColor.content = newTheme === 'light' ? '#f5f0e8' : '#1a3a5c';
-        }
-        // Persist
-        try { localStorage.setItem('userThemePreference', newTheme); } catch(e) {}
+        this._applyThemeToDOM(resolved);
+        // Persist the preference (not the resolved value)
+        try { localStorage.setItem('userThemePreference', pref); } catch(e) {}
         return true;
       }
       

@@ -308,7 +308,7 @@ const URLRouter = {
         selectedDate: this._todayJD()
       },
       content: {
-        view: 'calendar',
+        view: 'tutorial',
         params: {}
       },
       ui: {
@@ -333,9 +333,9 @@ const URLRouter = {
       }
     };
     
-    // No path segments - use defaults (calendar)
+    // No path segments - use defaults (tutorial landing page)
     if (parts.length === 0) {
-      console.log('[URLRouter] parseURL: No path segments, defaulting to calendar');
+      console.log('[URLRouter] parseURL: No path segments, defaulting to tutorial');
       return result;
     }
     
@@ -762,8 +762,12 @@ const URLRouter = {
     
     let path = '';
     
+    // Tutorial is the home page — just use /
+    if (content.view === 'tutorial') {
+      path = '/';
+    }
     // Calendar shows: /profile/location/year/month/day (always include month/day)
-    if (content.view === 'calendar') {
+    else if (content.view === 'calendar') {
       path = '/' + this._getProfileSlug(context.profileId);
       path += '/' + this._getLocationSlug(context.location);
       

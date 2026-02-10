@@ -118,52 +118,19 @@ button {
   justify-content: space-between;
   padding: 0 var(--spacing-md);
   width: 100%;
+  gap: var(--spacing-md);
+  transition: transform 0.25s ease;
 }
 
-/* Desktop: Extend header background over sidebar header area */
-@media (min-width: 1200px) {
-  body.desktop-layout .top-nav::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: var(--sidebar-width);
-    height: var(--top-nav-height);
-    background: var(--gradient-nav);
-    border-bottom: 1px solid var(--border-subtle);
-    z-index: -1;
-  }
+/* Auto-hide on scroll-down, show on scroll-up */
+.top-nav.nav-hidden {
+  transform: translateY(-100%);
 }
 
 .top-nav-left {
   display: flex;
   align-items: center;
-}
-
-.top-nav-center {
-  display: flex;
-  align-items: center;
-}
-
-.pwa-nav-buttons {
-  display: flex;
-  gap: var(--spacing-xs);
-}
-
-.pwa-nav-btn {
-  background: var(--border-subtle);
-  color: var(--color-accent);
-  padding: var(--spacing-sm);
-  border-radius: 4px;
-  font-size: 1em;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-.pwa-nav-btn:hover {
-  background: var(--border-default);
+  flex-shrink: 0;
 }
 
 .brand {
@@ -189,25 +156,146 @@ button {
   font-style: italic;
 }
 
+/* ─── Desktop Navigation Links ─── */
+.top-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-link {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.95em;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.nav-link:hover {
+  background: var(--surface-hover);
+  color: var(--color-accent);
+}
+
+/* ─── Nav Dropdown ─── */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-dropdown-arrow {
+  font-size: 0.8em;
+  transition: transform 0.2s ease;
+}
+
+.nav-dropdown.open .nav-dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
+  background: var(--surface-overlay);
+  border: 1px solid var(--accent-primary-muted);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px var(--surface-scrim);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 10001;
+  min-width: 200px;
+  padding: 6px 0;
+  overflow: hidden;
+}
+
+.nav-dropdown.open .nav-dropdown-menu {
+  display: block;
+}
+
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.92em;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.nav-dropdown-item:hover {
+  background: var(--surface-hover);
+  color: var(--color-accent);
+}
+
+.nav-dropdown-icon {
+  font-size: 1.1em;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.nav-dropdown-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 4px 12px;
+}
+
+/* Hide desktop nav links on mobile */
+@media (max-width: 899px) {
+  .top-nav-links {
+    display: none;
+  }
+}
+
 .top-nav-right {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  flex-shrink: 0;
 }
 
-.today-btn {
-  background: var(--gradient-btn-primary);
-  border: 1px solid var(--accent-primary-strong);
-  color: var(--color-accent);
-  font-weight: 600;
-  padding: var(--spacing-sm) var(--spacing-md);
+/* Settings gear button (desktop) */
+.nav-settings-btn {
+  background: none;
+  border: none;
+  font-size: 1.3em;
+  cursor: pointer;
+  padding: 4px 6px;
   border-radius: 6px;
-  transition: all var(--transition-fast);
+  transition: background var(--transition-fast);
+  line-height: 1;
 }
 
-.today-btn:hover {
-  background: var(--gradient-btn-primary-hover);
-  border-color: var(--accent-primary-strong);
+.nav-settings-btn:hover {
+  background: var(--surface-hover);
+}
+
+/* Hide settings gear on mobile (it's in the hamburger menu) */
+@media (max-width: 899px) {
+  .nav-settings-btn {
+    display: none;
+  }
 }
 
 /* Navigation History Buttons — only visible in PWA mode (no browser chrome) */
@@ -283,6 +371,7 @@ body.pwa-mode .nav-history-buttons {
   background: var(--surface-sunken);
 }
 
+/* Search toggle button (magnifying glass - desktop shows always, mobile as toggle) */
 .global-search-btn {
   background: var(--nav-btn-bg);
   border: 1px solid var(--border-accent);
@@ -299,6 +388,24 @@ body.pwa-mode .nav-history-buttons {
   border-color: var(--accent-primary-strong);
 }
 
+/* Submit button (visible on mobile when expanded) */
+.global-search-submit {
+  display: none;
+  background: var(--gradient-btn-primary);
+  border: 1px solid var(--accent-primary-strong);
+  color: var(--color-accent);
+  font-size: 1em;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.global-search-submit:hover {
+  background: var(--gradient-btn-primary-hover);
+}
+
+/* Close/cancel button */
 .global-search-close {
   display: none;
   background: var(--color-error-muted);
@@ -568,6 +675,12 @@ body.pwa-mode .nav-history-buttons {
     display: none;
   }
   
+  /* Show submit button when expanded on mobile */
+  .global-search.expanded .global-search-submit {
+    display: block;
+    flex-shrink: 0;
+  }
+  
   .global-search.expanded .global-search-close {
     display: block;
     flex-shrink: 0;
@@ -603,7 +716,7 @@ body.pwa-mode .nav-history-buttons {
 }
 
 .hamburger-btn {
-  display: flex;
+  display: none; /* Hidden on desktop, shown via media query */
   flex-direction: column;
   justify-content: center;
   gap: 4px;
@@ -611,6 +724,13 @@ body.pwa-mode .nav-history-buttons {
   border-radius: 6px;
   width: 40px;
   height: 40px;
+}
+
+/* Show hamburger on mobile (< 900px) */
+@media (max-width: 899px) {
+  .hamburger-btn {
+    display: flex;
+  }
 }
 
 .hamburger-btn:hover {
@@ -830,40 +950,46 @@ body.pwa-mode .nav-history-buttons {
 /* Sidebar Menu */
 .sidebar-menu {
   position: fixed;
-  top: var(--top-nav-height);
-  right: -280px; /* Use fixed value since CSS var in calc doesn't work for negative */
-  width: var(--sidebar-width);
-  height: calc(100% - var(--top-nav-height));
+  top: 0;
+  right: -300px;
+  width: 280px;
+  height: 100%;
   background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-dark) 100%);
-  z-index: 1001;  /* Must be higher than menu-overlay (1000) to receive clicks */
+  z-index: 1001;
   transition: right 0.3s ease;
   box-shadow: -4px 0 20px var(--surface-scrim);
   display: flex;
   flex-direction: column;
 }
 
-/* Mobile: slide in when open */
+/* Slide in when open (hamburger menu for all screen sizes) */
 .sidebar-menu.open {
   right: 0;
 }
 
-/* Desktop: always visible */
-.sidebar-menu.visible {
-  right: 0;
-}
-
 .sidebar-header {
-  padding: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
-  justify-content: flex-end;
-  background: var(--color-bg);
+  justify-content: space-between;
+  align-items: center;
+  background: var(--gradient-nav);
+  min-height: var(--top-nav-height);
+}
+
+.sidebar-header-title {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--color-accent);
 }
 
 .sidebar-close-btn {
   font-size: 1.5em;
   color: var(--color-accent);
   padding: var(--spacing-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .sidebar-nav {
@@ -984,36 +1110,10 @@ body.resizing .priestly-panel {
   transition: none !important;
 }
 
-/* Desktop Layout (>= 1200px) */
-body.desktop-layout .sidebar-menu {
-  position: fixed;
-  right: 0;
-  top: var(--top-nav-height);
-  height: calc(100% - var(--top-nav-height));
-}
-
-body.desktop-layout .sidebar-menu.visible {
-  right: 0;
-}
-
 body.desktop-layout .content-area {
-  /* Sidebar overlays, no margin needed */
   margin-right: 0;
   margin-left: 0;
   max-width: none;
-  /* Keep flex-direction: column from base, don't center vertically */
-}
-
-body.desktop-layout .hamburger-btn {
-  display: none !important;
-}
-
-body.desktop-layout .menu-overlay {
-  display: none !important;
-}
-
-body.desktop-layout .sidebar-header {
-  display: none;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1583,7 +1683,7 @@ body.view-reader.reader-landing .content-area {
 .week-header {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 1px;
+  gap: 0;
   background: var(--calendar-grid-line);
 }
 
@@ -1619,7 +1719,7 @@ body.view-reader.reader-landing .content-area {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   background: var(--calendar-grid-line);
-  gap: 1px;
+  gap: 0;
   box-shadow: var(--shadow-sm);
 }
 
@@ -1825,26 +1925,76 @@ body.view-reader.reader-landing .content-area {
 .calendar-nav-bar {
   grid-column: span 6;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0;
   background: var(--calendar-grid-line);
 }
 
+/* Profile Row — own line above nav controls */
+.calendar-profile-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px 6px;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background var(--transition-fast);
+}
+
+.calendar-profile-row:hover {
+  background: var(--surface-hover);
+}
+
+.calendar-profile-row .profile-label {
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-right: 2px;
+}
+
+.calendar-profile-row .profile-icon {
+  font-size: 1.4em;
+}
+
+.calendar-profile-row .profile-name {
+  font-size: 1.15em;
+  font-weight: bold;
+  color: var(--accent-gold);
+}
+
+.calendar-profile-row .profile-gear {
+  width: 14px;
+  height: 14px;
+  color: var(--text-tertiary);
+  opacity: 0.6;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.calendar-profile-row:hover .profile-gear {
+  opacity: 1;
+  color: var(--accent-gold);
+}
+
 .calendar-nav-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 4px 2px;
+  gap: 8px;
+  padding: 6px 8px 8px;
   width: 100%;
 }
 
 .nav-arrow {
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 6px 8px;
   margin: 0;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: background var(--transition-fast), color var(--transition-fast);
   color: var(--text-secondary);
   display: inline-flex;
@@ -1856,14 +2006,14 @@ body.view-reader.reader-landing .content-area {
 
 .nav-arrow svg {
   display: block;
-  width: 14px;
-  height: 12px;
+  width: 20px;
+  height: 16px;
   margin: 0;
   padding: 0;
 }
 
 .nav-arrow.year-nav svg {
-  width: 16px;
+  width: 22px;
 }
 
 .nav-arrow:hover {
@@ -1871,30 +2021,24 @@ body.view-reader.reader-landing .content-area {
   color: var(--accent-primary);
 }
 
-/* Profile Display — centered between arrows */
-.profile-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 2px 8px;
+/* Today Button */
+.today-btn {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.9em;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 4px;
-  transition: background var(--transition-fast);
+  transition: all 0.2s;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
 }
 
-.profile-display:hover {
-  background: var(--surface-hover);
-}
-
-.profile-display .profile-icon {
-  font-size: 1.3em;
-}
-
-.profile-display .profile-name {
-  font-size: 1.1em;
-  font-weight: bold;
-  color: var(--accent-gold);
+.today-btn:hover {
+  background: var(--accent-primary-muted);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
 }
 
 /* Feast/Priestly buttons inline with nav */
@@ -1976,6 +2120,27 @@ body.view-reader.reader-landing .content-area {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Calendar Recomputing Overlay */
+.calendar-recomputing-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--surface-primary);
+  opacity: 0.85;
+  z-index: 10;
+  border-radius: 8px;
+}
+
+.calendar-recomputing-overlay p {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  margin: 0;
 }
 
 /* Picker Overlays */
@@ -2905,7 +3070,7 @@ body.view-reader:not(.reader-landing) .content-area {
 }
 
 .settings-page-overlay.visible {
-  opacity: 1;
+  opacity: 0;
   visibility: visible;
 }
 
@@ -3250,7 +3415,7 @@ body.view-reader:not(.reader-landing) .content-area {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--surface-scrim);
   z-index: 1200;
   display: flex;
   align-items: center;
@@ -5467,7 +5632,7 @@ body.view-reader:not(.reader-landing) .content-area {
   background: var(--accent-gold-muted);
   border: 1px solid var(--accent-gold-muted);
   border-radius: 6px;
-  padding: 4px 10px;
+  padding: 6px 12px;
   font-size: 1em;
   cursor: pointer;
   transition: all 0.2s;
@@ -5500,7 +5665,7 @@ body.view-reader:not(.reader-landing) .content-area {
   background: var(--accent-gold-subtle);
   border: 1px solid var(--accent-gold-strong);
   border-radius: 6px;
-  padding: 4px 10px;
+  padding: 6px 12px;
   font-size: 1em;
   cursor: pointer;
   transition: all 0.2s;
@@ -5702,7 +5867,7 @@ body.view-reader:not(.reader-landing) .content-area {
 .day-detail-feast-icon.blood-moon-icon {
   filter: sepia(1) saturate(5) hue-rotate(320deg) brightness(0.9);
   text-shadow: 0 0 10px rgba(180, 0, 0, 1), 0 0 20px rgba(255, 50, 50, 0.8), 0 0 30px rgba(200, 0, 0, 0.6);
-  background: rgba(139, 0, 0, 0.3);
+  background: var(--color-error-muted);
   border-radius: 50%;
   padding: 4px 6px;
 }
@@ -5786,8 +5951,8 @@ body.view-reader:not(.reader-landing) .content-area {
 }
 
 .stellarium-link:hover {
-  background: rgba(100, 150, 200, 0.35);
-  border-color: rgba(100, 150, 200, 0.6);
+  background: var(--accent-primary-strong);
+  border-color: var(--accent-primary);
   color: var(--text-primary);
 }
 
@@ -6392,13 +6557,13 @@ body.view-reader:not(.reader-landing) .content-area {
 }
 
 .sabbath-year-badge {
-  background: rgba(144, 238, 144, 0.2);
+  background: var(--color-success-muted);
   color: var(--color-success);
-  border: 1px solid var(--color-success-muted);
+  border: 1px solid var(--color-success-strong);
 }
 
 .jubilee-year-badge {
-  background: rgba(255, 215, 0, 0.2);
+  background: var(--accent-gold-muted);
   color: var(--accent-gold-hover);
   border: 1px solid var(--accent-gold-strong);
 }
@@ -6435,19 +6600,19 @@ body.view-reader:not(.reader-landing) .content-area {
 }
 
 .anniversary-event-badge {
-  background: rgba(201, 160, 220, 0.2);
+  background: var(--color-purple-muted);
   color: var(--color-purple);
-  border: 1px solid rgba(201, 160, 220, 0.4);
+  border: 1px solid var(--color-purple-strong);
 }
 
 /* Priestly cycle anchor event styling */
 .bible-event-item.priestly-anchor-event {
   border-left-color: var(--accent-gold-hover);
-  background: rgba(255, 215, 0, 0.15);
+  background: var(--accent-gold-subtle);
 }
 
 .bible-event-item.priestly-anchor-event .event-condition-badge {
-  background: rgba(255, 215, 0, 0.25);
+  background: var(--accent-gold-muted);
   color: var(--accent-gold-hover);
   border: 1px solid var(--accent-gold-strong);
 }
@@ -6455,21 +6620,21 @@ body.view-reader:not(.reader-landing) .content-area {
 /* Moon phase event styling */
 .bible-event-item.moonphase-event {
   border-left-color: var(--accent-gold-hover);
-  background: rgba(240, 230, 140, 0.1);
+  background: var(--accent-gold-subtle);
 }
 
 .moonphase-event-badge {
-  background: rgba(240, 230, 140, 0.2);
-  border: 1px solid rgba(240, 230, 140, 0.4);
+  background: var(--accent-gold-muted);
+  border: 1px solid var(--accent-gold-strong);
 }
 
 .moonphase-event-badge.moonphase-match {
   background: var(--color-success-muted);
-  border-color: rgba(100, 200, 100, 0.5);
+  border-color: var(--color-success-strong);
 }
 
 .moonphase-event-badge.moonphase-other {
-  background: rgba(150, 150, 150, 0.15);
+  background: var(--surface-hover);
   border-color: var(--border-default);
   opacity: 0.8;
 }
@@ -6660,12 +6825,7 @@ body.view-reader:not(.reader-landing) .content-area {
   overflow-x: hidden;
 }
 
-/* Desktop: Account for right sidebar when visible */
-@media (min-width: 1200px) {
-  body.desktop-layout .view-events .events-page {
-    right: var(--sidebar-width);
-  }
-}
+/* (sidebar offset removed — no fixed right sidebar) */
 
 .view-events .content-area {
   overflow: hidden;
@@ -6688,11 +6848,10 @@ body.view-reader:not(.reader-landing) .content-area {
   align-items: center;
 }
 
-/* Center content between window left and sidebar left on wide screens */
+/* Center content on wide screens */
 @media (min-width: 1200px) {
   .events-header-inner {
-    margin-left: calc((100% - var(--sidebar-width) - 800px) / 2);
-    margin-right: auto;
+    margin: 0 auto;
   }
 }
 
@@ -6728,13 +6887,7 @@ body.view-reader:not(.reader-landing) .content-area {
   margin: 0 auto;
 }
 
-/* Desktop: Ensure events content doesn't go under right sidebar when open */
-@media (min-width: 1200px) {
-  body.desktop-layout .events-page-content {
-    max-width: calc(100% - var(--sidebar-width) - 40px);
-    margin-right: calc(var(--sidebar-width) + 20px);
-  }
-}
+/* (sidebar offset removed — no fixed right sidebar) */
 
 .events-intro {
   background: var(--surface-sunken);
@@ -7832,10 +7985,7 @@ code {
    MOBILE RESPONSIVE STYLES
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Hide sidebar TODAY button by default (shown on mobile) */
-.menu-today-btn {
-  display: none;
-}
+/* (menu-today-btn removed — Calendar is now a first-class menu item) */
 
 /* Narrow mobile: reduce timeline event bar widths and spacing */
 @media (max-width: 480px) {
@@ -7881,32 +8031,8 @@ code {
   }
 }
 
-/* Mobile: hide TODAY button from top nav, show in sidebar */
-@media (max-width: 768px) {
-  /* Hide today button from top nav on mobile */
-  .top-nav-right .today-btn {
-    display: none;
-  }
-  
-  /* Show today button in sidebar menu on mobile */
-  .menu-today-btn {
-    display: flex;
-  }
-  
-  /* Hide brand subtitle when space is tight */
-  .brand-subtitle {
-    display: none;
-  }
-  
-  /* Sidebar menu starts at top of screen on mobile */
-  .sidebar-menu {
-    top: 0;
-    height: 100%;
-  }
-}
-
-/* Slightly larger mobile: still hide subtitle but keep TODAY in top nav */
-@media (min-width: 769px) and (max-width: 900px) {
+/* Hide brand subtitle on smaller screens */
+@media (max-width: 899px) {
   .brand-subtitle {
     display: none;
   }

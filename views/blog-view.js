@@ -10,10 +10,37 @@ const BlogView = {
   // Blog posts in reverse chronological order (newest first)
   posts: [
     {
+      id: 'v101-desktop-lightmode',
+      date: 'February 2026',
+      title: 'New Desktop Layout, Light Mode & Redesigned Home Page',
+      summary: 'A new desktop Bible study layout with an always-visible research panel, full light-mode support, and a redesigned home page.',
+      content: `
+        <h3>New Desktop Layout</h3>
+        <p>On desktop, the Bible reader now shows an <strong>always-visible research panel</strong> alongside the text. When you tap a Strong's number, the lexicon entry, morphology, BDB definitions, and word studies appear in a resizable side panel without leaving your reading position. You can drag the panel edge to adjust the width, and it remembers your preference.</p>
+        <p class="blog-nav-link">
+          <button onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'bible',translation:'kjv',book:'Genesis',chapter:1}})">Try it: Open Genesis 1 →</button>
+        </p>
+
+        <h3>Light Mode</h3>
+        <p>The entire app now supports <strong>light mode</strong>. Every page, panel, and popup adapts cleanly — toggle between dark and light in Settings.</p>
+        <p class="blog-nav-link">
+          <button onclick="AppStore.dispatch({type:'SET_VIEW',view:'settings'})">Open Settings →</button>
+        </p>
+
+        <h3>Redesigned Home Page</h3>
+        <p>New visitors now land on a home page that introduces the book and the app's features, rather than being dropped directly into the calendar. The calendar, Bible reader, and everything else are one tap away.</p>
+
+        <h3>Search Filters</h3>
+        <p>The global search bar (Ctrl+K) now has <strong>filter buttons</strong> so you can narrow results to just Bible verses, timeline events, Strong's numbers, or studies.</p>
+
+        <p class="blog-closing">We hope the new layout makes Bible study more productive. As always, the app works fully offline — install it from your browser for the best experience.</p>
+      `
+    },
+    {
       id: 'v100-major-refactor',
       date: 'February 2026',
-      title: 'The Big Update: 12 Translations, Hebrew Interlinear, Verse Studies & More',
-      summary: 'This update adds 12 Bible translations, Hebrew interlinear with morphology, an AI-enhanced Hebrew lexicon, ancient classics, verse studies, and a redesigned reading experience.',
+      title: 'The Big Update: 10 Translations, Hebrew Interlinear, Verse Studies & More',
+      summary: 'This update adds 10 Bible translations, Hebrew interlinear with morphology, an AI-enhanced Hebrew lexicon, ancient classics, verse studies, and a redesigned reading experience.',
       content: `
         <p>This release includes a significant update to the site with many new features. Here's what's been added.</p>
 
@@ -31,8 +58,8 @@ const BlogView = {
           </div>
         </div>
 
-        <h3>12 Bible Translations</h3>
-        <p>The Bible reader now includes <strong>12 English translations</strong>: KJV, ASV, AKJV, YLT, Darby, Douay-Rheims, JPS 1917, Smith's Literal, Webster's, and the Septuagint (Brenton's English LXX). You can switch between them, reorder your favorites, and hide the ones you don't use.</p>
+        <h3>10 Bible Translations</h3>
+        <p>The Bible reader now includes <strong>10 English translations</strong>: KJV, ASV, AKJV, YLT, Darby, Douay-Rheims, JPS 1917, Smith's Literal, Webster's, and the Septuagint (Brenton's English LXX). You can switch between them, reorder your favorites, and hide the ones you don't use.</p>
         <p class="blog-nav-link">
           <button onclick="AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'bible'}})">Open Bible Reader →</button>
         </p>
@@ -87,7 +114,7 @@ const BlogView = {
         </p>
 
         <h3>Advanced Search</h3>
-        <p>Search is a first-class feature. Press <strong>Ctrl+K</strong> (Cmd+K on Mac) to open a unified search that instantly searches across all 12 Bible translations, historical timeline events, Strong's numbers, Gregorian and lunar dates, and Josephus and Philo citations — all from one search bar. Because all data is stored locally on your device, searches return results instantly with no server round-trips or database queries.</p>
+        <p>Search is a first-class feature. Press <strong>Ctrl+K</strong> (Cmd+K on Mac) to open a unified search that instantly searches across all 10 Bible translations, historical timeline events, Strong's numbers, Gregorian and lunar dates, and Josephus and Philo citations — all from one search bar. Because all data is stored locally on your device, searches return results instantly with no server round-trips or database queries.</p>
         <p>The Bible search also supports <strong>regular expressions</strong> for advanced pattern matching — word boundaries, alternation, lookaheads, and more. Search for complex patterns across the entire Bible in milliseconds.</p>
 
         <h3>Cross References</h3>
@@ -140,7 +167,7 @@ const BlogView = {
         <p>Compare different calendar theories side by side — <strong>Time-Tested</strong> (full moon, morning day), <strong>Ancient Traditional</strong> (crescent, evening), <strong>Traditional Lunar</strong>, <strong>Modern Hebrew Calendar</strong>, and more. Create custom profiles with your own settings.</p>
 
         <h3>Works Offline — Install the App</h3>
-        <p>Unlike most Bible and calendar websites, this entire app <strong>runs on your device</strong>. All 12 Bible translations, the Hebrew lexicon, the historical timeline, calendar calculations, and Josephus and Philo are stored locally after first load. There is no server, no database, and no internet connection required after installation.</p>
+        <p>Unlike most Bible and calendar websites, this entire app <strong>runs on your device</strong>. All 10 Bible translations, the Hebrew lexicon, the historical timeline, calendar calculations, and Josephus and Philo are stored locally after first load. There is no server, no database, and no internet connection required after installation.</p>
         <p>This means <strong>searches are instant</strong> — no waiting for server responses. It also means the app works when you have no cell signal, no Wi-Fi, or even if the grid goes down entirely. Install it as a <strong>Progressive Web App</strong> on your phone, tablet, or desktop and you have a complete Bible study and calendar tool that works anywhere, anytime.</p>
 
         <h3>Divine Name Preferences</h3>

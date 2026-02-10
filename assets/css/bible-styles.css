@@ -2331,7 +2331,7 @@ body.sabbath-tester-open {
   /* Blood red glow effect for lunar eclipse */
   filter: sepia(1) saturate(5) hue-rotate(320deg) brightness(0.9);
   text-shadow: 0 0 10px rgba(180, 0, 0, 1), 0 0 20px rgba(255, 50, 50, 0.8), 0 0 30px rgba(200, 0, 0, 0.6);
-  background: rgba(139, 0, 0, 0.3);
+  background: var(--color-error-muted);
   border-radius: 50%;
   padding: 2px 4px;
 }
@@ -2797,7 +2797,7 @@ span.nav-arrow.month-nav {
 }
 
 .settings-page-overlay.visible {
-  opacity: 1;
+  opacity: 0;
   visibility: visible;
 }
 
@@ -2885,7 +2885,7 @@ span.nav-arrow.month-nav {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--surface-sunken);
+  background: var(--surface-scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8039,6 +8039,7 @@ body.biblical-timeline-open .top-nav-inner {
 
 .bible-translation-select {
   min-width: 70px !important;
+  width: auto;
   font-weight: 600;
 }
 
@@ -10605,28 +10606,23 @@ body.biblical-timeline-open .top-nav-inner {
   background: var(--accent-gold-muted);
 }
 
-/* ─── Inline header badge (sits in bible-explorer-header, right zone) ─── */
+/* ─── Inline header badge (removed — Strong's ID now shown inside research panel) ─── */
 .research-header-inline {
-  display: none; /* Hidden until panel has content */
-  align-items: center;
-  padding: 0 12px;
-  flex-shrink: 0;
-}
-
-body.research-panel-open .research-header-inline {
-  display: flex;
+  display: none !important;
 }
 
 .research-id-badge {
-  font-family: monospace;
-  font-size: 0.85em;
-  color: var(--text-secondary);
-  opacity: 0.7;
+  display: none;
 }
 
-/* ─── Subtle mobile-only strongs ID label ─── */
+/* ─── Strong's ID label inside research panel ─── */
 .research-id-mobile {
-  display: none; /* Hidden on desktop — shown via mobile media query */
+  display: block;
+  font-family: monospace;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  padding: 8px 20px 0;
 }
 
 /* ─── Welcome / default state ─── */
@@ -10723,19 +10719,9 @@ body.research-panel-open .research-header-inline {
     display: none !important;
   }
 
-  /* Hide the inline header badge on mobile (it's part of the hidden header) */
-  .research-header-inline {
-    display: none !important;
-  }
-
-  /* Show the subtle mobile-only strongs ID label */
+  /* Strong's ID label — already visible via base styles, adjust padding for mobile */
   .research-id-mobile {
-    display: block;
-    font-family: monospace;
-    font-size: 0.8em;
-    color: var(--text-secondary);
-    opacity: 0.5;
-    padding: 8px 20px 0;
+    padding: 8px 16px 0;
   }
 }
 
@@ -11272,8 +11258,9 @@ body.research-panel-open .research-header-inline {
   }
   
   .bible-translation-select {
-    min-width: 55px !important;
-    max-width: 60px;
+    min-width: 60px !important;
+    flex: 0 0 auto;
+    max-width: none;
   }
   
   #bible-book-select {
@@ -11346,8 +11333,9 @@ body.research-panel-open .research-header-inline {
   }
   
   .bible-translation-select {
-    min-width: 50px !important;
-    max-width: 55px;
+    min-width: 55px !important;
+    flex: 0 0 auto;
+    max-width: none;
   }
   
   #bible-book-select {
@@ -11423,7 +11411,9 @@ body.research-panel-open .research-header-inline {
   }
   
   .bible-translation-select {
-    min-width: 45px !important;
+    min-width: 50px !important;
+    flex: 0 0 auto;
+    max-width: none;
   }
   
   #bible-book-select {
@@ -11814,131 +11804,20 @@ details.concept-strongs-section[open] .concept-expand-icon {
   font-size: 0.8em;
 }
 
-/* Desktop: hide hamburger and adjust UI */
-@media (min-width: 1200px) {
-  /* Hide hamburger button on desktop */
-  .hamburger-btn {
-    display: none !important;
-  }
-  
-  /* Hide profile selector in top nav on desktop */
-  .top-nav-profile {
-    display: none !important;
-  }
-  
-  /* Hide overlay on desktop - menu is always visible */
-  .nav-menu-overlay {
-    display: none !important;
-  }
-  
-  /* Show nav-menu on desktop - pure CSS, no JS needed */
-  #nav-menu,
-  .nav-menu {
-    right: 0 !important;
-    top: var(--top-nav-height) !important;
-    height: calc(100% - var(--top-nav-height)) !important;
-    width: 280px !important;
-    transition: none !important;
-    box-shadow: -2px 0 10px var(--surface-scrim);
-    z-index: 1002 !important;
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    transform: none !important;
-    position: fixed !important;
-    background: linear-gradient(180deg, var(--surface-base) 0%, var(--surface-raised) 100%) !important;
-  }
-  
-  /* Hide menu header on desktop */
-  .nav-menu .nav-menu-header {
-    display: none !important;
-  }
-  
-  /* Add margin to body for sidebar */
-  body {
-    margin-right: 280px !important;
-  }
-  
-  /* Top nav spans full width */
-  .top-nav {
-    right: 0;
-  }
-  
-  /* Center the calendar in the content area */
+/* Desktop: Center content areas (no fixed right sidebar) */
+@media (min-width: 900px) {
   .calendar-app {
     max-width: 900px;
     margin-left: auto;
     margin-right: auto;
   }
   
-  /* Settings page - adjust positioning */
-  .settings-page {
-    right: 280px;
-  }
-  
-  /* Feasts panel - adjust positioning */
-  .feasts-panel {
-    right: 280px;
-  }
-  
-  /* Strong's panel - adjust positioning */
-  .strongs-panel {
-    right: 280px;
-  }
-  
-  /* Symbol panel positioning */
-  .symbol-panel {
-    right: 290px;
-  }
-  
-  /* Book reference popup positioning */
-  .book-ref-popup {
-    right: 290px;
-  }
-  
-  /* Full-page sections - make room for sidebar */
-  .biblical-timeline-page,
-  .bible-explorer-page,
-  .events-page,
-  .priestly-page,
-  .sabbath-tester-page {
-    right: 280px;
-  }
-  
-  /* Center content within these pages */
   .events-page-content,
   .priestly-page-content,
   .sabbath-tester-content {
     max-width: 900px;
     margin-left: auto;
     margin-right: auto;
-  }
-  
-  /* Day detail popup */
-  .day-popup-overlay {
-    right: 280px;
-  }
-  
-  /* Profile picker - position relative to sidebar on desktop */
-  .profile-picker {
-    right: 290px !important;
-    left: auto !important;
-    top: 70px !important;
-  }
-  
-  /* Profile picker overlay - don't cover sidebar */
-  .profile-picker-overlay {
-    right: 280px;
-  }
-  
-  /* Modals should be centered in the content area, not full viewport */
-  .modal-overlay,
-  .bible-reader-modal,
-  .torah-info-modal,
-  .about-overlay,
-  .jubilee-overlay,
-  .ios-install-overlay {
-    right: 280px;
   }
 }
 

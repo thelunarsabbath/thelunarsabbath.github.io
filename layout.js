@@ -2,13 +2,13 @@
  * Layout - Responsive layout management
  * 
  * Handles:
- * - Desktop (>=1200px): Fixed right sidebar
- * - Mobile (<1200px): Hamburger menu with slide-in
+ * - Desktop (>=900px): Horizontal nav links with dropdown
+ * - Mobile (<900px): Hamburger menu with slide-in sidebar
  * - PWA: Forward/back navigation buttons
  */
 
 const Layout = {
-  DESKTOP_BREAKPOINT: 1200,
+  DESKTOP_BREAKPOINT: 900,
   
   // Element references
   elements: {
@@ -20,6 +20,14 @@ const Layout = {
     pwaNavButtons: null,
     contentArea: null
   },
+  
+  // Currently open dropdown
+  _openDropdown: null,
+  
+  // Scroll-direction header auto-hide state
+  _lastScrollY: 0,
+  _navHidden: false,
+  _scrollTicking: false,
   
   /**
    * Initialize the layout
@@ -37,7 +45,9 @@ const Layout = {
     // Setup event handlers
     this.setupResizeHandler();
     this.setupMenuHandlers();
+    this.setupDropdownHandlers();
     this.setupPWANavigation();
+    this.setupScrollHide();
     
     // Initial layout update
     this.updateLayout();
@@ -50,13 +60,10 @@ const Layout = {
     // Mobile: handle popstate for menu history management
     window.addEventListener('popstate', () => {
       if (this._menuBackInProgress) {
-        // This popstate is from our programmatic history.back() (overlay/escape close)
-        // Just clean up — URL hasn't changed, url-router's handler will be a no-op
         this._menuBackInProgress = false;
         return;
       }
       if (this._menuHistoryPushed && AppStore.getState().ui.menuOpen) {
-        // User pressed back while menu was open — close it
         this._menuHistoryPushed = false;
         AppStore.dispatch({ type: 'CLOSE_MENU' });
       }
@@ -90,30 +97,16 @@ const Layout = {
     this.elements.body.classList.toggle('mobile-layout', !isDesktop);
     this.elements.body.classList.toggle('pwa-mode', isPWA);
     
-    // PWA nav buttons removed: keep only the right-side nav (nav-back-btn / nav-forward-btn) to avoid duplicate back/forward in install mode
-    if (this.elements.pwaNavButtons) {
-      this.elements.pwaNavButtons.style.display = 'none';
-    }
-    
-    // On desktop, always show sidebar, hide hamburger
+    // Hamburger is always the menu trigger now (hidden on desktop via CSS, 
+    // but becomes visible when viewport narrows)
+    // Sidebar is always hamburger-driven (no always-visible mode)
     if (isDesktop) {
+      // Close mobile menu if switching to desktop
       if (this.elements.sidebar) {
-        this.elements.sidebar.classList.add('visible');
         this.elements.sidebar.classList.remove('open');
       }
       if (this.elements.menuOverlay) {
         this.elements.menuOverlay.classList.remove('visible');
-      }
-      if (this.elements.hamburgerBtn) {
-        this.elements.hamburgerBtn.style.display = 'none';
-      }
-    } else {
-      // On mobile, show hamburger, hide sidebar by default
-      if (this.elements.hamburgerBtn) {
-        this.elements.hamburgerBtn.style.display = 'flex';
-      }
-      if (this.elements.sidebar) {
-        this.elements.sidebar.classList.remove('visible');
       }
     }
   },
@@ -127,9 +120,6 @@ const Layout = {
    * Update menu state based on store
    */
   updateMenuState(isOpen) {
-    // Only applies to mobile
-    if (this.isDesktop()) return;
-    
     if (this.elements.sidebar) {
       this.elements.sidebar.classList.toggle('open', isOpen);
     }
@@ -140,18 +130,15 @@ const Layout = {
     // Prevent body scroll when menu is open
     this.elements.body.classList.toggle('menu-open', isOpen);
     
-    // Mobile: push history state when menu opens so back button closes it
+    // Push history state when menu opens so back button closes it
     if (isOpen && !this._menuHistoryPushed) {
       this._menuHistoryPushed = true;
       history.pushState({ menuOpen: true }, '', window.location.href);
     } else if (!isOpen && this._menuHistoryPushed) {
       this._menuHistoryPushed = false;
       if (this._menuClosingForNav) {
-        // Navigating via menu item — don't pop history, navigation will push on top.
-        // The stale entry has the same URL, just one extra harmless back step.
         this._menuClosingForNav = false;
       } else {
-        // Closed without navigation (overlay, escape) — pop our history entry
         this._menuBackInProgress = true;
         history.back();
       }
@@ -164,10 +151,8 @@ const Layout = {
   setupResizeHandler() {
     let resizeTimeout;
     window.addEventListener('resize', () => {
-      // Add resizing class to disable transitions during resize
       this.elements.body.classList.add('resizing');
       
-      // Debounce resize events
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         this.updateLayout();
@@ -177,7 +162,9 @@ const Layout = {
           AppStore.dispatch({ type: 'CLOSE_MENU' });
         }
         
-        // Remove resizing class after layout update, allowing transitions again
+        // Close dropdown if viewport changed
+        this.closeDropdown();
+        
         requestAnimationFrame(() => {
           this.elements.body.classList.remove('resizing');
         });
@@ -204,13 +191,10 @@ const Layout = {
     }
     
     // Close menu when clicking a menu item (navigation)
-    // Use CAPTURING phase so the flag is set BEFORE the button's inline onclick fires.
-    // The inline onclick dispatches CLOSE_MENU + SET_VIEW via dispatchBatch; without
-    // this flag set first, updateMenuState would call history.back() and undo the navigation.
     if (this.elements.sidebar) {
       this.elements.sidebar.addEventListener('click', (e) => {
         const menuItem = e.target.closest('.menu-item');
-        if (menuItem && !this.isDesktop()) {
+        if (menuItem) {
           this._menuClosingForNav = true;
         }
       }, true);
@@ -218,20 +202,18 @@ const Layout = {
     
     // Global keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-      // Don't handle shortcuts when typing in input fields
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
         return;
       }
       
-      // Escape - close menu and pickers
+      // Escape - close menu, dropdowns, and pickers
       if (e.key === 'Escape') {
         AppStore.dispatch({ type: 'CLOSE_MENU' });
         AppStore.dispatch({ type: 'CLOSE_ALL_PICKERS' });
-        // Close Strong's panel if open
+        this.closeDropdown();
         if (typeof closeStrongsPanel === 'function') {
           closeStrongsPanel();
         }
-        // Close concept search if open
         if (typeof closeConceptSearch === 'function') {
           closeConceptSearch();
         }
@@ -244,34 +226,23 @@ const Layout = {
       
       // Calendar shortcuts
       if (currentView === 'calendar') {
-        // t - Go to today
         if (e.key === 't' || e.key === 'T') {
           e.preventDefault();
           AppStore.dispatch({ type: 'GO_TO_TODAY' });
           return;
         }
-        
-        // n or → - Next day
         if (e.key === 'n' || e.key === 'N' || e.key === 'ArrowRight') {
           e.preventDefault();
           const jd = state.context.selectedDate;
-          if (jd) {
-            AppStore.dispatch({ type: 'SET_SELECTED_DATE', jd: jd + 1 });
-          }
+          if (jd) AppStore.dispatch({ type: 'SET_SELECTED_DATE', jd: jd + 1 });
           return;
         }
-        
-        // p or ← - Previous day
         if (e.key === 'p' || e.key === 'P' || e.key === 'ArrowLeft') {
           e.preventDefault();
           const jd = state.context.selectedDate;
-          if (jd) {
-            AppStore.dispatch({ type: 'SET_SELECTED_DATE', jd: jd - 1 });
-          }
+          if (jd) AppStore.dispatch({ type: 'SET_SELECTED_DATE', jd: jd - 1 });
           return;
         }
-        
-        // ] - Next month
         if (e.key === ']') {
           e.preventDefault();
           if (typeof CalendarView !== 'undefined' && CalendarView.navigateMonth) {
@@ -279,8 +250,6 @@ const Layout = {
           }
           return;
         }
-        
-        // [ - Previous month
         if (e.key === '[') {
           e.preventDefault();
           if (typeof CalendarView !== 'undefined' && CalendarView.navigateMonth) {
@@ -292,31 +261,65 @@ const Layout = {
       
       // Bible reader shortcuts
       if (currentView === 'bible' || currentView === 'reader') {
-        // Only apply arrow keys for bible content in reader
         const isBibleContent = currentView === 'bible' || 
           (currentView === 'reader' && state?.content?.params?.contentType === 'bible');
         
         if (isBibleContent) {
-          // → - Next chapter
           if (e.key === 'ArrowRight') {
             e.preventDefault();
-            if (typeof navigateBibleChapter === 'function') {
-              navigateBibleChapter(1);
-            }
+            if (typeof navigateBibleChapter === 'function') navigateBibleChapter(1);
             return;
           }
-          
-          // ← - Previous chapter
           if (e.key === 'ArrowLeft') {
             e.preventDefault();
-            if (typeof navigateBibleChapter === 'function') {
-              navigateBibleChapter(-1);
-            }
+            if (typeof navigateBibleChapter === 'function') navigateBibleChapter(-1);
             return;
           }
         }
       }
     });
+  },
+  
+  /**
+   * Setup dropdown handlers (close when clicking outside)
+   */
+  setupDropdownHandlers() {
+    document.addEventListener('click', (e) => {
+      if (this._openDropdown) {
+        const dropdown = document.getElementById(this._openDropdown);
+        if (dropdown && !dropdown.contains(e.target)) {
+          this.closeDropdown();
+        }
+      }
+    });
+  },
+  
+  /**
+   * Toggle a dropdown menu
+   */
+  toggleDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
+    
+    if (this._openDropdown === dropdownId) {
+      this.closeDropdown();
+    } else {
+      // Close any other open dropdown
+      this.closeDropdown();
+      dropdown.classList.add('open');
+      this._openDropdown = dropdownId;
+    }
+  },
+  
+  /**
+   * Close the currently open dropdown
+   */
+  closeDropdown() {
+    if (this._openDropdown) {
+      const dropdown = document.getElementById(this._openDropdown);
+      if (dropdown) dropdown.classList.remove('open');
+      this._openDropdown = null;
+    }
   },
   
   /**
@@ -327,16 +330,68 @@ const Layout = {
     const forwardBtn = document.getElementById('pwa-forward-btn');
     
     if (backBtn) {
-      backBtn.addEventListener('click', () => {
-        history.back();
-      });
+      backBtn.addEventListener('click', () => history.back());
     }
-    
     if (forwardBtn) {
-      forwardBtn.addEventListener('click', () => {
-        history.forward();
-      });
+      forwardBtn.addEventListener('click', () => history.forward());
     }
+  },
+  
+  /**
+   * Setup scroll-direction-aware auto-hide for the top nav.
+   * Hides on scroll-down, shows immediately on any scroll-up.
+   * Only active when body is the scroll container (mobile bible/reader views).
+   */
+  setupScrollHide() {
+    const HIDE_THRESHOLD = 10; // Minimum scroll-down before hiding (px)
+    
+    window.addEventListener('scroll', () => {
+      if (this._scrollTicking) return;
+      this._scrollTicking = true;
+      
+      requestAnimationFrame(() => {
+        this._scrollTicking = false;
+        const nav = this.elements.topNav;
+        if (!nav) return;
+        
+        // Only auto-hide when body is scrolling (mobile bible/reader)
+        const body = document.body;
+        const isScrollableView = body.classList.contains('view-bible') || 
+          (body.classList.contains('view-reader') && !body.classList.contains('reader-landing'));
+        
+        if (!isScrollableView) {
+          // Reset if we switched away from a scrollable view
+          if (this._navHidden) {
+            this._navHidden = false;
+            nav.classList.remove('nav-hidden');
+            body.classList.remove('nav-hidden');
+          }
+          this._lastScrollY = window.scrollY;
+          return;
+        }
+        
+        const currentY = window.scrollY;
+        const delta = currentY - this._lastScrollY;
+        
+        if (delta > HIDE_THRESHOLD && currentY > 80) {
+          // Scrolling DOWN past threshold — hide
+          if (!this._navHidden) {
+            this._navHidden = true;
+            nav.classList.add('nav-hidden');
+            body.classList.add('nav-hidden');
+          }
+        } else if (delta < 0) {
+          // Scrolling UP at all — show immediately
+          if (this._navHidden) {
+            this._navHidden = false;
+            nav.classList.remove('nav-hidden');
+            body.classList.remove('nav-hidden');
+          }
+        }
+        
+        this._lastScrollY = currentY;
+      });
+    }, { passive: true });
   },
   
   /**

@@ -26,7 +26,7 @@ const SettingsView = {
     // Load current preferences
     const translation = this.getTranslationPreference();
     const locationPref = this.getLocationPreference();
-    const theme = this.getThemePreference();
+    const themePreference = this.getThemePreference();
     const namePrefs = this.getNamePreferences();
     const currentLocation = state.context.location;
     const currentProfileId = state.context.profileId || 'timeTested';
@@ -40,7 +40,8 @@ const SettingsView = {
         const selected = id === currentProfileId ? 'selected' : '';
         return `<option value="${id}" ${selected}>${icon} ${name}</option>`;
       })
-      .join('');
+      .join('')
+      + '<option value="__custom__">➕ Create Custom...</option>';
     
     // Reset map initialization flag when rendering fresh
     this._mapInitialized = false;
@@ -201,15 +202,21 @@ const SettingsView = {
         <!-- Theme Preference -->
         <section class="settings-section">
           <h3>🎨 Theme</h3>
-          <p class="settings-description">Choose your preferred color theme.</p>
+          <p class="settings-description">Choose your preferred color theme. Auto follows your system setting, or uses time of day.</p>
           <div class="settings-theme-options">
-            <button class="settings-option-btn ${theme === 'dark' ? 'selected' : ''}" 
+            <button class="settings-option-btn ${themePreference === 'auto' ? 'selected' : ''}" 
+                    onclick="AppStore.dispatch({type:'SET_THEME', theme:'auto'})"
+                    data-theme="auto">
+              <span class="option-icon">🔄</span>
+              <span class="option-label">Auto</span>
+            </button>
+            <button class="settings-option-btn ${themePreference === 'dark' ? 'selected' : ''}" 
                     onclick="AppStore.dispatch({type:'SET_THEME', theme:'dark'})"
                     data-theme="dark">
               <span class="option-icon">🌙</span>
               <span class="option-label">Dark</span>
             </button>
-            <button class="settings-option-btn ${theme === 'light' ? 'selected' : ''}" 
+            <button class="settings-option-btn ${themePreference === 'light' ? 'selected' : ''}" 
                     onclick="AppStore.dispatch({type:'SET_THEME', theme:'light'})"
                     data-theme="light">
               <span class="option-icon">☀️</span>
@@ -259,6 +266,22 @@ const SettingsView = {
    * Save profile preference
    */
   saveProfilePreference(profileId) {
+    if (profileId === '__custom__') {
+      // Reset dropdown to current profile while modal is open
+      const select = document.getElementById('settings-profile-select');
+      const state = AppStore.getState();
+      if (select) select.value = state.context.profileId;
+      
+      // Show the profile name modal (reuse CalendarView's modal)
+      if (typeof CalendarView !== 'undefined' && CalendarView.showProfileNameModal) {
+        CalendarView.showProfileNameModal('create', () => {
+          // After creation, update the dropdown to show the new profile
+          this._refreshProfileDropdown();
+        });
+      }
+      return;
+    }
+    
     try {
       localStorage.setItem('defaultCalendarProfile', profileId);
       // Update current profile in AppStore
@@ -268,6 +291,31 @@ const SettingsView = {
     } catch (e) {
       console.error('Failed to save profile preference:', e);
     }
+  },
+  
+  /**
+   * Refresh the profile dropdown to reflect current profiles and selection
+   */
+  _refreshProfileDropdown() {
+    const select = document.getElementById('settings-profile-select');
+    if (!select) return;
+    const state = AppStore.getState();
+    const currentProfileId = state.context.profileId || 'timeTested';
+    const profiles = window.PROFILES || {};
+    
+    let html = Object.entries(profiles)
+      .map(([id, profile]) => {
+        const icon = profile.icon || '📅';
+        const name = profile.name || id;
+        const selected = id === currentProfileId ? ' selected' : '';
+        return `<option value="${id}"${selected}>${icon} ${name}</option>`;
+      })
+      .join('');
+    html += '<option value="__custom__">➕ Create Custom...</option>';
+    select.innerHTML = html;
+    
+    // Also persist the new profile as default
+    try { localStorage.setItem('defaultCalendarProfile', currentProfileId); } catch(e) {}
   },
   
   /**
@@ -394,8 +442,8 @@ const SettingsView = {
         </div>`;
       }
 
-      html += `<div class="translation-sort-item" data-id="${t.id}" draggable="true">
-        <span class="ts-grip">⠿</span>
+      html += `<div class="translation-sort-item" data-id="${t.id}">
+        <span class="ts-grip" draggable="true">⠿</span>
         <span class="ts-name">${t.name}</span>
         <span class="ts-fullname">${t.fullName}</span>
         ${yearStr}
@@ -432,8 +480,9 @@ const SettingsView = {
     let touchClone = null;
     let touchStartY = 0;
 
-    // --- Mouse / HTML5 drag ---
+    // --- Mouse / HTML5 drag (only from grip) ---
     list.addEventListener('dragstart', (e) => {
+      if (!e.target.closest('.ts-grip')) { e.preventDefault(); return; }
       const item = e.target.closest('.translation-sort-item');
       if (!item) return;
       dragItem = item;
@@ -465,8 +514,9 @@ const SettingsView = {
       }
     });
 
-    // --- Touch drag ---
+    // --- Touch drag (only from grip) ---
     list.addEventListener('touchstart', (e) => {
+      if (!e.target.closest('.ts-grip')) return;
       const item = e.target.closest('.translation-sort-item');
       if (!item) return;
       dragItem = item;
@@ -781,9 +831,9 @@ const SettingsView = {
    */
   getThemePreference() {
     try {
-      return localStorage.getItem('userThemePreference') || 'dark';
+      return localStorage.getItem('userThemePreference') || 'auto';
     } catch (e) {
-      return 'dark';
+      return 'auto';
     }
   },
   

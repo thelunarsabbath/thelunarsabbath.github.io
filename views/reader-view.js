@@ -1709,7 +1709,7 @@ const ReaderView = {
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       // Highlight briefly
-      el.style.backgroundColor = 'rgba(212, 160, 23, 0.3)';
+      el.style.backgroundColor = 'var(--reader-highlight)';
       setTimeout(() => {
         el.style.backgroundColor = '';
       }, 2000);

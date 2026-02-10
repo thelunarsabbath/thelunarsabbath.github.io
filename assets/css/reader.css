@@ -34,7 +34,7 @@
 
 .reader-content-card {
   background: var(--color-bg-dark);
-  border: 1px solid rgba(126, 200, 227, 0.2);
+  border: 1px solid var(--accent-primary-muted);
   border-radius: 8px;
   padding: var(--spacing-lg);
   display: flex;
@@ -45,13 +45,13 @@
 
 .reader-content-card:hover {
   border-color: var(--color-accent);
-  box-shadow: 0 4px 12px rgba(126, 200, 227, 0.1);
+  box-shadow: 0 4px 12px var(--accent-primary-subtle);
 }
 
 .reader-content-card:hover .reader-card-btn {
-  background: #5fb8d9;
+  background: var(--accent-primary);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(126, 200, 227, 0.3);
+  box-shadow: 0 2px 8px var(--border-accent);
 }
 
 .reader-card-icon {
@@ -93,15 +93,15 @@
 }
 
 .reader-card-btn:hover {
-  background: #5fb8d9;
+  background: var(--accent-primary);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(126, 200, 227, 0.3);
+  box-shadow: 0 2px 8px var(--border-accent);
 }
 
 .reader-landing-features {
   margin-top: var(--spacing-xl);
   padding-top: var(--spacing-xl);
-  border-top: 1px solid rgba(126, 200, 227, 0.2);
+  border-top: 1px solid var(--accent-primary-muted);
 }
 
 .reader-landing-features h2 {
@@ -142,13 +142,13 @@
   align-items: center;
   padding: var(--spacing-sm) var(--spacing-md);
   background: var(--color-bg-dark);
-  border-bottom: 1px solid rgba(126, 200, 227, 0.2);
+  border-bottom: 1px solid var(--accent-primary-muted);
   flex-shrink: 0;
 }
 
 .symbol-nav-btn {
   background: transparent;
-  border: 1px solid rgba(126, 200, 227, 0.3);
+  border: 1px solid var(--border-accent);
   color: var(--color-accent);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: 4px;
@@ -158,7 +158,7 @@
 }
 
 .symbol-nav-btn:hover {
-  background: rgba(126, 200, 227, 0.1);
+  background: var(--accent-primary-subtle);
   border-color: var(--color-accent);
 }
 
@@ -181,7 +181,7 @@
 .reader-symbol-content .symbol-header {
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .reader-symbol-content .symbol-header h1 {
@@ -198,9 +198,9 @@
 }
 
 .symbol-strongs-btn {
-  background: rgba(212, 160, 23, 0.15);
-  border: 1px solid rgba(212, 160, 23, 0.4);
-  color: #d4a017;
+  background: var(--accent-gold-subtle);
+  border: 1px solid var(--accent-gold-muted);
+  color: var(--accent-gold);
   padding: 2px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -210,8 +210,8 @@
 }
 
 .symbol-strongs-btn:hover {
-  background: rgba(212, 160, 23, 0.25);
-  border-color: #d4a017;
+  background: var(--accent-gold-muted);
+  border-color: var(--accent-gold);
 }
 
 .symbol-meanings {
@@ -221,7 +221,7 @@
 .meaning-block {
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-sm) var(--spacing-md);
-  background: rgba(42, 90, 140, 0.3);
+  background: var(--accent-primary-subtle);
   border-radius: 8px;
   border-left: 3px solid var(--color-accent);
 }
@@ -231,12 +231,12 @@
 }
 
 .meaning-block.meaning-does {
-  border-left-color: #90c090;
+  border-left-color: var(--color-success);
 }
 
 .meaning-block.meaning-opposite {
-  border-left-color: #c09090;
-  background: rgba(140, 60, 60, 0.2);
+  border-left-color: var(--color-error);
+  background: var(--color-error-muted);
 }
 
 .meaning-block .meaning-label {
@@ -260,13 +260,13 @@
 .symbol-full-study {
   margin-top: var(--spacing-lg);
   padding-top: var(--spacing-lg);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .full-study-link {
   display: inline-block;
-  background: linear-gradient(135deg, #2a5a7a 0%, #1a3a5c 100%);
-  border: 1px solid rgba(126, 200, 227, 0.4);
+  background: var(--gradient-btn-primary);
+  border: 1px solid var(--accent-primary-strong);
   color: var(--color-accent);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: 8px;
@@ -276,7 +276,7 @@
 }
 
 .full-study-link:hover {
-  background: linear-gradient(135deg, #3a6a8a 0%, #2a4a6c 100%);
+  background: var(--gradient-btn-primary-hover);
   border-color: var(--color-accent);
 }
 
@@ -309,8 +309,8 @@
 }
 
 .symbol-index-item {
-  background: linear-gradient(135deg, rgba(42, 90, 140, 0.5) 0%, rgba(26, 58, 92, 0.7) 100%);
-  border: 1px solid rgba(126, 200, 227, 0.3);
+  background: linear-gradient(135deg, var(--accent-primary-muted) 0%, rgba(26, 58, 92, 0.7) 100%);
+  border: 1px solid var(--border-accent);
   border-radius: 8px;
   padding: var(--spacing-md);
   text-align: left;
@@ -322,7 +322,7 @@
 .symbol-index-item:hover {
   transform: translateY(-2px);
   border-color: var(--color-accent);
-  box-shadow: 0 4px 15px rgba(126, 200, 227, 0.15);
+  box-shadow: 0 4px 15px var(--accent-primary-muted);
 }
 
 .symbol-index-name {
@@ -354,7 +354,7 @@
   width: 100%;
   text-align: left;
   background: linear-gradient(135deg, rgba(42, 90, 140, 0.4) 0%, rgba(26, 58, 92, 0.6) 100%);
-  border: 1px solid rgba(126, 200, 227, 0.25);
+  border: 1px solid var(--accent-primary-muted);
   border-radius: 8px;
   padding: var(--spacing-md);
   cursor: pointer;
@@ -363,7 +363,7 @@
 }
 .word-study-index-item:hover {
   border-color: var(--color-accent);
-  box-shadow: 0 4px 15px rgba(126, 200, 227, 0.12);
+  box-shadow: 0 4px 15px var(--accent-primary-subtle);
 }
 .word-study-index-item .word-study-strongs {
   font-weight: 600;
@@ -409,7 +409,7 @@
   color: var(--color-accent);
   margin: var(--spacing-xl) 0 var(--spacing-md);
   padding-bottom: var(--spacing-sm);
-  border-bottom: 2px solid rgba(126, 200, 227, 0.3);
+  border-bottom: 2px solid var(--border-accent);
 }
 
 .symbol-study-body h2,
@@ -420,7 +420,7 @@
   color: var(--color-accent);
   margin: var(--spacing-xl) 0 var(--spacing-md);
   padding-bottom: var(--spacing-xs);
-  border-bottom: 1px solid rgba(126, 200, 227, 0.2);
+  border-bottom: 1px solid var(--accent-primary-muted);
 }
 
 .symbol-study-body h3,
@@ -501,7 +501,7 @@
   padding: var(--spacing-md) var(--spacing-lg);
   margin: var(--spacing-md) var(--spacing-xl);
   background: rgba(212, 160, 23, 0.05);
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
   font-style: italic;
   border-radius: 0 6px 6px 0;
 }
@@ -534,7 +534,7 @@
 .word-study-body code,
 .number-study-body code,
 .ttt-chapter-body code {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--surface-sunken);
   padding: 2px 6px;
   border-radius: 3px;
   font-family: 'Consolas', 'Monaco', monospace;
@@ -559,7 +559,7 @@
 .number-study-body td,
 .ttt-chapter-body th,
 .ttt-chapter-body td {
-  border: 1px solid rgba(126, 200, 227, 0.3);
+  border: 1px solid var(--border-accent);
   padding: var(--spacing-sm) var(--spacing-md);
   text-align: left;
 }
@@ -568,7 +568,7 @@
 .word-study-body th,
 .number-study-body th,
 .ttt-chapter-body th {
-  background: rgba(42, 90, 140, 0.3);
+  background: var(--accent-primary-subtle);
   color: var(--color-accent);
   font-weight: 600;
 }
@@ -579,14 +579,14 @@
 .number-study-body hr,
 .ttt-chapter-body hr {
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-subtle);
   margin: var(--spacing-xl) 0;
 }
 
 /* Collapsible details (e.g. reviews page methodology & prompt) */
 .ttt-chapter-body details {
   margin: var(--spacing-md) 0;
-  border: 1px solid rgba(126, 200, 227, 0.25);
+  border: 1px solid var(--accent-primary-muted);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -595,7 +595,7 @@
   background: rgba(42, 90, 140, 0.25);
   cursor: pointer;
   font-weight: 600;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   list-style: none;
   user-select: none;
 }
@@ -608,7 +608,7 @@
 .ttt-chapter-body details pre {
   margin: 0;
   border-radius: 0;
-  border-top: 1px solid rgba(126, 200, 227, 0.2);
+  border-top: 1px solid var(--accent-primary-muted);
 }
 
 /* Number Study Styles */
@@ -629,7 +629,7 @@
   margin-top: 0;
   margin-bottom: var(--spacing-xl);
   padding-bottom: var(--spacing-xl);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .number-study-list h2 {
@@ -646,8 +646,8 @@
 
 .number-study-item {
   padding: var(--spacing-sm);
-  background: rgba(42, 90, 140, 0.3);
-  border: 1px solid rgba(126, 200, 227, 0.2);
+  background: var(--accent-primary-subtle);
+  border: 1px solid var(--accent-primary-muted);
   border-radius: 4px;
   cursor: pointer;
   text-align: center;
@@ -668,8 +668,8 @@
 
 /* Code blocks and inline code (generated by marked.js) */
 pre {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  background: var(--shadow-lg);
+  border: 1px solid var(--color-border, var(--border-subtle));
   border-radius: var(--radius-sm, 4px);
   padding: var(--spacing-md);
   margin: var(--spacing-md) 0;
@@ -686,8 +686,8 @@ pre code {
 }
 
 code {
-  background: rgba(126, 200, 227, 0.15);
-  color: #7ec8e3;
+  background: var(--accent-primary-muted);
+  color: var(--accent-primary);
   padding: 2px 6px;
   border-radius: 3px;
   font-family: 'Courier New', Consolas, Monaco, monospace;
@@ -706,29 +706,29 @@ code {
 .md-table td {
   padding: var(--spacing-sm) var(--spacing-md);
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .md-table th {
-  color: #7ec8e3;
-  border-bottom: 2px solid rgba(126, 200, 227, 0.3);
+  color: var(--accent-primary);
+  border-bottom: 2px solid var(--border-accent);
   font-weight: 600;
 }
 
 .md-table tr:hover td {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--calendar-day-bg);
 }
 
 /* Event reference links (in timeline docs) */
 .event-ref-link {
-  color: #d4a017;
+  color: var(--accent-gold);
   text-decoration: none;
-  border-bottom: 1px dotted #d4a017;
+  border-bottom: 1px dotted var(--accent-gold);
   transition: all 0.2s ease;
 }
 
 .event-ref-link:hover {
-  color: #e6b82e;
+  color: var(--accent-gold-hover);
   border-bottom-style: solid;
 }
 
@@ -738,39 +738,39 @@ code {
   gap: 6px;
   padding: 4px 10px;
   margin: 4px 0;
-  background: rgba(212, 160, 23, 0.1);
-  border: 1px solid rgba(212, 160, 23, 0.3);
+  background: var(--accent-gold-subtle);
+  border: 1px solid var(--accent-gold-muted);
   border-radius: 4px;
   font-size: 0.9em;
 }
 
 /* Scripture reference links (in event/duration details) */
 .scripture-link {
-  color: #7ec8e3 !important;
+  color: var(--accent-primary) !important;
   text-decoration: none;
-  border-bottom: 1px dotted rgba(126, 200, 227, 0.5);
+  border-bottom: 1px dotted var(--accent-primary-strong);
   transition: all 0.2s ease;
 }
 
 .scripture-link:hover {
-  color: #a8dff5 !important;
+  color: var(--accent-primary-hover) !important;
   border-bottom-style: solid;
-  border-bottom-color: #7ec8e3;
+  border-bottom-color: var(--accent-primary);
 }
 
 .scripture-link:visited {
-  color: #7ec8e3 !important;
+  color: var(--accent-primary) !important;
 }
 
 /* Lunar date links (calendar navigation) */
 .lunar-date-link {
-  color: #7ec8e3;
+  color: var(--accent-primary);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .lunar-date-link:hover {
-  color: #a8dff5;
+  color: var(--accent-primary-hover);
 }
 
 /* Symbol References (inline links to other symbols) */
@@ -783,7 +783,7 @@ code {
 }
 
 .symbol-ref:hover {
-  color: var(--color-accent-hover, #e6b82e);
+  color: var(--color-accent-hover, var(--accent-gold-hover));
   border-bottom-style: solid;
 }
 
@@ -797,10 +797,10 @@ code {
   z-index: 10200;
   max-width: 350px;
   padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--color-surface, #1a1a2e);
+  background: var(--color-surface, var(--surface-raised));
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-md, 8px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px var(--surface-scrim);
   opacity: 0;
   transition: opacity 0.2s ease;
   pointer-events: none;
@@ -845,7 +845,7 @@ code {
 }
 .classics-index-title {
   font-size: 1.6rem;
-  color: var(--color-accent, #d4a017);
+  color: var(--color-accent, var(--accent-gold));
   margin-bottom: var(--spacing-sm);
 }
 .classics-index-intro {
@@ -869,7 +869,7 @@ code {
   transition: background 0.15s;
 }
 .classics-work-item:hover {
-  background: rgba(212, 160, 23, 0.1);
+  background: var(--accent-gold-subtle);
 }
 .classics-work-name {
   font-size: 1rem;
@@ -891,11 +891,11 @@ code {
 .classics-reader-header {
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid rgba(212, 160, 23, 0.2);
+  border-bottom: 1px solid var(--accent-gold-muted);
 }
 .classics-reader-header h1 {
   font-size: 1.4rem;
-  color: var(--color-accent, #d4a017);
+  color: var(--color-accent, var(--accent-gold));
   margin-bottom: var(--spacing-xs);
 }
 .classics-reader-meta {
@@ -912,10 +912,10 @@ code {
 /* Chapter headings (Josephus) */
 .classics-chapter-heading {
   font-size: 1.15rem;
-  color: var(--color-accent, #d4a017);
+  color: var(--color-accent, var(--accent-gold));
   margin: var(--spacing-xl) 0 var(--spacing-md);
   padding-top: var(--spacing-md);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--surface-hover);
 }
 
 /* Individual passage/section */
@@ -930,7 +930,7 @@ code {
 .classics-section-num {
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--color-accent, #d4a017);
+  color: var(--color-accent, var(--accent-gold));
   opacity: 0.7;
   margin-right: 0.4em;
   cursor: default;
@@ -947,10 +947,10 @@ code {
 .classics-book-nav-bottom {
   margin-top: var(--spacing-xl);
   padding-top: var(--spacing-md);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--surface-hover);
 }
 .classics-book-nav-btn {
-  color: var(--color-accent, #d4a017);
+  color: var(--color-accent, var(--accent-gold));
   text-decoration: none;
   font-size: 0.9rem;
   padding: var(--spacing-xs) var(--spacing-sm);
@@ -958,14 +958,14 @@ code {
   transition: background 0.15s;
 }
 .classics-book-nav-btn:hover {
-  background: rgba(212, 160, 23, 0.15);
+  background: var(--accent-gold-subtle);
 }
 
 /* Citation links inside classics text */
 .classics-citation-link {
-  color: var(--color-accent, #d4a017);
+  color: var(--color-accent, var(--accent-gold));
   text-decoration: none;
-  border-bottom: 1px dotted rgba(212, 160, 23, 0.4);
+  border-bottom: 1px dotted var(--accent-gold-muted);
 }
 .classics-citation-link:hover {
   border-bottom-style: solid;
@@ -974,7 +974,7 @@ code {
 /* Footnote markers */
 .classics-fn {
   font-size: 0.7em;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   cursor: default;
   vertical-align: super;
   line-height: 0;
@@ -983,7 +983,7 @@ code {
 
 .classics-fn.has-footnote {
   cursor: pointer;
-  color: #d4a017;
+  color: var(--accent-gold);
 }
 
 .classics-fn.has-footnote:hover {
@@ -997,12 +997,12 @@ code {
   max-width: 320px;
   padding: 10px 14px;
   background: rgba(20, 30, 50, 0.97);
-  border: 1px solid rgba(212, 160, 23, 0.4);
+  border: 1px solid var(--accent-gold-muted);
   border-radius: 8px;
-  color: #ccc;
+  color: var(--text-secondary);
   font-size: 0.85em;
   line-height: 1.5;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 16px var(--surface-scrim);
   opacity: 0;
   transition: opacity 0.15s;
   pointer-events: auto;

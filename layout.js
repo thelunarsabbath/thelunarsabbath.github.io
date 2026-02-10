@@ -204,15 +204,16 @@ const Layout = {
     }
     
     // Close menu when clicking a menu item (navigation)
+    // Use CAPTURING phase so the flag is set BEFORE the button's inline onclick fires.
+    // The inline onclick dispatches CLOSE_MENU + SET_VIEW via dispatchBatch; without
+    // this flag set first, updateMenuState would call history.back() and undo the navigation.
     if (this.elements.sidebar) {
       this.elements.sidebar.addEventListener('click', (e) => {
         const menuItem = e.target.closest('.menu-item');
         if (menuItem && !this.isDesktop()) {
-          // Flag that we're closing for navigation so updateMenuState doesn't history.back()
           this._menuClosingForNav = true;
-          AppStore.dispatch({ type: 'CLOSE_MENU' });
         }
-      });
+      }, true);
     }
     
     // Global keyboard shortcuts

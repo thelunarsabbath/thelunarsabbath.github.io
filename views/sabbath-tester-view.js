@@ -715,7 +715,7 @@ const SabbathTesterView = {
     
     for (const { test, results } of allResults) {
       const yearDisplay = test.year < 0 ? `${Math.abs(test.year) + 1} BC` : `${test.year} AD`;
-      const excludedNote = test.excludeFromScore ? ' <span style="font-size: 0.8em; color: #888;">(not scored)</span>' : '';
+      const excludedNote = test.excludeFromScore ? ' <span style="font-size: 0.8em; color: var(--text-secondary);">(not scored)</span>' : '';
       
       html += `
         <div class="sabbath-test-card">
@@ -758,7 +758,7 @@ const SabbathTesterView = {
               <li><strong>Passover Solar Eclipse (April 28, 32 AD)</strong> — NASA documents a partial solar eclipse visible in Jerusalem at midday on Passover 32 AD, matching the darkness recorded in Matthew 27:45.</li>
             </ul>
             <p>These independent lines of evidence—Tiberius' reign, the sabbatical cycle, temple construction, John's Passovers, Daniel's prophecy, and astronomical data—all align naturally on 32 AD without requiring ad hoc adjustments.</p>
-            <p style="margin-top: 15px;"><a href="/reader/timetested/12_32_AD_Resurrection" style="color: #7ec8e3;">📖 Read the full chapter: 32 AD Resurrection</a></p>
+            <p style="margin-top: 15px;"><a href="/reader/timetested/12_32_AD_Resurrection" style="color: var(--accent-primary);">📖 Read the full chapter: 32 AD Resurrection</a></p>
           </div>
         </details>
       `;
@@ -776,7 +776,7 @@ const SabbathTesterView = {
               <li><strong>No Passover Solar Eclipse</strong> — NASA documents a partial solar eclipse visible in Jerusalem at midday on April 28, 32 AD, matching the darkness at the cross (Matthew 27:45). There is no similar eclipse alignment for Passover 33 AD. Phlegon's record placing it in the "4th year of the 202nd Olympiad" (July 32 – July 33 AD) is approximate and written 105+ years after the event.</li>
             </ul>
             <p>These issues don't necessarily disprove 33 AD, but they require ad hoc adjustments that are unnecessary with a 32 AD crucifixion date.</p>
-            <p style="margin-top: 15px;"><a href="/reader/timetested/12_32_AD_Resurrection" style="color: #7ec8e3;">📖 Read the full chapter: 32 AD Resurrection</a></p>
+            <p style="margin-top: 15px;"><a href="/reader/timetested/12_32_AD_Resurrection" style="color: var(--accent-primary);">📖 Read the full chapter: 32 AD Resurrection</a></p>
           </div>
         </details>
         <div class="test-interpretation">
@@ -917,7 +917,7 @@ const SabbathTesterView = {
           <td data-label="Date" class="date-cell-compact">${dateLinkCompact}</td>
           <td data-label="Day" class="weekday-cell-full">${weekdayFull}</td>
           <td data-label="Day" class="weekday-cell-compact">${weekdayShort}</td>
-          <td data-label="JD" class="jd-cell" style="font-size:0.8em;color:#888">${jdStr}</td>
+          <td data-label="JD" class="jd-cell" style="font-size:0.8em;color:var(--text-secondary)">${jdStr}</td>
           <td data-label="Result" class="${resultClass}">${resultText}</td>
           ${altScoreCell}
         </tr>

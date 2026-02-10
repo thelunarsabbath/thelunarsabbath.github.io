@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lunar Sabbath — Light Theme Prototype</title>
+  <style>
+    /* ═══════════════════════════════════════════════════════════════════════
+       THEME SYSTEM — CSS Custom Properties with data-theme switching
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    /* ── Semantic Design Tokens ────────────────────────────────────────────
+       These are the ONLY color references that views/components should use.
+       They map to different values per theme.
+       ───────────────────────────────────────────────────────────────────── */
+
+    :root {
+      /* Spacing (theme-independent) */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+
+      /* Layout (theme-independent) */
+      --top-nav-height: 56px;
+      --sidebar-width: 280px;
+      --content-max-width: 900px;
+
+      /* Transitions */
+      --transition-fast: 0.2s ease;
+      --transition-theme: 0.3s ease;
+    }
+
+    /* ── DARK THEME (current default) ───────────────────────────────────── */
+    [data-theme="dark"] {
+      /* Surface colors */
+      --surface-base: #1a3a5c;
+      --surface-raised: #0d2840;
+      --surface-sunken: #122e4a;
+      --surface-overlay: rgba(13, 40, 64, 0.95);
+      --surface-highlight: #2a5a8c;
+      --surface-hover: rgba(255, 255, 255, 0.08);
+      --surface-active: rgba(255, 255, 255, 0.12);
+
+      /* Text colors */
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-tertiary: rgba(255, 255, 255, 0.45);
+      --text-inverse: #1a1a1a;
+
+      /* Brand accent (cyan) */
+      --accent-primary: #7ec8e3;
+      --accent-primary-hover: #9ed4eb;
+      --accent-primary-muted: rgba(126, 200, 227, 0.2);
+      --accent-primary-subtle: rgba(126, 200, 227, 0.1);
+
+      /* Brand accent (gold) */
+      --accent-gold: #d4a017;
+      --accent-gold-hover: #e6b422;
+      --accent-gold-muted: rgba(212, 160, 23, 0.25);
+      --accent-gold-subtle: rgba(212, 160, 23, 0.1);
+
+      /* Borders */
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --border-default: rgba(255, 255, 255, 0.2);
+      --border-strong: rgba(255, 255, 255, 0.35);
+      --border-accent: rgba(126, 200, 227, 0.4);
+
+      /* Semantic colors */
+      --color-success: #4caf50;
+      --color-warning: #ff9800;
+      --color-error: #f44336;
+      --color-info: #7ec8e3;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+      /* Scrollbar */
+      --scrollbar-track: rgba(255, 255, 255, 0.05);
+      --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+
+      /* Calendar-specific */
+      --calendar-day-bg: rgba(255, 255, 255, 0.03);
+      --calendar-day-border: rgba(255, 255, 255, 0.08);
+      --calendar-today-ring: #7ec8e3;
+      --calendar-sabbath-bg: rgba(212, 160, 23, 0.12);
+      --calendar-feast-bg: rgba(126, 200, 227, 0.1);
+
+      /* Bible reader specific */
+      --reader-bg: #0d2840;
+      --reader-verse-hover: rgba(126, 200, 227, 0.08);
+      --reader-highlight: rgba(212, 160, 23, 0.3);
+    }
+
+    /* ── LIGHT THEME ────────────────────────────────────────────────────── */
+    [data-theme="light"] {
+      /* Surface colors */
+      --surface-base: #f5f0e8;
+      --surface-raised: #ffffff;
+      --surface-sunken: #ece5d8;
+      --surface-overlay: rgba(255, 255, 255, 0.97);
+      --surface-highlight: #e8dfd0;
+      --surface-hover: rgba(0, 0, 0, 0.04);
+      --surface-active: rgba(0, 0, 0, 0.08);
+
+      /* Text colors */
+      --text-primary: #2c2416;
+      --text-secondary: rgba(44, 36, 22, 0.7);
+      --text-tertiary: rgba(44, 36, 22, 0.45);
+      --text-inverse: #ffffff;
+
+      /* Brand accent (deep teal-blue — legible on light bg) */
+      --accent-primary: #1a6b7a;
+      --accent-primary-hover: #0e5563;
+      --accent-primary-muted: rgba(26, 107, 122, 0.15);
+      --accent-primary-subtle: rgba(26, 107, 122, 0.07);
+
+      /* Brand accent (warm amber-gold — darker for contrast) */
+      --accent-gold: #9e7510;
+      --accent-gold-hover: #7d5c0b;
+      --accent-gold-muted: rgba(158, 117, 16, 0.18);
+      --accent-gold-subtle: rgba(158, 117, 16, 0.08);
+
+      /* Borders */
+      --border-subtle: rgba(44, 36, 22, 0.08);
+      --border-default: rgba(44, 36, 22, 0.15);
+      --border-strong: rgba(44, 36, 22, 0.3);
+      --border-accent: rgba(26, 107, 122, 0.35);
+
+      /* Semantic colors */
+      --color-success: #2e7d32;
+      --color-warning: #e65100;
+      --color-error: #c62828;
+      --color-info: #1a6b7a;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 3px rgba(44, 36, 22, 0.1);
+      --shadow-md: 0 4px 12px rgba(44, 36, 22, 0.1);
+      --shadow-lg: 0 8px 24px rgba(44, 36, 22, 0.15);
+
+      /* Scrollbar */
+      --scrollbar-track: rgba(0, 0, 0, 0.03);
+      --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+
+      /* Calendar-specific */
+      --calendar-day-bg: rgba(255, 255, 255, 0.6);
+      --calendar-day-border: rgba(44, 36, 22, 0.1);
+      --calendar-today-ring: #1a6b7a;
+      --calendar-sabbath-bg: rgba(158, 117, 16, 0.1);
+      --calendar-feast-bg: rgba(26, 107, 122, 0.08);
+
+      /* Bible reader specific */
+      --reader-bg: #faf7f2;
+      --reader-verse-hover: rgba(26, 107, 122, 0.06);
+      --reader-highlight: rgba(158, 117, 16, 0.25);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       BASE STYLES (theme-aware via tokens)
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--surface-base);
+      color: var(--text-primary);
+      font-family: 'Georgia', serif;
+      display: flex;
+      flex-direction: column;
+      transition: background var(--transition-theme), color var(--transition-theme);
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+    }
+
+    a {
+      color: var(--accent-primary);
+      text-decoration: none;
+    }
+    a:hover {
+      color: var(--accent-primary-hover);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       TOP NAVIGATION
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--surface-raised);
+      border-bottom: 1px solid var(--border-default);
+      height: var(--top-nav-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--spacing-md);
+      box-shadow: var(--shadow-sm);
+      transition: background var(--transition-theme), 
+                  border-color var(--transition-theme),
+                  box-shadow var(--transition-theme);
+    }
+
+    .top-nav-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      cursor: pointer;
+    }
+
+    .brand-icon { font-size: 1.8em; }
+
+    .brand-title {
+      font-size: 1.3em;
+      color: var(--accent-primary);
+      font-weight: bold;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75em;
+      color: var(--accent-gold);
+      font-style: italic;
+    }
+
+    .top-nav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .nav-btn {
+      background: var(--surface-hover);
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-primary);
+      font-size: 0.9em;
+      padding: 6px 10px;
+      border-radius: 4px;
+      transition: all var(--transition-fast);
+    }
+    .nav-btn:hover {
+      background: var(--surface-active);
+      border-color: var(--border-accent);
+    }
+
+    .today-btn {
+      background: var(--accent-primary-muted);
+      border: 1px solid var(--border-accent);
+      color: var(--accent-primary);
+      font-weight: 600;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: 6px;
+      transition: all var(--transition-fast);
+    }
+    .today-btn:hover {
+      background: var(--accent-primary);
+      color: var(--text-inverse);
+    }
+
+    .search-input {
+      background: var(--surface-hover);
+      border: 1px solid var(--border-default);
+      color: var(--text-primary);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.9em;
+      width: 160px;
+      transition: all var(--transition-fast);
+    }
+    .search-input::placeholder {
+      color: var(--text-tertiary);
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px var(--accent-primary-muted);
+      width: 220px;
+    }
+
+    .hamburger-btn {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px;
+    }
+    .hamburger-line {
+      width: 22px;
+      height: 2px;
+      background: var(--text-primary);
+      border-radius: 2px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       MAIN LAYOUT
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .main-layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-lg);
+      display: flex;
+      justify-content: center;
+    }
+
+    .content-inner {
+      max-width: var(--content-max-width);
+      width: 100%;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       SIDEBAR
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .sidebar-menu {
+      width: var(--sidebar-width);
+      background: var(--surface-raised);
+      border-left: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      padding: var(--spacing-md) 0;
+      transition: background var(--transition-theme), border-color var(--transition-theme);
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: 12px var(--spacing-lg);
+      width: 100%;
+      text-align: left;
+      font-size: 1em;
+      color: var(--text-primary);
+      transition: background var(--transition-fast);
+      border-radius: 0;
+    }
+    .menu-item:hover {
+      background: var(--surface-hover);
+    }
+    .menu-item.active {
+      background: var(--accent-primary-subtle);
+      color: var(--accent-primary);
+      font-weight: 600;
+      border-right: 3px solid var(--accent-primary);
+    }
+
+    .menu-icon { font-size: 1.2em; }
+    .menu-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: var(--spacing-sm) var(--spacing-lg);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       CALENDAR VIEW
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .calendar-header {
+      text-align: center;
+      margin-bottom: var(--spacing-lg);
+    }
+    .calendar-header h2 {
+      color: var(--accent-gold);
+      font-size: 1.5em;
+      margin: 0 0 4px 0;
+    }
+    .calendar-header .year-label {
+      color: var(--text-tertiary);
+      font-size: 0.9em;
+    }
+
+    .calendar-nav {
+      display: flex;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+    .calendar-nav button {
+      background: var(--surface-hover);
+      border: 1px solid var(--border-default);
+      color: var(--text-primary);
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      transition: all var(--transition-fast);
+    }
+    .calendar-nav button:hover {
+      background: var(--surface-active);
+      border-color: var(--border-accent);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+
+    .calendar-day-header {
+      text-align: center;
+      font-size: 0.75em;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: var(--spacing-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .calendar-day {
+      background: var(--calendar-day-bg);
+      border: 1px solid var(--calendar-day-border);
+      border-radius: 4px;
+      padding: 6px;
+      min-height: 72px;
+      font-size: 0.8em;
+      transition: background var(--transition-fast);
+      cursor: pointer;
+    }
+    .calendar-day:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-accent);
+    }
+    .calendar-day.today {
+      border: 2px solid var(--calendar-today-ring);
+      box-shadow: 0 0 0 1px var(--accent-primary-muted);
+    }
+    .calendar-day.sabbath {
+      background: var(--calendar-sabbath-bg);
+    }
+    .calendar-day.feast {
+      background: var(--calendar-feast-bg);
+    }
+    .calendar-day .day-number {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .calendar-day .day-lunar {
+      font-size: 0.85em;
+      color: var(--accent-gold);
+      margin-top: 2px;
+    }
+    .calendar-day .day-event {
+      font-size: 0.8em;
+      color: var(--accent-primary);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .calendar-day.empty {
+      background: transparent;
+      border-color: transparent;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       BIBLE READER VIEW
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .reader-container {
+      background: var(--reader-bg);
+      border-radius: 8px;
+      padding: var(--spacing-lg) var(--spacing-xl);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-subtle);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .reader-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .reader-book-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+    .reader-book-nav select {
+      background: var(--surface-hover);
+      border: 1px solid var(--border-default);
+      color: var(--text-primary);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9em;
+    }
+
+    .verse-line {
+      line-height: 1.8;
+      padding: 2px 4px;
+      border-radius: 2px;
+      transition: background 0.15s;
+    }
+    .verse-line:hover {
+      background: var(--reader-verse-hover);
+    }
+    .verse-num {
+      font-size: 0.7em;
+      font-weight: 700;
+      color: var(--accent-primary);
+      vertical-align: super;
+      margin-right: 2px;
+    }
+    .verse-text {
+      color: var(--text-primary);
+    }
+
+    .strongs-link {
+      color: var(--accent-gold);
+      cursor: pointer;
+      border-bottom: 1px dotted var(--accent-gold-muted);
+    }
+    .strongs-link:hover {
+      color: var(--accent-gold-hover);
+    }
+
+    .verse-highlight {
+      background: var(--reader-highlight);
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+
+    .chapter-title {
+      font-size: 1.4em;
+      color: var(--accent-gold);
+      margin: 0 0 var(--spacing-lg) 0;
+      font-weight: normal;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       SETTINGS SECTION (shown in sidebar area for this demo)
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .settings-section {
+      padding: var(--spacing-lg);
+    }
+    .settings-section h3 {
+      color: var(--accent-gold);
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+    .settings-description {
+      color: var(--text-secondary);
+      font-size: 0.9em;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .theme-toggle-group {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+    .theme-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 2px solid var(--border-default);
+      background: var(--surface-hover);
+      color: var(--text-primary);
+      font-size: 1em;
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+    .theme-toggle-btn:hover {
+      border-color: var(--border-accent);
+    }
+    .theme-toggle-btn.selected {
+      border-color: var(--accent-primary);
+      background: var(--accent-primary-muted);
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       THEME SWITCHER (floating, for this prototype)
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .theme-switcher {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      gap: 0;
+      background: var(--surface-raised);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 4px;
+      box-shadow: var(--shadow-lg);
+    }
+    .theme-switcher button {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+    .theme-switcher button.active {
+      background: var(--accent-primary);
+      color: var(--text-inverse);
+    }
+    .theme-switcher button:not(.active):hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       DEMO LAYOUT
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .demo-tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: var(--spacing-lg);
+      background: var(--surface-hover);
+      border-radius: 8px;
+      padding: 3px;
+    }
+    .demo-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+    .demo-tab:hover {
+      color: var(--text-primary);
+    }
+    .demo-tab.active {
+      background: var(--surface-raised);
+      color: var(--accent-primary);
+      font-weight: 600;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .demo-view { display: none; }
+    .demo-view.active { display: block; }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       STRONGS PANEL DEMO
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .strongs-panel-demo {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-top: var(--spacing-lg);
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .strongs-panel-demo h4 {
+      color: var(--accent-primary);
+      margin: 0 0 var(--spacing-sm) 0;
+      font-size: 1.1em;
+    }
+
+    .strongs-hebrew {
+      font-size: 2em;
+      color: var(--accent-gold);
+      margin: var(--spacing-sm) 0;
+    }
+
+    .strongs-transliteration {
+      color: var(--text-secondary);
+      font-style: italic;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .strongs-definition {
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: var(--spacing-md);
+      background: var(--surface-hover);
+      border-radius: 6px;
+      border-left: 3px solid var(--accent-gold);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       INFO CARDS / FEAST PANEL
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .feast-panel {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .feast-panel h4 {
+      color: var(--accent-gold);
+      margin: 0 0 var(--spacing-sm) 0;
+      font-size: 0.95em;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .feast-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.9em;
+    }
+    .feast-item:last-child {
+      border-bottom: none;
+    }
+    .feast-name {
+      color: var(--text-primary);
+    }
+    .feast-date {
+      color: var(--text-secondary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       PROTOTYPE LABEL
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    .prototype-label {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      background: var(--color-warning, #e65100);
+      color: white;
+      font-size: 0.75em;
+      font-family: system-ui, sans-serif;
+      padding: 2px 16px;
+      border-radius: 0 0 6px 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body data-theme="light">
+
+  <div class="prototype-label">Theme Prototype — Toggle below</div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- TOP NAVIGATION -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <header class="top-nav">
+    <div class="top-nav-left">
+      <div class="brand">
+        <span class="brand-icon">🌕</span>
+        <div>
+          <div class="brand-title">Lunar Sabbath</div>
+          <div class="brand-subtitle">a time tested tradition</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-nav-right">
+      <input type="text" class="search-input" placeholder="Search...">
+      <button class="nav-btn">◀</button>
+      <button class="nav-btn">▶</button>
+      <button class="today-btn"><span>📅</span> Today</button>
+      <button class="hamburger-btn" aria-label="Menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- MAIN LAYOUT -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="main-layout">
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <div class="content-inner">
+
+        <!-- Demo Tab Switcher -->
+        <div class="demo-tabs">
+          <button class="demo-tab active" onclick="switchView('calendar')">📅 Calendar</button>
+          <button class="demo-tab" onclick="switchView('bible')">📖 Bible Reader</button>
+          <button class="demo-tab" onclick="switchView('settings')">⚙️ Settings</button>
+        </div>
+
+        <!-- ── Calendar View ────────────────────────────────────────── -->
+        <div id="view-calendar" class="demo-view active">
+
+          <div class="feast-panel">
+            <h4>Upcoming Feasts</h4>
+            <div class="feast-item">
+              <span class="feast-name">🌾 Feast of Unleavened Bread</span>
+              <span class="feast-date">Nisan 15–21</span>
+            </div>
+            <div class="feast-item">
+              <span class="feast-name">🌿 Feast of Weeks</span>
+              <span class="feast-date">Sivan 9</span>
+            </div>
+            <div class="feast-item">
+              <span class="feast-name">📯 Feast of Trumpets</span>
+              <span class="feast-date">Tishri 1</span>
+            </div>
+          </div>
+
+          <div class="calendar-header">
+            <h2>Adar II</h2>
+            <div class="year-label">February – March 2026 · Year 5786</div>
+          </div>
+
+          <div class="calendar-nav">
+            <button>◀ Prev</button>
+            <button>Today</button>
+            <button>Next ▶</button>
+          </div>
+
+          <div class="calendar-grid">
+            <div class="calendar-day-header">Sun</div>
+            <div class="calendar-day-header">Mon</div>
+            <div class="calendar-day-header">Tue</div>
+            <div class="calendar-day-header">Wed</div>
+            <div class="calendar-day-header">Thu</div>
+            <div class="calendar-day-header">Fri</div>
+            <div class="calendar-day-header">Sat</div>
+
+            <div class="calendar-day sabbath">
+              <div class="day-number">1</div>
+              <div class="day-lunar">Adar II 1</div>
+              <div class="day-event">🌑 New Moon</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">2</div>
+              <div class="day-lunar">Adar II 2</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">3</div>
+              <div class="day-lunar">Adar II 3</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">4</div>
+              <div class="day-lunar">Adar II 4</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">5</div>
+              <div class="day-lunar">Adar II 5</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">6</div>
+              <div class="day-lunar">Adar II 6</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">7</div>
+              <div class="day-lunar">Adar II 7</div>
+            </div>
+
+            <div class="calendar-day sabbath">
+              <div class="day-number">8</div>
+              <div class="day-lunar">Adar II 8</div>
+              <div class="day-event">Sabbath</div>
+            </div>
+            <div class="calendar-day today">
+              <div class="day-number">9</div>
+              <div class="day-lunar">Adar II 9</div>
+              <div class="day-event" style="color: var(--accent-primary); font-weight: 600;">Today</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">10</div>
+              <div class="day-lunar">Adar II 10</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">11</div>
+              <div class="day-lunar">Adar II 11</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">12</div>
+              <div class="day-lunar">Adar II 12</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">13</div>
+              <div class="day-lunar">Adar II 13</div>
+            </div>
+            <div class="calendar-day feast">
+              <div class="day-number">14</div>
+              <div class="day-lunar">Adar II 14</div>
+              <div class="day-event">🎭 Purim</div>
+            </div>
+
+            <div class="calendar-day sabbath">
+              <div class="day-number">15</div>
+              <div class="day-lunar">Adar II 15</div>
+              <div class="day-event">Sabbath</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">16</div>
+              <div class="day-lunar">Adar II 16</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">17</div>
+              <div class="day-lunar">Adar II 17</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">18</div>
+              <div class="day-lunar">Adar II 18</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">19</div>
+              <div class="day-lunar">Adar II 19</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">20</div>
+              <div class="day-lunar">Adar II 20</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">21</div>
+              <div class="day-lunar">Adar II 21</div>
+            </div>
+
+            <div class="calendar-day sabbath">
+              <div class="day-number">22</div>
+              <div class="day-lunar">Adar II 22</div>
+              <div class="day-event">Sabbath</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">23</div>
+              <div class="day-lunar">Adar II 23</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">24</div>
+              <div class="day-lunar">Adar II 24</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">25</div>
+              <div class="day-lunar">Adar II 25</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">26</div>
+              <div class="day-lunar">Adar II 26</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">27</div>
+              <div class="day-lunar">Adar II 27</div>
+            </div>
+            <div class="calendar-day">
+              <div class="day-number">28</div>
+              <div class="day-lunar">Adar II 28</div>
+            </div>
+
+            <div class="calendar-day sabbath">
+              <div class="day-number">29</div>
+              <div class="day-lunar">Adar II 29</div>
+              <div class="day-event">Sabbath</div>
+            </div>
+            <div class="calendar-day empty"></div>
+            <div class="calendar-day empty"></div>
+            <div class="calendar-day empty"></div>
+            <div class="calendar-day empty"></div>
+            <div class="calendar-day empty"></div>
+            <div class="calendar-day empty"></div>
+          </div>
+        </div>
+
+        <!-- ── Bible Reader View ────────────────────────────────────── -->
+        <div id="view-bible" class="demo-view">
+          <div class="reader-container">
+            <div class="reader-controls">
+              <div class="reader-book-nav">
+                <select>
+                  <option>Genesis</option>
+                  <option>Exodus</option>
+                  <option>Leviticus</option>
+                </select>
+                <select>
+                  <option>Chapter 1</option>
+                  <option>Chapter 2</option>
+                  <option>Chapter 3</option>
+                </select>
+              </div>
+            </div>
+
+            <h3 class="chapter-title">Genesis 1</h3>
+
+            <div class="verse-line">
+              <span class="verse-num">1</span>
+              <span class="verse-text">In the beginning <span class="strongs-link">God</span> created the heaven and the earth.</span>
+            </div>
+            <div class="verse-line">
+              <span class="verse-num">2</span>
+              <span class="verse-text">And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of <span class="strongs-link">God</span> moved upon the face of the waters.</span>
+            </div>
+            <div class="verse-line">
+              <span class="verse-num">3</span>
+              <span class="verse-text">And <span class="strongs-link">God</span> said, <span class="verse-highlight">Let there be light</span>: and there was light.</span>
+            </div>
+            <div class="verse-line">
+              <span class="verse-num">4</span>
+              <span class="verse-text">And <span class="strongs-link">God</span> saw the light, that it was good: and <span class="strongs-link">God</span> divided the light from the darkness.</span>
+            </div>
+            <div class="verse-line">
+              <span class="verse-num">5</span>
+              <span class="verse-text">And <span class="strongs-link">God</span> called the light <span class="strongs-link">Day</span>, and the darkness he called <span class="strongs-link">Night</span>. And the evening and the morning were the <span class="verse-highlight">first day</span>.</span>
+            </div>
+          </div>
+
+          <!-- Strongs Panel Demo -->
+          <div class="strongs-panel-demo">
+            <h4>H430 — Strong's Hebrew</h4>
+            <div class="strongs-hebrew">אֱלֹהִים</div>
+            <div class="strongs-transliteration">'elohiym (el-o-heem')</div>
+            <div class="strongs-definition">
+              Plural of H433; gods in the ordinary sense; but specifically used (in the plural thus, especially with the article) of the supreme God; occasionally applied by way of deference to magistrates; and sometimes as a superlative.
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Settings View ────────────────────────────────────────── -->
+        <div id="view-settings" class="demo-view">
+          <div class="settings-section">
+            <h3>🎨 Theme</h3>
+            <p class="settings-description">Choose your preferred color theme.</p>
+            <div class="theme-toggle-group">
+              <button class="theme-toggle-btn" id="btn-dark" onclick="setTheme('dark')">
+                <span>🌙</span> Dark
+              </button>
+              <button class="theme-toggle-btn selected" id="btn-light" onclick="setTheme('light')">
+                <span>☀️</span> Light
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>📍 Location</h3>
+            <p class="settings-description">Your location is used to calculate local sunset times for calendar dates.</p>
+            <button class="today-btn" style="margin-top: 8px;">Detect My Location</button>
+          </div>
+
+          <div class="settings-section">
+            <h3>🗑️ Data &amp; Cache</h3>
+            <p class="settings-description">Clear all cached data including Sabbath Tester results, calendar computations, and service worker cache.</p>
+            <button class="today-btn" style="background: rgba(198, 40, 40, 0.15); border-color: var(--color-error); color: var(--color-error);">
+              🗑️ Clear All Cache &amp; Reload
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar-menu">
+      <nav>
+        <button class="menu-item active">
+          <span class="menu-icon">📅</span>
+          <span>Calendar</span>
+        </button>
+        <button class="menu-item">
+          <span class="menu-icon">📖</span>
+          <span>Reader</span>
+        </button>
+        <button class="menu-item">
+          <span class="menu-icon">🕐</span>
+          <span>Timeline</span>
+        </button>
+        <div class="menu-divider"></div>
+        <button class="menu-item">
+          <span class="menu-icon">🔬</span>
+          <span>Sabbath Tester</span>
+        </button>
+        <div class="menu-divider"></div>
+        <button class="menu-item">
+          <span class="menu-icon">⚙️</span>
+          <span>Settings</span>
+        </button>
+        <button class="menu-item">
+          <span class="menu-icon">ℹ️</span>
+          <span>About</span>
+        </button>
+        <button class="menu-item">
+          <span class="menu-icon">📰</span>
+          <span>What's New</span>
+        </button>
+        <button class="menu-item">
+          <span class="menu-icon">❓</span>
+          <span>Help</span>
+        </button>
+      </nav>
+    </aside>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- FLOATING THEME SWITCHER -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="theme-switcher">
+    <button id="switch-dark" onclick="setTheme('dark')">🌙 Dark</button>
+    <button id="switch-light" class="active" onclick="setTheme('light')">☀️ Light</button>
+  </div>
+
+  <script>
+    // Theme switching
+    function setTheme(theme) {
+      document.body.setAttribute('data-theme', theme);
+
+      // Update floating switcher
+      document.getElementById('switch-dark').classList.toggle('active', theme === 'dark');
+      document.getElementById('switch-light').classList.toggle('active', theme === 'light');
+
+      // Update settings buttons
+      document.getElementById('btn-dark').classList.toggle('selected', theme === 'dark');
+      document.getElementById('btn-light').classList.toggle('selected', theme === 'light');
+    }
+
+    // View switching (demo tabs)
+    function switchView(viewName) {
+      document.querySelectorAll('.demo-view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('view-' + viewName).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+# Theming Rules
+
+This app has a dark/light theme system. **All colors must use CSS custom property tokens.**
+
+## The System
+
+- Token definitions live in `/assets/css/theme-tokens.css`
+- Tokens are scoped to `[data-theme="dark"]` and `[data-theme="light"]`  
+- The `data-theme` attribute is set on `<html>` before first paint (no FOUC)
+- Theme state is managed by `AppStore` via `SET_THEME` action
+
+## Rules
+
+### 1. NEVER use hardcoded colors
+```css
+/* ❌ BAD */
+color: #7ec8e3;
+background: rgba(255, 255, 255, 0.1);
+border: 1px solid #d4a017;
+
+/* ✅ GOOD */
+color: var(--accent-primary);
+background: var(--border-subtle);
+border: 1px solid var(--accent-gold);
+```
+
+### 2. NEVER use hardcoded colors in inline styles (JS)
+```javascript
+// ❌ BAD
+el.style.color = '#7ec8e3';
+`<div style="color: #888;">text</div>`
+
+// ✅ GOOD
+el.style.color = 'var(--accent-primary)';
+`<div style="color: var(--text-secondary);">text</div>`
+```
+
+### 3. Use semantic token names, not visual names
+```css
+/* ❌ BAD - describes appearance, not purpose */
+color: var(--blue);
+background: var(--dark-bg);
+
+/* ✅ GOOD - describes purpose */
+color: var(--accent-primary);
+background: var(--surface-raised);
+```
+
+### 4. When adding a new color need, add a token to BOTH themes
+If no existing token fits, add a new one to **both** `[data-theme="dark"]` and `[data-theme="light"]` blocks in `theme-tokens.css`. Name it semantically.
+
+### 5. Verify both themes visually
+After making UI changes, mentally verify (or toggle) that the change looks correct in both dark and light themes.
+
+## Token Reference (quick lookup)
+
+### Surfaces (backgrounds)
+- `--surface-base` — page background
+- `--surface-raised` — cards, nav, sidebar
+- `--surface-sunken` — recessed areas
+- `--surface-hover` — hover state
+- `--surface-active` — pressed state
+
+### Text
+- `--text-primary` — main text
+- `--text-secondary` — muted/secondary text
+- `--text-tertiary` — hints, placeholders
+
+### Accents
+- `--accent-primary` — main interactive color (cyan/teal)
+- `--accent-gold` — gold accent for highlights, feasts
+- `--accent-*-muted` — semi-transparent versions for backgrounds
+- `--accent-*-subtle` — very subtle versions
+
+### Borders
+- `--border-subtle` — barely visible
+- `--border-default` — standard
+- `--border-strong` — emphasized
+
+### Status
+- `--color-success`, `--color-error`, `--color-warning`, `--color-info`
+
+## Legacy Aliases
+
+The old variable names (`--color-bg`, `--color-text`, `--color-accent`, etc.) still work via aliases in `theme-tokens.css` for backward compatibility. Prefer the new semantic names for new code.

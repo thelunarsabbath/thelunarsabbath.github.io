@@ -12,7 +12,7 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  background: linear-gradient(180deg, #1a3a5c 0%, #0d2840 100%);
+  background: linear-gradient(180deg, var(--surface-base) 0%, var(--surface-raised) 100%);
   min-height: 100vh;
   padding: 0;
 }
@@ -20,16 +20,16 @@
 .sabbath-tester-header {
   position: sticky;
   top: 0;
-  background: linear-gradient(180deg, #1a3a5c 0%, #0d1f33 100%);
+  background: linear-gradient(180deg, var(--surface-base) 0%, var(--surface-raised) 100%);
   z-index: 10;
-  border-bottom: 1px solid rgba(126, 200, 227, 0.2);
+  border-bottom: 1px solid var(--accent-primary-muted);
   padding: 20px 24px;
 }
 
 .sabbath-tester-header h2 {
   margin: 0;
   font-size: 1.6em;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   font-weight: 600;
 }
 
@@ -44,15 +44,15 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 .sabbath-tester-intro {
-  background: linear-gradient(135deg, rgba(25, 50, 75, 0.8) 0%, rgba(15, 35, 55, 0.9) 100%);
+  background: var(--surface-raised);
   padding: 24px;
   border-radius: 12px;
   margin-bottom: 32px;
-  border: 1px solid rgba(126, 200, 227, 0.15);
+  border: 1px solid var(--border-default);
 }
 
 .sabbath-tester-intro p {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
   line-height: 1.7;
   margin: 0 0 14px 0;
   font-size: 0.95em;
@@ -63,7 +63,7 @@
 }
 
 .sabbath-tester-intro strong {
-  color: #7ec8e3;
+  color: var(--accent-primary);
 }
 
 /* Legend */
@@ -72,7 +72,7 @@
   flex-wrap: wrap;
   gap: 24px;
   padding-top: 18px;
-  border-top: 1px solid rgba(126, 200, 227, 0.15);
+  border-top: 1px solid var(--accent-primary-muted);
   margin-top: 18px;
 }
 
@@ -81,7 +81,7 @@
   align-items: center;
   gap: 10px;
   font-size: 0.9em;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary);
 }
 
 .sabbath-tester-legend span {
@@ -89,7 +89,7 @@
 }
 
 .sabbath-tester-legend strong {
-  color: #d4a574;
+  color: var(--accent-gold);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -97,29 +97,29 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 .sabbath-tester-configs {
-  background: linear-gradient(135deg, rgba(25, 50, 75, 0.6) 0%, rgba(15, 35, 55, 0.8) 100%);
+  background: var(--surface-raised);
   padding: 20px 24px;
   border-radius: 12px;
   margin-bottom: 28px;
-  border: 1px solid rgba(126, 200, 227, 0.15);
+  border: 1px solid var(--border-default);
 }
 
 .sabbath-tester-configs h3 {
   margin: 0 0 12px 0;
   font-size: 1.1em;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   font-weight: 600;
 }
 
 .sabbath-tester-configs .configs-legend {
   font-size: 0.88em;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary);
   line-height: 1.5;
   margin-bottom: 16px;
 }
 
 .sabbath-tester-configs .configs-legend strong {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary);
 }
 
 .configs-grid {
@@ -129,19 +129,19 @@
 }
 
 .config-card {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--surface-sunken);
   border-radius: 8px;
   padding: 12px 14px;
-  border: 1px solid rgba(126, 200, 227, 0.12);
+  border: 1px solid var(--accent-primary-subtle);
 }
 
 .config-card-header {
   font-weight: 600;
-  color: #d4a574;
+  color: var(--accent-gold);
   font-size: 0.95em;
   margin-bottom: 8px;
   padding-bottom: 6px;
-  border-bottom: 1px solid rgba(126, 200, 227, 0.1);
+  border-bottom: 1px solid var(--accent-primary-subtle);
 }
 
 .config-card-details {
@@ -149,7 +149,7 @@
   margin: 0;
   padding: 0;
   font-size: 0.82em;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-primary);
   line-height: 1.6;
 }
 
@@ -166,7 +166,7 @@
 .sabbath-test-loading {
   text-align: center;
   padding: 60px 20px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-tertiary);
   font-size: 1.1em;
 }
 
@@ -175,7 +175,7 @@
   width: 80%;
   max-width: 400px;
   height: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-subtle);
   border-radius: 4px;
   margin: 16px auto 0;
   overflow: hidden;
@@ -183,7 +183,7 @@
 .sabbath-progress-fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #7ec8e3, #d4a017);
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-gold));
   border-radius: 4px;
   transition: width 0.15s ease;
 }
@@ -193,8 +193,8 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 .sabbath-scoreboard {
-  background: linear-gradient(135deg, rgba(25, 50, 75, 0.8) 0%, rgba(15, 35, 55, 0.9) 100%);
-  border: 1px solid rgba(126, 200, 227, 0.15);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 36px;
@@ -202,7 +202,7 @@
 
 .sabbath-scoreboard-title {
   font-size: 1.5em;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   margin-bottom: 18px;
   font-weight: 600;
 }
@@ -212,7 +212,7 @@
 }
 
 .sabbath-scoreboard-intro p {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-primary);
   line-height: 1.7;
   margin: 0 0 14px 0;
   font-size: 0.95em;
@@ -220,8 +220,8 @@
 
 /* Conclusion Box */
 .scoreboard-conclusion {
-  background: rgba(126, 200, 227, 0.08);
-  border-left: 4px solid #7ec8e3;
+  background: var(--accent-primary-subtle);
+  border-left: 4px solid var(--accent-primary);
   padding: 18px 20px;
   margin-top: 20px;
   border-radius: 0 8px 8px 0;
@@ -246,18 +246,18 @@
 }
 
 .sabbath-scoreboard-table thead {
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--surface-sunken);
 }
 
 .sabbath-scoreboard-table th {
   padding: 14px 18px;
   text-align: left;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   font-weight: 600;
   font-size: 0.9em;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid rgba(126, 200, 227, 0.25);
+  border-bottom: 2px solid var(--accent-primary-muted);
 }
 
 .sabbath-scoreboard-table th:last-child {
@@ -267,7 +267,7 @@
 
 .sabbath-scoreboard-table td {
   padding: 14px 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--surface-hover);
   font-size: 0.95em;
 }
 
@@ -282,18 +282,18 @@
 }
 
 .scoreboard-expandable:hover {
-  background: rgba(126, 200, 227, 0.06);
+  background: var(--accent-primary-subtle);
 }
 
 .scoreboard-expandable.expanded {
-  background: rgba(126, 200, 227, 0.08);
+  background: var(--accent-primary-subtle);
 }
 
 .expand-arrow {
   display: inline-block;
   margin-right: 10px;
   transition: transform 0.2s;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   font-size: 0.8em;
 }
 
@@ -303,7 +303,7 @@
 
 /* Score Details Row */
 .scoreboard-details {
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--surface-sunken);
 }
 
 .scoreboard-details td {
@@ -336,22 +336,22 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 .score-perfect {
-  color: #4caf50;
+  color: var(--color-success);
   font-weight: 700;
 }
 
 .score-good {
-  color: #8bc34a;
+  color: var(--color-success);
   font-weight: 600;
 }
 
 .score-medium {
-  color: #ffc107;
+  color: var(--accent-gold-hover);
   font-weight: 600;
 }
 
 .score-poor {
-  color: #f44336;
+  color: var(--color-error);
   font-weight: 600;
 }
 
@@ -360,8 +360,8 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 .sabbath-test-card {
-  background: linear-gradient(135deg, rgba(25, 50, 75, 0.8) 0%, rgba(15, 35, 55, 0.9) 100%);
-  border: 1px solid rgba(126, 200, 227, 0.15);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 28px;
@@ -369,7 +369,7 @@
 
 .sabbath-test-title {
   font-size: 1.35em;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   margin-bottom: 12px;
   font-weight: 600;
   display: flex;
@@ -378,21 +378,21 @@
 }
 
 .sabbath-test-date {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-primary);
   font-size: 1.1em;
   margin-bottom: 8px;
   font-weight: 500;
 }
 
 .sabbath-test-scripture {
-  color: #d4a574;
+  color: var(--accent-gold);
   font-style: italic;
   margin-bottom: 14px;
   font-size: 0.95em;
 }
 
 .sabbath-test-description {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-primary);
   line-height: 1.7;
   margin-bottom: 18px;
   font-size: 0.95em;
@@ -400,16 +400,16 @@
 
 /* Expected Result Box */
 .sabbath-test-expected {
-  background: rgba(126, 200, 227, 0.08);
+  background: var(--accent-primary-subtle);
   padding: 14px 18px;
   border-radius: 8px;
   margin-bottom: 18px;
-  border-left: 4px solid #7ec8e3;
+  border-left: 4px solid var(--accent-primary);
   font-size: 0.95em;
 }
 
 .sabbath-test-expected strong {
-  color: #7ec8e3;
+  color: var(--accent-primary);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -417,8 +417,8 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 .test-evidence-accordion {
-  background: rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-sunken);
+  border: 1px solid var(--surface-hover);
   border-radius: 8px;
   margin-bottom: 18px;
   overflow: hidden;
@@ -427,7 +427,7 @@
 .test-evidence-accordion summary {
   cursor: pointer;
   padding: 14px 18px;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   font-weight: 600;
   list-style: none;
   transition: background 0.2s;
@@ -451,13 +451,13 @@
 }
 
 .test-evidence-accordion summary:hover {
-  background: rgba(126, 200, 227, 0.08);
+  background: var(--accent-primary-subtle);
 }
 
 .test-evidence-content {
   padding: 18px 22px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.85);
+  border-top: 1px solid var(--surface-hover);
+  color: var(--text-primary);
   line-height: 1.7;
   font-size: 0.92em;
 }
@@ -477,20 +477,20 @@
 }
 
 .test-evidence-content a {
-  color: #7ec8e3;
+  color: var(--accent-primary);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .test-evidence-content a:hover {
-  color: #a8dcf0;
+  color: var(--accent-primary-hover);
   text-decoration: underline;
 }
 
 /* Interpretation Box */
 .test-interpretation {
-  background: rgba(212, 165, 116, 0.08);
-  border-left: 4px solid #d4a574;
+  background: var(--accent-gold-subtle);
+  border-left: 4px solid var(--accent-gold);
   padding: 18px 20px;
   margin-bottom: 18px;
   border-radius: 0 8px 8px 0;
@@ -538,23 +538,23 @@
 }
 
 .sabbath-test-results-table thead {
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--surface-sunken);
 }
 
 .sabbath-test-results-table th {
   padding: 12px 14px;
   text-align: left;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   font-weight: 600;
   font-size: 0.85em;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid rgba(126, 200, 227, 0.25);
+  border-bottom: 2px solid var(--accent-primary-muted);
 }
 
 .sabbath-test-results-table td {
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--surface-hover);
   vertical-align: middle;
 }
 
@@ -563,41 +563,41 @@
 }
 
 .sabbath-test-results-table tbody tr:hover {
-  background: rgba(126, 200, 227, 0.04);
+  background: var(--accent-primary-subtle);
 }
 
 /* Result Classes */
 .result-pass {
-  color: #4caf50;
+  color: var(--color-success);
   font-weight: 600;
 }
 
 .result-uncertain {
-  color: #ffc107;
+  color: var(--accent-gold-hover);
   font-weight: 600;
 }
 
 .result-fail {
-  color: #f44336;
+  color: var(--color-error);
   font-weight: 600;
 }
 
 /* Date Links */
 .sabbath-test-date-link {
-  color: #7ec8e3;
+  color: var(--accent-primary);
   text-decoration: none;
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .sabbath-test-date-link:hover {
-  color: #a8dcf0;
+  color: var(--accent-primary-hover);
   text-decoration: underline;
 }
 
 /* Year Uncertainty Icon */
 .year-uncertainty-icon {
-  color: #ffc107;
+  color: var(--accent-gold-hover);
   font-size: 0.8em;
   margin-left: 6px;
   cursor: help;
@@ -624,7 +624,7 @@
 .alt-score-breakdown {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   gap: 8px;

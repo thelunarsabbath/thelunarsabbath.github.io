@@ -94,6 +94,23 @@
   <link rel="preload" href="/data/eclipses.json" as="fetch" crossorigin>
   <link rel="preload" href="/lib/swisseph/swisseph-browser.js" as="script" crossorigin>
   
+  <!-- Theme tokens MUST load first (defines all color variables for both themes) -->
+  <link rel="stylesheet" href="/assets/css/theme-tokens.css">
+  
+  <!-- Prevent flash-of-wrong-theme: apply theme before first paint -->
+  <script>
+    (function() {
+      var saved = null;
+      try { saved = localStorage.getItem('userThemePreference'); } catch(e) {}
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.classList.add('no-theme-transition');
+      // Update PWA theme-color meta for status bar
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = theme === 'light' ? '#f5f0e8' : '#1a3a5c';
+    })();
+  </script>
+  
   <!-- Stylesheets (cache busting via SW cache name keyed to APP_VERSION) -->
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/components/world-map.css">
@@ -213,6 +230,8 @@
   </style>
 </head>
 <body>
+  <!-- Remove no-transition class after first paint to enable smooth theme toggling -->
+  <script>requestAnimationFrame(function(){ document.documentElement.classList.remove('no-theme-transition'); });</script>
   <!-- ═══════════════════════════════════════════════════════════════════ -->
   <!-- TOP NAVIGATION -->
   <!-- ═══════════════════════════════════════════════════════════════════ -->
@@ -231,8 +250,8 @@
     <div class="top-nav-center">
       <!-- PWA Navigation Buttons (hidden by default) -->
       <div id="pwa-nav-buttons" class="pwa-nav-buttons" style="display: none;">
-        <button id="pwa-back-btn" class="pwa-nav-btn" title="Go back">◀</button>
-        <button id="pwa-forward-btn" class="pwa-nav-btn" title="Go forward">▶</button>
+        <button id="pwa-back-btn" class="pwa-nav-btn" title="Go back"><span class="icon icon-chevron-left"></span></button>
+        <button id="pwa-forward-btn" class="pwa-nav-btn" title="Go forward"><span class="icon icon-chevron-right"></span></button>
       </div>
     </div>
     
@@ -263,8 +282,8 @@
       
       <!-- Navigation History Buttons - use browser history directly -->
       <div class="nav-history-buttons">
-        <button id="nav-back-btn" class="nav-btn" onclick="history.back()" title="Go back">◀</button>
-        <button id="nav-forward-btn" class="nav-btn" onclick="history.forward()" title="Go forward">▶</button>
+        <button id="nav-back-btn" class="nav-btn" onclick="history.back()" title="Go back"><span class="icon icon-chevron-left"></span></button>
+        <button id="nav-forward-btn" class="nav-btn" onclick="history.forward()" title="Go forward"><span class="icon icon-chevron-right"></span></button>
       </div>
       
       <!-- Today Button (calendar icon = changes calendar focus time) -->
@@ -507,7 +526,7 @@
   <!-- Strongs Panel (slide-in from right) -->
   <div id="strongs-panel" class="strongs-panel" style="display: none;">
     <div class="strongs-header">
-      <button class="strongs-back" onclick="StrongsPanel.back()">◀</button>
+      <button class="strongs-back" onclick="StrongsPanel.back()"><span class="icon icon-chevron-left"></span></button>
       <h3 id="strongs-title">Strong's</h3>
       <button class="strongs-close" onclick="AppStore.dispatch({type:'CLOSE_STRONGS'})">✕</button>
     </div>

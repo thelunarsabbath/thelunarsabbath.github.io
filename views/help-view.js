@@ -376,7 +376,7 @@ const HelpView = {
         <section id="keyboard-section" class="help-section">
           <h2>⌨️ Keyboard Shortcuts</h2>
           <div class="help-card">
-            <p style="color: rgba(212, 160, 23, 0.8); font-style: italic;">Coming soon — keyboard shortcuts for calendar navigation, Bible reader, and timeline are planned for a future update.</p>
+            <p style="color: var(--accent-gold); font-style: italic;">Coming soon — keyboard shortcuts for calendar navigation, Bible reader, and timeline are planned for a future update.</p>
           </div>
         </section>
 

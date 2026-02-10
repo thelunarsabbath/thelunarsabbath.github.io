@@ -54,8 +54,8 @@ const CalendarView = {
         <div class="calendar-app">
           <div class="month-calendar" style="padding: 40px; text-align: center;">
             <div class="loading-spinner" style="margin: 0 auto 20px;"></div>
-            <p style="color: #7ec8e3;">Loading calendar data...</p>
-            <p style="color: #888; font-size: 0.9em;">Year: ${this.formatYear(year)}</p>
+            <p style="color: var(--accent-primary);">Loading calendar data...</p>
+            <p style="color: var(--text-secondary); font-size: 0.9em;">Year: ${this.formatYear(year)}</p>
           </div>
         </div>
       `;
@@ -331,25 +331,19 @@ const CalendarView = {
     // Navigation + Profile name row
     const profileName = profile.name || 'Time-Tested';
     html += `
-      <div class="month-nav-cell nav-group">
-        <span class="nav-arrow year-nav" data-action="prev-year" title="Previous Year">⏮</span>
-        <span class="nav-arrow month-nav" data-action="prev-month" title="Previous Month">◀</span>
-      </div>
-      <div class="profile-nav-cell span-4">
-        <div class="profile-display" data-action="profile-editor" title="Edit Profile Settings">
-          <span class="profile-icon">${profile.icon || '🌕'}</span>
-          <span class="profile-name">${profileName}</span>
+      <div class="calendar-nav-bar">
+        <div class="calendar-nav-row">
+          <span class="nav-arrow year-nav" data-action="prev-year" title="Previous Year"><svg viewBox="0 0 24 16" fill="currentColor"><rect x="0" y="1" width="3" height="14" rx="1"/><path d="M22 1L11 8l11 7V1z"/></svg></span>
+          <span class="nav-arrow month-nav" data-action="prev-month" title="Previous Month"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M13 1L4 8l9 7V1z"/></svg></span>
+          <div class="profile-display" data-action="profile-editor" title="Edit Profile Settings">
+            <span class="profile-icon">${profile.icon || '🌕'}</span>
+            <span class="profile-name">${profileName}</span>
+          </div>
+          <button class="feast-toggle-btn" data-action="toggle-feasts" title="Show Appointed Times">🎉 Feasts</button>
+          <button class="priestly-toggle-btn" data-action="toggle-priestly" title="Show Priestly Courses">👨‍🦳 Priests</button>
+          <span class="nav-arrow month-nav" data-action="next-month" title="Next Month"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1l9 7-9 7V1z"/></svg></span>
+          <span class="nav-arrow year-nav" data-action="next-year" title="Next Year"><svg viewBox="0 0 24 16" fill="currentColor"><path d="M2 1l11 7-11 7V1z"/><rect x="21" y="1" width="3" height="14" rx="1"/></svg></span>
         </div>
-        <button class="feast-toggle-btn" data-action="toggle-feasts" title="Show Appointed Times">
-          🎉 <span class="feast-btn-label">Feasts</span>
-        </button>
-        <button class="priestly-toggle-btn" data-action="toggle-priestly" title="Show Priestly Courses">
-          👨‍🦳
-        </button>
-      </div>
-      <div class="month-nav-cell nav-group">
-        <span class="nav-arrow month-nav" data-action="next-month" title="Next Month">▶</span>
-        <span class="nav-arrow year-nav" data-action="next-year" title="Next Year">⏭</span>
       </div>
     `;
     
@@ -698,8 +692,8 @@ const CalendarView = {
                 <span class="date-calc-label">Date Calc</span>
               </div>
             </div>
-            ${priestlyHtml}
             ${this.renderDateCalculatorPanel()}
+            ${priestlyHtml}
           </div>
           ${astroTimesHtml}
         </div>
@@ -1699,12 +1693,12 @@ const CalendarView = {
     picker.innerHTML = `
       <div class="datetime-section year-section">
         <div class="year-row">
-          <button class="year-arrow-btn" data-delta="-1">◀</button>
+          <button class="year-arrow-btn" data-delta="-1"><span class="icon icon-chevron-left"></span></button>
           <div class="year-display-container">
             <span class="year-display"></span>
             <input type="text" class="year-input" inputmode="numeric">
           </div>
-          <button class="year-arrow-btn" data-delta="1">▶</button>
+          <button class="year-arrow-btn" data-delta="1"><span class="icon icon-chevron-right"></span></button>
           <button class="era-toggle"></button>
         </div>
       </div>
@@ -1713,13 +1707,13 @@ const CalendarView = {
       </div>
       <div class="datetime-section time-section">
         <div class="time-row">
-          <button class="time-arrow-btn" data-field="hours" data-delta="-1">◀</button>
+          <button class="time-arrow-btn" data-field="hours" data-delta="-1"><span class="icon icon-chevron-left"></span></button>
           <span class="time-display hours-display"></span>
-          <button class="time-arrow-btn" data-field="hours" data-delta="1">▶</button>
+          <button class="time-arrow-btn" data-field="hours" data-delta="1"><span class="icon icon-chevron-right"></span></button>
           <span class="time-sep">:</span>
-          <button class="time-arrow-btn" data-field="minutes" data-delta="-1">◀</button>
+          <button class="time-arrow-btn" data-field="minutes" data-delta="-1"><span class="icon icon-chevron-left"></span></button>
           <span class="time-display minutes-display"></span>
-          <button class="time-arrow-btn" data-field="minutes" data-delta="1">▶</button>
+          <button class="time-arrow-btn" data-field="minutes" data-delta="1"><span class="icon icon-chevron-right"></span></button>
           <button class="ampm-toggle"></button>
         </div>
       </div>
@@ -1918,12 +1912,12 @@ const CalendarView = {
     
     picker.innerHTML = `
       <div class="year-picker-row">
-        <button class="year-arrow-btn" data-delta="-1" title="Earlier">◀</button>
+        <button class="year-arrow-btn" data-delta="-1" title="Earlier"><span class="icon icon-chevron-left"></span></button>
         <div class="year-display-container">
           <span class="year-display" title="Click to enter year"></span>
           <input type="text" class="year-input" inputmode="numeric" pattern="[0-9]*">
         </div>
-        <button class="year-arrow-btn" data-delta="1" title="Later">▶</button>
+        <button class="year-arrow-btn" data-delta="1" title="Later"><span class="icon icon-chevron-right"></span></button>
         <button class="era-toggle" title="Click to toggle AD/BC"></button>
       </div>
     `;
@@ -3124,27 +3118,31 @@ const CalendarView = {
     const offset = 1;
     const twilight = twi * 2;
     
+    // Use CSS variable references so colors adapt to theme
+    const nightColor = 'var(--daycycle-night, #0d1a2d)';
+    const dayColor = 'var(--daycycle-day, #7ab3d4)';
+    
     let gradient;
     if (dayStartTime === 'evening') {
       const duskEnd = twilight - offset;
       const dawnStart = night - twilight + offset;
       const dawnEnd = night + twilight - offset;
       gradient = `repeating-linear-gradient(90deg, 
-        #7ab3d4 0%, 
-        #0d1a2d ${duskEnd}%, 
-        #0d1a2d ${dawnStart}%, 
-        #7ab3d4 ${dawnEnd}%, 
-        #7ab3d4 100%)`;
+        ${dayColor} 0%, 
+        ${nightColor} ${duskEnd}%, 
+        ${nightColor} ${dawnStart}%, 
+        ${dayColor} ${dawnEnd}%, 
+        ${dayColor} 100%)`;
     } else {
       const dawnEnd = twilight - offset;
       const duskStart = day - twilight + offset;
       const duskEnd = day + twilight - offset;
       gradient = `repeating-linear-gradient(90deg, 
-        #0d1a2d 0%, 
-        #7ab3d4 ${dawnEnd}%, 
-        #7ab3d4 ${duskStart}%, 
-        #0d1a2d ${duskEnd}%, 
-        #0d1a2d 100%)`;
+        ${nightColor} 0%, 
+        ${dayColor} ${dawnEnd}%, 
+        ${dayColor} ${duskStart}%, 
+        ${nightColor} ${duskEnd}%, 
+        ${nightColor} 100%)`;
     }
     
     return { gradient, percent: Math.round(day) };
@@ -3581,7 +3579,7 @@ const CalendarView = {
             <button class="date-calc-mode-btn ${isLunar ? 'active' : ''}" data-mode="lunar" onclick="CalendarView.setCalcMode('lunar')">Lunar</button>
             <button class="date-calc-mode-btn ${!isLunar ? 'active' : ''}" data-mode="gregorian" onclick="CalendarView.setCalcMode('gregorian')">Greg</button>
           </div>
-          <span class="date-calc-lbl">Yr</span><span class="date-calc-lbl">Mo</span><span class="date-calc-lbl">Wk</span><span class="date-calc-lbl">Dy</span>
+          <span class="date-calc-lbl">Year</span><span class="date-calc-lbl">Month</span><span class="date-calc-lbl">Week</span><span class="date-calc-lbl">Day</span>
         </div>
         <div class="date-calc-row">
           <div class="date-calc-mode-toggle" id="date-calc-dir-toggle">

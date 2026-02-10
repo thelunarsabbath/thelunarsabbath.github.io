@@ -13,7 +13,7 @@
   position: relative;
   padding: 60px 20px;
   text-align: center;
-  background: linear-gradient(135deg, rgba(26, 58, 92, 0.9) 0%, rgba(15, 35, 55, 0.95) 100%);
+  background: var(--surface-raised);
   border-radius: 16px;
   margin-bottom: 40px;
   overflow: hidden;
@@ -25,7 +25,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(ellipse at center, rgba(212, 165, 116, 0.1) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, var(--accent-gold-subtle) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -54,21 +54,21 @@
 
 .tutorial-hero h1 {
   font-size: 2.5em;
-  color: #f0e6d3;
+  color: var(--text-primary);
   margin: 0 0 10px;
   font-weight: 600;
 }
 
 .tutorial-hero .hero-subtitle {
   font-size: 1.3em;
-  color: #d4a574;
+  color: var(--accent-gold);
   margin: 0 0 20px;
   font-style: italic;
 }
 
 .tutorial-hero .hero-description {
   font-size: 1.1em;
-  color: #ccc;
+  color: var(--text-secondary);
   max-width: 600px;
   margin: 0 auto 30px;
   line-height: 1.6;
@@ -95,32 +95,32 @@
 }
 
 .tutorial-hero .hero-btn.primary {
-  background: linear-gradient(135deg, #d4a574 0%, #c49464 100%);
-  color: #1a3a5c;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold) 100%);
+  color: var(--surface-base);
 }
 
 .tutorial-hero .hero-btn.primary:hover {
-  background: linear-gradient(135deg, #e4b584 0%, #d4a574 100%);
+  background: linear-gradient(135deg, #e4b584 0%, var(--accent-gold) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(212, 165, 116, 0.4);
+  box-shadow: 0 4px 15px var(--accent-gold-strong);
 }
 
 .tutorial-hero .hero-btn.secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: #f0e6d3;
-  border: 1px solid rgba(212, 165, 116, 0.4);
+  background: var(--border-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--accent-gold-strong);
 }
 
 .tutorial-hero .hero-btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: #d4a574;
+  background: var(--border-default);
+  border-color: var(--accent-gold);
   transform: translateY(-2px);
 }
 
 /* Section Titles */
 .tutorial-view .section-title {
   font-size: 1.8em;
-  color: #d4a574;
+  color: var(--accent-gold);
   text-align: center;
   margin: 0 0 15px;
   font-weight: 600;
@@ -128,7 +128,7 @@
 
 .tutorial-view .section-intro {
   text-align: center;
-  color: #aaa;
+  color: var(--text-secondary);
   max-width: 700px;
   margin: 0 auto 30px;
   line-height: 1.6;
@@ -136,7 +136,7 @@
 
 .tutorial-view .subsection-title {
   font-size: 1.3em;
-  color: #c9a0dc;
+  color: var(--color-purple);
   margin: 30px 0 15px;
   text-align: center;
 }
@@ -153,8 +153,8 @@
 }
 
 .feature-card {
-  background: linear-gradient(145deg, rgba(30, 50, 70, 0.8) 0%, rgba(20, 40, 60, 0.9) 100%);
-  border: 1px solid rgba(212, 165, 116, 0.2);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   padding: 25px;
   cursor: pointer;
@@ -163,8 +163,8 @@
 
 .feature-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(212, 165, 116, 0.5);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border-color: var(--accent-gold-strong);
+  box-shadow: 0 8px 25px var(--surface-scrim);
 }
 
 .feature-card .feature-icon-wrap {
@@ -179,26 +179,26 @@
 }
 
 .feature-card h3 {
-  color: #f0e6d3;
+  color: var(--text-primary);
   margin: 0 0 10px;
   font-size: 1.2em;
 }
 
 .feature-card p {
-  color: #aaa;
+  color: var(--text-secondary);
   font-size: 0.95em;
   line-height: 1.5;
   margin: 0 0 15px;
 }
 
 .feature-card .feature-link {
-  color: #7ec8e3;
+  color: var(--accent-primary);
   font-size: 0.9em;
   font-weight: 500;
 }
 
 .feature-card:hover .feature-link {
-  color: #a8dcf0;
+  color: var(--accent-primary-hover);
 }
 
 /* Principles Section */
@@ -214,7 +214,7 @@
 
 .principle-card {
   background: rgba(25, 45, 65, 0.7);
-  border: 1px solid rgba(212, 165, 116, 0.15);
+  border: 1px solid var(--accent-gold-subtle);
   border-radius: 12px;
   padding: 25px;
   cursor: pointer;
@@ -223,7 +223,7 @@
 
 .principle-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(212, 165, 116, 0.4);
+  border-color: var(--accent-gold-strong);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
@@ -239,7 +239,7 @@
 }
 
 .principle-card h3 {
-  color: #f0e6d3;
+  color: var(--text-primary);
   margin: 0;
   font-size: 1.15em;
 }
@@ -252,8 +252,8 @@
 }
 
 .principle-card .principle-verse {
-  background: rgba(212, 165, 116, 0.1);
-  border-left: 3px solid #d4a574;
+  background: var(--accent-gold-subtle);
+  border-left: 3px solid var(--accent-gold);
   padding: 10px 12px;
   font-style: italic;
   color: #d8ccc0;
@@ -264,13 +264,13 @@
 }
 
 .principle-card .learn-link {
-  color: #7ec8e3;
+  color: var(--accent-primary);
   font-size: 0.85em;
   font-weight: 500;
 }
 
 .principle-card:hover .learn-link {
-  color: #a8dcf0;
+  color: var(--accent-primary-hover);
 }
 
 /* Chapters Section */
@@ -289,7 +289,7 @@
   align-items: center;
   gap: 12px;
   background: rgba(30, 50, 70, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
   border-radius: 8px;
   padding: 12px 15px;
   cursor: pointer;
@@ -301,7 +301,7 @@
 
 .chapter-item:hover {
   background: rgba(40, 60, 80, 0.8);
-  border-color: rgba(212, 165, 116, 0.3);
+  border-color: var(--accent-gold-muted);
   transform: translateX(3px);
 }
 
@@ -311,9 +311,9 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  background: rgba(212, 165, 116, 0.2);
+  background: var(--accent-gold-muted);
   border-radius: 50%;
-  color: #d4a574;
+  color: var(--accent-gold);
   font-weight: 600;
   font-size: 0.85em;
   flex-shrink: 0;
@@ -321,11 +321,11 @@
 
 .chapter-item.appendix .chapter-number {
   background: rgba(201, 160, 220, 0.2);
-  color: #c9a0dc;
+  color: var(--color-purple);
 }
 
 .chapter-item .chapter-title {
-  color: #ddd;
+  color: var(--text-secondary);
   font-size: 0.9em;
 }
 
@@ -346,7 +346,7 @@
 
 .compare-card {
   background: rgba(25, 45, 65, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 25px;
   text-align: center;
@@ -355,8 +355,8 @@
 }
 
 .compare-card.featured {
-  border-color: rgba(212, 165, 116, 0.5);
-  background: linear-gradient(145deg, rgba(40, 60, 80, 0.8) 0%, rgba(25, 45, 65, 0.9) 100%);
+  border-color: var(--border-gold);
+  background: var(--accent-gold-subtle);
 }
 
 .compare-card .compare-badge {
@@ -364,8 +364,8 @@
   top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #d4a574 0%, #c49464 100%);
-  color: #1a3a5c;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold) 100%);
+  color: var(--surface-base);
   padding: 4px 14px;
   border-radius: 12px;
   font-size: 0.75em;
@@ -379,7 +379,7 @@
 }
 
 .compare-card h4 {
-  color: #f0e6d3;
+  color: var(--text-primary);
   margin: 0 0 15px;
   font-size: 1.1em;
 }
@@ -395,7 +395,7 @@
   color: #bbb;
   padding: 6px 0;
   font-size: 0.9em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--surface-hover);
 }
 
 .compare-card ul li:last-child {
@@ -404,13 +404,13 @@
 
 .compare-card ul li::before {
   content: "✓ ";
-  color: #7ec8e3;
+  color: var(--accent-primary);
 }
 
 .compare-card .compare-btn {
-  background: rgba(126, 200, 227, 0.15);
-  border: 1px solid rgba(126, 200, 227, 0.3);
-  color: #7ec8e3;
+  background: var(--accent-primary-muted);
+  border: 1px solid var(--border-accent);
+  color: var(--accent-primary);
   padding: 10px 20px;
   border-radius: 6px;
   cursor: pointer;
@@ -420,19 +420,19 @@
 }
 
 .compare-card .compare-btn:hover {
-  background: rgba(126, 200, 227, 0.25);
-  border-color: #7ec8e3;
+  background: var(--accent-primary-muted);
+  border-color: var(--accent-primary);
 }
 
 .compare-card.featured .compare-btn {
-  background: linear-gradient(135deg, #d4a574 0%, #c49464 100%);
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold) 100%);
   border: none;
-  color: #1a3a5c;
+  color: var(--surface-base);
   font-weight: 500;
 }
 
 .compare-card.featured .compare-btn:hover {
-  background: linear-gradient(135deg, #e4b584 0%, #d4a574 100%);
+  background: linear-gradient(135deg, #e4b584 0%, var(--accent-gold) 100%);
 }
 
 /* Quick Start Section */
@@ -448,8 +448,8 @@
 }
 
 .step-card {
-  background: linear-gradient(145deg, rgba(30, 55, 80, 0.8) 0%, rgba(20, 40, 60, 0.9) 100%);
-  border: 1px solid rgba(126, 200, 227, 0.2);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
   border-radius: 16px;
   padding: 28px 24px;
   position: relative;
@@ -458,8 +458,8 @@
 
 .step-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(126, 200, 227, 0.4);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  border-color: var(--accent-primary-strong);
+  box-shadow: 0 12px 32px var(--surface-scrim);
 }
 
 .step-card .step-number {
@@ -468,7 +468,7 @@
   left: 24px;
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #7ec8e3 0%, #5ba8c8 100%);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #5ba8c8 100%);
   color: #0f1f30;
   border-radius: 50%;
   display: flex;
@@ -476,11 +476,11 @@
   justify-content: center;
   font-weight: 700;
   font-size: 1.1em;
-  box-shadow: 0 4px 12px rgba(126, 200, 227, 0.4);
+  box-shadow: 0 4px 12px var(--accent-primary-strong);
 }
 
 .step-card h4 {
-  color: #f0e6d3;
+  color: var(--text-primary);
   font-size: 1.15em;
   margin: 8px 0 12px;
   font-weight: 600;
@@ -494,9 +494,9 @@
 }
 
 .step-card .step-btn {
-  background: rgba(126, 200, 227, 0.12);
+  background: var(--accent-primary-subtle);
   border: 1px solid rgba(126, 200, 227, 0.35);
-  color: #7ec8e3;
+  color: var(--accent-primary);
   padding: 10px 18px;
   border-radius: 8px;
   cursor: pointer;
@@ -508,7 +508,7 @@
 
 .step-card .step-btn:hover {
   background: rgba(126, 200, 227, 0.22);
-  border-color: #7ec8e3;
+  border-color: var(--accent-primary);
   transform: translateY(-1px);
 }
 
@@ -520,8 +520,8 @@
 .book-card {
   display: flex;
   gap: 40px;
-  background: linear-gradient(135deg, rgba(35, 60, 85, 0.9) 0%, rgba(25, 45, 65, 0.95) 100%);
-  border: 1px solid rgba(212, 165, 116, 0.25);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-gold);
   border-radius: 20px;
   padding: 40px;
   align-items: center;
@@ -536,7 +536,7 @@
   right: 0;
   width: 200px;
   height: 200px;
-  background: radial-gradient(circle, rgba(212, 165, 116, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--accent-gold-subtle) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -552,9 +552,9 @@
   height: auto;
   border-radius: 4px 12px 12px 4px;
   box-shadow: 
-    8px 8px 24px rgba(0, 0, 0, 0.5),
-    4px 4px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(212, 165, 116, 0.3);
+    8px 8px 24px var(--surface-scrim),
+    4px 4px 12px var(--surface-scrim);
+  border: 1px solid var(--accent-gold-muted);
   transform: rotateY(-8deg);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -562,8 +562,8 @@
 .book-card:hover .book-cover-img {
   transform: rotateY(-3deg);
   box-shadow: 
-    12px 12px 32px rgba(0, 0, 0, 0.5),
-    6px 6px 16px rgba(0, 0, 0, 0.3);
+    12px 12px 32px var(--surface-scrim),
+    6px 6px 16px var(--surface-scrim);
 }
 
 .book-info {
@@ -573,14 +573,14 @@
 }
 
 .book-info h3 {
-  color: #f0e6d3;
+  color: var(--text-primary);
   font-size: 1.8em;
   margin: 0 0 8px;
   font-weight: 600;
 }
 
 .book-info .book-author {
-  color: #d4a574;
+  color: var(--accent-gold);
   font-size: 1.05em;
   margin: 0 0 16px;
   font-style: italic;
@@ -613,27 +613,27 @@
 }
 
 .book-btn.primary {
-  background: linear-gradient(135deg, #d4a574 0%, #c49464 100%);
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold) 100%);
   border: none;
   color: #1a2a3a;
-  box-shadow: 0 4px 16px rgba(212, 165, 116, 0.3);
+  box-shadow: 0 4px 16px var(--accent-gold-muted);
 }
 
 .book-btn.primary:hover {
-  background: linear-gradient(135deg, #e4b584 0%, #d4a574 100%);
+  background: linear-gradient(135deg, #e4b584 0%, var(--accent-gold) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
+  box-shadow: 0 6px 20px var(--accent-gold-strong);
 }
 
 .book-btn.secondary {
-  background: rgba(126, 200, 227, 0.12);
+  background: var(--accent-primary-subtle);
   border: 1px solid rgba(126, 200, 227, 0.35);
-  color: #7ec8e3;
+  color: var(--accent-primary);
 }
 
 .book-btn.secondary:hover {
   background: rgba(126, 200, 227, 0.22);
-  border-color: #7ec8e3;
+  border-color: var(--accent-primary);
   transform: translateY(-2px);
 }
 
@@ -641,7 +641,7 @@
 .tutorial-footer {
   text-align: center;
   padding: 40px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-subtle);
   margin-top: 40px;
 }
 
@@ -657,7 +657,7 @@
 }
 
 .tutorial-footer .footer-verse cite {
-  color: #d4a574;
+  color: var(--accent-gold);
   font-size: 0.9em;
 }
 
@@ -673,7 +673,7 @@
 .tutorial-footer .footer-links a {
   background: none;
   border: none;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   cursor: pointer;
   font-size: 0.9em;
   text-decoration: none;
@@ -682,11 +682,11 @@
 
 .tutorial-footer .footer-links button:hover,
 .tutorial-footer .footer-links a:hover {
-  color: #a8dcf0;
+  color: var(--accent-primary-hover);
 }
 
 .tutorial-footer .footer-links span {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--border-strong);
 }
 
 /* Tutorial Mobile Responsive */

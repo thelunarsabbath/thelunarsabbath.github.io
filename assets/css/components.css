@@ -30,7 +30,7 @@
   font-family: 'Playfair Display', 'Times New Roman', Georgia, serif;
   font-size: 2.2em;
   font-weight: 900;
-  color: #111;
+  color: var(--text-primary);
   letter-spacing: 0.08em;
   line-height: 1;
   margin-bottom: 2px;
@@ -41,7 +41,7 @@
   font-family: 'Playfair Display', 'Times New Roman', Georgia, serif;
   font-size: 0.9em;
   font-weight: 700;
-  color: #111;
+  color: var(--text-primary);
   letter-spacing: 0.01em;
   margin-bottom: 2px;
   text-align: center;
@@ -51,7 +51,7 @@
   font-family: 'Playfair Display', 'Times New Roman', Georgia, serif;
   font-size: 0.5em;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   letter-spacing: 0;
   margin-bottom: 0;
   text-align: center;
@@ -62,7 +62,7 @@
   font-family: 'Playfair Display', 'Times New Roman', Georgia, serif;
   font-size: 0.75em;
   font-style: italic;
-  color: #555;
+  color: var(--text-tertiary);
   margin-bottom: 10px;
 }
 
@@ -71,20 +71,20 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold) 100%);
+  color: var(--text-primary);
   text-decoration: none;
   border-radius: 6px;
   font-weight: 600;
   font-size: 0.8em;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px var(--surface-scrim);
 }
 
 .book-ad-download:hover {
-  background: linear-gradient(135deg, #e6b422 0%, #d4a017 100%);
+  background: linear-gradient(135deg, var(--accent-gold-hover) 0%, var(--accent-gold) 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px var(--surface-scrim);
 }
 
 .book-ad-download .icon {
@@ -100,13 +100,13 @@
   max-width: 160px;
   height: auto;
   border-radius: 6px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  box-shadow: 0 3px 10px var(--surface-scrim);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .book-ad-cover:hover {
   transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 12px var(--surface-scrim);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -119,7 +119,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: var(--surface-sunken);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,13 +137,13 @@
 }
 
 .ios-install-modal {
-  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+  background: linear-gradient(145deg, var(--surface-raised) 0%, #16213e 50%, var(--surface-raised) 100%);
   border-radius: 16px;
   max-width: 380px;
   width: 100%;
   padding: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px var(--surface-scrim);
+  border: 1px solid var(--border-subtle);
   position: relative;
   transform: scale(0.9) translateY(20px);
   transition: transform 0.3s ease-out;
@@ -157,9 +157,9 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-subtle);
   border: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -169,8 +169,8 @@
 }
 
 .ios-install-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: var(--border-default);
+  color: var(--text-primary);
 }
 
 .ios-install-header {
@@ -186,13 +186,13 @@
 
 .ios-install-header h3 {
   margin: 0;
-  color: #d4a017;
+  color: var(--accent-gold);
   font-size: 1.4em;
 }
 
 .ios-install-intro {
   text-align: center;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary);
   font-size: 0.95em;
   margin: 0 0 20px 0;
   line-height: 1.4;
@@ -209,14 +209,14 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-hover);
   padding: 12px;
   border-radius: 10px;
 }
 
 .step-number {
-  background: #d4a017;
-  color: #000;
+  background: var(--accent-gold);
+  color: var(--text-primary);
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -230,7 +230,7 @@
 
 .step-content p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
   font-size: 0.95em;
   line-height: 1.4;
 }
@@ -245,8 +245,8 @@
 
 .ios-install-done-btn {
   width: 100%;
-  background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
-  color: #000;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold) 100%);
+  color: var(--text-primary);
   border: none;
   border-radius: 10px;
   padding: 14px;
@@ -258,7 +258,7 @@
 
 .ios-install-done-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(212, 160, 23, 0.4);
+  box-shadow: 0 8px 25px var(--accent-gold-muted);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -278,7 +278,7 @@
   width: 100%;
   text-align: center;
   font-weight: 700;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   box-sizing: border-box;
   line-height: 1;
 }
@@ -302,7 +302,7 @@
   letter-spacing: 0.02em;
   margin-right: -0.02em;
   margin-top: 0;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
 }
 .ttt-hero-tagline {
   font-size: 1rem;
@@ -320,8 +320,8 @@
 .ttt-index-reviews-blurb {
   margin: var(--spacing-lg) 0;
   padding: var(--spacing-md) 0;
-  border-top: 1px solid var(--color-border, rgba(126, 200, 227, 0.25));
-  border-bottom: 1px solid var(--color-border, rgba(126, 200, 227, 0.25));
+  border-top: 1px solid var(--color-border, var(--accent-primary-muted));
+  border-bottom: 1px solid var(--color-border, var(--accent-primary-muted));
   background: linear-gradient(180deg, rgba(42, 90, 140, 0.15) 0%, transparent 100%);
   border-radius: 12px;
   padding: var(--spacing-md) var(--spacing-lg);
@@ -346,15 +346,15 @@
   min-width: 140px;
   max-width: 200px;
   padding: 16px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(126, 200, 227, 0.2);
+  background: var(--surface-hover);
+  border: 1px solid var(--accent-primary-muted);
   border-radius: 12px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .ttt-review-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  border-color: rgba(126, 200, 227, 0.4);
+  box-shadow: 0 4px 16px var(--surface-scrim);
+  border-color: var(--accent-primary-strong);
 }
 .ttt-review-logo-wrap {
   display: flex;
@@ -384,18 +384,18 @@
   justify-content: center;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #7ec8e3;
+  color: var(--accent-primary);
 }
 .ttt-review-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   margin-bottom: 6px;
 }
 .ttt-review-card .ttt-phrase {
   font-size: 0.8rem;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-primary);
   text-align: center;
   line-height: 1.35;
 }
@@ -405,8 +405,8 @@
   gap: 8px;
   margin: 0 auto;
   padding: 10px 20px;
-  background: rgba(126, 200, 227, 0.15);
-  color: #7ec8e3;
+  background: var(--accent-primary-muted);
+  color: var(--accent-primary);
   text-decoration: none;
   border-radius: 8px;
   font-weight: 600;
@@ -416,9 +416,9 @@
   width: fit-content;
 }
 .ttt-reviews-cta-link:hover {
-  background: rgba(126, 200, 227, 0.25);
-  border-color: rgba(126, 200, 227, 0.5);
-  color: #fff;
+  background: var(--accent-primary-muted);
+  border-color: var(--accent-primary-strong);
+  color: var(--text-primary);
   transform: translateY(-1px);
 }
 .ttt-cta-arrow {
@@ -472,7 +472,7 @@
 .ttt-reviews-summary {
   font-size: 0.9em;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-primary);
   text-align: center;
   margin: 0;
   line-height: 1.4;
@@ -480,27 +480,27 @@
 
 .ttt-reviews-link {
   font-size: 0.9em;
-  color: #7ec8e3;
+  color: var(--accent-primary);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .ttt-reviews-link:hover {
-  color: #fff;
+  color: var(--text-primary);
 }
 
 /* Reader / TTT content links (e.g. in chapter body and reviews page) */
 .reader-ttt-index a:not(.ttt-pdf-download):not(.ttt-reviews-cta-link),
 .ttt-chapter-body a {
-  color: var(--color-accent, #7ec8e3);
+  color: var(--color-accent, var(--accent-primary));
   text-decoration: none;
-  border-bottom: 1px solid rgba(126, 200, 227, 0.4);
+  border-bottom: 1px solid var(--accent-primary-strong);
   transition: color 0.2s, border-color 0.2s;
 }
 .reader-ttt-index a:not(.ttt-pdf-download):not(.ttt-reviews-cta-link):hover,
 .ttt-chapter-body a:hover {
-  color: #9ed4eb;
-  border-bottom-color: rgba(126, 200, 227, 0.8);
+  color: var(--accent-primary-hover);
+  border-bottom-color: var(--accent-primary);
 }
 
 .ttt-pdf-download {
@@ -508,22 +508,22 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold) 100%);
+  color: var(--text-primary);
   text-decoration: none;
   border-radius: 8px;
   font-weight: 600;
   font-size: 1em;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px var(--surface-scrim);
   margin-top: var(--spacing-sm);
 }
 
 .ttt-pdf-download:hover {
-  background: linear-gradient(135deg, #e6b422 0%, #d4a017 100%);
+  background: linear-gradient(135deg, var(--accent-gold-hover) 0%, var(--accent-gold) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  color: #fff;
+  box-shadow: 0 4px 12px var(--surface-scrim);
+  color: var(--text-primary);
 }
 
 .ttt-pdf-download .icon {

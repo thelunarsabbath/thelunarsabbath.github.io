@@ -973,7 +973,7 @@ function renderPriestlyTable() {
     // Format service dates - Gregorian shown only on hover
     let datesHtml = '';
     if (serviceDates.length === 0) {
-      datesHtml = '<span style="color: #666;">—</span>';
+      datesHtml = '<span style="color: var(--text-tertiary);">—</span>';
     } else {
       datesHtml = '<div class="course-dates-list">' + serviceDates.map(sd => {
         const startStr = formatShortDate(sd.startDate);

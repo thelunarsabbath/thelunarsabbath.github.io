@@ -49,6 +49,7 @@ const AppStore = {
       eventsType: 'all',        // Events page type filter
       eventsEra: 'all',         // Events page era filter
       eventsViewMode: 'list',   // Events page view mode (list/timeline)
+      theme: null,              // 'dark' or 'light' (null = use OS preference)
       menuOpen: false,          // Mobile menu state
       profilePickerOpen: false,
       locationPickerOpen: false,
@@ -484,7 +485,8 @@ const AppStore = {
     'SET_GLOBAL_SEARCH',
     'CLOSE_GLOBAL_SEARCH',
     'SET_SEARCH_COLLAPSED',
-    'SET_CALC_STATE'
+    'SET_CALC_STATE',
+    'SET_THEME'
   ]),
   
   dispatch(event) {
@@ -566,6 +568,14 @@ const AppStore = {
     
     this._astroEngine = options.astroEngine || window.astroEngine;
     this._profiles = options.profiles || window.PROFILES || {};
+    
+    // Initialize theme state from what the inline <script> already set
+    try {
+      const savedTheme = localStorage.getItem('userThemePreference');
+      this._state.ui.theme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    } catch(e) {
+      this._state.ui.theme = 'dark';
+    }
     
     // STEP 1: Parse URL FIRST - before generating any calendar
     // This tells us what location, profile, and date we actually need
@@ -1417,6 +1427,23 @@ const AppStore = {
           }
         }
         return changed;
+      }
+      
+      // ─── Theme ───
+      case 'SET_THEME': {
+        const newTheme = event.theme; // 'dark' or 'light'
+        if (!newTheme || s.ui.theme === newTheme) return false;
+        s.ui.theme = newTheme;
+        // Apply to DOM immediately (CSS variables swap via [data-theme])
+        document.documentElement.setAttribute('data-theme', newTheme);
+        // Update PWA theme-color meta tag
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+          metaThemeColor.content = newTheme === 'light' ? '#f5f0e8' : '#1a3a5c';
+        }
+        // Persist
+        try { localStorage.setItem('userThemePreference', newTheme); } catch(e) {}
+        return true;
       }
       
       // ─── Global Search Actions ───

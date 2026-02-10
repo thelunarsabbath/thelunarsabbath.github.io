@@ -887,7 +887,7 @@ const GlobalSearch = {
       // Event results section (collapsible)
       if (data.events?.events?.length > 0) {
         html += `<div class="search-section search-events-section">
-          <div class="search-section-header" onclick="GlobalSearch.toggleSection('events')" style="padding: 8px 12px; background: rgba(255,255,255,0.05); font-weight: 600; color: var(--color-accent-gold); border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <div class="search-section-header" onclick="GlobalSearch.toggleSection('events')" style="padding: 8px 12px; background: var(--surface-hover); font-weight: 600; color: var(--accent-gold); border-bottom: 1px solid var(--border-subtle); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
             <span>📅 Timeline Events (${eventTotal})</span>
             <span class="section-toggle" id="events-toggle">▼</span>
           </div>
@@ -910,7 +910,7 @@ const GlobalSearch = {
       // Bible results section (collapsible)
       if (data.bible?.results?.length > 0) {
         html += `<div class="search-section search-bible-section">
-          <div class="search-section-header" onclick="GlobalSearch.toggleSection('bible')" style="padding: 8px 12px; background: rgba(255,255,255,0.05); font-weight: 600; color: var(--color-text); border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <div class="search-section-header" onclick="GlobalSearch.toggleSection('bible')" style="padding: 8px 12px; background: var(--surface-hover); font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border-subtle); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
             <span>📖 Bible Verses (${bibleTotal})</span>
             <span class="section-toggle" id="bible-toggle">▼</span>
           </div>

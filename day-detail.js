@@ -506,7 +506,7 @@ function showDayDetail(dayObj, month) {
       <div class="day-detail-feast-icon blood-moon-icon">🌕</div>
       <div class="day-detail-feast-info">
         <div class="day-detail-feast-header">
-          <div class="day-detail-feast-name" style="color: #ff6b6b;">Blood Moon (Total Lunar Eclipse)</div>
+          <div class="day-detail-feast-name" style="color: var(--color-error);">Blood Moon (Total Lunar Eclipse)</div>
           ${stellariumBloodMoonLink}
         </div>
         <div class="day-detail-feast-desc">A total lunar eclipse occurs when the Earth passes between the Sun and Moon, 

@@ -10,7 +10,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 2 / 1;
-  background: linear-gradient(180deg, #1a3a5c 0%, #0d1f30 100%);
+  background: linear-gradient(180deg, var(--surface-base) 0%, #0d1f30 100%);
   border-radius: 4px;
   overflow: hidden;
   cursor: crosshair;
@@ -30,7 +30,7 @@
   position: absolute;
   transform: translate(-50%, -100%);
   font-size: 1.5em;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 2px 4px var(--surface-scrim));
   pointer-events: none;
   z-index: 10;
 }
@@ -38,13 +38,13 @@
 .world-map-hint {
   text-align: center;
   font-size: 0.8em;
-  color: var(--color-text-muted, #888);
+  color: var(--color-text-muted, var(--text-secondary));
   margin-top: 4px;
 }
 
 /* Hover effect */
 .world-map:hover {
-  background: linear-gradient(180deg, #1f4a6c 0%, #0d1f30 100%);
+  background: linear-gradient(180deg, var(--surface-highlight) 0%, #0d1f30 100%);
 }
 
 /* Disabled state */

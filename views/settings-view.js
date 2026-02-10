@@ -201,24 +201,21 @@ const SettingsView = {
         <!-- Theme Preference -->
         <section class="settings-section">
           <h3>🎨 Theme</h3>
-          <p class="settings-description">Choose your preferred color theme. The current blue/white theme is closer to a dark theme.</p>
+          <p class="settings-description">Choose your preferred color theme.</p>
           <div class="settings-theme-options">
             <button class="settings-option-btn ${theme === 'dark' ? 'selected' : ''}" 
-                    onclick="SettingsView.saveThemePreference('dark')"
+                    onclick="AppStore.dispatch({type:'SET_THEME', theme:'dark'})"
                     data-theme="dark">
               <span class="option-icon">🌙</span>
               <span class="option-label">Dark</span>
-              <span class="option-hint">Current theme</span>
             </button>
             <button class="settings-option-btn ${theme === 'light' ? 'selected' : ''}" 
-                    onclick="SettingsView.saveThemePreference('light')"
+                    onclick="AppStore.dispatch({type:'SET_THEME', theme:'light'})"
                     data-theme="light">
               <span class="option-icon">☀️</span>
               <span class="option-label">Light</span>
-              <span class="option-hint">Coming soon</span>
             </button>
           </div>
-          ${theme === 'light' ? '<p class="settings-note" style="margin-top: 10px; color: var(--color-text-muted); font-size: 0.9em;">Light theme is not yet implemented. Dark theme will be used.</p>' : ''}
         </section>
       </div>
     `;
@@ -254,7 +251,7 @@ const SettingsView = {
       });
       mapContainer.appendChild(mapComponent);
     } else {
-      mapContainer.innerHTML = '<p style="color: rgba(255,255,255,0.6);">Map component not available</p>';
+      mapContainer.innerHTML = '<p style="color: var(--text-tertiary);">Map component not available</p>';
     }
   },
   
@@ -866,19 +863,10 @@ const SettingsView = {
   },
   
   /**
-   * Save theme preference
+   * Save theme preference (dispatches through AppStore)
    */
   saveThemePreference(theme) {
-    try {
-      localStorage.setItem('userThemePreference', theme);
-      // TODO: Apply theme when light theme is implemented
-      if (theme === 'light') {
-        // For now, just show a message that it's not implemented
-        console.log('Light theme not yet implemented');
-      }
-    } catch (e) {
-      console.error('Failed to save theme preference:', e);
-    }
+    AppStore.dispatch({ type: 'SET_THEME', theme });
   }
 };
 

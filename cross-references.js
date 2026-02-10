@@ -256,7 +256,7 @@ async function showCrossRefPanel(book, chapter, verse, event) {
         <div class="cross-ref-source">
           <span class="cross-ref-verse">${book} ${chapter}:${verse}</span>
         </div>
-        <div style="padding: 20px; text-align: center; color: #888;">
+        <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
           Loading cross-references...
         </div>
       </div>
@@ -286,7 +286,7 @@ async function showCrossRefPanel(book, chapter, verse, event) {
           <div class="cross-ref-source">
             <span class="cross-ref-verse">${book} ${chapter}:${verse}</span>
           </div>
-          <div style="padding: 20px; text-align: center; color: #888;">
+          <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
             No cross-references found
           </div>
         </div>

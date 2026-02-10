@@ -1780,7 +1780,7 @@ async function showInterlinear(book, chapter, verse, event, verseElOrId) {
     const greekVerse = Bible.isLoaded('greek_nt') ? Bible.getVerse('greek_nt', book, chapter, verse) : null;
     html += `<div class="interlinear-source-text" id="il-greek-${book.replace(/\s/g,'-')}-${chapter}-${verse}">
       <div class="il-source-header"><span class="il-source-label">Greek NT</span></div>
-      <div class="il-source-text-content">${greekVerse ? greekVerse.text : '<span style="color:#666;font-style:italic;">Loading Greek NT...</span>'}</div>
+      <div class="il-source-text-content">${greekVerse ? greekVerse.text : '<span style="color:var(--text-tertiary);font-style:italic;">Loading Greek NT...</span>'}</div>
     </div>`;
     if (!greekVerse) setTimeout(() => loadAndShowGreekNT(book, chapter, verse), 0);
   }
@@ -1890,7 +1890,7 @@ async function expandMoreTranslations(btnEl, book, chapter, verse) {
     } else {
       rowsHtml += `<div class="interlinear-trans-row interlinear-trans-unloaded">
         <span class="interlinear-trans-label">${label}</span>
-        <span class="interlinear-trans-text" style="color:#666;font-style:italic;">Not available</span>
+        <span class="interlinear-trans-text" style="color:var(--text-tertiary);font-style:italic;">Not available</span>
       </div>`;
     }
   }

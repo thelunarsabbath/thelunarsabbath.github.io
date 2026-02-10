@@ -347,14 +347,14 @@ function showAddWorldClockModal() {
       <button class="picker-close-btn" title="Close">&#10005;</button>
     </div>
     <div class="location-picker-controls" style="display: flex; flex-direction: column; gap: 10px; padding: 12px 16px 8px;">
-      <label style="color: #aaa; font-size: 0.85em;">Profile</label>
+      <label style="color: var(--text-secondary); font-size: 0.85em;">Profile</label>
       <select id="wc-add-profile" class="location-select">${profileOptionsHtml}</select>
-      <label style="color: #aaa; font-size: 0.85em;">Location (click map or select below)</label>
+      <label style="color: var(--text-secondary); font-size: 0.85em;">Location (click map or select below)</label>
     </div>
     <div id="wc-map-slot" style="padding: 0 16px;"></div>
     <div style="padding: 8px 16px 16px; display: flex; gap: 8px;">
       <select id="wc-add-city" class="location-select" style="flex: 1;"></select>
-      <button id="wc-add-confirm" style="padding: 8px 16px; background: var(--color-accent, #7ec8e3); color: #0d2840; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; white-space: nowrap;">Add</button>
+      <button id="wc-add-confirm" style="padding: 8px 16px; background: var(--accent-primary); color: var(--text-inverse); border: none; border-radius: 4px; font-weight: 600; cursor: pointer; white-space: nowrap;">Add</button>
     </div>
   `;
   

@@ -618,17 +618,17 @@ function getEquinoxMethodologyHtml(options = {}) {
   let html = `
     <p><strong>⚖️ Renewed Moon after Equinox</strong></p>
     <p>The first renewed moon <em>on or after</em> the spring equinox begins the year. This ensures:</p>
-    <ul style="margin: 10px 0; padding-left: 20px; color: rgba(255,255,255,0.9);">
+    <ul style="margin: 10px 0; padding-left: 20px; color: var(--text-primary);">
       <li><strong>Observation before the month</strong> — the sign precedes the decision</li>
       <li><strong>No calculation errors</strong> — watch the sun, not a formula</li>
       <li><strong>Practical globally</strong> — anyone can observe without technology</li>
       <li><strong>Barley ripe by First Fruits</strong> — harvest ready by Day 16</li>
     </ul>
-    <p style="font-size: 0.9em; color: rgba(255,255,255,0.7);">Starting 2 weeks earlier risks unripe barley. Any later and the harvest would be over.</p>`;
+    <p style="font-size: 0.9em; color: var(--text-secondary);">Starting 2 weeks earlier risks unripe barley. Any later and the harvest would be over.</p>`;
   
   if (showCalculation && equinoxDate && day1Date) {
     html += `
-    <div style="margin: 12px 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+    <div style="margin: 12px 0; padding: 10px; background: var(--surface-hover); border-radius: 6px;">
       <strong>This Year:</strong><br>
       • Spring Equinox: ${equinoxDate}<br>
       • Day 1 begins: ${day1Date}<br>
@@ -657,7 +657,7 @@ function getEquinoxMethodologyHtml(options = {}) {
         <blockquote>"You shall observe the Feast of Weeks… and the Feast of Ingathering at the turning (tekufah) of the year."<br>— Exodus 34:22</blockquote>
         <p>If the fall feast is at one turning point (autumn equinox), Passover should be at the other (spring equinox).</p>
         
-        <p style="margin-top: 15px;"><a href="#" style="color: #7ec8e3;" onclick="event.preventDefault();AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'timetested',chapterId:'08_When_does_the_Year_Start'}})">📖 See "Time Tested Tradition" chapter: When Does the Year Start?</a></p>
+        <p style="margin-top: 15px;"><a href="#" style="color: var(--accent-primary);" onclick="event.preventDefault();AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'timetested',chapterId:'08_When_does_the_Year_Start'}})">📖 See "Time Tested Tradition" chapter: When Does the Year Start?</a></p>
       </div>
     </details>`;
   
@@ -671,7 +671,7 @@ function getPassoverMethodologyHtml(options = {}) {
   let html = `
     <p><strong>🐑 Passover after Equinox</strong></p>
     <p>The first new moon is chosen such that <strong>Day 15</strong> (when Unleavened Bread begins) occurs <em>on or after</em> the spring equinox. This ensures:</p>
-    <ul style="margin: 10px 0; padding-left: 20px; color: rgba(255,255,255,0.9);">
+    <ul style="margin: 10px 0; padding-left: 20px; color: var(--text-primary);">
       <li>Passover is always a true "spring festival" (<em>ḥag ha-aviv</em>)</li>
       <li>Matches the traditional Jewish calendar intercalation rule</li>
       <li>Allows the month to start up to 14 days before the equinox</li>
@@ -679,7 +679,7 @@ function getPassoverMethodologyHtml(options = {}) {
   
   if (showCalculation && equinoxDate && day1Date) {
     html += `
-    <div style="margin: 12px 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+    <div style="margin: 12px 0; padding: 10px; background: var(--surface-hover); border-radius: 6px;">
       <strong>This Year:</strong><br>
       • Spring Equinox: ${equinoxDate}<br>
       • Day 1 begins: ${day1Date}<br>
@@ -701,7 +701,7 @@ function getPassoverMethodologyHtml(options = {}) {
         <blockquote>"Observe the month of Aviv, and keep the Passover unto the LORD thy God: for in the month of Aviv the LORD thy God brought thee forth out of Egypt by night."<br>— Deuteronomy 16:1</blockquote>
         <p>The month must be Aviv (spring) when Passover occurs, ensuring the festival aligns with the season of redemption and renewal.</p>
         
-        <p style="margin-top: 15px;"><a href="#" style="color: #7ec8e3;" onclick="event.preventDefault();AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'timetested',chapterId:'08_When_does_the_Year_Start'}})">📖 See "Time Tested Tradition" chapter: When Does the Year Start?</a></p>
+        <p style="margin-top: 15px;"><a href="#" style="color: var(--accent-primary);" onclick="event.preventDefault();AppStore.dispatch({type:'SET_VIEW',view:'reader',params:{contentType:'timetested',chapterId:'08_When_does_the_Year_Start'}})">📖 See "Time Tested Tradition" chapter: When Does the Year Start?</a></p>
       </div>
     </details>`;
   
@@ -733,20 +733,20 @@ function getVirgoMethodologyHtml(options = {}) {
     const validityStyle = isValid ? 'color: #4ade80;' : 'color: #f87171;';
     
     html += `
-    <div style="margin: 12px 0; padding: 12px; background: rgba(138, 43, 226, 0.15); border: 1px solid rgba(138, 43, 226, 0.3); border-radius: 8px;">
+    <div style="margin: 12px 0; padding: 12px; background: var(--color-purple-muted); border: 1px solid var(--color-purple-muted); border-radius: 8px;">
       <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px; ${validityStyle}">${validityIcon} Selected Full Moon: ${virgoDateStr}</div>
       
-      <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+      <div style="background: var(--surface-hover); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
         <strong>The Test (at daystart ${daystartTimeStr} in ${virgoCalc.locationName || 'Jerusalem'}):</strong>
         <table style="width: 100%; margin-top: 8px; font-size: 0.95em;">
           <tr><td style="padding: 4px 0;"><strong>Moon Center RA:</strong></td><td style="padding: 4px 0; text-align: right;">${moonCenterRA.toFixed(2)}°</td></tr>
-          <tr><td style="padding: 4px 0;"><strong>Moon Leading Edge RA:</strong></td><td style="padding: 4px 0; text-align: right;">${moonLeadingEdgeRA.toFixed(2)}° <span style="font-size: 0.8em; color: rgba(255,255,255,0.6);">(+0.25° radius)</span></td></tr>
+          <tr><td style="padding: 4px 0;"><strong>Moon Leading Edge RA:</strong></td><td style="padding: 4px 0; text-align: right;">${moonLeadingEdgeRA.toFixed(2)}° <span style="font-size: 0.8em; color: var(--text-secondary);">(+0.25° radius)</span></td></tr>
           <tr><td style="padding: 4px 0;"><strong>Spica RA:</strong></td><td style="padding: 4px 0; text-align: right;">${spicaRA.toFixed(2)}°</td></tr>
-          <tr style="border-top: 1px solid rgba(255,255,255,0.2);"><td style="padding: 4px 0;"><strong>Difference (Leading Edge − Spica):</strong></td><td style="padding: 4px 0; text-align: right; ${validityStyle}"><strong>${diff >= 0 ? '+' : ''}${diff.toFixed(2)}°</strong></td></tr>
+          <tr style="border-top: 1px solid var(--border-default);"><td style="padding: 4px 0;"><strong>Difference (Leading Edge − Spica):</strong></td><td style="padding: 4px 0; text-align: right; ${validityStyle}"><strong>${diff >= 0 ? '+' : ''}${diff.toFixed(2)}°</strong></td></tr>
         </table>
       </div>
       
-      <div style="padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-bottom: 10px;">
+      <div style="padding: 8px; background: var(--surface-hover); border-radius: 6px; margin-bottom: 10px;">
         <strong>Interpretation:</strong><br>
         ${isValid 
           ? `Moon leading edge (${moonLeadingEdgeRA.toFixed(1)}°) &gt; Spica RA (${spicaRA.toFixed(1)}°). The front of the Moon has passed Spica. As they set in the west, <strong style="color: #4ade80;">Spica sets first</strong>, then the Moon follows — the Moon is under Virgo's feet. ✓`
@@ -759,11 +759,11 @@ function getVirgoMethodologyHtml(options = {}) {
       const stellariumLat = virgoCalc.locationLat ?? 31.7683;
       const stellariumLon = virgoCalc.locationLon ?? 35.2137;
       
-      html += `<details style="margin-top: 10px;"><summary style="cursor: pointer; color: #7ec8e3;">View All ${virgoCalc.attempts.length} Full Moons Evaluated</summary>
-        <div style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;">
-          <p style="font-size: 0.85em; color: rgba(255,255,255,0.7); margin: 0 0 8px 0;">Moon RA shown is the leading edge (center + 0.25° radius)</p>
+      html += `<details style="margin-top: 10px;"><summary style="cursor: pointer; color: var(--accent-primary);">View All ${virgoCalc.attempts.length} Full Moons Evaluated</summary>
+        <div style="margin-top: 8px; padding: 8px; background: var(--surface-hover); border-radius: 6px;">
+          <p style="font-size: 0.85em; color: var(--text-secondary); margin: 0 0 8px 0;">Moon RA shown is the leading edge (center + 0.25° radius)</p>
           <table style="width: 100%; font-size: 0.9em; border-collapse: collapse;">
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);"><th style="text-align: left; padding: 4px;">Full Moon Date</th><th style="text-align: right; padding: 4px;">Moon RA</th><th style="text-align: right; padding: 4px;">Spica RA</th><th style="text-align: right; padding: 4px;">Diff</th><th style="text-align: center; padding: 4px;">Result</th><th style="text-align: center; padding: 4px;">Verify</th></tr>`;
+            <tr style="border-bottom: 1px solid var(--border-default);"><th style="text-align: left; padding: 4px;">Full Moon Date</th><th style="text-align: right; padding: 4px;">Moon RA</th><th style="text-align: right; padding: 4px;">Spica RA</th><th style="text-align: right; padding: 4px;">Diff</th><th style="text-align: center; padding: 4px;">Result</th><th style="text-align: center; padding: 4px;">Verify</th></tr>`;
       
       for (let i = 0; i < virgoCalc.attempts.length; i++) {
         const attempt = virgoCalc.attempts[i];
@@ -785,7 +785,7 @@ function getVirgoMethodologyHtml(options = {}) {
       }
       
       html += `</table>
-          <p style="margin-top: 8px; font-size: 0.85em; color: rgba(255,255,255,0.7);"><strong>Rule:</strong> Select the first full moon where Moon RA &gt; Spica RA (positive difference). Objects with lower RA set earlier.</p>
+          <p style="margin-top: 8px; font-size: 0.85em; color: var(--text-secondary);"><strong>Rule:</strong> Select the first full moon where Moon RA &gt; Spica RA (positive difference). Objects with lower RA set earlier.</p>
         </div></details>`;
     }
     
@@ -795,9 +795,9 @@ function getVirgoMethodologyHtml(options = {}) {
     const stellariumLat = virgoCalc.locationLat ?? 31.7683;
     const stellariumLon = virgoCalc.locationLon ?? 35.2137;
     
-    html += `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
-        <a href="https://stellarium-web.org/?date=${stellariumDateStr}&lat=${stellariumLat}&lng=${stellariumLon}" target="_blank" rel="noopener" style="display: inline-block; padding: 6px 12px; background: rgba(126, 200, 227, 0.2); border-radius: 4px; text-decoration: none; color: #7ec8e3;">🔭 Verify in Stellarium (${virgoCalc.locationName || 'Jerusalem'} at daystart on ${virgoParts.shortMonthName} ${virgoParts.day})</a>
-        <p style="margin-top: 6px; font-size: 0.85em; color: rgba(255,255,255,0.6);">Check Moon and Spica RA in Stellarium at sunrise. Moon RA must exceed Spica RA for the rule to be satisfied.</p>
+    html += `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
+        <a href="https://stellarium-web.org/?date=${stellariumDateStr}&lat=${stellariumLat}&lng=${stellariumLon}" target="_blank" rel="noopener" style="display: inline-block; padding: 6px 12px; background: var(--accent-primary-muted); border-radius: 4px; text-decoration: none; color: var(--accent-primary);">🔭 Verify in Stellarium (${virgoCalc.locationName || 'Jerusalem'} at daystart on ${virgoParts.shortMonthName} ${virgoParts.day})</a>
+        <p style="margin-top: 6px; font-size: 0.85em; color: var(--text-secondary);">Check Moon and Spica RA in Stellarium at sunrise. Moon RA must exceed Spica RA for the rule to be satisfied.</p>
       </div></div>`;
   }
   
@@ -817,12 +817,12 @@ function getVirgoMethodologyHtml(options = {}) {
         <blockquote>"And there appeared a great wonder in heaven; a woman clothed with the sun, and the moon under her feet..."<br>— Revelation 12:1</blockquote>
         
         <p><strong>Sources</strong></p>
-        <p>Taught by <a href="https://thecreatorscalendar.com" target="_blank" style="color: #7ec8e3;">TheCreatorsCalendar.com</a> and <a href="https://www.youtube.com/@MikalShabbat" target="_blank" style="color: #7ec8e3;">Mikal Shabbat Scriptural Studies</a>.</p>
+        <p>Taught by <a href="https://thecreatorscalendar.com" target="_blank" style="color: var(--accent-primary);">TheCreatorsCalendar.com</a> and <a href="https://www.youtube.com/@MikalShabbat" target="_blank" style="color: var(--accent-primary);">Mikal Shabbat Scriptural Studies</a>.</p>
       </div></details>
     
-    <div class="settings-warning" style="margin-top: 12px; padding: 10px; background: rgba(255, 180, 0, 0.15); border: 1px solid rgba(255, 180, 0, 0.3); border-radius: 6px;">
-      <p style="margin: 0; color: #ffb400;"><strong>⚠️ Precession Warning</strong></p>
-      <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.85);">Spica's position is adjusted for precession (~1° per 72 years). In ancient/future dates, the Virgo alignment may occur earlier or later in spring, potentially affecting barley ripeness for Wave Sheaf (Day 16).</p>
+    <div class="settings-warning" style="margin-top: 12px; padding: 10px; background: var(--color-warning-muted); border: 1px solid var(--color-warning-muted); border-radius: 6px;">
+      <p style="margin: 0; color: var(--accent-gold);"><strong>⚠️ Precession Warning</strong></p>
+      <p style="margin: 8px 0 0 0; color: var(--text-primary);">Spica's position is adjusted for precession (~1° per 72 years). In ancient/future dates, the Virgo alignment may occur earlier or later in spring, potentially affecting barley ripeness for Wave Sheaf (Day 16).</p>
     </div>`;
   
   return html;

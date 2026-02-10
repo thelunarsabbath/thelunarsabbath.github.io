@@ -186,7 +186,7 @@ async function loadEventDocumentation(docPath, containerId) {
   try {
     const response = await fetch(docPath);
     if (!response.ok) {
-      container.innerHTML = `<p style="color: #f44336;">Documentation not found: ${docPath}</p>`;
+      container.innerHTML = `<p style="color: var(--color-error);">Documentation not found: ${docPath}</p>`;
       return;
     }
     
@@ -235,12 +235,12 @@ async function loadEventDocumentation(docPath, containerId) {
     
     // Add fade overlay
     const fade = document.createElement('div');
-    fade.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(transparent, #1a3a5c); pointer-events: none;';
+    fade.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(transparent, var(--surface-base)); pointer-events: none;';
     container.appendChild(fade);
     container.dataset.expanded = 'false';
     
   } catch (err) {
-    container.innerHTML = `<p style="color: #f44336;">Error loading documentation: ${err.message}</p>`;
+    container.innerHTML = `<p style="color: var(--color-error);">Error loading documentation: ${err.message}</p>`;
   }
 }
 
@@ -264,7 +264,7 @@ function toggleDocExpand(containerId) {
     container.style.overflow = 'hidden';
     // Re-add fade overlay
     const fade = document.createElement('div');
-    fade.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(transparent, #1a3a5c); pointer-events: none;';
+    fade.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(transparent, var(--surface-base)); pointer-events: none;';
     container.appendChild(fade);
     container.dataset.expanded = 'false';
     if (btn) btn.textContent = 'Show Full Document';
@@ -1778,24 +1778,24 @@ function injectTimelineStyles() {
       to { opacity: 1; transform: translateY(0); }
     }
     .tooltip-title {
-      color: #7ec8e3;
+      color: var(--accent-primary);
       font-size: 1.1em;
       font-weight: 600;
       margin-bottom: 6px;
     }
     .tooltip-date {
-      color: #6bc46b;
+      color: var(--color-success);
       font-size: 0.9em;
       margin-bottom: 8px;
     }
     .tooltip-desc {
-      color: #ccc;
+      color: var(--text-primary);
       font-size: 0.85em;
       line-height: 1.4;
     }
     .tooltip-link {
       display: block;
-      color: #7ec8e3;
+      color: var(--accent-primary);
       font-size: 0.85em;
       margin-top: 10px;
       text-decoration: none;
@@ -1808,7 +1808,7 @@ function injectTimelineStyles() {
       transition: background 0.2s;
     }
     .tooltip-link:hover {
-      background: rgba(126, 200, 227, 0.3);
+      background: var(--border-accent);
     }
     
     /* Detail panel sections and content styling */
@@ -1817,7 +1817,7 @@ function injectTimelineStyles() {
       align-items: center;
       gap: 10px;
       margin: 0 0 20px 0;
-      color: #7ec8e3;
+      color: var(--accent-primary);
       font-size: 1.4em;
     }
     .detail-title-icon {
@@ -1830,7 +1830,7 @@ function injectTimelineStyles() {
       margin-bottom: 15px;
     }
     .detail-section h4 {
-      color: #7ec8e3;
+      color: var(--accent-primary);
       margin: 0 0 10px 0;
       font-size: 0.85em;
       text-transform: uppercase;
@@ -1839,7 +1839,7 @@ function injectTimelineStyles() {
     .detail-section p {
       margin: 0;
       line-height: 1.6;
-      color: #ccc;
+      color: var(--text-primary);
     }
     .detail-date-row {
       display: flex;
@@ -1851,12 +1851,12 @@ function injectTimelineStyles() {
       min-width: 120px;
     }
     .detail-date-label {
-      color: #888;
+      color: var(--text-secondary);
       font-size: 0.8em;
       margin-bottom: 4px;
     }
     .detail-date-value {
-      color: #7ec8e3;
+      color: var(--accent-primary);
       font-size: 1em;
     }
     .source-item {
@@ -1866,12 +1866,12 @@ function injectTimelineStyles() {
       margin-bottom: 10px;
     }
     .source-ref {
-      color: #d4a017;
+      color: var(--accent-gold);
       font-weight: 500;
       margin-bottom: 6px;
     }
     .source-quote {
-      color: #aaa;
+      color: var(--text-secondary);
       font-style: italic;
       line-height: 1.5;
     }
@@ -1882,7 +1882,7 @@ function injectTimelineStyles() {
     }
     .tag-item {
       background: rgba(126, 200, 227, 0.15);
-      color: #7ec8e3;
+      color: var(--accent-primary);
       padding: 4px 10px;
       border-radius: 12px;
       font-size: 0.85em;
@@ -1893,7 +1893,7 @@ function injectTimelineStyles() {
       padding: 10px;
     }
     .search-results-header {
-      color: #7ec8e3;
+      color: var(--accent-primary);
       margin-bottom: 15px;
       font-size: 1.1em;
     }
@@ -1920,24 +1920,24 @@ function injectTimelineStyles() {
       color: #e0e0e0;
     }
     .search-result-year {
-      color: #7ec8e3;
+      color: var(--accent-primary);
       font-size: 0.9em;
       white-space: nowrap;
     }
     
     /* Lunar date link styling */
     .lunar-date-link {
-      color: #6bc46b;
+      color: var(--color-success);
       text-decoration: none;
       cursor: pointer;
       transition: all 0.2s;
       padding: 4px 8px;
       border-radius: 4px;
-      background: rgba(107, 196, 107, 0.1);
+      background: var(--color-success-muted);
       display: inline-block;
     }
     .lunar-date-link:hover {
-      background: rgba(107, 196, 107, 0.2);
+      background: var(--color-success-muted);
       color: #8fd68f;
     }
     
@@ -1945,7 +1945,7 @@ function injectTimelineStyles() {
     .detail-source-item {
       margin-bottom: 15px;
       padding-bottom: 15px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid var(--surface-hover);
     }
     .detail-source-item:last-child {
       margin-bottom: 0;
@@ -1954,7 +1954,7 @@ function injectTimelineStyles() {
     }
     .detail-source-ref {
       font-size: 0.9em;
-      color: #888;
+      color: var(--text-secondary);
       margin-bottom: 5px;
     }
     .detail-source-quote {
@@ -1965,7 +1965,7 @@ function injectTimelineStyles() {
       color: #c0c0c0;
     }
     .detail-source-quote strong {
-      color: #7ec8e3;
+      color: var(--accent-primary);
       font-style: normal;
     }
     
@@ -1993,7 +1993,7 @@ function injectTimelineStyles() {
       display: none;
       justify-content: center;
       padding: 4px 0;
-      color: #7ec8e3;
+      color: var(--accent-primary);
       font-size: 12px;
       opacity: 0.7;
     }
@@ -2014,7 +2014,7 @@ function injectTimelineStyles() {
     }
     .detail-nav-event {
       flex: 1;
-      background: rgba(126, 200, 227, 0.1);
+      background: var(--accent-primary-subtle);
       border: 1px solid rgba(126, 200, 227, 0.2);
       border-radius: 8px;
       padding: 12px;
@@ -2032,7 +2032,7 @@ function injectTimelineStyles() {
     }
     .detail-nav-label {
       font-size: 0.75em;
-      color: #888;
+      color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 6px;
@@ -2041,19 +2041,19 @@ function injectTimelineStyles() {
       display: flex;
       align-items: center;
       gap: 6px;
-      color: #7ec8e3;
+      color: var(--accent-primary);
       font-weight: 500;
     }
     .detail-nav-year {
       font-size: 0.85em;
-      color: #6bc46b;
+      color: var(--color-success);
       margin-top: 4px;
     }
     
     /* Event links in details */
     .detail-event-link {
-      background: rgba(126, 200, 227, 0.1);
-      border: 1px solid rgba(126, 200, 227, 0.3);
+      background: var(--accent-primary-subtle);
+      border: 1px solid var(--border-accent);
       border-radius: 6px;
       padding: 8px 12px;
       cursor: pointer;
@@ -2309,7 +2309,7 @@ async function openDurationDetailInternal(durationId, addHistory = true) {
             <span>${fromEventInfo.icon}</span>
             <span>${fromEventInfo.title}</span>
           </div>
-          ${fromEventInfo.date ? `<div style="font-size: 0.85em; color: #6bc46b; margin-top: 4px;">${fromEventInfo.date}</div>` : ''}
+          ${fromEventInfo.date ? `<div style="font-size: 0.85em; color: var(--color-success); margin-top: 4px;">${fromEventInfo.date}</div>` : ''}
         </div>
         <span class="detail-arrow">→</span>
         <div class="detail-event-link" onclick="openDurationDetail_openEvent('${duration.to_event}')" style="flex-direction: column; align-items: flex-start;">
@@ -2317,7 +2317,7 @@ async function openDurationDetailInternal(durationId, addHistory = true) {
             <span>${toEventInfo.icon}</span>
             <span>${toEventInfo.title}</span>
           </div>
-          ${toEventInfo.date ? `<div style="font-size: 0.85em; color: #6bc46b; margin-top: 4px;">${toEventInfo.date}</div>` : ''}
+          ${toEventInfo.date ? `<div style="font-size: 0.85em; color: var(--color-success); margin-top: 4px;">${toEventInfo.date}</div>` : ''}
         </div>
       </div>
     </div>
@@ -2414,7 +2414,7 @@ async function openDurationDetailInternal(durationId, addHistory = true) {
         if (docEl) docEl.innerHTML = docHtml;
       } else {
         // Doc file not found - show placeholder
-        if (docEl) docEl.innerHTML = '<em style="color: #888;">Documentation not yet available</em>';
+        if (docEl) docEl.innerHTML = '<em style="color: var(--text-secondary);">Documentation not yet available</em>';
       }
     } catch (err) {
       const docEl = document.getElementById('detail-doc-content');
@@ -2621,7 +2621,7 @@ async function openEventDetailInternal(eventId, addHistory = true) {
         ` : ''}
       </div>
       ${reckoningExplanation ? `
-      <div class="detail-reckoning-note" style="font-size: 0.85em; color: #888; margin-top: 8px; font-style: italic;">
+      <div class="detail-reckoning-note" style="font-size: 0.85em; color: var(--text-secondary); margin-top: 8px; font-style: italic;">
         📐 ${reckoningExplanation}
       </div>
       ` : ''}
@@ -2721,20 +2721,20 @@ async function openEventDetailInternal(eventId, addHistory = true) {
         const safeTitle = (link.title || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         
         html += `
-          <div class="derivation-chain-item" style="display: flex; align-items: center; gap: 8px; padding: 8px; background: ${isSolid ? 'rgba(107, 196, 107, 0.15)' : 'rgba(126, 200, 227, 0.08)'}; border-radius: 6px; border-left: 3px solid ${isSolid ? '#6bc46b' : '#7ec8e3'};">
+          <div class="derivation-chain-item" style="display: flex; align-items: center; gap: 8px; padding: 8px; background: ${isSolid ? 'var(--color-success-muted)' : 'var(--accent-primary-subtle)'}; border-radius: 6px; border-left: 3px solid ${isSolid ? 'var(--color-success)' : 'var(--accent-primary)'};">
             <div class="derivation-event" onclick="openEventDetail('${safeEventId}')" style="cursor: pointer; flex: 1;">
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span>${link.icon}</span>
                 <span style="font-weight: ${isSolid ? '600' : '400'};">${safeTitle}</span>
-                ${isSolid ? '<span style="font-size: 0.75em; background: #6bc46b; color: #000; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">ANCHOR</span>' : ''}
+                ${isSolid ? '<span style="font-size: 0.75em; background: var(--color-success); color: var(--text-inverse); padding: 2px 6px; border-radius: 3px; margin-left: 6px;">ANCHOR</span>' : ''}
               </div>
-              <div style="font-size: 0.85em; color: #6bc46b; margin-top: 4px;">${link.dateStr}</div>
-              ${link.solidReason ? `<div style="font-size: 0.75em; color: #888; margin-top: 2px;">${(link.solidReason || '').replace(/</g, '&lt;')}</div>` : ''}
+              <div style="font-size: 0.85em; color: var(--color-success); margin-top: 4px;">${link.dateStr}</div>
+              ${link.solidReason ? `<div style="font-size: 0.75em; color: var(--text-secondary); margin-top: 2px;">${(link.solidReason || '').replace(/</g, '&lt;')}</div>` : ''}
             </div>
             ${!isLast ? `
-              <div class="derivation-offset" style="text-align: center; min-width: 80px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                <div style="font-size: 0.8em; color: #888;">${link.offsetDirection}</div>
-                <div style="font-size: 0.9em; color: #d4a017;">${(link.offsetStr || '').replace(/</g, '&lt;')}</div>
+              <div class="derivation-offset" style="text-align: center; min-width: 80px; padding: 4px 8px; background: var(--surface-hover); border-radius: 4px;">
+                <div style="font-size: 0.8em; color: var(--text-secondary);">${link.offsetDirection}</div>
+                <div style="font-size: 0.9em; color: var(--accent-gold);">${(link.offsetStr || '').replace(/</g, '&lt;')}</div>
               </div>
             ` : ''}
           </div>
@@ -2787,10 +2787,10 @@ async function openEventDetailInternal(eventId, addHistory = true) {
     html += `
       <div class="detail-section">
         <h4>📐 Chronological Verification</h4>
-        <div id="${docId}" class="event-documentation" style="color: #ccc; line-height: 1.7;">
-          <p style="color: #888; font-style: italic;">Loading documentation...</p>
+        <div id="${docId}" class="event-documentation" style="color: var(--text-primary); line-height: 1.7;">
+          <p style="color: var(--text-secondary); font-style: italic;">Loading documentation...</p>
         </div>
-        <button onclick="toggleDocExpand('${docId}')" class="doc-expand-btn" style="margin-top: 10px; padding: 8px 16px; background: rgba(126, 200, 227, 0.1); border: 1px solid rgba(126, 200, 227, 0.3); border-radius: 6px; color: #7ec8e3; cursor: pointer;">
+        <button onclick="toggleDocExpand('${docId}')" class="doc-expand-btn" style="margin-top: 10px; padding: 8px 16px; background: var(--accent-primary-subtle); border: 1px solid var(--border-accent); border-radius: 6px; color: var(--accent-primary); cursor: pointer;">
           Show Full Document
         </button>
       </div>
@@ -2810,9 +2810,9 @@ async function openEventDetailInternal(eventId, addHistory = true) {
             const refIcon = refEvent ? getTypeIcon(refEvent.type) : '📍';
             return `
               <a href="#" onclick="openEventDetail('${eventRef}'); return false;" 
-                 style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: rgba(212, 160, 23, 0.1); border: 1px solid rgba(212, 160, 23, 0.3); border-radius: 6px; text-decoration: none; color: #d4a017; font-size: 0.85em; transition: background 0.2s;"
-                 onmouseover="this.style.background='rgba(212, 160, 23, 0.2)'" 
-                 onmouseout="this.style.background='rgba(212, 160, 23, 0.1)'">
+                 style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--accent-gold-subtle); border: 1px solid var(--accent-gold-muted); border-radius: 6px; text-decoration: none; color: var(--accent-gold); font-size: 0.85em; transition: background 0.2s;"
+                 onmouseover="this.style.background='var(--accent-gold-muted)'" 
+                 onmouseout="this.style.background='var(--accent-gold-subtle)'">
                 ${refIcon} ${refTitle}
               </a>
             `;
@@ -2836,9 +2836,9 @@ async function openEventDetailInternal(eventId, addHistory = true) {
           <div style="display: flex; flex-wrap: wrap; gap: 8px;">
             ${eventLinks.map(link => `
               <a href="#" onclick="openEventDetail('${link.event}'); return false;" 
-                 style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(126, 200, 227, 0.1); border: 1px solid rgba(126, 200, 227, 0.3); border-radius: 6px; text-decoration: none; color: #7ec8e3; font-size: 0.9em; transition: background 0.2s;"
-                 onmouseover="this.style.background='rgba(126, 200, 227, 0.2)'" 
-                 onmouseout="this.style.background='rgba(126, 200, 227, 0.1)'">
+                 style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--accent-primary-subtle); border: 1px solid var(--border-accent); border-radius: 6px; text-decoration: none; color: var(--accent-primary); font-size: 0.9em; transition: background 0.2s;"
+                 onmouseover="this.style.background='var(--accent-primary-muted)'" 
+                 onmouseout="this.style.background='var(--accent-primary-subtle)'">
                 ${link.icon || '📍'} ${link.label}
               </a>
             `).join('')}
@@ -2854,13 +2854,13 @@ async function openEventDetailInternal(eventId, addHistory = true) {
           <h4>External Links</h4>
           <div class="detail-links-container" style="display: flex; flex-direction: column; gap: 10px;">
             ${externalLinks.map(link => `
-              <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="detail-external-link" style="display: flex; align-items: center; gap: 10px; padding: 12px; background: rgba(126, 200, 227, 0.1); border: 1px solid rgba(126, 200, 227, 0.3); border-radius: 8px; text-decoration: none; color: #7ec8e3; transition: background 0.2s;">
+              <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="detail-external-link" style="display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--accent-primary-subtle); border: 1px solid var(--border-accent); border-radius: 8px; text-decoration: none; color: var(--accent-primary); transition: background 0.2s;">
                 <span style="font-size: 1.5em;">${link.icon || '🔗'}</span>
                 <div style="flex: 1;">
                   <div style="font-weight: 500;">${link.label}</div>
-                  ${link.notes ? `<div style="font-size: 0.85em; color: #888; margin-top: 2px;">${link.notes}</div>` : ''}
+                  ${link.notes ? `<div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 2px;">${link.notes}</div>` : ''}
                 </div>
-                <span style="color: #888;">↗</span>
+                <span style="color: var(--text-secondary);">↗</span>
               </a>
             `).join('')}
           </div>
@@ -2886,7 +2886,7 @@ async function openEventDetailInternal(eventId, addHistory = true) {
     
     // Durations starting FROM this event
     if (fromThis.length > 0) {
-      html += `<div class="duration-group-label" style="font-size: 0.85em; color: #7ec8e3; margin: 8px 0 4px 0;">From this event →</div>`;
+      html += `<div class="duration-group-label" style="font-size: 0.85em; color: var(--accent-primary); margin: 8px 0 4px 0;">From this event →</div>`;
       fromThis.forEach(dur => {
         const toEvent = data?.events?.find(e => e.id === dur.to_event);
         const toTitle = toEvent?.title || dur.to_event;
@@ -2905,14 +2905,14 @@ async function openEventDetailInternal(eventId, addHistory = true) {
         const sourceIcon = dur.source?.type === 'scripture' ? '📖' : dur.source?.type === 'historical' ? '📜' : '';
         
         html += `
-          <div class="detail-duration-item" onclick="openDurationDetail('${dur.id}')" style="cursor: pointer; padding: 10px; margin: 4px 0; background: rgba(107, 196, 107, 0.08); border-left: 3px solid #6bc46b; border-radius: 0 6px 6px 0;">
+          <div class="detail-duration-item" onclick="openDurationDetail('${dur.id}')" style="cursor: pointer; padding: 10px; margin: 4px 0; background: var(--color-success-muted); border-left: 3px solid var(--color-success); border-radius: 0 6px 6px 0;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <span style="color: #6bc46b; font-weight: 600;">+${claimedStr}</span>
-              <span style="color: #888;">→</span>
+              <span style="color: var(--color-success); font-weight: 600;">+${claimedStr}</span>
+              <span style="color: var(--text-secondary);">→</span>
               <span class="event-ref-link" onclick="event.stopPropagation(); openEventDetail('${dur.to_event}')" style="display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">${toIcon} ${toTitle}</span>
             </div>
-            <div style="font-size: 0.85em; color: #aaa; margin-top: 4px;">${dur.title}</div>
-            ${sourceRef ? `<div style="font-size: 0.8em; color: #888; margin-top: 2px;">${sourceIcon} ${sourceRef}</div>` : ''}
+            <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 4px;">${dur.title}</div>
+            ${sourceRef ? `<div style="font-size: 0.8em; color: var(--text-secondary); margin-top: 2px;">${sourceIcon} ${sourceRef}</div>` : ''}
           </div>
         `;
       });
@@ -2920,7 +2920,7 @@ async function openEventDetailInternal(eventId, addHistory = true) {
     
     // Durations ending AT this event
     if (toThis.length > 0) {
-      html += `<div class="duration-group-label" style="font-size: 0.85em; color: #7ec8e3; margin: 12px 0 4px 0;">← To this event</div>`;
+      html += `<div class="duration-group-label" style="font-size: 0.85em; color: var(--accent-primary); margin: 12px 0 4px 0;">← To this event</div>`;
       toThis.forEach(dur => {
         const fromEvent = data?.events?.find(e => e.id === dur.from_event);
         const fromTitle = fromEvent?.title || dur.from_event;
@@ -2939,14 +2939,14 @@ async function openEventDetailInternal(eventId, addHistory = true) {
         const sourceIcon = dur.source?.type === 'scripture' ? '📖' : dur.source?.type === 'historical' ? '📜' : '';
         
         html += `
-          <div class="detail-duration-item" onclick="openDurationDetail('${dur.id}')" style="cursor: pointer; padding: 10px; margin: 4px 0; background: rgba(212, 160, 23, 0.08); border-left: 3px solid #d4a017; border-radius: 0 6px 6px 0;">
+          <div class="detail-duration-item" onclick="openDurationDetail('${dur.id}')" style="cursor: pointer; padding: 10px; margin: 4px 0; background: var(--accent-gold-subtle); border-left: 3px solid var(--accent-gold); border-radius: 0 6px 6px 0;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
               <span class="event-ref-link" onclick="event.stopPropagation(); openEventDetail('${dur.from_event}')" style="display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">${fromIcon} ${fromTitle}</span>
-              <span style="color: #888;">→</span>
-              <span style="color: #d4a017; font-weight: 600;">+${claimedStr}</span>
+              <span style="color: var(--text-secondary);">→</span>
+              <span style="color: var(--accent-gold); font-weight: 600;">+${claimedStr}</span>
             </div>
-            <div style="font-size: 0.85em; color: #aaa; margin-top: 4px;">${dur.title}</div>
-            ${sourceRef ? `<div style="font-size: 0.8em; color: #888; margin-top: 2px;">${sourceIcon} ${sourceRef}</div>` : ''}
+            <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 4px;">${dur.title}</div>
+            ${sourceRef ? `<div style="font-size: 0.8em; color: var(--text-secondary); margin-top: 2px;">${sourceIcon} ${sourceRef}</div>` : ''}
           </div>
         `;
       });
@@ -3164,30 +3164,30 @@ function showJubileeInfo(astronomicalYear, jubileeNumber) {
   
   let content = `
     <div style="padding: 20px; color: white;">
-      <h2 style="color: #ffd700; margin-bottom: 15px;">🎺 Jubilee ${jubileeNumber}</h2>
+      <h2 style="color: var(--accent-gold); margin-bottom: 15px;">🎺 Jubilee ${jubileeNumber}</h2>
       <div style="margin-bottom: 15px;">
-        <div style="color: #888;">Year</div>
+        <div style="color: var(--text-secondary);">Year</div>
         <div style="font-size: 1.3em;">${displayYear}</div>
       </div>
       <div style="margin-bottom: 15px;">
-        <div style="color: #888;">Years from Jordan Crossing (${jordanDisplayYear})</div>
+        <div style="color: var(--text-secondary);">Years from Jordan Crossing (${jordanDisplayYear})</div>
         <div>${yearsSinceJordan} years = ${jubileeNumber - 1} × 49</div>
       </div>
       ${knownEvent ? `
-      <div style="margin-bottom: 15px; padding: 10px; background: rgba(255, 215, 0, 0.1); border-left: 3px solid #ffd700; border-radius: 4px;">
-        <div style="color: #ffd700; font-weight: bold;">${knownEvent.event}</div>
-        <div style="color: #ccc; font-size: 0.9em;">${knownEvent.description}</div>
+      <div style="margin-bottom: 15px; padding: 10px; background: var(--accent-gold-subtle); border-left: 3px solid var(--accent-gold); border-radius: 4px;">
+        <div style="color: var(--accent-gold); font-weight: bold;">${knownEvent.event}</div>
+        <div style="color: var(--text-primary); font-size: 0.9em;">${knownEvent.description}</div>
       </div>
       ` : ''}
       <div style="margin-bottom: 15px;">
-        <div style="color: #888;">Jubilee Cycle</div>
+        <div style="color: var(--text-secondary);">Jubilee Cycle</div>
         <div style="display: flex; gap: 20px;">
-          <div><span style="color: #666;">← Previous:</span> ${prevDisplay} (Jubilee ${jubileeNumber - 1})</div>
-          <div><span style="color: #666;">→ Next:</span> ${nextDisplay} (Jubilee ${jubileeNumber + 1})</div>
+          <div><span style="color: var(--text-tertiary);">← Previous:</span> ${prevDisplay} (Jubilee ${jubileeNumber - 1})</div>
+          <div><span style="color: var(--text-tertiary);">→ Next:</span> ${nextDisplay} (Jubilee ${jubileeNumber + 1})</div>
         </div>
       </div>
-      <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
-        <div style="color: #888; font-size: 0.85em;">
+      <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-subtle);">
+        <div style="color: var(--text-secondary); font-size: 0.85em;">
           <strong>Leviticus 25:10</strong>: "And ye shall hallow the fiftieth year, and proclaim liberty throughout all the land unto all the inhabitants thereof: it shall be a jubilee unto you."
         </div>
       </div>
@@ -3691,7 +3691,7 @@ async function renderBiblicalTimelineInternal(container) {
         // Get resolved events (uses cache)
         const resolvedEvents = getResolvedEvents(data, profile);
         if (!resolvedEvents || resolvedEvents.length === 0) {
-          container.innerHTML = '<div style="padding: 20px; color: #ff6b6b;">No events resolved.</div>';
+          container.innerHTML = '<div style="padding: 20px; color: var(--color-error);">No events resolved.</div>';
           return;
         }
         
@@ -4006,10 +4006,10 @@ async function renderBiblicalTimelineInternal(container) {
                 <button id="tabDurationsBtn" style="${tabStyle(currentTimelineTab === 'durations')}">🔗 Durations</button>
               </div>
               <div>
-                <button id="testAsyncBtn" style="padding: 8px 16px; background: #9c27b0; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px;">
+                <button id="testAsyncBtn" style="padding: 8px 16px; background: var(--color-purple); color: var(--text-inverse); border: none; border-radius: 4px; cursor: pointer; margin-right: 8px;">
                   🧪 Test Async
                 </button>
-                <button id="exportCsvBtn" style="padding: 8px 16px; background: #4a9eff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                <button id="exportCsvBtn" style="padding: 8px 16px; background: var(--accent-primary); color: var(--text-inverse); border: none; border-radius: 4px; cursor: pointer;">
                   Export CSV
                 </button>
               </div>
@@ -4024,26 +4024,26 @@ async function renderBiblicalTimelineInternal(container) {
             <h3>Events: ${resolvedEvents.length} resolved</h3>
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
               <thead>
-                <tr style="background: rgba(255,255,255,0.15); text-align: center;">
-                  <th style="padding: 4px; border: 1px solid #444;" rowspan="2">ID</th>
-                  <th style="padding: 4px; border: 1px solid #444;" rowspan="2">Source</th>
-                  <th style="padding: 4px; border: 1px solid #444;" colspan="3">Lunar (Resolved)</th>
-                  <th style="padding: 4px; border: 1px solid #444;" rowspan="2">JD</th>
-                  <th style="padding: 4px; border: 1px solid #444;" colspan="3">Gregorian (Calc)</th>
-                  <th style="padding: 4px; border: 1px solid #444;" rowspan="2">⚠️</th>
+                <tr style="background: var(--surface-active); text-align: center;">
+                  <th style="padding: 4px; border: 1px solid var(--border-default);" rowspan="2">ID</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);" rowspan="2">Source</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);" colspan="3">Lunar (Resolved)</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);" rowspan="2">JD</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);" colspan="3">Gregorian (Calc)</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);" rowspan="2">⚠️</th>
                 </tr>
-                <tr style="background: rgba(255,255,255,0.1); text-align: center; font-size: 10px;">
-                  <th style="padding: 3px; border: 1px solid #444;">M</th>
-                  <th style="padding: 3px; border: 1px solid #444;">D</th>
-                  <th style="padding: 3px; border: 1px solid #444;">Year</th>
-                  <th style="padding: 3px; border: 1px solid #444;">M</th>
-                  <th style="padding: 3px; border: 1px solid #444;">D</th>
-                  <th style="padding: 3px; border: 1px solid #444;">Year</th>
+                <tr style="background: var(--surface-hover); text-align: center; font-size: 10px;">
+                  <th style="padding: 3px; border: 1px solid var(--border-default);">M</th>
+                  <th style="padding: 3px; border: 1px solid var(--border-default);">D</th>
+                  <th style="padding: 3px; border: 1px solid var(--border-default);">Year</th>
+                  <th style="padding: 3px; border: 1px solid var(--border-default);">M</th>
+                  <th style="padding: 3px; border: 1px solid var(--border-default);">D</th>
+                  <th style="padding: 3px; border: 1px solid var(--border-default);">Year</th>
                 </tr>
               </thead>
               <tfoot>
-                <tr style="background: rgba(255,255,255,0.05);">
-                  <td colspan="10" style="padding: 8px; border: 1px solid #444; font-size: 10px;">
+                <tr style="background: var(--surface-hover);">
+                  <td colspan="10" style="padding: 8px; border: 1px solid var(--border-default); font-size: 10px;">
                     <b style="color:#fff">White</b> = stipulated | 
                     <b style="color:#6bf">Blue</b> = calculated from chain | 
                     <b style="color:#ffa500">Orange</b> = =lunar(JD) fallback - NEEDS REVIEW
@@ -4114,16 +4114,16 @@ async function renderBiblicalTimelineInternal(container) {
           
             html += `
               <tr style="${rowStyle}${reviewRowStyle}">
-                <td style="padding: 3px; border: 1px solid #444; font-size: 9px;">${e.id || '?'}</td>
-                <td style="padding: 3px; border: 1px solid #444; font-size: 9px;">${sourceDisplay}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center; color: ${lunarColor};">${lunar?.month ?? '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center; color: ${lunarColor};">${lunar?.day ?? '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center; color: ${lunarColor};">${lunar?.year !== null ? formatYearDisplay(lunar?.year) : '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center; font-size: 9px;">${jd && isFinite(jd) ? Math.round(jd) : '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center; color: #6bf;">${greg?.month ?? '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center; color: #6bf;">${greg?.day ?? '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center; color: #6bf;">${greg ? formatYearDisplay(greg.year) : '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center; color: ${hasIssue ? '#ff6b6b' : (needsReview ? '#ffa500' : '#6bff6b')};">${issues.length > 0 ? '⚠️' : (needsReview ? '⚠️' : '✓')}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); font-size: 9px;">${e.id || '?'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); font-size: 9px;">${sourceDisplay}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center; color: ${lunarColor};">${lunar?.month ?? '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center; color: ${lunarColor};">${lunar?.day ?? '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center; color: ${lunarColor};">${lunar?.year !== null ? formatYearDisplay(lunar?.year) : '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center; font-size: 9px;">${jd && isFinite(jd) ? Math.round(jd) : '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center; color: #6bf;">${greg?.month ?? '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center; color: #6bf;">${greg?.day ?? '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center; color: #6bf;">${greg ? formatYearDisplay(greg.year) : '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center; color: ${hasIssue ? '#ff6b6b' : (needsReview ? '#ffa500' : '#6bff6b')};">${issues.length > 0 ? '⚠️' : (needsReview ? '⚠️' : '✓')}</td>
               </tr>
             `;
           });
@@ -4142,14 +4142,14 @@ async function renderBiblicalTimelineInternal(container) {
             <h3>Durations: ${durations.length} records</h3>
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
               <thead>
-                <tr style="background: rgba(255,255,255,0.15); text-align: center;">
-                  <th style="padding: 4px; border: 1px solid #444;">ID</th>
-                  <th style="padding: 4px; border: 1px solid #444;">From Event</th>
-                  <th style="padding: 4px; border: 1px solid #444;">To Event</th>
-                  <th style="padding: 4px; border: 1px solid #444;">Claimed</th>
-                  <th style="padding: 4px; border: 1px solid #444;">Actual</th>
-                  <th style="padding: 4px; border: 1px solid #444;">Source</th>
-                  <th style="padding: 4px; border: 1px solid #444;">⚠️</th>
+                <tr style="background: var(--surface-active); text-align: center;">
+                  <th style="padding: 4px; border: 1px solid var(--border-default);">ID</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);">From Event</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);">To Event</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);">Claimed</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);">Actual</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);">Source</th>
+                  <th style="padding: 4px; border: 1px solid var(--border-default);">⚠️</th>
                 </tr>
               </thead>
               <tbody>
@@ -4191,13 +4191,13 @@ async function renderBiblicalTimelineInternal(container) {
             
             html += `
               <tr style="${rowStyle}">
-                <td style="padding: 3px; border: 1px solid #444; font-size: 9px;">${dur.id || '?'}</td>
-                <td style="padding: 3px; border: 1px solid #444; font-size: 9px; color: ${missingFrom ? '#ff6b6b' : '#6bf'};">${dur.from_event || '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; font-size: 9px; color: ${missingTo ? '#ff6b6b' : '#6bf'};">${dur.to_event || '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center;">${claimedStr}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center; color: ${matches ? '#6bff6b' : '#ffa500'};">${actualYears !== null ? actualYears + 'y' : '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; font-size: 9px;">${dur.source?.ref || '-'}</td>
-                <td style="padding: 3px; border: 1px solid #444; text-align: center; color: ${matches ? '#6bff6b' : '#ffa500'};">${missingFrom || missingTo ? '❌' : (matches ? '✓' : '⚠️')}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); font-size: 9px;">${dur.id || '?'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); font-size: 9px; color: ${missingFrom ? '#ff6b6b' : '#6bf'};">${dur.from_event || '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); font-size: 9px; color: ${missingTo ? '#ff6b6b' : '#6bf'};">${dur.to_event || '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center;">${claimedStr}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center; color: ${matches ? '#6bff6b' : '#ffa500'};">${actualYears !== null ? actualYears + 'y' : '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); font-size: 9px;">${dur.source?.ref || '-'}</td>
+                <td style="padding: 3px; border: 1px solid var(--border-default); text-align: center; color: ${matches ? '#6bff6b' : '#ffa500'};">${missingFrom || missingTo ? '❌' : (matches ? '✓' : '⚠️')}</td>
               </tr>
             `;
           });
@@ -4242,7 +4242,7 @@ async function renderBiblicalTimelineInternal(container) {
             const resultDiv = document.getElementById('testAsyncResult');
             if (resultDiv) {
               resultDiv.style.display = 'block';
-              resultDiv.style.background = '#333';
+              resultDiv.style.background = 'var(--surface-hover)';
               resultDiv.innerHTML = '⏳ Running async vs sync comparison test...';
             }
             
@@ -4250,18 +4250,18 @@ async function renderBiblicalTimelineInternal(container) {
               const result = await testAsyncResolver();
               if (resultDiv) {
                 if (result.success) {
-                  resultDiv.style.background = '#1b5e20';
+                  resultDiv.style.background = 'var(--color-success-muted)';
                   resultDiv.innerHTML = `✓ PASS: Async and sync produce identical results!<br>
                     Sync: ${result.syncCount} events | Async: ${result.asyncCount} events | Progress updates: ${result.progressUpdates}`;
                 } else {
-                  resultDiv.style.background = '#b71c1c';
+                  resultDiv.style.background = 'var(--color-error-muted)';
                   resultDiv.innerHTML = `✗ FAIL: ${result.errors?.length || 0} differences found.<br>
                     Check browser console for details.`;
                 }
               }
             } catch (e) {
               if (resultDiv) {
-                resultDiv.style.background = '#b71c1c';
+                resultDiv.style.background = 'var(--color-error-muted)';
                 resultDiv.innerHTML = `✗ ERROR: ${e.message}`;
               }
             }
@@ -4293,7 +4293,7 @@ async function renderBiblicalTimelineInternal(container) {
           };
         }
       } catch (err) {
-        container.innerHTML = `<div style="padding: 20px; color: #ff6b6b;">
+        container.innerHTML = `<div style="padding: 20px; color: var(--color-error);">
           <h3>Debug Error:</h3>
           <pre>${err.message}\n${err.stack}</pre>
         </div>`;
@@ -5932,7 +5932,7 @@ function redrawLinesWithHighlight(focusedEventId, relatedEventIds) {
     
     // Add glow effect for focused event
     if (isFocused) {
-      ctx.strokeStyle = 'rgba(126, 200, 227, 0.3)';
+      ctx.strokeStyle = 'var(--border-accent)';
       ctx.lineWidth = 6;
       ctx.stroke();
     }

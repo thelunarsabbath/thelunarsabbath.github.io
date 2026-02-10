@@ -12,13 +12,13 @@
 .blog-header {
   text-align: center;
   padding: 40px 0 30px;
-  border-bottom: 1px solid rgba(212, 165, 116, 0.15);
+  border-bottom: 1px solid var(--accent-gold-subtle);
   margin-bottom: 40px;
 }
 
 .blog-header h1 {
   font-size: 2em;
-  color: #d4a574;
+  color: var(--accent-gold);
   margin: 0 0 8px;
   font-weight: 600;
 }
@@ -39,14 +39,14 @@
 /* Individual post */
 .blog-post {
   background: rgba(26, 58, 92, 0.3);
-  border: 1px solid rgba(212, 165, 116, 0.12);
+  border: 1px solid var(--accent-gold-subtle);
   border-radius: 12px;
   padding: 32px;
   transition: border-color 0.2s;
 }
 
 .blog-post:hover {
-  border-color: rgba(212, 165, 116, 0.25);
+  border-color: var(--accent-gold-muted);
 }
 
 /* Post meta */
@@ -55,7 +55,7 @@
 }
 
 .blog-post-date {
-  color: #d4a574;
+  color: var(--accent-gold);
   font-size: 0.85em;
   font-weight: 500;
   text-transform: uppercase;
@@ -65,7 +65,7 @@
 /* Post title */
 .blog-post-title {
   font-size: 1.5em;
-  color: #e8dcc8;
+  color: var(--text-primary);
   margin: 0 0 12px;
   font-weight: 600;
   line-height: 1.3;
@@ -88,7 +88,7 @@
 }
 
 .blog-post-content h3 {
-  color: #d4a574;
+  color: var(--accent-gold);
   font-size: 1.15em;
   margin: 28px 0 10px;
   font-weight: 600;
@@ -126,7 +126,7 @@
 .blog-book-cover img {
   width: 160px;
   border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 16px var(--shadow-lg);
 }
 
 .blog-book-details {
@@ -157,9 +157,9 @@
 
 .blog-nav-link button,
 .blog-nav-link .blog-inline-btn {
-  background: rgba(212, 165, 116, 0.12);
-  border: 1px solid rgba(212, 165, 116, 0.25);
-  color: #d4a574;
+  background: var(--accent-gold-subtle);
+  border: 1px solid var(--accent-gold-muted);
+  color: var(--accent-gold);
   padding: 6px 14px;
   border-radius: 6px;
   font-size: 0.88em;
@@ -173,16 +173,16 @@
 
 .blog-nav-link button:hover,
 .blog-nav-link .blog-inline-btn:hover {
-  background: rgba(212, 165, 116, 0.22);
-  border-color: rgba(212, 165, 116, 0.4);
-  color: #e8dcc8;
+  background: var(--accent-gold-muted);
+  border-color: var(--accent-gold-strong);
+  color: var(--text-primary);
 }
 
 /* Closing paragraph */
 .blog-closing {
   margin-top: 28px !important;
   padding-top: 20px;
-  border-top: 1px solid rgba(212, 165, 116, 0.1);
+  border-top: 1px solid var(--accent-gold-subtle);
   color: #8a9bb5;
   font-style: italic;
 }

@@ -170,7 +170,11 @@ const IMAGE_ASSETS = [
   '/icons/icon.svg',
   '/icons/menorah.png',
   '/assets/img/LongDay.jpg',
-  '/assets/img/earth.png'
+  '/assets/img/earth.png',
+  '/assets/icons/chevron-left.svg',
+  '/assets/icons/chevron-right.svg',
+  '/assets/icons/chevron-double-left.svg',
+  '/assets/icons/chevron-double-right.svg'
 ];
 
 // Local library assets
@@ -198,6 +202,7 @@ const VIEW_ASSETS = [
 
 // CSS assets
 const CSS_ASSETS = [
+  '/assets/css/theme-tokens.css',
   '/assets/css/bible-styles.css',
   '/assets/css/tutorial.css',
   '/assets/css/settings.css',
